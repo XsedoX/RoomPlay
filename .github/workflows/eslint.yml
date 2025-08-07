@@ -35,27 +35,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - uses: actions/setup-node@v4
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '18'
+          bun-version: 1.0.0
 
-      - name: Install dependencies
-        run: |
-          npm ci
+      - name: Install dependencies with Bun
+        run: bun install
 
-      - name: Install ts-node (for TypeScript configs) and sarif lint formatter
-        run: |
-          npm install --save-dev ts-node
-          npm install @microsoft/eslint-formatter-sarif@3.1.0
-          
+      - name: Install sarif formatter
+        run: bun add -d @microsoft/eslint-formatter-sarif@3.1.0 ts-node
+
       - name: Run ESLint
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
-        run: npx eslint .
-          --config eslint.config.ts
-          --ext .js,.jsx,.ts,.tsx
-          --format @microsoft/eslint-formatter-sarif
-          --output-file eslint-results.sarif
+        run: |
+          bunx eslint . \
+            --config eslint.config.ts \
+            --ext .js,.jsx,.ts,.tsx \
+            --format @microsoft/eslint-formatter-sarif \
+            --output-file eslint-results.sarif
         continue-on-error: true
 
       - name: Upload analysis results to GitHub
