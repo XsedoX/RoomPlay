@@ -32,14 +32,15 @@ jobs:
 
       - name: Install ESLint
         run: |
-          npm install eslint@8.10.0
+          npm install eslint@8.21.0
           npm install @microsoft/eslint-formatter-sarif@3.1.0
 
       - name: Run ESLint
+        working-directory: ./frontend
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: npx eslint .
-          --config frontend/eslint.config.ts
+          --config eslint.config.ts
           --ext .js,.jsx,.ts,.tsx
           --format @microsoft/eslint-formatter-sarif
           --output-file eslint-results.sarif
