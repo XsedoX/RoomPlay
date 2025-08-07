@@ -50,11 +50,7 @@ jobs:
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: |
-          bunx eslint . \
-            --config eslint.config.ts \
-            --ext .js,.jsx,.ts,.tsx \
-            --format @microsoft/eslint-formatter-sarif \
-            --output-file eslint-results.sarif
+          bunx eslint . --config eslint.config.ts --ext .js,.jsx,.ts,.tsx --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
         continue-on-error: true
 
       - name: Upload analysis results to GitHub
