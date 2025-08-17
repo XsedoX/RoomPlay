@@ -3,9 +3,7 @@
   "include": [
     "env.d.ts",
     "src/**/*",
-    "src/**/*.vue",
-    "./features/step_definitions/**/*",
-    "./features/support/**/*"
+    "src/**/*.vue"
   ],
   "exclude": ["src/**/__tests__/*"],
   "compileOnSave": false,
