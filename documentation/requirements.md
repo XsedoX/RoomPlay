@@ -1,16 +1,22 @@
 # Requirements/Functionalities for/of the RoomPlay2
 
 - A user can upvote/downvote a song once.
-- A user can force playing a song once every ?? minutes if any other are scheduled.
+- A user can force playing a song once every 60 minutes if any other are scheduled this can be changed in the settings by an admin.
 - A user can add a song through search.
 - A default playlist is being played if the list is empty.
 - A new song plays AFTER the current is finished.
 - The force option skips the list and a currently played song.
 - An admin can remove songs from the list.
 - An admin can force songs without the delay.
+- An admin can skip a song that is currently being played.
 - A user can see a timeline of a song.
-- At midnight the final countdown.
-- A search bar accepts titles and youtube urls.
+- At midnight the final countdown (could be changed in the settings).
+- The search bar accepts titles and youtube urls.
 - Search results show miniatures and titles.
 - Single SSO account lets create a single Host (Playlist Controller) at once.
 - Admin menu lets change the device used as Host.
+- On each song the user that has added it can be seen (their name).
+- The Host is a secondary device that acts as a player - only plays songs based on API data.
+- The admin is an account that has got host device set up.
+- The admin can remove/ban other users.
+- The admin can change the lifespan of the room (max and default 48h).
