@@ -5,7 +5,8 @@
     "src/**/*",
     "src/**/*.vue",
     "./features/step_definitions/**/*",
-    "./features/support/**/*"],
+    "./features/support/**/*"
+  ],
   "exclude": ["src/**/__tests__/*"],
   "compileOnSave": false,
   "compilerOptions": {
