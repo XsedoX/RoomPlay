@@ -12,7 +12,7 @@
 - A user can see a timeline of a song.
 - At a configurable time (default: midnight), the system will automatically play the song "The Final Countdown" by Europe as a special event. The scheduled time and the song can be changed by an admin in the settings.
 - The search bar accepts titles and youtube urls.
-- Search results show miniatures and titles.
+- Search results show thumbnails and titles.
 - Single SSO account lets create a single Host (Playlist Controller) at once.
 - Admin menu lets change the device used as Host.
 - On each song the user that has added it can be seen (their name).
