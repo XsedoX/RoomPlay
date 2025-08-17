@@ -1,7 +1,7 @@
 # Requirements/Functionalities for/of the RoomPlay2
 
 - A user can upvote/downvote a song once.
-- A user can force playing a song once every 60 minutes if any other are scheduled this can be changed in the settings by an admin.
+- A user can force playing a song once every 60 minutes if any other are scheduled. This can be changed in the settings by an admin.
 - A user can add a song through search.
 - A default playlist is being played if the list is empty.
 - A new song plays AFTER the current is finished.
