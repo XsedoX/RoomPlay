@@ -12,7 +12,6 @@
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:unit:ci": "vitest --run",
-    "test:cucumber": "tsc && cucumber-js --require ./dist/step_definitions",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
     "build-only": "vite build",
@@ -23,7 +22,7 @@
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
     "prepare": "husky",
-    "cucumber:test": "cucumber-js --loader ts-node/esm --import './features/step_definitions/**/*.ts'"
+    "test:cucumber": "cucumber-js --loader ts-node/esm --import './features/step_definitions/**/*.ts'"
   },
   "dependencies": {
     "pinia": "^3.0.3",
@@ -56,6 +55,7 @@
     "npm-run-all2": "^8.0.4",
     "oxlint": "~1.10.0",
     "prettier": "3.6.2",
+    "resize-observer-polyfill": "^1.5.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2",
     "vite": "npm:rolldown-vite@latest",
