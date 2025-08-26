@@ -59,7 +59,7 @@
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2",
     "vite": "npm:rolldown-vite@latest",
-    "vite-plugin-vue-devtools": "^8.0.0",
+    "vite-plugin-vue-devtools": "^8.0.1",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.6"
   }
