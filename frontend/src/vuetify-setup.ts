@@ -27,9 +27,9 @@ export default createVuetify({
   }
 })
 
-export function mountVuetify(component: Component) {
+export function mountVuetify(component: Component, customProps?: Record<string, unknown>) {
   return mount(component, {
-    props:{},
+    props: customProps,
     global: {
       components: { component },
       plugins: [vuetify],
