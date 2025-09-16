@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
 import AvatarWithFullName from '@/main_menu_page/AvatarWithFullName.vue';
+import RoomData from '@/login_page/RoomData.vue';
 const fullName = "Full Name";
 const avatarAbbreviation = "FN";
 </script>
 
 <template>
   <v-container fluid>
-    <v-row align="end"
+    <v-row align="center"
            justify="end"
            dense>
       <v-col cols="auto"
@@ -37,6 +38,7 @@ const avatarAbbreviation = "FN";
                size="x-large"
                color="primary">
           Join a Room
+          <RoomData/>
         </v-btn>
       </v-col>
     </v-row>
