@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
 import AvatarWithFullName from '@/main_menu_page/AvatarWithFullName.vue';
-import RoomData from '@/login_page/RoomData.vue';
+import JoinRoomPopup from '@/main_menu_page/JoinRoomPopup.vue';
+import CreateRoomPopup from '@/main_menu_page/CreateRoomPopup.vue';
 const fullName = "Full Name";
 const avatarAbbreviation = "FN";
 </script>
@@ -38,7 +39,7 @@ const avatarAbbreviation = "FN";
                size="x-large"
                color="primary">
           Join a Room
-          <RoomData/>
+          <JoinRoomPopup/>
         </v-btn>
       </v-col>
     </v-row>
@@ -55,6 +56,7 @@ const avatarAbbreviation = "FN";
                size="x-large"
                color="primary">
           Create a Room
+          <CreateRoomPopup/>
         </v-btn>
       </v-col>
     </v-row>
@@ -66,9 +68,10 @@ const avatarAbbreviation = "FN";
              md="3"
              class="text-center">
         <v-btn data-testid = "logout-btn"
-               variant="text"
+               variant="plain"
                rounded="xl"
                size="large"
+               :ripple="false"
                color="error">
           Logout
         </v-btn>
