@@ -15,7 +15,7 @@ const dialog = shallowRef(false)
                  no-gutters>
             <v-col cols="2"></v-col>
             <v-col cols="8" class="text-center">
-              <span class="text-h5">Create a Room</span>
+              <span class="text-h5 text-no-wrap">Create a Room</span>
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
               <v-btn icon="close" variant="text" size="small" @click="dialog = false"></v-btn>

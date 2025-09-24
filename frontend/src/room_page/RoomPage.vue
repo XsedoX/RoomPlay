@@ -1,5 +1,80 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const isAdmin = ref(true)
+</script>
 
 <template>
-
+  <v-container min-width="320px"
+               fluid
+               class="pa-0 ma-0 fill-height align-content-start"
+               style="display: grid; grid-template-rows: auto auto 1fr;">
+    <v-row no-gutters>
+      <v-col cols="12">
+        <v-sheet color="surface-container-highest"
+                 class="elevation-4 pa-1 d-flex align-center justify-space-between">
+          <div class="w-25 d-flex justify-start">
+            <v-btn color="red"
+                   rounded="xl"
+                   variant="text">
+              Leave
+            </v-btn>
+          </div>
+          <span class="text-h6 text-no-wrap">Room Name</span>
+          <div class="w-25 d-flex justify-end">
+            <v-btn icon="qr_code" variant="text"></v-btn>
+            <v-btn v-if="isAdmin" icon="settings" variant="text"></v-btn>
+          </div>
+        </v-sheet>
+      </v-col>
+    </v-row>
+    <v-row no-gutters justify="center">
+      <v-col cols="11">
+        <v-sheet color="surface-container"
+                 class="elevation-1 px-4 py-1 rounded-b-xl">
+          <v-row no-gutters>
+            <v-col>
+              <v-row no-gutters justify="space-between" class="align-center">
+                <v-col cols="auto">
+                  <span class="text-subtitle-1 on-surface">Song Title</span>
+                </v-col>
+                <v-col cols="auto">
+                  <span class="text-body-1 on-surface-variant">Author</span>
+                </v-col>
+              </v-row>
+              <v-row no-gutters class="align-center ga-2">
+                <v-col cols="auto">
+                  <span class="on-surface-variant">0:45</span>
+                </v-col>
+                <v-col class="d-flex align-center">
+                  <v-progress-linear height="6" color="primary" model-value="20" class="w-100"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <span class="on-surface-variant">3:45</span>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col v-if="isAdmin" cols="auto" class="align-center d-flex mr-n3" >
+              <v-btn icon="skip_next"
+                     variant="text"
+                     color="black"></v-btn>
+            </v-col>
+          </v-row>
+        </v-sheet>
+      </v-col>
+    </v-row>
+    <v-row class="pt-1 align-self-stretch"
+           align="stretch"
+           no-gutters
+           justify="center">
+      <v-col cols="11">
+        <v-sheet class="rounded-xl fill-height"
+                 color="surface-container">
+          d
+        </v-sheet>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
+
+

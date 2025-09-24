@@ -7,6 +7,7 @@ import GoogleIcon from '@/login_page/GoogleIcon.vue';
 import { mount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import vuetify from '@/vuetify-setup.ts'
+import { darkTheme, lightTheme } from '@/assets/themes.ts';
 
 
 export const customIcons = {
@@ -24,12 +25,18 @@ export default createVuetify({
     aliases: {
       ...customIcons
     },
+  },
+  theme: {
+    themes: {
+      light: lightTheme,
+      dark: darkTheme
+    }
   }
-})
+});
 
 export function mountVuetify(component: Component, customProps?: Record<string, unknown>) {
   return mount(component, {
-    props: customProps,
+    ...(customProps && { props: customProps }),
     global: {
       components: { component },
       plugins: [vuetify],

@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.2.0",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.55.1",
     "@prettier/plugin-oxc": "^0.0.4",
     "@tsconfig/node22": "^22.0.2",
     "@types/cucumber": "^7.0.3",
@@ -50,7 +50,7 @@
     "eslint-plugin-playwright": "^2.2.2",
     "eslint-plugin-vue": "~10.4.0",
     "husky": "^9.1.7",
-    "jiti": "^2.5.1",
+    "jiti": "^2.6.0",
     "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",
     "oxlint": "~1.10.0",
@@ -61,6 +61,6 @@
     "vite": "npm:rolldown-vite@latest",
     "vite-plugin-vue-devtools": "^8.0.2",
     "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.7"
+    "vue-tsc": "^3.0.8"
   }
 }
