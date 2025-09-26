@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { type Ref, ref } from 'vue';
 import SongListElement from '@/room_page/SongListElement.vue';
 import type { ISongListViewModel } from '@/room_page/ISongListViewModel.ts';
-import type { SongListEvent } from '@/room_page/SongListElementProps';
+import type { SongListEvent } from '@/room_page/ISongListElementProps.ts';
 import { Guid } from '@/utils/Guid.ts';
 
 const isAdmin = ref(true);
-const exampleSongs: ISongListViewModel[] = ref([
+const exampleSongs: Ref<ISongListViewModel[]> = ref([
   {
     title: 'Bohemian Rhapsody',
     author: 'Queen',
     addedBy: 'Alice',
     votes: 5,
     albumCoverUrl: 'https://picsum.photos/200',
-    id: Guid.generate()
+    id: Guid.generate(),
+    wasPlayed: true,
+    wasBoosted: false,
+    wasUpVoted: false,
+    wasDownVoted: false
   },
   {
     title: 'Imagine',
@@ -21,7 +25,11 @@ const exampleSongs: ISongListViewModel[] = ref([
     addedBy: 'Bob',
     votes: 3,
     albumCoverUrl: 'https://picsum.photos/200',
-    id: Guid.generate()
+    id: Guid.generate(),
+    wasPlayed: false,
+    wasBoosted: false,
+    wasUpVoted: false,
+    wasDownVoted: true
   },
   {
     title: 'Billie Jean',
@@ -29,23 +37,27 @@ const exampleSongs: ISongListViewModel[] = ref([
     addedBy: 'Charlie',
     votes: 7,
     albumCoverUrl: 'https://picsum.photos/200',
-    id: Guid.generate()
-  }
+    id: Guid.generate(),
+    wasPlayed: false,
+    wasBoosted: false,
+    wasUpVoted: true,
+    wasDownVoted: false
+  },
 ]);
 
-function onSongUpvoted(event: SongListEvent){
-    const song = exampleSongs.value.find(song => song.id === event.id);
-    if (song) {
-      song.votes += 1;
-    }
+function onSongUpvoted(event: SongListEvent) {
+  const song = exampleSongs.value.find((song) => song.id === event.id);
+  if (song) {
+    song.votes += 1;
+  }
 }
-function onSongDownvoted(event: SongListEvent){
-  const song = exampleSongs.value.find(song => song.id === event.id);
+function onSongDownvoted(event: SongListEvent) {
+  const song = exampleSongs.value.find((song) => song.id === event.id);
   if (song && song.votes > 0) {
     song.votes -= 1;
   }
 }
-function onSongBoosted(event: SongListEvent){
+function onSongBoosted(event: SongListEvent) {
   console.log('Song boosted:', event.id);
 }
 </script>
@@ -111,13 +123,18 @@ function onSongBoosted(event: SongListEvent){
         </v-sheet>
       </v-col>
     </v-row>
-    <v-row class="pt-1 align-self-stretch" align="stretch" no-gutters justify="center">
+    <v-row class="pt-2 align-self-start" no-gutters justify="center">
       <v-col cols="11">
-        <v-sheet class="fill-height overflow-hidden" rounded="xl">
-          <song-list-element v-for="song in exampleSongs"
-                             :key="song.id" :onVotedDown="onSongDownvoted" :onBoosted="onSongBoosted"
-                             :onVotedUp="onSongUpvoted"
-                             :songData="song"></song-list-element>
+        <v-sheet class="fill-height overflow-hidden song-list" rounded="xl">
+          <v-sheet v-for="song in exampleSongs" :key="song.id.toString()">
+            <song-list-element
+              :onVotedDown="onSongDownvoted"
+              :onBoosted="onSongBoosted"
+              :onVotedUp="onSongUpvoted"
+              :songListViewModel="song"
+              :adminView="isAdmin">
+            </song-list-element>
+          </v-sheet>
         </v-sheet>
       </v-col>
     </v-row>
@@ -126,3 +143,10 @@ function onSongBoosted(event: SongListEvent){
     </v-row>
   </v-container>
 </template>
+<style scoped>
+  .song-list{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+</style>
