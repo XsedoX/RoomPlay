@@ -5,8 +5,9 @@ import type { ISongListViewModel } from '@/room_page/ISongListViewModel.ts';
 import type { SongListEvent } from '@/room_page/ISongListElementProps.ts';
 import { Guid } from '@/utils/Guid.ts';
 import SearchSongPopup from '@/room_page/SearchSongPopup.vue';
+import TouchscreenTooltip from '@/shared/TouchscreenTooltip/TouchscreenTooltip.vue'
 
-const isAdmin = ref(true);
+const isAdmin = ref(false);
 const exampleSongs: Ref<ISongListViewModel[]> = ref([
   {
     title: 'Bohemian Rhapsody',
@@ -179,14 +180,18 @@ function onSongBoosted(event: SongListEvent) {
           color="surface-container-highest"
           class="elevation-4 pa-1 d-flex align-center justify-space-between"
         >
-          <div class="w-25 d-flex justify-start">
+          <v-sheet color="transparent" min-width="96px" class="w-25 justify-start">
             <v-btn color="red" rounded="xl" variant="text"> Leave </v-btn>
-          </div>
-          <span class="text-h6 text-no-wrap">Room Name</span>
-          <div class="w-25 d-flex justify-end">
+          </v-sheet>
+          <touchscreen-tooltip :open-on-hover="false" text="Room Namehtfggggggggggggggggggggg" v-slot="{ tooltipProps }">
+            <div v-bind="tooltipProps" class="text-h6 w-0 text-no-wrap text-truncate text-center flex-grow-1">Room Namehtfggggggggggggggggggggg</div>
+          </touchscreen-tooltip>
+          <v-sheet color="transparent" min-width="96px" class="w-25 d-flex justify-end align-center">
             <v-btn icon="qr_code" variant="text"></v-btn>
-            <v-btn v-if="isAdmin" icon="settings" variant="text"></v-btn>
-          </div>
+            <v-btn icon variant="text">
+              <v-avatar size="x-small" color="primary">V</v-avatar>
+            </v-btn>
+          </v-sheet>
         </v-sheet>
       </v-col>
     </v-row>
@@ -198,12 +203,16 @@ function onSongBoosted(event: SongListEvent) {
                    class="d-flex w-0 flex-column flex-shrink-1 flex-grow-1">
             <v-sheet color="transparent"
                      class="d-flex align-center overflow-hidden ga-1">
-              <div class="text-left text-subtitle-1 flex-grow-1 on-surface text-truncate">
-                Song Titledwdwdwdwdwdwdwdwd
-              </div>
-              <div class="text-body-1 flex-grow-1 on-surface-variant text-truncate text-right">
-                Authordawwdawdawdwadwa
-              </div>
+              <touchscreen-tooltip text="Song Titledwdwdwdwdwdwdwdwd"
+                                   :open-on-hover="false"
+                                   v-slot="{ tooltipProps }">
+                <div class="text-left text-subtitle-1 flex-grow-1 on-surface text-truncate" v-bind="tooltipProps">Song Titledwdwdwdwdwdwdwdwd</div>
+              </touchscreen-tooltip>
+              <touchscreen-tooltip text="Authordawwdawdawdwadwa"
+                                   :open-on-hover="false"
+                                   v-slot="{ tooltipProps }">
+                <div class="text-body-1 flex-grow-1 on-surface-variant text-truncate text-right" v-bind="tooltipProps">Authordawwdawdawdwadwa</div>
+              </touchscreen-tooltip>
             </v-sheet>
             <v-sheet color="transparent"
                      class="d-flex align-center justify-start ga-2">
