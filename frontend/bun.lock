@@ -32,7 +32,7 @@
         "jiti": "^2.5.1",
         "jsdom": "^26.1.0",
         "npm-run-all2": "^8.0.4",
-        "oxlint": "~1.10.0",
+        "oxlint": "~1.20.0",
         "prettier": "3.6.2",
         "resize-observer-polyfill": "^1.5.1",
         "ts-node": "^10.9.2",
@@ -291,21 +291,21 @@
 
     "@oxc-project/types": ["@oxc-project/types@0.74.0", "", {}, "sha512-KOw/RZrVlHGhCXh1RufBFF7Nuo7HdY5w1lRJukM/igIl6x9qtz8QycDvZdzb4qnHO7znrPyo2sJrFJK2eKHgfQ=="],
 
-    "@oxlint/darwin-arm64": ["@oxlint/darwin-arm64@1.10.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-4rlGtx7e3T2ELAZNinHqPHla+MhHZzsSCFKca4w9WlMlx8NsCSlkxftd4cHztd4iApoACU3nA3OZ9L/nCsn2Gw=="],
+    "@oxlint/darwin-arm64": ["@oxlint/darwin-arm64@1.20.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-v6jX+9q+UCi6eR/QAimnrJ0LHxO8RolNl5vnCjmj9NKq8UqSG5v0h0CKlFrJEO8Ku30fNDTy8UEb8WSY39GM2A=="],
 
-    "@oxlint/darwin-x64": ["@oxlint/darwin-x64@1.10.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-NUcnMPGXSmYEjn88PKIj9JzXuf0R7UgUEUtgD73xbmCIemn7J9hcpB0C3Y/rciCJaS9IYhnlNef8j9BgJP5faA=="],
+    "@oxlint/darwin-x64": ["@oxlint/darwin-x64@1.20.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-Ur6MHxQukGBIwdeJgP7LOL389o2p/5TKCKcvxUT0/2KCIi2OiY6Jzx3T1efiLYTyCGG1mNo4W71NW6yhSY4GPA=="],
 
-    "@oxlint/linux-arm64-gnu": ["@oxlint/linux-arm64-gnu@1.10.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-lk3sn52txGRuZUvrJ5DuH1vzgFeesjDjDPXUXjzANx4OCFiWjf3WChdouhiP8RbaTi2UF53X5y5oceonP9smcQ=="],
+    "@oxlint/linux-arm64-gnu": ["@oxlint/linux-arm64-gnu@1.20.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-wxYWHYYag9mAuPurGIKiiEzZZVCypZUvt8oRgW0/SIsKFsJpOQMxaDw8mOy6X9QwIlxe3/2U+9rU892kNSVwcw=="],
 
-    "@oxlint/linux-arm64-musl": ["@oxlint/linux-arm64-musl@1.10.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-5bwCfCYS3dbsxa3MQLzq2sFZ0vGXpQNiu7LAU7CkgbsVmUl2vXOgAB2Qm0/Dw2JIWz9ZF47oF06nod48PEUVFw=="],
+    "@oxlint/linux-arm64-musl": ["@oxlint/linux-arm64-musl@1.20.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-b08v8+C/UrR/veiqVzCEIq1GNVEglYsrwpg5b//FKwdtlb16LGCTVGNPenYrbxN1DgWy6/nDomuKz4zytE/r0Q=="],
 
-    "@oxlint/linux-x64-gnu": ["@oxlint/linux-x64-gnu@1.10.0", "", { "os": "linux", "cpu": "x64" }, "sha512-x8lWCTGqAsNWLO6OLJrpaeDZ27YV7fj7BPQm4967lh0BOVAeQFMHqGXP+lBTrWs9i1vzRfUmM7JaWOWd+TsiKw=="],
+    "@oxlint/linux-x64-gnu": ["@oxlint/linux-x64-gnu@1.20.0", "", { "os": "linux", "cpu": "x64" }, "sha512-YsA4iHYiqG4yzE35uGnopVAfwAS8wRGypRzyJ+X7JjoRsu2GtJ/m6CD9eLRPqZnQcr12o9KW+hv2cXYWYvX3zg=="],
 
-    "@oxlint/linux-x64-musl": ["@oxlint/linux-x64-musl@1.10.0", "", { "os": "linux", "cpu": "x64" }, "sha512-6u5uZMFL/yrA2rQsOxiWYoXiTYKLAVqaWYiXftPstUEfOGRJ1o1yDrN3AZ+40ucX9sntLGkc0Z9OrLHU/z1myA=="],
+    "@oxlint/linux-x64-musl": ["@oxlint/linux-x64-musl@1.20.0", "", { "os": "linux", "cpu": "x64" }, "sha512-mBDOJ4qaPCVrDS4lna3cCHJU9PmkjT3OIwBipWwAKTcwK40NLtLHxxbxkK1y0jyUf9hzjs4s8EB6TvdG47o5Gg=="],
 
-    "@oxlint/win32-arm64": ["@oxlint/win32-arm64@1.10.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-mQ+zWZflyF67NjYcxQ24ID0JFb9LoHoYAcfgIXyI7N8TwWdTllDVv/+0fYTah3rxuHsLY/iCbjKvvqf5FNMeoQ=="],
+    "@oxlint/win32-arm64": ["@oxlint/win32-arm64@1.20.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-0Jwj7IvRzoyDoYpeoXSyChW4yfzv4R0DRuy8+l3ddixrKfzLJtKmp92Ti47ceuTzW8gstSFkuUF+iZpADPcxcA=="],
 
-    "@oxlint/win32-x64": ["@oxlint/win32-x64@1.10.0", "", { "os": "win32", "cpu": "x64" }, "sha512-LsUyvSNcz6rQG9a5DfIKFRhu7qvlUWkDCmFUe8HB9XksI7sDtiGdCWBEGSCAKkji1cYlGbqLFngccdv3bGPhxw=="],
+    "@oxlint/win32-x64": ["@oxlint/win32-x64@1.20.0", "", { "os": "win32", "cpu": "x64" }, "sha512-cONQz9srcJEeRxLPY2bqu2SS9UXmy4V0BiKfilla1LzPJWq0wt68uwFd57+/01/d4A58ccNjphOENemgi+0M6g=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
@@ -927,7 +927,7 @@
 
     "oxc-parser": ["oxc-parser@0.74.0", "", { "dependencies": { "@oxc-project/types": "^0.74.0" }, "optionalDependencies": { "@oxc-parser/binding-android-arm64": "0.74.0", "@oxc-parser/binding-darwin-arm64": "0.74.0", "@oxc-parser/binding-darwin-x64": "0.74.0", "@oxc-parser/binding-freebsd-x64": "0.74.0", "@oxc-parser/binding-linux-arm-gnueabihf": "0.74.0", "@oxc-parser/binding-linux-arm-musleabihf": "0.74.0", "@oxc-parser/binding-linux-arm64-gnu": "0.74.0", "@oxc-parser/binding-linux-arm64-musl": "0.74.0", "@oxc-parser/binding-linux-riscv64-gnu": "0.74.0", "@oxc-parser/binding-linux-s390x-gnu": "0.74.0", "@oxc-parser/binding-linux-x64-gnu": "0.74.0", "@oxc-parser/binding-linux-x64-musl": "0.74.0", "@oxc-parser/binding-wasm32-wasi": "0.74.0", "@oxc-parser/binding-win32-arm64-msvc": "0.74.0", "@oxc-parser/binding-win32-x64-msvc": "0.74.0" } }, "sha512-2tDN/ttU8WE6oFh8EzKNam7KE7ZXSG5uXmvX85iNzxdJfMssDWcj3gpYzZi1E04XuE7m3v1dVWl/8BE886vPGw=="],
 
-    "oxlint": ["oxlint@1.10.0", "", { "optionalDependencies": { "@oxlint/darwin-arm64": "1.10.0", "@oxlint/darwin-x64": "1.10.0", "@oxlint/linux-arm64-gnu": "1.10.0", "@oxlint/linux-arm64-musl": "1.10.0", "@oxlint/linux-x64-gnu": "1.10.0", "@oxlint/linux-x64-musl": "1.10.0", "@oxlint/win32-arm64": "1.10.0", "@oxlint/win32-x64": "1.10.0" }, "bin": { "oxlint": "bin/oxlint", "oxc_language_server": "bin/oxc_language_server" } }, "sha512-9XVStkXyoOqtYp1dmHWWXzEsqZ1r6puPSQ8x0jE6wX0MWPw5WV5/ecImMAbC7Q35L/5ElHl54s4zvEDgvfuspw=="],
+    "oxlint": ["oxlint@1.20.0", "", { "optionalDependencies": { "@oxlint/darwin-arm64": "1.20.0", "@oxlint/darwin-x64": "1.20.0", "@oxlint/linux-arm64-gnu": "1.20.0", "@oxlint/linux-arm64-musl": "1.20.0", "@oxlint/linux-x64-gnu": "1.20.0", "@oxlint/linux-x64-musl": "1.20.0", "@oxlint/win32-arm64": "1.20.0", "@oxlint/win32-x64": "1.20.0" }, "peerDependencies": { "oxlint-tsgolint": ">=0.2.0" }, "optionalPeers": ["oxlint-tsgolint"], "bin": { "oxlint": "bin/oxlint", "oxc_language_server": "bin/oxc_language_server" } }, "sha512-kBatK7aubK6Df7D5+i5fmxDOU8hzG5JbJNf54E+sDErGluw8wU28hCp76JlmZY9NJZeLQlum++7+YtQj3FBZTg=="],
 
     "p-limit": ["p-limit@3.1.0", "", { "dependencies": { "yocto-queue": "^0.1.0" } }, "sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ=="],
 
