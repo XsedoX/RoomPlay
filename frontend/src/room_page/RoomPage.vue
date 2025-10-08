@@ -4,8 +4,10 @@ import SongListElement from '@/room_page/SongListElement.vue';
 import type { ISongListViewModel } from '@/room_page/ISongListViewModel.ts';
 import type { SongListEvent } from '@/room_page/ISongListElementProps.ts';
 import { Guid } from '@/utils/Guid.ts';
-import SearchSongPopup from '@/room_page/SearchSongPopup.vue';
+import SearchSongPopup from '@/room_page/SearchSongPopup/SearchSongPopup.vue';
 import TouchscreenTooltip from '@/shared/TouchscreenTooltip/TouchscreenTooltip.vue'
+import type IGuidEvent from '@/shared/IGuidEvent.ts';
+import SettingsMenu from '@/room_page/SettingsMenu/SettingsMenu.vue';
 
 const isAdmin = ref(false);
 const exampleSongs: Ref<ISongListViewModel[]> = ref([
@@ -167,6 +169,9 @@ function onSongDownvoted(event: SongListEvent) {
 function onSongBoosted(event: SongListEvent) {
   console.log('Song boosted:', event.id);
 }
+function chooseSong(event: IGuidEvent) {
+  console.log('Song chosen:', event.id);
+}
 </script>
 
 <template>
@@ -180,18 +185,14 @@ function onSongBoosted(event: SongListEvent) {
           color="surface-container-highest"
           class="elevation-4 pa-1 d-flex align-center justify-space-between"
         >
-          <v-sheet color="transparent" min-width="96px" class="w-25 justify-start">
-            <v-btn color="red" rounded="xl" variant="text"> Leave </v-btn>
-          </v-sheet>
+          <v-btn color="red" rounded="xl" variant="text"> Leave </v-btn>
           <touchscreen-tooltip :open-on-hover="false" text="Room Namehtfggggggggggggggggggggg" v-slot="{ tooltipProps }">
             <div v-bind="tooltipProps" class="text-h6 w-0 text-no-wrap text-truncate text-center flex-grow-1">Room Namehtfggggggggggggggggggggg</div>
           </touchscreen-tooltip>
-          <v-sheet color="transparent" min-width="96px" class="w-25 d-flex justify-end align-center">
-            <v-btn icon="qr_code" variant="text"></v-btn>
-            <v-btn icon variant="text">
-              <v-avatar size="x-small" color="primary">V</v-avatar>
-            </v-btn>
-          </v-sheet>
+          <v-btn icon variant="text">
+            <v-avatar size="x-small" color="primary">V</v-avatar>
+            <SettingsMenu></SettingsMenu>
+          </v-btn>
         </v-sheet>
       </v-col>
     </v-row>
@@ -261,21 +262,13 @@ function onSongBoosted(event: SongListEvent) {
           rounded="xl"
           variant="solo-filled"
           single-line
-          color="on-surface-variant"
         >
-          <SearchSongPopup></SearchSongPopup>
+          <SearchSongPopup :choose-song="chooseSong"></SearchSongPopup>
         </v-text-field>
       </v-col>
     </v-row>
   </v-container>
 </template>
 <style scoped>
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
+@import '@/assets/shared.css';
 </style>
