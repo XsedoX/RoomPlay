@@ -2,7 +2,7 @@
 import type { ISongListElementProps } from '@/room_page/ISongListElementProps.ts';
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
-import TouchscreenTooltip from '@/shared/TouchscreenTooltip/TouchscreenTooltip.vue';
+import TouchscreenTooltip from '@/shared/touchscreen_tooltip/TouchscreenTooltip.vue';
 
 const props = defineProps<ISongListElementProps>();
 const backgroundColor = computed(() =>

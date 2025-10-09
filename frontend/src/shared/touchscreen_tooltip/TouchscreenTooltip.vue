@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
-import type ITouchscreenTooltipProps from '@/shared/TouchscreenTooltip/ITouchscreenTooltipProps.ts';
+import type ITouchscreenTooltipProps from '@/shared/touchscreen_tooltip/ITouchscreenTooltipProps.ts';
 
 const showTooltip = shallowRef(false);
 const props = withDefaults(defineProps<ITouchscreenTooltipProps>(),{

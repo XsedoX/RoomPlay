@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import type { IMusicDataListElementProps } from '@/shared/MusicDataListElement/IMusicDataListElementProps.ts';
+import type { IMusicDataListElementProps } from '@/shared/music_data_list_element/IMusicDataListElementProps.ts';
 
 const props = defineProps<IMusicDataListElementProps>()
 </script>

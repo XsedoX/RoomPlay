@@ -4,13 +4,15 @@ import logo from '@/assets/logo.png'
 
 <template>
   <v-row no-gutters
+         align="center"
          justify="center">
-    <v-col>
+    <v-col class="text-center d-flex justify-center">
       <v-img
         :src="logo"
         alt="RoomPlay2 logo"
         data-testid="logo"
         aspect-ratio="1"
+        max-width="450"
         class="w-100 mb-6"/>
     </v-col>
   </v-row>

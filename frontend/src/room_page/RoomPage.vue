@@ -2,12 +2,12 @@
 import { type Ref, ref } from 'vue';
 import SongListElement from '@/room_page/SongListElement.vue';
 import type { ISongListViewModel } from '@/room_page/ISongListViewModel.ts';
-import type { SongListEvent } from '@/room_page/ISongListElementProps.ts';
 import { Guid } from '@/utils/Guid.ts';
-import SearchSongPopup from '@/room_page/SearchSongPopup/SearchSongPopup.vue';
-import TouchscreenTooltip from '@/shared/TouchscreenTooltip/TouchscreenTooltip.vue'
+import SearchSongPopup from '@/room_page/search_song_popup/SearchSongPopup.vue';
+import TouchscreenTooltip from '@/shared/touchscreen_tooltip/TouchscreenTooltip.vue'
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
-import SettingsMenu from '@/room_page/SettingsMenu/SettingsMenu.vue';
+import SettingsMenu from '@/room_page/settings_menu/SettingsMenu.vue';
+import PageTitle from '@/shared/page_title/PageTitle.vue';
 
 const isAdmin = ref(false);
 const exampleSongs: Ref<ISongListViewModel[]> = ref([
@@ -154,24 +154,25 @@ const exampleSongs: Ref<ISongListViewModel[]> = ref([
   },
 ]);
 
-function onSongUpvoted(event: SongListEvent) {
+function onSongUpvoted(event: IGuidEvent) {
   const song = exampleSongs.value.find((song) => song.id === event.id);
   if (song) {
     song.votes += 1;
   }
 }
-function onSongDownvoted(event: SongListEvent) {
+function onSongDownvoted(event: IGuidEvent) {
   const song = exampleSongs.value.find((song) => song.id === event.id);
   if (song && song.votes > 0) {
     song.votes -= 1;
   }
 }
-function onSongBoosted(event: SongListEvent) {
+function onSongBoosted(event: IGuidEvent) {
   console.log('Song boosted:', event.id);
 }
 function chooseSong(event: IGuidEvent) {
   console.log('Song chosen:', event.id);
 }
+const usersInitialLetters = "JS"
 </script>
 
 <template>
@@ -181,19 +182,28 @@ function chooseSong(event: IGuidEvent) {
     class="pa-0 pb-4 ma-0 h-screen d-flex flex-column">
     <v-row no-gutters>
       <v-col cols="12">
-        <v-sheet
-          color="surface-container-highest"
-          class="elevation-4 pa-1 d-flex align-center justify-space-between"
-        >
-          <v-btn color="red" rounded="xl" variant="text"> Leave </v-btn>
-          <touchscreen-tooltip :open-on-hover="false" text="Room Namehtfggggggggggggggggggggg" v-slot="{ tooltipProps }">
-            <div v-bind="tooltipProps" class="text-h6 w-0 text-no-wrap text-truncate text-center flex-grow-1">Room Namehtfggggggggggggggggggggg</div>
-          </touchscreen-tooltip>
-          <v-btn icon variant="text">
-            <v-avatar size="x-small" color="primary">V</v-avatar>
-            <SettingsMenu></SettingsMenu>
-          </v-btn>
-        </v-sheet>
+        <PageTitle :users-initial-letters="usersInitialLetters"
+                   title="Rooom Name dawdwadwawaawd"
+                   class="px-1">
+          <template v-slot:top-left-corner>
+            <v-btn color="red"
+                   rounded="xl"
+                   to="/mainMenu"
+                   variant="text">
+              Leave
+            </v-btn>
+          </template>
+          <template v-slot:top-right-corner>
+            <v-btn icon
+                   variant="text">
+              <v-avatar size="small"
+                        color="primary">
+                {{usersInitialLetters}}
+              </v-avatar>
+              <SettingsMenu></SettingsMenu>
+            </v-btn>
+          </template>
+        </PageTitle>
       </v-col>
     </v-row>
     <v-row no-gutters justify="center">
@@ -234,7 +244,9 @@ function chooseSong(event: IGuidEvent) {
         </v-sheet>
       </v-col>
     </v-row>
-    <v-row class="py-2 overflow-y-hidden" no-gutters justify="center">
+    <v-row class="py-2 overflow-y-hidden h-100"
+           no-gutters
+           justify="center">
       <v-col cols="11" class="fill-height">
         <v-sheet class="fill-height overflow-y-auto hide-scrollbar" rounded="xl">
           <song-list-element

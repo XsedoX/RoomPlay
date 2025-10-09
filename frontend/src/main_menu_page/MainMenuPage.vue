@@ -8,7 +8,7 @@ const avatarAbbreviation = "FN";
 </script>
 
 <template>
-  <v-container fluid class="fill-height align-start">
+  <v-container fluid class="fill-height align-start justify-center">
     <v-row justify="end"
            no-gutters
            class="w-100">

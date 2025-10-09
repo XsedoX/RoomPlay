@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import MenuItems from '@/room_page/SettingsMenu/menu_items.ts';
+import MenuItems from '@/room_page/settings_menu/MenuItems.ts';
 import { shallowRef } from 'vue';
 
 const showQrCodeDialog = shallowRef(false);
-const isAdmin = false;
+const isAdmin = true;
 function onMenuItemClick(id: unknown) {
   switch (id) {
     case MenuItems.QR_CODE:
       showQrCodeDialog.value = true;
-      break;
-    case MenuItems.SETTINGS:
-      console.log("Settings clicked");
       break;
     case MenuItems.LOGOUT:
       console.log("Logout clicked");
@@ -24,15 +21,22 @@ function onMenuItemClick(id: unknown) {
     <v-list density="compact"
             @click:select="(value)=>onMenuItemClick(value.id)">
       <v-list-item :key="MenuItems.QR_CODE"
+                   slim
                    prepend-icon="qr_code"
-                   :value="MenuItems.QR_CODE">QR Code</v-list-item>
+                   :value="MenuItems.QR_CODE">
+        QR Code
+      </v-list-item>
       <v-list-item :key="MenuItems.SETTINGS"
                    v-if="isAdmin"
+                   slim
+                   :to="`${$route.params['id']}/settings`"
                    prepend-icon="settings"
                    :value="MenuItems.SETTINGS">
         Settings
       </v-list-item>
       <v-list-item :key="MenuItems.LOGOUT"
+                   to="/"
+                   slim
                    prepend-icon="logout"
                    :value="MenuItems.LOGOUT"
                    base-color="red">
@@ -55,8 +59,6 @@ function onMenuItemClick(id: unknown) {
   </v-dialog>
 </template>
 <style scoped>
-.invisible {
-  visibility: hidden;
-}
+@import '@/assets/shared.css';
 </style>
 

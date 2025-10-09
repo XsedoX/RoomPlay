@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
-import MusicDataListElement from '@/shared/MusicDataListElement/MusicDataListElement.vue';
-import type ISearchSongPopupProps from '@/room_page/SearchSongPopup/ISearchSongPopupProps.ts';
-import type { IMusicDataListElementViewModel } from '@/shared/MusicDataListElement/IMusicDataListElementProps.ts';
+import MusicDataListElement from '@/shared/music_data_list_element/MusicDataListElement.vue';
+import type ISearchSongPopupProps from '@/room_page/search_song_popup/ISearchSongPopupProps.ts';
+import type { IMusicDataListElementViewModel } from '@/shared/music_data_list_element/IMusicDataListElementProps.ts';
 import { Guid } from '@/utils/Guid.ts';
 
 const dialog = shallowRef(false)
