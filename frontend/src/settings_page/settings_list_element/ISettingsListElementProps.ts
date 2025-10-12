@@ -1,5 +1,5 @@
 export default interface ISettingsListElementProps {
   header: string;
-  subHeader: string;
+  subHeader?: string;
   hint?: string;
 }

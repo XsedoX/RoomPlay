@@ -1,62 +1,72 @@
 <script setup lang="ts">
-import MenuItems from '@/room_page/settings_menu/MenuItems.ts';
-import { shallowRef } from 'vue';
+import PopupBase from '@/shared/popup_base/PopupBase.vue';
+import { ref } from 'vue';
+import { useTheme } from 'vuetify';
+import { MenuItemsTypes } from '@/room_page/settings_menu/MenuItemsTypes.ts'
 
-const showQrCodeDialog = shallowRef(false);
 const isAdmin = true;
-function onMenuItemClick(id: unknown) {
+function onMenuItemClick(id: MenuItemsTypes) {
   switch (id) {
-    case MenuItems.QR_CODE:
-      showQrCodeDialog.value = true;
+    case MenuItemsTypes.QrCode:
+      popup.value?.open();
       break;
-    case MenuItems.LOGOUT:
+    case MenuItemsTypes.Logout:
       console.log("Logout clicked");
+      break;
+    case MenuItemsTypes.ThemeMode:
+      theme.toggle();
       break;
   }
 }
+const popup = ref<InstanceType<typeof PopupBase> | null>(null);
+const theme = useTheme();
 </script>
 
 <template>
   <v-menu activator="parent">
     <v-list density="compact"
-            @click:select="(value)=>onMenuItemClick(value.id)">
-      <v-list-item :key="MenuItems.QR_CODE"
+            @click:select="(value)=>onMenuItemClick(value.id as MenuItemsTypes)">
+      <v-list-item :key="MenuItemsTypes.ThemeMode"
+                   slim
+                   :prepend-icon="theme.global.current.value.dark ? 'light_mode': 'dark_mode'"
+                   :value="MenuItemsTypes.ThemeMode">
+        {{theme.global.current.value.dark ? "Light Mode": "Dark Mode"}}
+      </v-list-item>
+      <v-list-item :key="MenuItemsTypes.QrCode"
                    slim
                    prepend-icon="qr_code"
-                   :value="MenuItems.QR_CODE">
+                   :value="MenuItemsTypes.QrCode">
         QR Code
       </v-list-item>
-      <v-list-item :key="MenuItems.SETTINGS"
+      <v-list-item :key="MenuItemsTypes.Settings"
                    v-if="isAdmin"
                    slim
                    :to="`${$route.params['id']}/settings`"
                    prepend-icon="settings"
-                   :value="MenuItems.SETTINGS">
+                   :value="MenuItemsTypes.Settings">
         Settings
       </v-list-item>
-      <v-list-item :key="MenuItems.LOGOUT"
+      <v-list-item :key="MenuItemsTypes.Logout"
                    to="/"
                    slim
                    prepend-icon="logout"
-                   :value="MenuItems.LOGOUT"
+                   :value="MenuItemsTypes.Logout"
                    base-color="red">
         Logout
       </v-list-item>
     </v-list>
   </v-menu>
-  <v-dialog v-model="showQrCodeDialog" max-width="300">
-    <v-card rounded="xl">
-      <v-card-title class="d-flex justify-space-between align-center px-1 pb-0 pt-1">
-        <v-btn icon="close" variant="text" :disabled="true" class="invisible"></v-btn>
-        <div class="text-center">Scan the QR Code</div>
-        <v-btn icon="close" variant="text" @click="showQrCodeDialog = false"></v-btn>
-      </v-card-title>
-      <v-divider class="mx-2"></v-divider>
-      <v-card-text class="d-flex justify-center align-center pa-4" >
-        <v-img cover rounded="xl" src="https://picsum.photos/200" alt="QR Code" aspect-ratio="1/1" width="240"/>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+  <v-theme-provider theme="light">
+    <popup-base ref="popup"
+                popup-title="Scan the QR Code">
+      <v-img cover
+             rounded="xl"
+             src="https://picsum.photos/200"
+             alt="QR Code"
+             aspect-ratio="1/1"
+             width="240"/>
+    </popup-base>
+  </v-theme-provider>
 </template>
 <style scoped>
 @import '@/assets/shared.css';

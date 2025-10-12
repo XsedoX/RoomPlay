@@ -1,6 +1,6 @@
-import type { IGuid } from '@/utils/Guid.ts';
+import type { IGuid } from '@/shared/Guid.ts';
 
-export interface ISongListViewModel {
+export interface ISongListDto {
   title: string;
   author: string;
   addedBy: string;

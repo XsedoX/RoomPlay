@@ -1,4 +1,4 @@
-import type { IGuid } from '@/utils/Guid.ts';
+import type { IGuid } from '@/shared/Guid.ts';
 
 export default interface IGuidEvent {
   event: Event;

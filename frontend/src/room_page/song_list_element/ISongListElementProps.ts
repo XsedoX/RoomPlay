@@ -1,8 +1,8 @@
-import type { ISongListViewModel } from '@/room_page/ISongListViewModel.ts';
+import type { ISongListDto } from '@/room_page/song_list_element/ISongListDto.ts';
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
 
 export interface ISongListElementProps {
-  songListViewModel: ISongListViewModel;
+  songListDto: ISongListDto;
   onVotedUp: (event: IGuidEvent) => void;
   onVotedDown: (event: IGuidEvent) => void;
   onBoosted: (event: IGuidEvent) => void;

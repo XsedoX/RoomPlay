@@ -8,3 +8,6 @@
 .invisible {
   visibility: hidden;
 }
+.music-list-popup-height {
+  max-height: 60vh;
+}
