@@ -6,6 +6,7 @@ import SettingsSelect from '@/settings_page/settings_select/SettingsSelect.vue';
 import SearchDefaultPlaylistPopup from '@/settings_page/search_default_playlist_popup/SearchDefaultPlaylistPopup.vue';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 import ChooseHostDeviceList from '@/settings_page/choose_host_device_list/ChooseHostDeviceList.vue';
+import UsersList from '@/settings_page/users_list/UsersList.vue';
 
 const selectedCooldown = shallowRef('OFF');
 const selectedLifespan = shallowRef<number>(24);
@@ -97,7 +98,6 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
             <template v-slot:default>
               <v-btn variant="text"
                      color="primary"
-                     size="small"
                      rounded="xl">
                 Change
                 <search-default-playlist-popup
@@ -109,6 +109,11 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
           <settings-list-element header="HOST DEVICE">
             <template v-slot:content>
               <choose-host-device-list></choose-host-device-list>
+            </template>
+          </settings-list-element>
+          <settings-list-element header="USERS">
+            <template v-slot:content>
+              <users-list></users-list>
             </template>
           </settings-list-element>
         </v-list>

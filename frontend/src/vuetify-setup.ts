@@ -1,8 +1,7 @@
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import { md } from 'vuetify/iconsets/md'
-import { mdi } from 'vuetify/iconsets/mdi'
+import { aliases as mdAliases, md } from 'vuetify/iconsets/md'
 import 'vuetify/styles'
 import GoogleIcon from '@/login_page/GoogleIcon.vue';
 import { mount } from '@vue/test-utils';
@@ -21,10 +20,10 @@ export default createVuetify({
   icons:{
     defaultSet: 'md',
     sets:{
-      md,
-      mdi
+      md
     },
     aliases: {
+      ...mdAliases,
       ...customIcons
     },
   },

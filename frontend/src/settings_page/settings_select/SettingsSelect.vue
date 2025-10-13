@@ -7,7 +7,6 @@ const props = defineProps<ISettingsSelectProps>();
 
 <template>
   <v-select
-    menu-icon="arrow_drop_down"
     rounded="xl"
     :hide-details="true"
     flat
