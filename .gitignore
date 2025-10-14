@@ -74,16 +74,16 @@ cmake-build-*/
 {frontend,backend}/.idea/**/mongoSettings.xml
 
 # File-based project format
-*.iws
+{frontend,backend}/*.iws
 
 # IntelliJ
-out/
+{frontend,backend}/out/
 
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+{frontend,backend}/.idea_modules/
 
 # JIRA plugin
-atlassian-ide-plugin.xml
+{frontend,backend}/atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
 {frontend,backend}/.idea/replstate.xml
@@ -92,10 +92,10 @@ atlassian-ide-plugin.xml
 {frontend,backend}/.idea/sonarlint/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+{frontend,backend}/com_crashlytics_export_strings.xml
+{frontend,backend}/crashlytics.properties
+{frontend,backend}/crashlytics-build.properties
+{frontend,backend}/fabric.properties
 
 # Editor-based Rest Client
 {frontend,backend}/.idea/httpRequests
@@ -115,9 +115,9 @@ fabric.properties
 ### Vuejs ###
 # Recommended template: Node.gitignore
 
-node_modules/
-dist/
-npm-debug.log
-yarn-error.log
+{frontend,backend}/node_modules/
+{frontend,backend}/dist/
+{frontend,backend}/npm-debug.log
+{frontend,backend}/yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,go,vuejs
