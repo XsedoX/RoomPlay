@@ -1,12 +1,12 @@
-import type { HostDeviceTypes } from '@/settings_page/choose_host_device_list/HostDeviceTypes.ts';
-import type { HostDeviceStateTypes } from '@/settings_page/choose_host_device_list/HostDeviceStateTypes.ts';
+import type { THostDevice } from '@/settings_page/choose_host_device_list/THostDevice.ts';
+import type { THostDeviceState } from '@/settings_page/choose_host_device_list/THostDeviceState.ts';
 import type { IGuid } from '@/shared/Guid.ts';
 
 export default interface IHostDeviceDto {
   isHost: boolean;
-  hostDeviceType: HostDeviceTypes;
+  hostDeviceType: THostDevice;
   friendlyName: string;
-  state: HostDeviceStateTypes;
+  state: THostDeviceState;
   id: IGuid;
   isCurrentDevice: boolean;
 }

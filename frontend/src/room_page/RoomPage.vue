@@ -3,7 +3,7 @@ import { type Ref, ref } from 'vue';
 import SongListElement from '@/room_page/song_list_element/SongListElement.vue';
 import type { ISongListDto } from '@/room_page/song_list_element/ISongListDto.ts';
 import { Guid, type IGuid } from '@/shared/Guid.ts';
-import SearchSongPopup from '@/room_page/search_song_popup/SearchSongPopup.vue';
+import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
 import TouchscreenTooltip from '@/shared/touchscreen_tooltip/TouchscreenTooltip.vue';
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
 import SettingsMenu from '@/room_page/settings_menu/SettingsMenu.vue';
@@ -246,20 +246,21 @@ const usersInitialLetters = 'JS';
     <v-row class="py-2 overflow-y-hidden h-100" no-gutters justify="center">
       <v-col cols="11" class="fill-height">
         <v-sheet class="fill-height overflow-y-auto hide-scrollbar" rounded="xl">
-          <song-list-element
-            v-for="(song, index) in exampleSongs"
-            :class="{
+          <div v-for="(song, index) in exampleSongs" :key="song.id.toString()">
+            <song-list-element
+              :class="{
               'rounded-t-xl': index === 0,
               'rounded-b-xl': index === exampleSongs.length - 1,
             }"
-            :key="song.id.toString()"
-            :onVotedDown="onSongDownvoted"
-            :onBoosted="onSongBoosted"
-            :onVotedUp="onSongUpvoted"
-            :songListDto="song"
-            :adminView="isAdmin"
-          >
-          </song-list-element>
+              :onVotedDown="onSongDownvoted"
+              :onBoosted="onSongBoosted"
+              :onVotedUp="onSongUpvoted"
+              :songListDto="song"
+              :adminView="isAdmin"
+            >
+            </song-list-element>
+            <v-divider  v-if="index < exampleSongs.length - 1"></v-divider>
+          </div>
         </v-sheet>
       </v-col>
     </v-row>

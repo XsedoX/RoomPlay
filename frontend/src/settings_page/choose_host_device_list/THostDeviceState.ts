@@ -1,4 +1,4 @@
-export enum HostDeviceStateTypes {
+export enum THostDeviceState {
   Online = 'ONLINE',
   Offline = 'OFFLINE'
 }

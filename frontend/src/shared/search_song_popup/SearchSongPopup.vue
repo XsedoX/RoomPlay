@@ -2,7 +2,7 @@
 import { Guid } from '@/shared/Guid.ts';
 import SearchMusicPopupBase from '@/shared/search_popup_base/SearchMusicPopupBase.vue';
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
-import type { TSearchSongPopupEmits } from '@/room_page/search_song_popup/TSearchSongPopupEmits.ts';
+import type { TSearchSongPopupEmits } from '@/shared/search_song_popup/TSearchSongPopupEmits.ts';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 
 const emit = defineEmits<TSearchSongPopupEmits>();
@@ -56,7 +56,7 @@ const songList: IMusicDataListElementDto[] = [
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: new Guid("9593de37-416c-4bc8-9eee-8a98b7db66c7"),
     title: 'Hotel California',
     subtitle: 'Eagles',
     imageUrl: 'https://picsum.photos/200',

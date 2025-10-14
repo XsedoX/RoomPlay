@@ -1,33 +1,33 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import type IHostDeviceDto from '@/settings_page/choose_host_device_list/IHostDeviceDto.ts';
-import { HostDeviceStateTypes } from '@/settings_page/choose_host_device_list/HostDeviceStateTypes.ts';
-import { HostDeviceTypes } from '@/settings_page/choose_host_device_list/HostDeviceTypes.ts';
+import { THostDeviceState } from '@/settings_page/choose_host_device_list/THostDeviceState.ts';
+import { THostDevice } from '@/settings_page/choose_host_device_list/THostDevice.ts';
 import { Guid } from '@/shared/Guid.ts';
 
 const devices = ref<IHostDeviceDto[]>([
   {
     id: Guid.generate(),
     isHost: true,
-    hostDeviceType: HostDeviceTypes.Computer,
+    hostDeviceType: THostDevice.Computer,
     friendlyName: 'Living Room PC',
-    state: HostDeviceStateTypes.Online,
+    state: THostDeviceState.Online,
     isCurrentDevice: false,
   },
   {
     id: Guid.generate(),
     isHost: false,
-    hostDeviceType: HostDeviceTypes.Mobile,
+    hostDeviceType: THostDevice.Mobile,
     friendlyName: 'My Work Laptop',
-    state: HostDeviceStateTypes.Offline,
+    state: THostDeviceState.Offline,
     isCurrentDevice: false,
   },
   {
     id: Guid.generate(),
     isHost: false,
-    hostDeviceType: HostDeviceTypes.Mobile,
+    hostDeviceType: THostDevice.Mobile,
     friendlyName: 'Personal Phone dwadwwwwwwwwwww',
-    state: HostDeviceStateTypes.Online,
+    state: THostDeviceState.Online,
     isCurrentDevice: true,
   },
 ]);
@@ -61,7 +61,7 @@ function minIconWidth(device: IHostDeviceDto) {
       <v-radio
         :value="device.id.toString()"
         :name="device.id.toString()"
-        :disabled="device.state === HostDeviceStateTypes.Offline"
+        :disabled="device.state === THostDeviceState.Offline"
         color="primary"
       >
         <template v-slot:label>
@@ -79,7 +79,7 @@ function minIconWidth(device: IHostDeviceDto) {
                 <v-icon
                   size="large"
                   :icon="
-                    device.hostDeviceType === HostDeviceTypes.Computer ? 'computer' : 'smartphone'
+                    device.hostDeviceType === THostDevice.Computer ? 'computer' : 'smartphone'
                   "
                 ></v-icon>
               </v-badge>
@@ -87,7 +87,7 @@ function minIconWidth(device: IHostDeviceDto) {
                 v-else
                 size="large"
                 :icon="
-                  device.hostDeviceType === HostDeviceTypes.Computer ? 'computer' : 'smartphone'
+                  device.hostDeviceType === THostDevice.Computer ? 'computer' : 'smartphone'
                 "
               ></v-icon>
             </v-sheet>

@@ -21,7 +21,9 @@ export class Guid implements IGuid {
   toString(): string {
     return this.value;
   }
-
+  valueOf(): string {
+    return this.value;
+  }
   equals(other: Guid): boolean {
     return this.value === other.value;
   }

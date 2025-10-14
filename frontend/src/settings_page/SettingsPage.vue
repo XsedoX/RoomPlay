@@ -7,6 +7,7 @@ import SearchDefaultPlaylistPopup from '@/settings_page/search_default_playlist_
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 import ChooseHostDeviceList from '@/settings_page/choose_host_device_list/ChooseHostDeviceList.vue';
 import UsersList from '@/settings_page/users_list/UsersList.vue';
+import RapidSong from '@/settings_page/rapid_song/RapidSong.vue';
 
 const selectedCooldown = shallowRef('OFF');
 const selectedLifespan = shallowRef<number>(24);
@@ -29,7 +30,6 @@ function updateSelectedLifespan(value: string) {
   selectedLifespan.value = Number.parseInt(value);
 }
 function choosePlaylist(payload: IMusicDataListElementDto) {
-  console.log('Playlist chosen:', payload);
   chosenPlaylist.value = payload;
 }
 </script>
@@ -50,7 +50,7 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
           <settings-list-element header="BOOST OPTIONS" sub-header="Force Play Cooldown">
             <settings-select
               :value="selectedCooldown"
-              :on-update="updateSelectedCooldown"
+              @on-selected="updateSelectedCooldown"
               :items="['OFF', ...Array.from({ length: 60 }, (_, i) => (i + 1).toString())]"
             >
               <span
@@ -74,7 +74,7 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
           >
             <settings-select
               :value="selectedLifespan.toString()"
-              :on-update="updateSelectedLifespan"
+              @on-selected="updateSelectedLifespan"
               :items="['4', '8', '16', '24', '48']"
             >
               <span class="text-primary text-subtitle-1 text-medium-emphasis"> hours </span>
@@ -114,6 +114,11 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
           <settings-list-element header="USERS">
             <template v-slot:content>
               <users-list></users-list>
+            </template>
+          </settings-list-element>
+          <settings-list-element header="RAPID SONG">
+            <template v-slot:content>
+              <rapid-song></rapid-song>
             </template>
           </settings-list-element>
         </v-list>

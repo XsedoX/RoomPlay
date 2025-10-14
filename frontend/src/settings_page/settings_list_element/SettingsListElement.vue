@@ -6,7 +6,7 @@ const props = defineProps<ISettingsListElementProps>();
 </script>
 
 <template>
-  <v-list-subheader>{{ props.header }}</v-list-subheader>
+  <v-list-subheader class="remove-padding">{{ props.header }}</v-list-subheader>
   <v-list-item>
     <v-sheet rounded="lg"
              color="surface-container justify-start pa-2 d-flex flex-nowrap ga-2 align-center">
