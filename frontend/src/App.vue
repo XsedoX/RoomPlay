@@ -2,9 +2,7 @@
 </script>
 
 <template>
-  <v-app>
+  <v-app min-width="320px">
       <RouterView/>
   </v-app>
 </template>
-
-<style scoped></style>
