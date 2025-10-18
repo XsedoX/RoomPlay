@@ -1,0 +1,64 @@
+basePath: /
+definitions:
+  response.Error:
+    properties:
+      data: {}
+      isSuccess:
+        type: boolean
+      message:
+        type: string
+    type: object
+  response.Success:
+    properties:
+      data: {}
+      isSuccess:
+        type: boolean
+      message: {}
+    type: object
+  room.CreateCommand:
+    properties:
+      roomName:
+        type: string
+      roomPassword:
+        type: string
+      userId:
+        type: string
+    type: object
+host: localhost:7865
+info:
+  contact: {}
+  description: This is the API for the RoomPlay service.
+  title: RoomPlay API
+  version: "1.0"
+paths:
+  /rooms:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new room in the system
+      parameters:
+      - description: Create Room
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/room.CreateCommand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Create a new room
+      tags:
+      - rooms
+swagger: "2.0"
