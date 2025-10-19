@@ -1,9 +1,9 @@
 package response
 
 type Success struct {
-	Message   any  `json:"message"`
-	Data      any  `json:"data"`
-	IsSuccess bool `json:"isSuccess"`
+	Message   *string `json:"message"  example:"null" extensions:"x-nullable"`
+	Data      any     `json:"data" swaggertype:"object"`
+	IsSuccess bool    `json:"isSuccess"`
 }
 
 func Ok(data any) Success {
@@ -15,9 +15,9 @@ func Ok(data any) Success {
 }
 
 type Error struct {
-	Message   string `json:"message"`
-	Data      any    `json:"data"`
-	IsSuccess bool   `json:"isSuccess"`
+	Message   string  `json:"message"`
+	Data      *string `json:"data" example:"null" extensions:"x-nullable"`
+	IsSuccess bool    `json:"isSuccess" example:"false"`
 }
 
 func Failure(message string) Error {

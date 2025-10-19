@@ -1,6 +1,7 @@
 CREATE TYPE "vote_status" AS ENUM (
   'upvoted',
-  'downvoted'
+  'downvoted',
+  'not_voted'
 );
 
 CREATE TYPE "song_state" AS ENUM (
@@ -38,12 +39,26 @@ CREATE TABLE "rooms" (
   "lifespan_seconds" int NOT NULL DEFAULT 172800
 );
 
+CREATE TABLE "users_roles" (
+  "room_id" uuid,
+  "user_id" uuid,
+  "role" user_role NOT NULL DEFAULT 'user',
+  PRIMARY KEY ("room_id", "user_id")
+);
+
+CREATE TABLE "users_votes" (
+  "user_id" uuid,
+  "enqueued_song_id" uuid,
+  "state" vote_status NOT NULL DEFAULT 'not_voted',
+  PRIMARY KEY ("enqueued_song_id", "user_id")
+);
+
 CREATE TABLE "users" (
   "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
-  "email" varchar(256) UNIQUE NOT NULL,
-  "room_id" uuid,
-  "role" user_role NOT NULL DEFAULT 'user'
+  "name" varchar(256) NOT NULL,
+  "surname" varchar(256) NOT NULL,
+  "room_id" uuid
 );
 
 CREATE TABLE "boosts" (
@@ -101,6 +116,14 @@ CREATE TABLE "enqueued_songs_users" (
 );
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';
+
+ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__song" FOREIGN KEY ("enqueued_song_id") REFERENCES "enqueued_songs" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "users" ADD CONSTRAINT "user__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE SET NULL;
 

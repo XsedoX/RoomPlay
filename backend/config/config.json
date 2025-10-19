@@ -1,0 +1,13 @@
+{
+  "server": {
+    "port": "7865",
+    "host": "http://localhost"
+  },
+  "database": {
+    "connectionString": "postgres://postgres:dupa1234@localhost:5432/postgres"
+  },
+  "environment": "development",
+  "authentication": {
+    "jwtSecret": "a-string-secret-at-least-256-bits-long"
+  }
+}

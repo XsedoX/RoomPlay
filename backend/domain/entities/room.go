@@ -22,7 +22,7 @@ type Room struct {
 	userIds              []UserId
 }
 
-func NewRoom(roomName string, roomPassword string, userId UserId) (*Room, error) {
+func CreateRoom(roomName string, roomPassword string, userId UserId) (*Room, error) {
 	randomBytes := make([]byte, 16)
 	if _, err := rand.Read(randomBytes); err != nil {
 		// If reading random bytes fails, return the error.

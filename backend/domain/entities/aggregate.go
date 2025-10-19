@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"xsedox.com/domain/shared"
+	"xsedox.com/main/domain/shared"
 )
 
 type AggregateRoot[T comparable] struct {

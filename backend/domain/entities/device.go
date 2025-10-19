@@ -4,19 +4,30 @@ import (
 	"github.com/google/uuid"
 )
 
-type Type string
+type DeviceType string
 
 const (
-	MOBILE   Type = "MOBILE"
-	COMPUTER Type = "COMPUTER"
+	MOBILE   DeviceType = "MOBILE"
+	COMPUTER DeviceType = "COMPUTER"
 )
 
 type DeviceId uuid.UUID
 
 type Device struct {
 	Entity[DeviceId]
-	Fingerprint  string
-	FriendlyName string
-	Type         Type
-	IsHost       bool
+	fingerprint  string
+	friendlyName string
+	deviceType   DeviceType
+	isHost       bool
+}
+
+func NewDevice(fingerPrint, friendlyName string, deviceType DeviceType) *Device {
+	device := &Device{
+		fingerprint:  fingerPrint,
+		friendlyName: friendlyName,
+		deviceType:   deviceType,
+		isHost:       false,
+	}
+	device.SetId(DeviceId(uuid.New()))
+	return device
 }

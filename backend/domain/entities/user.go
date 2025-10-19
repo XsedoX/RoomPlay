@@ -2,14 +2,13 @@ package entities
 
 import (
 	"github.com/google/uuid"
-	"xsedox.com/domain/value_objects"
 )
 
-type Role string
+type UserRole string
 
 const (
-	HOST Role = "ROOM_CREATOR"
-	USER Role = "USER"
+	HOST UserRole = "HOST"
+	USER UserRole = "USER"
 )
 
 type UserId uuid.UUID
@@ -17,24 +16,39 @@ type UserId uuid.UUID
 type User struct {
 	Entity[UserId]
 	externalId string
-	email      value_objects.Email
-	role       Role
-	room       *Room
+	name       string
+	surname    string
+	roomId     *RoomId
 	devices    []Device
 }
 
-func NewUser(externalId string, emailString string, role Role, deviceParam Device) (*User, error) {
-	email, err := value_objects.NewEmail(emailString)
-	if err != nil {
-		return nil, err
-	}
+func FirstLogin(externalId, name, surname string, device Device) *User {
 	user := &User{
 		externalId: externalId,
-		email:      *email,
-		role:       role,
-		room:       nil,
-		devices:    []Device{deviceParam},
+		name:       name,
+		surname:    surname,
+		roomId:     nil,
+		devices:    []Device{device},
 	}
 	user.SetId(UserId(uuid.New()))
-	return user, nil
+	return user
+}
+func (u User) Devices() []Device {
+	return u.devices
+}
+
+func (u User) RoomId() *RoomId {
+	return u.roomId
+}
+
+func (u User) Surname() string {
+	return u.surname
+}
+
+func (u User) Name() string {
+	return u.name
+}
+
+func (u User) ExternalId() string {
+	return u.externalId
 }
