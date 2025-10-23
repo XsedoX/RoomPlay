@@ -31,11 +31,12 @@ CREATE TABLE "songs" (
 
 CREATE TABLE "rooms" (
   "id" uuid PRIMARY KEY,
+  "salt" text NOT NULL,
   "name" varchar(30) NOT NULL,
   "password" varchar(256) NOT NULL,
   "qr_code" varchar(256) NOT NULL,
   "boost_cooldown_seconds" int,
-  "created_at_utc" timestamp NOT NULL,
+  "created_at_utc" timestamp NOT NULL DEFAULT 'NOW()',
   "lifespan_seconds" int NOT NULL DEFAULT 172800
 );
 
@@ -58,7 +59,9 @@ CREATE TABLE "users" (
   "external_id" varchar(256) UNIQUE NOT NULL,
   "name" varchar(256) NOT NULL,
   "surname" varchar(256) NOT NULL,
-  "room_id" uuid
+  "room_id" uuid,
+  "access_token" bytea NOT NULL,
+  "refresh_token" bytea NOT NULL
 );
 
 CREATE TABLE "boosts" (

@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"xsedox.com/main/application"
 	"xsedox.com/main/application/response"
 	"xsedox.com/main/application/room"
-	"xsedox.com/main/presentation/errors"
+	"xsedox.com/main/presentation/presentationErrors"
 )
 
 type RoomHandler struct {
-	createCommandHandler *room.CreateCommandHandler
+	createRoomCommandHandler application.ICommandHandler[*room.CreateCommand]
 }
 
-func NewRoomHandler(createCommandHandler *room.CreateCommandHandler) *RoomHandler {
+func NewRoomHandler(createCommandHandler application.ICommandHandler[*room.CreateCommand]) *RoomHandler {
 	return &RoomHandler{
-		createCommandHandler: createCommandHandler,
+		createRoomCommandHandler: createCommandHandler,
 	}
 }
 
@@ -36,23 +37,17 @@ func (rh *RoomHandler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	var cmd room.CreateCommand
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		if inerr := json.NewEncoder(w).Encode(response.Failure(err.Error())); inerr != nil {
-			http.Error(w, errors.EncodingErrorMessage, http.StatusInternalServerError)
-		}
+		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := rh.createCommandHandler.Handle(r.Context(), cmd); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if inerr := json.NewEncoder(w).Encode(response.Failure(err.Error())); inerr != nil {
-			http.Error(w, errors.EncodingErrorMessage, http.StatusInternalServerError)
-		}
+	if err := rh.createRoomCommandHandler.Handle(r.Context(), &cmd); err != nil {
+		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	if inerr := json.NewEncoder(w).Encode(response.Ok(nil)); inerr != nil {
-		http.Error(w, errors.EncodingErrorMessage, http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(response.Ok(nil)); err != nil {
+		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusInternalServerError)
 	}
 	return
 }

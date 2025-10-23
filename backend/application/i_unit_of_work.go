@@ -3,5 +3,6 @@ package application
 import "context"
 
 type IUnitOfWork interface {
-	Execute(ctx context.Context, fn func(ctx context.Context) error) error
+	ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error
+	ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error
 }

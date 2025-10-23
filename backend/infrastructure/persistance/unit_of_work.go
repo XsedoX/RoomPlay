@@ -2,47 +2,55 @@ package persistance
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
 
-const UnitOfWorkCtxKey = "UnitOfWork"
-
 type UnitOfWork struct {
 	db *sqlx.DB
+	tx *sqlx.Tx
 }
 
 func NewUnitOfWork(db *sqlx.DB) *UnitOfWork {
 	return &UnitOfWork{db: db}
 }
 
-func (uow *UnitOfWork) Execute(ctx context.Context, fn func(ctx context.Context) error) error {
-	transaction, err := uow.db.BeginTxx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
+func (uow *UnitOfWork) GetQueryer() IQueryer {
+	if uow.tx != nil {
+		return uow.db
 	}
+	return uow.tx
+}
+
+func (uow *UnitOfWork) ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
+	if uow.tx != nil {
+		return fn(ctx)
+	}
+	tx, err := uow.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	uow.tx = tx
 	defer func() {
+		// clear tx pointer regardless of outcome to avoid reuse
+		defer func() { uow.tx = nil }()
+
 		if p := recover(); p != nil {
-			_ = transaction.Rollback()
+			_ = tx.Rollback()
 			panic(p)
+		}
+		// commit error (if any) should be returned to caller
+		err = tx.Commit()
+		if err != nil {
+			_ = tx.Rollback()
+			return
 		}
 	}()
 
-	transactionCtx := context.WithValue(ctx, UnitOfWorkCtxKey, transaction)
-
-	if err := fn(transactionCtx); err != nil {
-		if rbErr := transaction.Rollback(); rbErr != nil {
-			return fmt.Errorf("failed to rollback transaction: %w", rbErr)
-		}
-		return err
-	}
-	return transaction.Commit()
+	err = fn(ctx)
+	return err
 }
 
-func GetQueryerFromContext(ctx context.Context, db *sqlx.DB) sqlx.ExtContext {
-	if tx, ok := ctx.Value(UnitOfWorkCtxKey).(*sqlx.Tx); ok {
-		return tx
-	}
-	return db
+func (uow *UnitOfWork) ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error {
+	return fn(ctx)
 }

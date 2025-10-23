@@ -13,4 +13,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     }
   },
+  server:{
+    proxy:{
+      '/api/v1':{
+        target:'http://localhost:5173',
+      }
+    }
+  }
 });

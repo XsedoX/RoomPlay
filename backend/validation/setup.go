@@ -5,29 +5,29 @@ import (
 	"xsedox.com/main/domain/entities"
 )
 
-var Validate *validator.Validate
+var Validator *validator.Validate
 
 func Initialize() error {
-	Validate = validator.New(validator.WithRequiredStructEnabled())
-	err := Validate.RegisterValidation("user_role_validation", ValidateUserRoleEnum)
+	Validator = validator.New(validator.WithRequiredStructEnabled())
+	err := Validator.RegisterValidation("user_role_validation", validateUserRoleEnum)
 	if err != nil {
 		return err
 	}
-	err = Validate.RegisterValidation("device_type_validation", ValidateDeviceType)
+	err = Validator.RegisterValidation("device_type_validation", validateDeviceType)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func ValidateUserRoleEnum(fl validator.FieldLevel) bool {
+func validateUserRoleEnum(fl validator.FieldLevel) bool {
 	role := entities.UserRole(fl.Field().String())
 	if role == entities.HOST || role == entities.USER {
 		return true
 	}
 	return false
 }
-func ValidateDeviceType(fl validator.FieldLevel) bool {
+func validateDeviceType(fl validator.FieldLevel) bool {
 	deviceType := entities.DeviceType(fl.Field().String())
 	if deviceType == entities.MOBILE || deviceType == entities.COMPUTER {
 		return true

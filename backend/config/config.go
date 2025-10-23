@@ -14,19 +14,29 @@ const (
 	envProduction  = "production"
 )
 
-type Configuration struct {
-	Server struct {
-		Port string `json:"port" envconfig:"SERVER_PORT"`
-		Host string `json:"host" envconfig:"SERVER_HOST"`
-	} `json:"server"`
-	Database struct {
-		ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
-	} `json:"database"`
-	Environment    string `json:"environment" envconfig:"ENVIRONMENT"`
-	Authentication struct {
-		JwtSecret string `json:"jwtSecret" envconfig:"JWT_SECRET"`
-	}
+type Server struct {
+	Port string `json:"port" envconfig:"SERVER_PORT"`
+	Host string `json:"host" envconfig:"SERVER_HOST"`
 }
+type Database struct {
+	ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
+}
+type Authentication struct {
+	ClientSecret  string `json:"clientSecret" envconfig:"CLIENT_SECRET"`
+	ClientId      string `json:"clientId" envconfig:"CLIENT_ID"`
+	ClientOrigin  string `json:"clientOrigin" envconfig:"CLIENT_ORIGIN"`
+	EncryptionKey string `json:"encryptionKey" envconfig:"ENCRYPTION_KEY"`
+	JwtKey        string `json:"jwtKey" envconfig:"JWT_KEY"`
+}
+type Configuration struct {
+	Server         Server         `json:"server" envconfig:"SERVER"`
+	Database       Database       `json:"database" envconfig:"DATABASE"`
+	Environment    string         `json:"environment" envconfig:"ENVIRONMENT"`
+	Authentication Authentication `json:"authentication" envconfig:"AUTHENTICATION"`
+	Scopes         string         `json:"scopes" envconfig:"SCOPES"`
+}
+
+var Config *Configuration
 
 func (conf *Configuration) IsDevelopment() bool {
 	return conf.Environment == envDevelopment

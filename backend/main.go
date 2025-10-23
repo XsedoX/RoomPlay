@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
 	"xsedox.com/main/config"
-	"xsedox.com/main/dependecies"
+	"xsedox.com/main/infrastructure/oidc"
+	"xsedox.com/main/infrastructure/persistance"
+	"xsedox.com/main/initialization"
 	"xsedox.com/main/presentation"
 	"xsedox.com/main/validation"
 )
@@ -13,7 +16,6 @@ import (
 import (
 	"context"
 
-	_ "github.com/jackc/pgx/stdlib"
 	_ "xsedox.com/main/docs"
 )
 
@@ -34,13 +36,10 @@ func main() {
 		log.Fatalf("failed to register validation: %v", err)
 	}
 
-	conf := config.Load()
-	log.Printf("Loaded config: port: %v, host: %v, environment: %v", conf.Server.Port, conf.Server.Host, conf.Environment)
+	config.Config = config.Load()
+	log.Printf("Loaded config: port: %v, host: %v, environment: %v", config.Config.Server.Port, config.Config.Server.Host, config.Config.Environment)
 	ctx := context.Background()
-	db, err := sqlx.ConnectContext(ctx, "pgx", conf.Database.ConnectionString)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-	}
+	db := persistance.InitializeDatabase(ctx)
 
 	defer func(db *sqlx.DB, ctx context.Context) {
 		err := db.Close()
@@ -48,13 +47,12 @@ func main() {
 			log.Fatalf("Unable to close database connection: %v\n", err)
 		}
 	}(db, context.Background())
-
 	// Dependencies
-	serverDependencies := &presentation.ServerDependencies{
-		UserHandler:   dependecies.NewUserDependencies(db).GetUserHandler(),
-		RoomHandler:   dependecies.NewRoomDependencies(db).GetRoomHandler(),
-		Configuration: conf,
-	}
+	serverDependencies := initialization.NewServerDependencies(db)
+
+	fmt.Printf("This is the hash: %x\n", *oidc.NewEncryptionKey())
+	fmt.Printf("This is the hash: %x\n", *oidc.NewEncryptionKey())
+	fmt.Printf("This is the hash: %x\n", *oidc.NewEncryptionKey())
 	// Start Server
 	server := presentation.NewServer(serverDependencies)
 	server.Start()

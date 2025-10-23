@@ -21,7 +21,14 @@ type Device struct {
 	isHost       bool
 }
 
-func NewDevice(fingerPrint, friendlyName string, deviceType DeviceType) *Device {
+func NewDevice(fingerPrint string, deviceType DeviceType) *Device {
+	var friendlyName string
+	switch deviceType {
+	case MOBILE:
+		friendlyName = "My lovely mobile device"
+	case COMPUTER:
+		friendlyName = "My lovely computer device"
+	}
 	device := &Device{
 		fingerprint:  fingerPrint,
 		friendlyName: friendlyName,
