@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
-import LoginPage from '@/login_page/LoginPage.vue';
-import MainMenuPage from '@/main_menu_page/MainMenuPage.vue';
-import RoomPage from '@/room_page/RoomPage.vue';
+import LoginPage from '@/pages/login_page/LoginPage.vue';
+import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
+import RoomPage from '@/pages/room_page/RoomPage.vue';
 import SettingsPage from '@/settings_page/SettingsPage.vue';
 
 export const routes: RouteRecordRaw[] = [

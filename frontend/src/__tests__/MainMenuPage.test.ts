@@ -1,8 +1,8 @@
 import { testLogoWithTitleText } from '@/__tests__/shared/SharedTests.ts';
 import { mountVuetify } from '@/vuetify-setup.ts';
-import MainMenuPage from '@/main_menu_page/MainMenuPage.vue';
+import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
 import { describe, expect, it } from 'vitest';
-import AvatarWithFullName from '@/main_menu_page/AvatarWithFullName.vue';
+import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 
 describe("Main Menu", () => {
   it('checks if a name of a user is visible', async () => {

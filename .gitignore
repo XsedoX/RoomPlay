@@ -121,3 +121,6 @@ cmake-build-*/
 {frontend,backend}/yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,go,vuejs
+
+frontend/config.env
+{frontend,backend}/.scannerwork/*

@@ -1,4 +1,4 @@
 export enum THostDevice {
-  Computer = 'COMPUTER',
-  Mobile = 'MOBILE'
+  Computer = 'computer',
+  Mobile = 'mobile'
 }

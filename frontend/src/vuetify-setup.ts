@@ -3,7 +3,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases as mdAliases, md } from 'vuetify/iconsets/md'
 import 'vuetify/styles'
-import GoogleIcon from '@/login_page/GoogleIcon.vue';
+import GoogleIcon from '@/pages/login_page/GoogleIcon.vue';
 import { mount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import vuetify from '@/vuetify-setup.ts'
