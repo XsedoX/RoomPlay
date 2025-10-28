@@ -1,0 +1,20 @@
+{
+  "server": {
+    "port": "7654",
+    "host": "http://localhost"
+  },
+  "database": {
+    "connectionString": "postgres://postgres:dupa1234@localhost:5432/postgres"
+  },
+  "environment": "development",
+  "authentication": {
+    "clientId": "361061961111-61l35l7srvr99ukrskfkg4iosgj98hj9.apps.googleusercontent.com",
+    "clientSecret": "",
+    "clientOrigin": "http://localhost:5173",
+    "scopes": "openid profile",
+    "audience": "placeholder",
+    "issuer": "roomplayAPI",
+    "encryptionKey": "super secret",
+    "jwtKey": "placeholder"
+  }
+}
