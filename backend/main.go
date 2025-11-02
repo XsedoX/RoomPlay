@@ -20,12 +20,12 @@ import (
 // @title RoomPlay API
 // @version 1.0
 // @description This is the API for the RoomPlay service.
-// @host localhost:7865
-// @BasePath /
+// @host localhost:7654
+// @BasePath /api/v1
 //
 // Security definition for Bearer JWT in the Authorization header
 // @securityDefinitions.apikey BearerAuth
-// @in header
+// @in cookie
 // @name Authorization
 // @description Type "Bearer {token}"
 func main() {

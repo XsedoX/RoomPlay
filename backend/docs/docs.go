@@ -15,92 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/auth/google/login": {
-            "get": {
-                "description": "Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Initiate Google OAuth2 login",
-                "responses": {
-                    "302": {
-                        "description": "Redirect to Google OAuth",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "403": {
-                        "description": "Invalid redirect URL",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/login": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new login in the system",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Logins a new login with data from OAuth",
-                "parameters": [
-                    {
-                        "description": "AddUser User",
-                        "name": "room",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/login.Command"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/room": {
             "post": {
                 "security": [
@@ -157,20 +71,72 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/google/login": {
+            "post": {
+                "description": "Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AuthenticationController"
+                ],
+                "summary": "Initiate Google OAuth2 login",
+                "responses": {
+                    "302": {
+                        "description": "Redirect to Google OAuth",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid redirect URL",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/data": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user data based on the provided context",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Retrieve user data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "device.Type": {
-            "type": "integer",
-            "enum": [
-                0,
-                1
-            ],
-            "x-enum-varnames": [
-                "MOBILE",
-                "COMPUTER"
-            ]
-        },
         "join.RoomCommand": {
             "type": "object",
             "required": [
@@ -186,57 +152,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.Command": {
-            "type": "object",
-            "properties": {
-                "credentialsDto": {
-                    "$ref": "#/definitions/login.CredentialsDto"
-                },
-                "device": {
-                    "$ref": "#/definitions/login.DeviceDto"
-                },
-                "externalId": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.CredentialsDto": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "accessTokenExpiresAt": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                },
-                "refreshTokenExpiresAt": {
-                    "type": "string"
-                },
-                "scopes": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.DeviceDto": {
-            "type": "object",
-            "properties": {
-                "deviceType": {
-                    "$ref": "#/definitions/device.Type"
-                },
-                "fingerprint": {
                     "type": "string"
                 }
             }
@@ -281,8 +196,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:7865",
-	BasePath:         "/",
+	Host:             "localhost:7654",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "RoomPlay API",
 	Description:      "This is the API for the RoomPlay service.",

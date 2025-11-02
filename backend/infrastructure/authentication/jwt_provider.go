@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,12 +24,12 @@ func NewJwtProvider(configuration config.IConfiguration) *JwtProvider {
 }
 
 func (jwtProvider *JwtProvider) GenerateToken(userId shared.UserId) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": uuid.UUID(userId).String(),
-		"aud": jwtProvider.configuration.Authentication().AudienceField,
-		"iss": jwtProvider.configuration.Authentication().Issuer,
-		"exp": jwt.NewNumericDate(time.Now().Add(AccessTokenExpirationTime).UTC()),
-		"iat": jwt.NewNumericDate(time.Now().UTC()),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
+		Subject:   uuid.UUID(userId).String(),
+		Audience:  strings.Split(jwtProvider.configuration.Authentication().AudienceField, " "),
+		Issuer:    jwtProvider.configuration.Authentication().Issuer,
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessTokenExpirationTime).UTC()),
+		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 	})
 	tokenString, err := token.SignedString([]byte(jwtProvider.configuration.Authentication().JwtKey))
 	if err != nil {
@@ -37,15 +38,14 @@ func (jwtProvider *JwtProvider) GenerateToken(userId shared.UserId) (string, err
 	return tokenString, nil
 }
 func (jwtProvider *JwtProvider) ValidateTokenAndGetUserId(tokenString string) (*shared.UserId, error) {
-	var claims jwt.RegisteredClaims
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtProvider.configuration.Authentication().JwtKey), nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	claims, ok := token.Claims.(jwt.RegisteredClaims)
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if !ok || !token.Valid {
 		return nil, err
 	}

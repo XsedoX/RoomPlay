@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
-import { UserRepository } from '@/repositories/user_repository.ts';
+import { LoginRepository } from '@/infrastructure/repositories/login_repository.ts'
 
 async function login(){
-  const response = await UserRepository.loginWithGoogle()
+  const response = await LoginRepository.loginWithGoogle()
   console.log(response)
-  globalThis.location.href = response.data
+  globalThis.location.href = response
 }
 </script>
 

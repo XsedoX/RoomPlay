@@ -29,7 +29,8 @@ func (g GoogleOidcService) ParseIdToken(idToken string) (*dtos.GoogleIdTokenClai
 		GivenName  string `json:"given_name" validate:"required"`
 		FamilyName string `json:"family_name" validate:"required"`
 	}
-	token, _ := jwt.ParseWithClaims(idToken, &googleApiClaims{}, nil)
+	googleClaims := googleApiClaims{}
+	token, _ := jwt.ParseWithClaims(idToken, &googleClaims, nil)
 
 	claims, ok := token.Claims.(*googleApiClaims)
 	if !ok {

@@ -15,10 +15,10 @@ type UserCommand struct {
 }
 
 type CredentialsDto struct {
-	AccessToken           string
-	RefreshToken          string
-	Scopes                string
-	AccessTokenExpiresAt  time.Time
-	RefreshTokenExpiresAt time.Time
-	IssuedAt              time.Time
+	AccessToken              string
+	RefreshToken             string
+	Scopes                   string
+	AccessTokenExpiresAtUtc  time.Time
+	RefreshTokenExpiresAtUtc time.Time
+	IssuedAt                 time.Time
 }

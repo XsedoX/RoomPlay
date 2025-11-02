@@ -19,7 +19,10 @@ var stateFromName = map[string]State{
 func (s State) String() string {
 	return stateName[s]
 }
-func ParseState(s string) (State, bool) {
+func ParseState(s string) State {
 	deviceState, ok := stateFromName[s]
-	return deviceState, ok
+	if !ok {
+		panic("Unknown device state: " + s)
+	}
+	return deviceState
 }

@@ -11,16 +11,16 @@ import (
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/infrastructure/authentication"
-	"xsedox.com/main/presentation/presentationErrors"
+	"xsedox.com/main/presentation/response"
 )
 
 const (
-	roomplayStateCookieExpirationTime = time.Minute * 5
-	stateCookieName                   = "roomPlay-state"
-	roomplayAccessTokenCookieName     = "roomplay-session-at"
-	roomplayRefreshTokenCookieName    = "roomplay-session-rt"
-	roomPlayDeviceIdCookieName        = "roomplay-device-id"
-	roomPlayDeviceIdCookieLifespan    = 24 * time.Hour * 365 // a year
+	roomplayStateCookieExpirationTime    = time.Minute * 5
+	stateCookieName                      = "roomPlay-state"
+	RoomplayAccessTokenCookieName        = "roomplay-session-at"
+	RoomplayRefreshTokenCookieName       = "roomplay-session-rt"
+	roomPlayDeviceIdCookieName           = "roomplay-device-id"
+	roomPlayDeviceIdCookieExpirationTime = 24 * time.Hour * 365 // a year
 )
 
 //TODO save where the user started logging and return to the same url
@@ -50,32 +50,32 @@ func NewOidcController(configuration config.IConfiguration,
 //	@Produce		json
 //	@Success		302	{string}	string	"Redirect to Google OAuth"
 //	@Failure		403	{object}	response.Error	"Invalid redirect URL"
-//	@Router			/api/v1/auth/google/login [post]
+//	@Router			/auth/google/login [post]
 func (handler *OidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) {
 	clearStateCookie(w)
-	state := setStateCookie(w)
+	state := setStateCookie(w, handler.configuration.Server().BasePath)
 
 	googleUrl, err := handler.googleOidcService.GenerateOidcUrl(state)
 	if err != nil {
-		presentationErrors.WriteJsonFailure(w, "Couldnt generate google oauth url", http.StatusForbidden)
+		response.WriteJsonFailure(w, "Couldn't generate google oauth url", http.StatusForbidden)
 	}
 
-	presentationErrors.WriteJsonSuccess(w, googleUrl, http.StatusOK)
+	response.WriteJsonSuccess(w, googleUrl, http.StatusOK)
 }
 func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		presentationErrors.WriteJsonFailure(w, "Problem with parsing query", http.StatusInternalServerError)
+		response.WriteJsonFailure(w, "Problem with parsing query", http.StatusInternalServerError)
 		return
 	}
 	if !verifyStateCookie(r, params.Get("state")) {
-		presentationErrors.WriteJsonFailure(w, "Invalid state", http.StatusForbidden)
+		response.WriteJsonFailure(w, "Invalid state", http.StatusForbidden)
 		return
 	}
 
 	code := params.Get("code")
 	if code == "" {
-		presentationErrors.WriteJsonFailure(w, "Invalid code", http.StatusForbidden)
+		response.WriteJsonFailure(w, "Invalid code", http.StatusForbidden)
 		return
 	}
 
@@ -84,61 +84,58 @@ func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *ht
 	if err != nil {
 		deviceIdValue = nil
 	} else {
-		deviceIdValue, err = shared.ParseDeviceId(deviceId.Value)
-		if err != nil {
-			deviceIdValue = nil
-		}
+		deviceIdValue = shared.ParseDeviceId(deviceId.Value)
 	}
 
 	apiTokenResponse, err := handler.oidcAuthenticationService.AuthenticateWithGoogle(r.Context(), code, deviceIdValue)
 	if err != nil {
-		presentationErrors.WriteJsonFailure(w, "couldn't authenticate", http.StatusForbidden)
+		response.WriteJsonFailure(w, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	setAccessTokenCookie(w, apiTokenResponse.AccessToken)
-	setRefreshTokenCookie(w, apiTokenResponse.RefreshToken)
-	setDeviceIdCookie(w, apiTokenResponse.DeviceId.String())
+	setAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
+	setRefreshTokenCookie(w, apiTokenResponse.RefreshToken, handler.configuration.Server().BasePath)
+	setDeviceIdCookie(w, apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
 
 	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusPermanentRedirect)
 }
-func setAccessTokenCookie(w http.ResponseWriter, accessToken string) {
-	expiresAt := time.Now().UTC().Add(authentication.AccessTokenExpirationTime)
+func setAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) {
+	expiresAt := time.Now().Add(authentication.AccessTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
-		Name:     roomplayAccessTokenCookieName,
+		Name:     RoomplayAccessTokenCookieName,
 		Value:    accessToken,
 		Expires:  expiresAt,
-		Path:     "/api/v1",
+		Path:     basePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
-func setRefreshTokenCookie(w http.ResponseWriter, refreshToken string) {
-	expiresAt := time.Now().Add(credentials.RefreshTokenExpirationTime)
+func setRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string) {
+	expiresAt := time.Now().Add(credentials.RefreshTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
-		Name:     roomplayRefreshTokenCookieName,
+		Name:     RoomplayRefreshTokenCookieName,
 		Value:    refreshToken,
 		Expires:  expiresAt,
-		Path:     "/api/v1/auth/refresh",
+		Path:     basePath + "/auth/refresh",
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
-func setDeviceIdCookie(w http.ResponseWriter, deviceId string) {
-	expiresAt := time.Now().UTC().Add(roomPlayDeviceIdCookieLifespan)
+func setDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
+	expiresAt := time.Now().UTC().Add(roomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
 		Name:     roomPlayDeviceIdCookieName,
 		Value:    deviceId,
 		Expires:  expiresAt,
-		Path:     "/api/v1",
+		Path:     basePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
-func setStateCookie(w http.ResponseWriter) string {
+func setStateCookie(w http.ResponseWriter, basePath string) string {
 	expiresAt := time.Now().UTC().Add(roomplayStateCookieExpirationTime)
 	state := uuid.NewString()
 	http.SetCookie(w, &http.Cookie{
@@ -146,7 +143,7 @@ func setStateCookie(w http.ResponseWriter) string {
 		Value:    state,
 		Expires:  expiresAt,
 		MaxAge:   int(roomplayStateCookieExpirationTime.Seconds()),
-		Path:     "/api/v1",
+		Path:     basePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,

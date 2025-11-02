@@ -6,95 +6,9 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:7865",
-    "basePath": "/",
+    "host": "localhost:7654",
+    "basePath": "/api/v1",
     "paths": {
-        "/api/v1/auth/google/login": {
-            "get": {
-                "description": "Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Initiate Google OAuth2 login",
-                "responses": {
-                    "302": {
-                        "description": "Redirect to Google OAuth",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "403": {
-                        "description": "Invalid redirect URL",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/login": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Creates a new login in the system",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Logins a new login with data from OAuth",
-                "parameters": [
-                    {
-                        "description": "Login User",
-                        "name": "room",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/login.Command"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/room": {
             "post": {
                 "security": [
@@ -151,20 +65,72 @@
                     }
                 }
             }
+        },
+        "/auth/google/login": {
+            "post": {
+                "description": "Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AuthenticationController"
+                ],
+                "summary": "Initiate Google OAuth2 login",
+                "responses": {
+                    "302": {
+                        "description": "Redirect to Google OAuth",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid redirect URL",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/data": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user data based on the provided context",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Retrieve user data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "device.Type": {
-            "type": "integer",
-            "enum": [
-                0,
-                1
-            ],
-            "x-enum-varnames": [
-                "MOBILE",
-                "COMPUTER"
-            ]
-        },
         "join.RoomCommand": {
             "type": "object",
             "required": [
@@ -180,57 +146,6 @@
                     "type": "string"
                 },
                 "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.Command": {
-            "type": "object",
-            "properties": {
-                "credentialsDto": {
-                    "$ref": "#/definitions/login.CredentialsDto"
-                },
-                "device": {
-                    "$ref": "#/definitions/login.DeviceDto"
-                },
-                "externalId": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.CredentialsDto": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "accessTokenExpiresAt": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                },
-                "refreshTokenExpiresAt": {
-                    "type": "string"
-                },
-                "scopes": {
-                    "type": "string"
-                }
-            }
-        },
-        "login.DeviceDto": {
-            "type": "object",
-            "properties": {
-                "deviceType": {
-                    "$ref": "#/definitions/device.Type"
-                },
-                "fingerprint": {
                     "type": "string"
                 }
             }

@@ -6,6 +6,6 @@ import (
 	"xsedox.com/main/domain/credentials"
 )
 
-type ICredentialsRepository interface {
+type IExternalCredentialsRepository interface {
 	Grant(ctx context.Context, credentials *credentials.External, queryer IQueryer) error
 }

@@ -6,7 +6,6 @@ import (
 
 	"xsedox.com/main/application/contracts"
 	"xsedox.com/main/application/room/join"
-	"xsedox.com/main/presentation/presentationErrors"
 	"xsedox.com/main/presentation/response"
 )
 
@@ -37,17 +36,17 @@ func (rh *RoomController) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	var cmd join.RoomCommand
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
-		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
+		response.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := rh.createRoomCommandHandler.Handle(r.Context(), &cmd); err != nil {
-		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
+		response.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(response.Ok(nil)); err != nil {
-		presentationErrors.WriteJsonFailure(w, err.Error(), http.StatusInternalServerError)
+		response.WriteJsonFailure(w, err.Error(), http.StatusInternalServerError)
 	}
 	return
 }

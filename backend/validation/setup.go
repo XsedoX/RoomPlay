@@ -22,10 +22,11 @@ func Initialize() error {
 }
 
 func validateUserRoleEnum(fl validator.FieldLevel) bool {
-	_, ok := user.ParseRole(fl.Field().String())
-	return ok
+	stringValue := fl.Field().String()
+	value := user.ParseRole(&stringValue)
+	return value != nil
 }
 func validateDeviceType(fl validator.FieldLevel) bool {
-	_, ok := device.ParseType(fl.Field().String())
-	return ok
+	value := device.ParseType(fl.Field().String())
+	return value != nil
 }

@@ -5,6 +5,7 @@ import (
 	"xsedox.com/main/application/contracts"
 	"xsedox.com/main/application/room/join"
 	"xsedox.com/main/application/services"
+	"xsedox.com/main/application/user/data"
 	"xsedox.com/main/application/user/login"
 	"xsedox.com/main/application/user/register"
 	"xsedox.com/main/config"
@@ -16,6 +17,7 @@ import (
 type ServerDependencies struct {
 	roomController *controllers.RoomController
 	oidcController *controllers.OidcController
+	userController *controllers.UserController
 	configuration  config.IConfiguration
 	jwtProvider    contracts.IJwtProvider
 }
@@ -28,17 +30,24 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 	unitOfWork := persistance.NewUnitOfWork(db)
 	userRepository := persistance.NewUserRepository()
 	roomRepository := persistance.NewRoomRepository()
-	credentialsRepository := persistance.NewCredentialsRepository(encrypter)
+	externalCredentialsRepository := persistance.NewExternalCredentialsRepository(encrypter)
 	refreshTokenRepository := persistance.NewRefreshTokenRepository(encrypter)
 
 	registerUserCommandHandler := register.NewRegisterUserCommandHandler(userRepository,
 		unitOfWork,
-		credentialsRepository,
+		externalCredentialsRepository,
 		jwtProvider,
 		refreshTokenRepository,
 		encrypter,
 	)
-	loginUserCommandHandler := login.NewLoginUserCommandHandler(unitOfWork)
+	loginUserCommandHandler := login.NewLoginUserCommandHandler(unitOfWork,
+		userRepository,
+		encrypter,
+		jwtProvider,
+		refreshTokenRepository,
+		externalCredentialsRepository)
+	getUserDataQueryHandler := data.NewUserQueryHandler(unitOfWork,
+		userRepository)
 
 	oidcAuthenticationService := services.NewOidcAuthenticationService(googleOidcService,
 		userRepository,
@@ -51,10 +60,12 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 		googleOidcService)
 	joinRoomCommandHandler := join.NewRoomCommandHandler(roomRepository, unitOfWork)
 	roomController := controllers.NewRoomController(joinRoomCommandHandler)
+	userController := controllers.NewUserController(getUserDataQueryHandler)
 
 	return &ServerDependencies{
 		roomController: roomController,
 		oidcController: oidcController,
+		userController: userController,
 		configuration:  configuration,
 		jwtProvider:    jwtProvider,
 	}
@@ -64,6 +75,9 @@ func (sd ServerDependencies) RoomController() *controllers.RoomController {
 }
 func (sd ServerDependencies) OidcController() *controllers.OidcController {
 	return sd.oidcController
+}
+func (sd ServerDependencies) UserController() *controllers.UserController {
+	return sd.userController
 }
 func (sd ServerDependencies) Configuration() config.IConfiguration {
 	return sd.configuration

@@ -9,22 +9,22 @@ import (
 
 type External struct {
 	shared.AggregateRoot[shared.UserId]
-	accessToken                string
-	refreshToken               string
-	scopes                     []string
-	accessTokenExpirationTime  time.Time
-	refreshTokenExpirationTime time.Time
-	issuedAt                   time.Time
+	accessToken              string
+	refreshToken             string
+	scopes                   []string
+	accessTokenExpiresAtUtc  time.Time
+	refreshTokenExpiresAtUtc time.Time
+	issuedAtUtc              time.Time
 }
 
 func NewExternalCredentials(userId shared.UserId, accessToken, refreshToken, scopes string, accessTokenExpiration, refreshTokenExpiration time.Time) *External {
 	creds := &External{
-		accessToken:                accessToken,
-		refreshToken:               refreshToken,
-		scopes:                     strings.Split(scopes, " "),
-		accessTokenExpirationTime:  accessTokenExpiration,
-		refreshTokenExpirationTime: refreshTokenExpiration,
-		issuedAt:                   time.Now(),
+		accessToken:              accessToken,
+		refreshToken:             refreshToken,
+		scopes:                   strings.Split(scopes, " "),
+		accessTokenExpiresAtUtc:  accessTokenExpiration,
+		refreshTokenExpiresAtUtc: refreshTokenExpiration,
+		issuedAtUtc:              time.Now(),
 	}
 	creds.SetId(userId)
 	return creds
@@ -38,12 +38,12 @@ func (cr *External) RefreshToken() string {
 func (cr *External) Scopes() []string {
 	return cr.scopes
 }
-func (cr *External) AccessTokenExpirationTime() time.Time {
-	return cr.accessTokenExpirationTime
+func (cr *External) AccessTokenExpiresAtUtc() time.Time {
+	return cr.accessTokenExpiresAtUtc
 }
-func (cr *External) RefreshTokenExpirationTime() time.Time {
-	return cr.refreshTokenExpirationTime
+func (cr *External) RefreshTokenExpiresAtUtc() time.Time {
+	return cr.refreshTokenExpiresAtUtc
 }
-func (cr *External) IssuedAt() time.Time {
-	return cr.issuedAt
+func (cr *External) IssuedAtUtc() time.Time {
+	return cr.issuedAtUtc
 }

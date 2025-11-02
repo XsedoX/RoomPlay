@@ -1,14 +1,20 @@
 package applicationErrors
 
+import "fmt"
+
 type ApplicationError struct {
-	Message   string
+	Code      string
 	ErrorType Type
 	Err       error
 }
 
-func (e ApplicationError) Error() string {
-	return e.Message
+func NewApplicationError(code string, err error, errorType Type) *ApplicationError {
+	return &ApplicationError{Code: code, ErrorType: errorType, Err: err}
 }
-func NewApplicationError(message string, err error, errType Type) *ApplicationError {
-	return &ApplicationError{Message: message, Err: err, ErrorType: errType}
+
+func (e ApplicationError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("code: %s, type: %s, error: %s", e.Code, e.ErrorType.String(), e.Err.Error())
+	}
+	return fmt.Sprintf("code: %s, type: %s", e.Code, e.ErrorType.String())
 }
