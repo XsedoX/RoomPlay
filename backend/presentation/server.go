@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"xsedox.com/main/config"
 	"xsedox.com/main/initialization"
@@ -21,20 +19,10 @@ type Server struct {
 
 func NewServer(dependencies *initialization.ServerDependencies) *Server {
 	router := chi.NewRouter()
-	corsMiddleware := cors.New(cors.Options{
-		AllowOriginVaryRequestFunc: func(r *http.Request, origin string) (bool, []string) {
-			if strings.HasPrefix(r.RequestURI, "/api/v1/auth/google/callback") {
-				return true, []string{}
-			}
-			return origin == (dependencies.Configuration()).Authentication().ClientOrigin, []string{}
-		},
-		AllowCredentials: true,
-		// Enable Debugging for testing, consider disabling in production
-		Debug: (dependencies.Configuration()).IsDevelopment(),
-	})
+	customCors := customMiddleware.NewCustomCors(dependencies.Configuration())
 	jwtAuthMiddleware := customMiddleware.NewCookieJwtAuthentication(dependencies.Configuration(), dependencies.JwtProvider())
 
-	router.Use(customMiddleware.CorsHandler(corsMiddleware),
+	router.Use(customCors.CorsHandler(),
 		middleware.Logger,
 		middleware.Recoverer)
 
@@ -44,24 +32,27 @@ func NewServer(dependencies *initialization.ServerDependencies) *Server {
 	router.Get("/api/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerDocUrl)))
 
 	apiV1 := chi.NewRouter()
-	securedRouter := chi.NewRouter()
-	securedRouter.Use(jwtAuthMiddleware.Next)
 
-	roomRouter := chi.NewRouter()
-	roomRouter.Post("/", dependencies.RoomController().CreateRoom)
+	// Public routes
+	apiV1.Get("/auth/google/signin-oidc", dependencies.OidcController().HandleLoginWithGoogle)
+	apiV1.Get("/auth/google/callback", dependencies.OidcController().HandleGoogleCallback)
+	apiV1.Post("/auth/refresh-token", dependencies.AuthenticationController().RefreshToken)
 
-	userRouter := chi.NewRouter()
-	userRouter.Get("/", dependencies.UserController().GetUserData)
+	// Secured routes
+	apiV1.Group(func(r chi.Router) {
+		r.Use(jwtAuthMiddleware.Next)
 
-	oidcRouter := chi.NewRouter()
-	oidcRouter.Get("/google/signin-oidc", dependencies.OidcController().HandleLoginWithGoogle)
-	oidcRouter.Get("/google/callback", dependencies.OidcController().HandleGoogleCallback)
+		r.Post("/auth/logout", dependencies.AuthenticationController().Logout)
 
-	securedRouter.Mount("/room", roomRouter)
-	securedRouter.Mount("/user", userRouter)
+		r.Route("/room", func(r chi.Router) {
+			r.Post("/", dependencies.RoomController().CreateRoom)
+		})
 
-	apiV1.Mount("/auth", oidcRouter)
-	apiV1.Mount("/", securedRouter)
+		r.Route("/user", func(r chi.Router) {
+			r.Get("/", dependencies.UserController().GetUserData)
+		})
+	})
+
 	router.Mount("/api/v1", apiV1)
 
 	return &Server{

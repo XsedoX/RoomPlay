@@ -2,49 +2,101 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
+	"xsedox.com/main/application/applicationErrors"
+	"xsedox.com/main/infrastructure/validation"
 )
 
 const (
-	encodingErrorMessage = "Could not encode response object."
+	encodingErrorMessage = "could not encode response object."
 )
 
 type Success struct {
-	Message *string `json:"message"  example:"null" extensions:"x-nullable"`
-	Data    any     `json:"data" swaggertype:"object"`
+	Data any `json:"data" swaggertype:"object"`
 }
 
-func Ok(data any) Success {
-	return Success{
-		Message: nil,
-		Data:    data,
-	}
+type ProblemDetails struct {
+	Type             string            `json:"type" example:"Error code unique for the error"`
+	ValidationErrors map[string]string `json:"validationErrors" example:"{\"name\":\"too long\"}" swaggertype:"object" extensions:"x-nullable"`
+	Title            string            `json:"title" example:"Short human readable description"`
+	Description      string            `json:"description" example:"Longer human readable description"`
+	Instance         string            `json:"instance" swaggertype:"string" example:"/api/v1/uri"`
+	Status           int               `json:"status" swaggertype:"integer" example:"400"`
 }
 
-type Error struct {
-	Message string  `json:"message"`
-	Data    *string `json:"data" example:"null" extensions:"x-nullable"`
-}
-
-func Failure(message string) Error {
-	return Error{
-		Message: message,
-		Data:    nil,
-	}
-}
-
-func WriteJsonFailure(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
+func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance string, statusCode int, errors ...map[string]string) {
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.Header().Set("Content-Language", "en")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(Failure(message)); err != nil {
+
+	var error1 map[string]string
+	if len(errors) > 0 {
+		error1 = errors[0]
+	} else {
+		error1 = nil
+	}
+
+	if err := json.NewEncoder(w).Encode(&ProblemDetails{
+		Type:             type1,
+		ValidationErrors: error1,
+		Title:            title,
+		Description:      description,
+		Instance:         instance,
+		Status:           statusCode,
+	}); err != nil {
 		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 	}
 }
-
+func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
+	var applicationError *applicationErrors.ApplicationError
+	if !errors.As(appErr, &applicationError) {
+		WriteJsonFailure(w,
+			"ApplicationError.CastingError",
+			"Error is not applicationError",
+			"Unexpected issue. Please try again.",
+			instance,
+			http.StatusInternalServerError)
+		return
+	}
+	WriteJsonFailure(w,
+		applicationError.Code,
+		applicationError.Title,
+		applicationError.Error(),
+		instance,
+		int(applicationError.ErrorType))
+}
+func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) {
+	var validationErrs validator.ValidationErrors
+	if !errors.As(err, &validationErrs) {
+		WriteJsonFailure(w,
+			"ValidationErrors.CastingError",
+			"Error is not ValidationErrors",
+			"Unexpected issue. Please try again.",
+			instance,
+			http.StatusInternalServerError)
+		return
+	}
+	WriteJsonFailure(w,
+		code,
+		"Validation error occurred.",
+		"One or more fields are not correctly filled.",
+		instance,
+		http.StatusBadRequest,
+		validation.MapValidationErrors(validationErrs))
+}
+func WriteJsonNoContent(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}
 func WriteJsonSuccess[T any](w http.ResponseWriter, data T, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(Ok(data)); err != nil {
+	if err := json.NewEncoder(w).Encode(&Success{
+		Data: data,
+	}); err != nil {
 		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 	}
 }

@@ -7,5 +7,5 @@ import (
 )
 
 type IRoomRepository interface {
-	Join(ctx context.Context, room *room.Room, queryer IQueryer) error
+	Create(ctx context.Context, roomParam *room.Room, queryer IQueryer) error
 }

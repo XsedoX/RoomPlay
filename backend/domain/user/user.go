@@ -1,37 +1,53 @@
 package user
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/device"
 	"xsedox.com/main/domain/shared"
 )
 
 const IdClaimContextKeyName = "userIdClaimContextKey"
 
 type User struct {
-	shared.AggregateRoot[shared.UserId]
-	externalId string
-	fullName   FullName
-	role       *Role
-	roomId     *shared.RoomId
-	devices    []device.Device
+	shared.AggregateRoot[Id]
+	externalId     string
+	fullName       FullName
+	role           *UserRole
+	roomId         *shared.RoomId
+	devices        []Device
+	boostUsedAtUtc *time.Time
 }
 
-func NewUser(externalId, name, surname string, deviceEntity device.Device) *User {
+func NewUser(externalId, name, surname string, deviceType DeviceType) *User {
+	deviceEntity := NewDevice(deviceType)
 	user := &User{
-		externalId: externalId,
-		fullName:   *NewFullName(name, surname),
-		role:       nil,
-		roomId:     nil,
-		devices:    []device.Device{deviceEntity},
+		externalId:     externalId,
+		fullName:       NewFullName(name, surname),
+		role:           nil,
+		roomId:         nil,
+		devices:        []Device{*deviceEntity},
+		boostUsedAtUtc: nil,
 	}
-	user.SetId(shared.UserId(uuid.New()))
+	user.SetId(Id(uuid.New()))
 	return user
+}
+func (u *User) GetMostRecentDevice() *Device {
+	mostRecent := &u.devices[0]
+	for i := range u.devices {
+		if u.devices[i].LastLoggedInUtc().After(mostRecent.LastLoggedInUtc()) {
+			mostRecent = &u.devices[i]
+		}
+	}
+	return mostRecent
+}
+func (u *User) BoostUsedAtUtc() *time.Time {
+	return u.boostUsedAtUtc
 }
 func (u *User) ChangeFullName(newFullName FullName) {
 	u.fullName = newFullName
 }
-func (u *User) Devices() []device.Device {
+func (u *User) Devices() []Device {
 	return u.devices
 }
 func (u *User) RoomId() *shared.RoomId {
@@ -43,18 +59,18 @@ func (u *User) FullName() FullName {
 func (u *User) ExternalId() string {
 	return u.externalId
 }
-func (u *User) Role() *Role {
+func (u *User) Role() *UserRole {
 	return u.role
 }
-func (u *User) LoginWithNewDevice(deviceType device.Type) shared.DeviceId {
-	newDevice := device.NewDevice(deviceType)
+func (u *User) LoginWithNewDevice(deviceType DeviceType) DeviceId {
+	newDevice := NewDevice(deviceType)
 	u.devices = append(u.devices, *newDevice)
 	return newDevice.Id()
 }
-func (u *User) ReloginWithKnownDevice(deviceId shared.DeviceId) {
+func (u *User) ReloginWithKnownDevice(deviceId DeviceId) {
 	u.getDeviceById(deviceId).RefreshDeviceState()
 }
-func (u *User) getDeviceById(deviceId shared.DeviceId) *device.Device {
+func (u *User) getDeviceById(deviceId DeviceId) *Device {
 	for i := range u.devices {
 		if u.devices[i].Id() == deviceId {
 			return &u.devices[i]
@@ -63,20 +79,22 @@ func (u *User) getDeviceById(deviceId shared.DeviceId) *device.Device {
 	return nil
 }
 func HydrateUser(
-	id shared.UserId,
+	id Id,
 	externalId string,
 	name string,
 	surname string,
-	role *Role,
+	role *UserRole,
 	roomId *shared.RoomId,
-	devices []device.Device,
+	devices []Device,
+	boostUsedAtUtc *time.Time,
 ) *User {
 	user := &User{
-		externalId: externalId,
-		fullName:   *NewFullName(name, surname),
-		role:       role,
-		roomId:     roomId,
-		devices:    devices,
+		externalId:     externalId,
+		fullName:       NewFullName(name, surname),
+		role:           role,
+		roomId:         roomId,
+		devices:        devices,
+		boostUsedAtUtc: boostUsedAtUtc,
 	}
 	user.SetId(id)
 	return user

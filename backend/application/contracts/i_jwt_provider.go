@@ -1,10 +1,10 @@
 package contracts
 
 import (
-	"xsedox.com/main/domain/shared"
+	"xsedox.com/main/domain/user"
 )
 
 type IJwtProvider interface {
-	GenerateToken(userId shared.UserId) (string, error)
-	ValidateTokenAndGetUserId(tokenString string) (*shared.UserId, error)
+	GenerateToken(userId user.Id) (string, error)
+	ValidateTokenAndGetUserId(tokenString string) (*user.Id, error)
 }

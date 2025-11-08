@@ -4,15 +4,15 @@ import (
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/data"
+	"xsedox.com/main/application/user/data_query"
 	"xsedox.com/main/presentation/response"
 )
 
 type UserController struct {
-	getUserDataQueryHandler contracts.IQueryHandler[*data.UserQueryResponse]
+	getUserDataQueryHandler contracts.IQueryHandler[*data_query.UserQueryResponse]
 }
 
-func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*data.UserQueryResponse]) *UserController {
+func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*data_query.UserQueryResponse]) *UserController {
 	return &UserController{getUserDataQueryHandler: getUserDataQueryHandler}
 }
 
@@ -29,7 +29,9 @@ func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*data.Use
 func (userController *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
 	userData, err := userController.getUserDataQueryHandler.Handle(r.Context())
 	if err != nil {
-		response.WriteJsonFailure(w, err.Error(), http.StatusBadRequest)
+		response.WriteJsonApplicationFailure(w,
+			err,
+			r.URL.RequestURI())
 	}
 	response.WriteJsonSuccess(w, userData, http.StatusOK)
 }

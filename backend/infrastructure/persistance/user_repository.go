@@ -4,53 +4,36 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/device"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
+	"xsedox.com/main/infrastructure/persistance/daos"
 )
 
 const getDevicesQuery = `SELECT * FROM devices WHERE user_id = $1`
 
-type userDbDto struct {
-	Id         uuid.UUID  `db:"id"`
-	ExternalId string     `db:"external_id"`
-	Name       string     `db:"name"`
-	Surname    string     `db:"surname"`
-	RoomId     *uuid.UUID `db:"room_id"`
-	Role       *string    `db:"role"`
-}
-type deviceDbDto struct {
-	Id                uuid.UUID `db:"id"`
-	FriendlyName      string    `db:"friendly_name"`
-	IsHost            bool      `db:"is_host"`
-	Type              string    `db:"type"`
-	UserId            uuid.UUID `db:"user_id"`
-	State             string    `db:"state"`
-	LastLoggedInAtUtc time.Time `db:"last_logged_in_at_utc"`
-}
 type UserRepository struct {
 }
 
 func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
-func (repository *UserRepository) GetUserById(ctx context.Context, id shared.UserId, queryer contracts.IQueryer) (*user.User, error) {
-	var userDb userDbDto
+func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, queryer contracts.IQueryer) (*user.User, error) {
+	var userDb daos.UserDbDao
 	err := queryer.GetContext(ctx,
 		&userDb,
-		`SELECT u.*, ur.role FROM users u 
+		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
          	   LEFT JOIN users_roles ur ON ur.user_id = u.id 
+			   LEFT JOIN boosts b ON b.user_id = u.id 
          	   WHERE id = $1`,
-		uuid.UUID(id))
+		id.ToUuid())
 	if err != nil {
 		return nil, err
 	}
 
-	var devicesDb []*deviceDbDto
+	var devicesDb []daos.DeviceDbDao
 	err = queryer.SelectContext(ctx,
 		&devicesDb,
 		getDevicesQuery,
@@ -59,21 +42,22 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id shared.Use
 		return nil, err
 	}
 
-	return parseUser(&userDb, devicesDb), nil
+	return parseUser(&userDb, &devicesDb), nil
 }
 func (repository *UserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) (*user.User, error) {
-	var userDb userDbDto
+	var userDb daos.UserDbDao
 	err := queryer.GetContext(ctx,
 		&userDb,
-		`SELECT u.*, ur.role FROM users u 
+		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
          	   LEFT JOIN users_roles ur ON ur.user_id = u.id 
+			   LEFT JOIN boosts b ON b.user_id = u.id 
          	   WHERE external_id = $1`,
 		externalId)
 	if err != nil {
 		return nil, err
 	}
 
-	var devicesDb []*deviceDbDto
+	var devicesDb []daos.DeviceDbDao
 	err = queryer.SelectContext(ctx,
 		&devicesDb,
 		getDevicesQuery,
@@ -81,7 +65,7 @@ func (repository *UserRepository) GetUserByExternalId(ctx context.Context, exter
 	if err != nil {
 		return nil, err
 	}
-	return parseUser(&userDb, devicesDb), nil
+	return parseUser(&userDb, &devicesDb), nil
 }
 func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) bool {
 	var response bool
@@ -101,26 +85,39 @@ func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Conte
 	return response
 }
 func (repository *UserRepository) Update(ctx context.Context, user *user.User, queryer contracts.IQueryer) error {
-	var roomId *uuid.UUID
-	if user.RoomId() != nil {
-		id := uuid.UUID(*user.RoomId())
-		roomId = &id
-	}
+	userId := user.Id()
 	_, err := queryer.ExecContext(ctx, `
 		UPDATE users 
 		SET name=$1, surname=$2, room_id=$3::uuid
 		WHERE id=$4::uuid`,
-		user.FullName().Name(), user.FullName().Surname(), roomId, uuid.UUID(user.Id()))
+		user.FullName().Name(),
+		user.FullName().Surname(),
+		user.RoomId().ToUuid(),
+		userId.ToUuid())
 	if err != nil {
 		return err
 	}
 
-	if user.Role() != nil && user.RoomId() != nil {
+	if user.Role() != nil && user.RoomId() != nil && user.BoostUsedAtUtc() != nil {
 		_, err = queryer.ExecContext(ctx,
-			`UPDATE users_roles SET role=$1 WHERE user_id = $2::uuid AND room_id = $3::uuid`,
-			user.Role().String(),
-			uuid.UUID(user.Id()),
-			uuid.UUID(*user.RoomId()))
+			`INSERT INTO users_roles (room_id, user_id, role) 
+				   VALUES ($1, $2, $3)
+				   ON CONFLICT (room_id, user_id) DO UPDATE SET role=$3::user_role;`,
+			user.RoomId().ToUuid(),
+			userId.ToUuid(),
+			user.Role().String())
+		if err != nil {
+			return err
+		}
+	}
+	if user.Role() != nil && user.RoomId() != nil && user.BoostUsedAtUtc() != nil {
+		_, err = queryer.ExecContext(ctx,
+			`INSERT INTO boosts (room_id, user_id, used_at_utc)
+  				   VALUES ($1, $2, $3)
+  				   ON CONFLICT (room_id, user_id) DO UPDATE SET used_at_utc=$3;`,
+			user.RoomId().ToUuid(),
+			userId.ToUuid(),
+			user.BoostUsedAtUtc())
 		if err != nil {
 			return err
 		}
@@ -134,12 +131,13 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 			base+1, base+2, base+3, base+4, base+5, base+6, base+7,
 		)
 		values = append(values, tuple)
+		deviceId := deviceToUpdate.Id()
 		params = append(params,
-			uuid.UUID(deviceToUpdate.Id()),
+			deviceId.ToUuid(),
 			deviceToUpdate.FriendlyName(),
 			deviceToUpdate.IsHost(),
 			deviceToUpdate.DeviceType().String(),
-			uuid.UUID(user.Id()),
+			userId.ToUuid(),
 			deviceToUpdate.State().String(),
 			deviceToUpdate.LastLoggedInUtc(),
 		)
@@ -162,52 +160,28 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 
 	values = make([]string, 0, len(user.Devices()))
 	params1 := make([]interface{}, 0, len(user.Devices())+1)
-	params1 = append(params1, uuid.UUID(user.Id()))
+	params1 = append(params1, userId.ToUuid())
 	for i, deviceToUpdate := range user.Devices() {
 		values = append(values, fmt.Sprintf("$%d", i+2))
-		params1 = append(params1, uuid.UUID(deviceToUpdate.Id()))
+		deviceId := deviceToUpdate.Id()
+		params1 = append(params1, deviceId.ToUuid())
 	}
 
-	deleteQuery := `DELETE FROM devices WHERE user_id=$1`
-	if len(values) > 0 {
-		deleteQuery += ` AND id NOT IN (` + strings.Join(values, ",") + `)`
-	}
+	deleteQuery := `DELETE FROM devices WHERE user_id=$1
+					AND id NOT IN (` + strings.Join(values, ",") + `);`
 
 	_, err = queryer.ExecContext(ctx, deleteQuery, params1...)
 
 	return err
 }
 func (repository *UserRepository) Add(ctx context.Context, user *user.User, queryer contracts.IQueryer) error {
-	var roomId *uuid.UUID
-	if user.RoomId() != nil {
-		id := uuid.UUID(*user.RoomId())
-		roomId = &id
-	}
+	userId := user.Id()
 	params := []interface{}{
-		uuid.UUID(user.Id()),
+		userId.ToUuid(),
 		user.ExternalId(),
 		user.FullName().Name(),
 		user.FullName().Surname(),
-		roomId,
-	}
-
-	// If no devices, do a simple single INSERT
-	if len(user.Devices()) == 0 {
-		_, err := queryer.ExecContext(ctx,
-			"INSERT INTO users (id, external_id, name, surname, room_id) VALUES ($1::uuid, $2, $3, $4, $5::uuid);",
-			params...,
-		)
-		return err
-	}
-
-	if user.RoomId() != nil && user.Role() != nil {
-		_, err := queryer.ExecContext(ctx,
-			"INSERT INTO users_roles (room_id, user_id, role) VALUES ($1, $2, $3::user_role)",
-			uuid.UUID(*user.RoomId()),
-			uuid.UUID(user.Id()),
-			user.Role().String(),
-		)
-		return err
+		user.RoomId().ToUuid(),
 	}
 
 	// Build VALUES tuples and append deviceFromDb fields to params.
@@ -245,26 +219,27 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 	_, err := queryer.ExecContext(ctx, query, params...)
 	return err
 }
-func parseUser(userDb *userDbDto, devicesDb []*deviceDbDto) *user.User {
-	var devices []device.Device
-	for _, deviceDb := range devicesDb {
-		deviceResult := device.HydrateDevice(
-			shared.DeviceId(deviceDb.Id),
+func parseUser(userDb *daos.UserDbDao, devicesDb *[]daos.DeviceDbDao) *user.User {
+	var devices []user.Device
+	for _, deviceDb := range *devicesDb {
+		deviceResult := user.HydrateDevice(
+			user.DeviceId(deviceDb.Id),
 			deviceDb.FriendlyName,
-			*device.ParseType(deviceDb.Type),
+			*user.ParseDeviceType(&deviceDb.Type),
 			deviceDb.IsHost,
-			device.ParseState(deviceDb.State),
+			*user.ParseDeviceState(&deviceDb.State),
 			deviceDb.LastLoggedInAtUtc,
 		)
 		devices = append(devices,
 			*deviceResult)
 	}
 
-	return user.HydrateUser(shared.UserId(userDb.Id),
+	return user.HydrateUser(user.Id(userDb.Id),
 		userDb.ExternalId,
 		userDb.Name,
 		userDb.Surname,
-		user.ParseRole(userDb.Role),
+		user.ParseUserRole(userDb.Role),
 		(*shared.RoomId)(userDb.RoomId),
-		devices)
+		devices,
+		userDb.BoostUsedAtUtc)
 }

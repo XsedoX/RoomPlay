@@ -3,8 +3,10 @@ import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 import JoinRoomPopup from '@/pages/main_menu_page/JoinRoomPopup.vue';
 import CreateRoomPopup from '@/pages/main_menu_page/CreateRoomPopup.vue';
-const fullName = "Full Name";
-const avatarAbbreviation = "FN";
+import { useUserStore } from '@/stores/user_store.ts';
+
+const userStore = useUserStore();
+
 </script>
 
 <template>
@@ -14,7 +16,7 @@ const avatarAbbreviation = "FN";
            class="w-100">
       <v-col cols="auto"
              class="text-center">
-        <AvatarWithFullName :full-name="fullName" :avatar-abbreviation="avatarAbbreviation"></AvatarWithFullName>
+        <AvatarWithFullName :full-name="`${userStore.user?.name} ${userStore.user?.surname}`" :avatar-abbreviation="userStore.usersInitials"></AvatarWithFullName>
       </v-col>
     </v-row>
     <v-container class="pa-0 ma-0 justify-center align-center d-flex flex-column">
@@ -67,6 +69,7 @@ const avatarAbbreviation = "FN";
                  variant="plain"
                  rounded="xl"
                  :ripple="false"
+                 @click="userStore.logout()"
                  size="small"
                  color="error">
             Logout

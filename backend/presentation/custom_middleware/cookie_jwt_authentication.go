@@ -2,12 +2,13 @@ package customMiddleware
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
 	"xsedox.com/main/config"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/presentation/controllers"
+	"xsedox.com/main/presentation/helpers"
 	"xsedox.com/main/presentation/response"
 )
 
@@ -26,15 +27,35 @@ func NewCookieJwtAuthentication(configuration config.IConfiguration,
 
 func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authCookie, err := r.Cookie(controllers.RoomplayAccessTokenCookieName)
+		authCookie, err := r.Cookie(helpers.RoomplayAccessTokenCookieName)
 		if err != nil {
-			response.WriteJsonFailure(w, "Missing Auth cookie", http.StatusUnauthorized)
+			response.WriteJsonFailure(w,
+				"JwtAuthentication.MissingAuthCookie",
+				"Missing cookie",
+				"The authentication cookie has not been sent",
+				r.URL.RequestURI(),
+				http.StatusUnauthorized)
+			return
+		}
+		decodedToken, err := base64.StdEncoding.DecodeString(authCookie.Value)
+		if err != nil {
+			// Handle malformed cookie value.
+			response.WriteJsonFailure(w,
+				"JwtAuthentication.DecodeString",
+				"Invalid access token",
+				"The JWT token could not be decoded",
+				r.URL.RequestURI(),
+				http.StatusUnauthorized)
 			return
 		}
 
-		userId, err := jwtAuth.jwtProvider.ValidateTokenAndGetUserId(authCookie.Value)
+		userId, err := jwtAuth.jwtProvider.ValidateTokenAndGetUserId(string(decodedToken))
 		if err != nil {
-			response.WriteJsonFailure(w, "JWT issue", http.StatusUnauthorized)
+			response.WriteJsonFailure(w, "JwtAuthentication.TokenNotValid",
+				"JWT issue",
+				err.Error(),
+				r.URL.RequestURI(),
+				http.StatusUnauthorized)
 			return
 		}
 

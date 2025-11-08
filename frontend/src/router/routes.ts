@@ -7,15 +7,22 @@ import SignInOidcPage from '@/pages/authentication_page/SignInOidcPage.vue'
 
 export const routes: RouteRecordRaw[] = [
   {path: '/', component: LoginPage, name: 'LoginPage'},
-  {path: '/mainMenu', component: MainMenuPage, name: 'MainMenuPage'},
+  {path: '/mainMenu', component: MainMenuPage, name: 'MainMenuPage', meta:{ requiresAuth: true }},
   {
     path: '/room/:id',
     component: RoomPage,
-    name: 'RoomPage'},
+    name: 'RoomPage',
+    meta:{ requiresAuth: true }
+  },
   {
     path: '/room/:id/settings',
     component: SettingsPage,
-    name: 'SettingsPage'
+    name: 'SettingsPage',
+    meta:{ requiresAuth: true }
   },
-  {path: "/signin-oidc", component: SignInOidcPage,name: "SignInOidcPage" }
+  {
+    path: "/signin-oidc",
+    component: SignInOidcPage,
+    name: "SignInOidcPage"
+  }
 ]

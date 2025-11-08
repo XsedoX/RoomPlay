@@ -3,15 +3,16 @@ package application
 import (
 	"context"
 
-	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
 )
 
-func GetUserIdFromContext(ctx context.Context) (userId *shared.UserId, ok bool) {
+const MissingUserIdInContextErrorMessage string = "User id not found in context"
+
+func GetUserIdFromContext(ctx context.Context) (userId *user.Id, ok bool) {
 	value := ctx.Value(user.IdClaimContextKeyName)
 	if value == nil {
 		return nil, false
 	}
-	userId, ok = value.(*shared.UserId)
+	userId, ok = value.(*user.Id)
 	return userId, ok
 }

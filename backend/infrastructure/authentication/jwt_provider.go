@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"xsedox.com/main/config"
-	"xsedox.com/main/domain/shared"
+	"xsedox.com/main/domain/user"
 )
 
 const AccessTokenExpirationTime = time.Minute * 5
@@ -23,7 +23,7 @@ func NewJwtProvider(configuration config.IConfiguration) *JwtProvider {
 	}
 }
 
-func (jwtProvider *JwtProvider) GenerateToken(userId shared.UserId) (string, error) {
+func (jwtProvider *JwtProvider) GenerateToken(userId user.Id) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
 		Subject:   uuid.UUID(userId).String(),
 		Audience:  strings.Split(jwtProvider.configuration.Authentication().AudienceField, " "),
@@ -37,7 +37,7 @@ func (jwtProvider *JwtProvider) GenerateToken(userId shared.UserId) (string, err
 	}
 	return tokenString, nil
 }
-func (jwtProvider *JwtProvider) ValidateTokenAndGetUserId(tokenString string) (*shared.UserId, error) {
+func (jwtProvider *JwtProvider) ValidateTokenAndGetUserId(tokenString string) (*user.Id, error) {
 
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtProvider.configuration.Authentication().JwtKey), nil
@@ -62,6 +62,6 @@ func (jwtProvider *JwtProvider) ValidateTokenAndGetUserId(tokenString string) (*
 	if err != nil {
 		return nil, err
 	}
-	userIdParsed := shared.UserId(userId)
+	userIdParsed := user.Id(userId)
 	return &userIdParsed, nil
 }

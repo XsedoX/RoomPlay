@@ -29,35 +29,53 @@ func NewLoginRefreshTokenCommandHandler(refreshToken contracts.IRefreshTokenRepo
 		jwtProvider:            jwtProvider}
 }
 
-func (handler *CommandHandler) Handle(ctx context.Context, refreshToken *string) (*CommandResponse, error) {
+func (handler *CommandHandler) Handle(ctx context.Context, command *string) (*CommandResponse, error) {
 	var response CommandResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		tokenFromDb, err := handler.refreshTokenRepository.GetTokenByValue(ctx, *refreshToken, handler.unitOfWork.GetQueryer())
+		tokenFromDb, err := handler.refreshTokenRepository.GetTokenByValue(ctx, *command, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return err
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.GetTokenByValue",
+				"Couldn't fetch token from the database.",
+				err,
+				applicationErrors.Unexpected)
 		}
 		if tokenFromDb.IsExpired() {
-			return applicationErrors.NewApplicationError("expired token", nil, applicationErrors.Validation)
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.ExpiredToken",
+				"Refresh token expired",
+				nil,
+				applicationErrors.Unauthorized)
 		}
-		if !handler.encrypter.Verify(*refreshToken, []byte(tokenFromDb.RefreshToken())) {
-			return applicationErrors.NewApplicationError("invalid refresh token", nil, applicationErrors.Unauthorized)
+		if !handler.encrypter.Verify(*command, []byte(tokenFromDb.RefreshToken())) {
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.InvalidRefreshToken",
+				"The token provided is invalid",
+				nil,
+				applicationErrors.Unauthorized)
 		}
 		userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.Id(), handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return err
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.GetUserById",
+				"Couldn't fetch user from the database.",
+				err,
+				applicationErrors.Unexpected)
 		}
 		newRefreshTokenValue := handler.encrypter.NewEncryptionKey()
 		newRefreshToken := credentials.NewRefreshToken(userFromDb.Id(), tokenFromDb.DeviceId(), string(newRefreshTokenValue))
-		newTokenErr := handler.refreshTokenRepository.UpdateToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer())
+		newTokenErr := handler.refreshTokenRepository.AssignNewToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer())
 		if newTokenErr != nil {
-			return newTokenErr
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.AssignNewToken",
+				"Couldn't assign a new refresh token to a user.",
+				newTokenErr,
+				applicationErrors.Unexpected)
 		}
 		response.RefreshToken = string(newRefreshTokenValue)
 
 		var tokenErr error
 		response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userFromDb.Id())
 		if tokenErr != nil {
-			return tokenErr
+			return applicationErrors.NewApplicationError("LoginRefreshTokenCommandHandler.GenerateToken",
+				"Couldn't generate a new access token for a user.",
+				newTokenErr,
+				applicationErrors.Unexpected)
 		}
 
 		return nil

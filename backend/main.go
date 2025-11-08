@@ -6,9 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"xsedox.com/main/config"
 	"xsedox.com/main/infrastructure/persistance"
+	"xsedox.com/main/infrastructure/validation"
 	"xsedox.com/main/initialization"
 	"xsedox.com/main/presentation"
-	"xsedox.com/main/validation"
 )
 
 import (
@@ -29,17 +29,14 @@ import (
 // @name Authorization
 // @description Type "Bearer {token}"
 func main() {
+	validation.Initialize()
 	ctx := context.Background()
-	err := validation.Initialize()
+
 	configuration := config.Load()
 
 	db := persistance.InitializeDatabase(ctx, configuration)
 
 	dependencies := initialization.NewServerDependencies(db, configuration)
-
-	if err != nil {
-		log.Fatalf("failed to register validation: %v", err)
-	}
 
 	log.Printf("Loaded config: port: %v, host: %v, environment: %v", configuration.Server().Port, configuration.Server().Host, configuration.Environment)
 

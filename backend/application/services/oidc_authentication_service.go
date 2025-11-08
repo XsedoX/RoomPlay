@@ -7,17 +7,16 @@ import (
 	"xsedox.com/main/application/applicationErrors"
 	"xsedox.com/main/application/contracts"
 	"xsedox.com/main/application/dtos"
-	"xsedox.com/main/application/user/login"
-	"xsedox.com/main/application/user/register"
-	"xsedox.com/main/domain/device"
-	"xsedox.com/main/domain/shared"
+	"xsedox.com/main/application/user/login_command"
+	"xsedox.com/main/application/user/register_command"
+	"xsedox.com/main/domain/user"
 )
 
 type OidcAuthenticationService struct {
 	googleOidcService          contracts.IGoogleOidcService
 	userRepository             contracts.IUserRepository
 	registerUserCommandHandler contracts.ICommandHandlerWithResponse[*register.UserCommand, *register.UserCommandResponse]
-	loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login.UserCommand, *login.UserCommandResponse]
+	loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login_command.UserCommand, *login_command.UserCommandResponse]
 	unitOfWork                 contracts.IUnitOfWork
 }
 
@@ -25,7 +24,7 @@ func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService
 	userRepository contracts.IUserRepository,
 	unitOfWork contracts.IUnitOfWork,
 	registerUserHandler contracts.ICommandHandlerWithResponse[*register.UserCommand, *register.UserCommandResponse],
-	loginUserHandler contracts.ICommandHandlerWithResponse[*login.UserCommand, *login.UserCommandResponse]) *OidcAuthenticationService {
+	loginUserHandler contracts.ICommandHandlerWithResponse[*login_command.UserCommand, *login_command.UserCommandResponse]) *OidcAuthenticationService {
 	return &OidcAuthenticationService{
 		googleOidcService:          googleOidcService,
 		userRepository:             userRepository,
@@ -35,31 +34,40 @@ func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService
 	}
 }
 
-func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx context.Context, code string, deviceId *shared.DeviceId) (*dtos.OidcAuthenticateUserServiceDto,
+func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx context.Context, code string, deviceId *user.DeviceId, deviceType *user.DeviceType) (*dtos.OidcAuthenticateUserServiceDto,
 	error) {
 	tokenResp, err := oidcAuthentication.googleOidcService.GetAccessToken(ctx, code)
 	if err != nil {
-		return nil, applicationErrors.NewApplicationError("couldn't get access token", err,
+		return nil, applicationErrors.NewApplicationError("OidcAuthenticationService.GetAccessToken",
+			"Couldn't get access token",
+			err,
 			applicationErrors.Unexpected)
 	}
 
 	claims, err := oidcAuthentication.googleOidcService.ParseIdToken(tokenResp.IdToken)
 	if err != nil {
-		return nil, applicationErrors.NewApplicationError("Couldn't parse id token", err,
+		return nil, applicationErrors.NewApplicationError("OidcAuthenticationService.ParseIdToken",
+			"Couldn't parse id token",
+			err,
 			applicationErrors.Unexpected)
 	}
-
+	var deviceTypeToPass user.DeviceType
+	if deviceType == nil {
+		deviceTypeToPass = user.Desktop
+	} else {
+		deviceTypeToPass = *deviceType
+	}
 	var apiTokenResponse dtos.OidcAuthenticateUserServiceDto
 	if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer()) {
-		loginUserCommand := login.UserCommand{
+		loginUserCommand := login_command.UserCommand{
 			Name: claims.GivenName,
-			DeviceDto: login.DeviceDto{
+			DeviceDto: login_command.DeviceDto{
 				DeviceId:   deviceId,
-				DeviceType: device.Computer,
+				DeviceType: deviceTypeToPass,
 			},
 			ExternalId: claims.Subject,
 			Surname:    claims.FamilyName,
-			CredentialsDto: login.CredentialsDto{
+			CredentialsDto: login_command.CredentialsDto{
 				AccessToken:              tokenResp.AccessToken,
 				RefreshToken:             tokenResp.RefreshToken,
 				Scopes:                   tokenResp.Scope,
@@ -69,7 +77,7 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 		}
 		loginResponse, err := oidcAuthentication.loginUserCommandHandler.Handle(ctx, &loginUserCommand)
 		if err != nil {
-			return nil, applicationErrors.NewApplicationError("couldn't create login user command", err, applicationErrors.Unexpected)
+			return nil, err
 		}
 		apiTokenResponse.AccessToken = loginResponse.AccessToken
 		apiTokenResponse.RefreshToken = loginResponse.RefreshToken
@@ -77,7 +85,7 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 	} else {
 		registerUserCommand := register.UserCommand{
 			Name:       claims.GivenName,
-			DeviceType: device.Computer,
+			DeviceType: deviceTypeToPass,
 			ExternalId: claims.Subject,
 			Surname:    claims.FamilyName,
 			CredentialsDto: register.CredentialsDto{
@@ -90,12 +98,11 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 		}
 		registerResponse, err := oidcAuthentication.registerUserCommandHandler.Handle(ctx, &registerUserCommand)
 		if err != nil {
-			return nil, applicationErrors.NewApplicationError("couldn't create register user command", err, applicationErrors.Unexpected)
+			return nil, err
 		}
 		apiTokenResponse.AccessToken = registerResponse.AccessToken
 		apiTokenResponse.RefreshToken = registerResponse.RefreshToken
 		apiTokenResponse.DeviceId = registerResponse.DeviceId
 	}
-
-	return &apiTokenResponse, nil
+	return &apiTokenResponse, err
 }

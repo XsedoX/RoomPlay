@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import { LoginRepository } from '@/infrastructure/repositories/login_repository.ts';
-import { ref } from 'vue'
-import type IUserDataResponse from '@/infrastructure/models/IUserDataResponse.ts';
+import { useUserStore } from '@/stores/user_store.ts';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const userData = ref<IUserDataResponse | null>(null);
+const router = useRouter();
+const userStore = useUserStore();
 
-LoginRepository.userData()
-  .then(data => { userData.value = data; })
-  .catch(() => { userData.value = null; });
+onMounted(async () => {
+  await userStore.getUserData()
+  await router.replace({ name: 'MainMenuPage' })
+})
 </script>
 
 <template>
-  <div v-if="userData">
-    {{ userData.name }} {{ userData.surname }} {{ userData.role }} {{ userData.roomId }}
-  </div>
-  <div v-else>
-    Authenticating...
-  </div>
+  Authenticating...
 </template>
 
 <style scoped></style>

@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"xsedox.com/main/domain/shared"
+	"xsedox.com/main/domain/user"
 )
 
 type External struct {
-	shared.AggregateRoot[shared.UserId]
+	shared.AggregateRoot[user.Id]
 	accessToken              string
 	refreshToken             string
 	scopes                   []string
@@ -17,7 +18,7 @@ type External struct {
 	issuedAtUtc              time.Time
 }
 
-func NewExternalCredentials(userId shared.UserId, accessToken, refreshToken, scopes string, accessTokenExpiration, refreshTokenExpiration time.Time) *External {
+func NewExternalCredentials(userId user.Id, accessToken, refreshToken, scopes string, accessTokenExpiration, refreshTokenExpiration time.Time) *External {
 	creds := &External{
 		accessToken:              accessToken,
 		refreshToken:             refreshToken,

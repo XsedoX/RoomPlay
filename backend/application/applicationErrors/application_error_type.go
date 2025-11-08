@@ -3,26 +3,26 @@ package applicationErrors
 type Type int
 
 const (
-	Validation Type = iota
-	Unexpected
-	NotFound
-	Unauthorized
-	Forbidden
+	Validation   Type = 400
+	Unexpected        = 500
+	NotFound          = 404
+	Unauthorized      = 401
+	Forbidden         = 403
 )
 
 var typeNames = map[Type]string{
-	Validation:   "Validation",
-	Unexpected:   "Unexpected",
-	NotFound:     "NotFound",
-	Unauthorized: "Unauthorized",
-	Forbidden:    "Forbidden",
+	Validation:   "validation",
+	Unexpected:   "unexpected",
+	NotFound:     "notFound",
+	Unauthorized: "unauthorized",
+	Forbidden:    "forbidden",
 }
 var errorFromName = map[string]Type{
-	"Validation":   Validation,
-	"Unexpected":   Unexpected,
-	"NotFound":     NotFound,
-	"Unauthorized": Unauthorized,
-	"Forbidden":    Forbidden,
+	"validation":   Validation,
+	"unexpected":   Unexpected,
+	"notFound":     NotFound,
+	"unauthorized": Unauthorized,
+	"forbidden":    Forbidden,
 }
 
 func (t Type) String() string {

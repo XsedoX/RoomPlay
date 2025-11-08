@@ -1,9 +1,11 @@
 package dtos
 
-import "xsedox.com/main/domain/shared"
+import (
+	"xsedox.com/main/domain/user"
+)
 
 type OidcAuthenticateUserServiceDto struct {
-	RefreshToken string          `json:"refresh_token"`
-	AccessToken  string          `json:"access_token"`
-	DeviceId     shared.DeviceId `json:"device_id"`
+	RefreshToken string        `json:"refresh_token"`
+	AccessToken  string        `json:"access_token"`
+	DeviceId     user.DeviceId `json:"device_id"`
 }

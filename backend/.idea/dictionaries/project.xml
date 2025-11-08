@@ -3,6 +3,8 @@
     <words>
       <w>creds</w>
       <w>envconfig</w>
+      <w>eqcsfield</w>
+      <w>eqfield</w>
       <w>queryer</w>
       <w>queryx</w>
       <w>relogin</w>

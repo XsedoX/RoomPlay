@@ -29,18 +29,16 @@ CREATE TABLE "songs" (
   "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
   "title" varchar(256) NOT NULL,
-  "author" varchar(256) NOT NULL,
-  "mongo_thumbnail_id" uuid NOT NULL,
-  "length_seconds" int NOT NULL
+  "artist" varchar(256) NOT NULL,
+  "length_seconds" smallint NOT NULL
 );
 
 CREATE TABLE "rooms" (
   "id" uuid PRIMARY KEY,
-  "salt" text NOT NULL,
   "name" varchar(30) NOT NULL,
-  "password" varchar(256) NOT NULL,
-  "qr_code" varchar(256) NOT NULL,
-  "boost_cooldown_seconds" int,
+  "password" bytea NOT NULL,
+  "qr_code_hash" bytea NOT NULL,
+  "boost_cooldown_seconds" smallint,
   "created_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   "lifespan_seconds" int NOT NULL DEFAULT 172800
 );
@@ -89,7 +87,7 @@ CREATE TABLE "users_refresh_token" (
 CREATE TABLE "boosts" (
   "room_id" uuid,
   "user_id" uuid,
-  "used_at_utc" time NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  "used_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY ("room_id", "user_id")
 );
 
@@ -99,15 +97,15 @@ CREATE TABLE "enqueued_songs" (
   "song_id" uuid NOT NULL,
   "added_by" uuid,
   "added_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  "played_at_utc" timestamp,
+  "started_at_utc" timestamp,
   "state" song_state NOT NULL DEFAULT 'enqueued',
-  "votes" int NOT NULL DEFAULT 0
+  "votes" smallint NOT NULL DEFAULT 0
 );
 
 CREATE TABLE "rapid_songs" (
   "room_id" uuid,
   "song_id" uuid,
-  "to_be_played_at_utc" timestamp NOT NULL,
+  "enqeued_at_utc" timestamp NOT NULL,
   PRIMARY KEY ("room_id", "song_id")
 );
 
@@ -121,7 +119,7 @@ CREATE TABLE "default_playlists" (
   "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
   "user_id" uuid NOT NULL,
-  "song_amount" int NOT NULL,
+  "song_amount" smallint NOT NULL,
   "playlist_title" varchar(256) NOT NULL,
   "room_id" uuid NOT NULL
 );

@@ -5,8 +5,8 @@ type FullName struct {
 	surname string
 }
 
-func NewFullName(name string, surname string) *FullName {
-	return &FullName{
+func NewFullName(name string, surname string) FullName {
+	return FullName{
 		name:    name,
 		surname: surname,
 	}
