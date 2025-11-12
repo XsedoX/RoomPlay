@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { TSnackbarColor } from '@/infrastructure/models/TSnackbarColor.ts';
+import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor.ts';
 
 export const useNotificationStore = defineStore("notification", ()=>{
   const snackbarVisible = ref(false);

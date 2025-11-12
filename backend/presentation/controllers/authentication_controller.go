@@ -6,8 +6,8 @@ import (
 
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/login_refresh_token"
-	"xsedox.com/main/application/user/logout_command"
+	"xsedox.com/main/application/user/login_user_refresh_token_command"
+	"xsedox.com/main/application/user/logout_user_command"
 	"xsedox.com/main/config"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/presentation/helpers"
@@ -15,14 +15,14 @@ import (
 )
 
 type AuthenticationController struct {
-	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_refresh_token.CommandResponse]
+	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse]
 	configuration                    config.IConfiguration
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_command.Command]
+	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]
 }
 
-func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_refresh_token.CommandResponse],
+func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse],
 	configuration config.IConfiguration,
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_command.Command]) *AuthenticationController {
+	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]) *AuthenticationController {
 	return &AuthenticationController{
 		loginRefreshTokenCommandHandler:  refreshTokenCommandHandler,
 		configuration:                    configuration,
@@ -32,7 +32,7 @@ func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHa
 
 func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req *http.Request) {
 	refreshToken, err := req.Cookie(helpers.RoomplayRefreshTokenCookieName)
-	if err != nil || refreshToken == nil {
+	if err != nil || refreshToken == nil || refreshToken.Value == "" {
 		helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
 		helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
 		response.WriteJsonFailure(w,
@@ -44,18 +44,19 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 		return
 	}
 
-	decodedToken, err := base64.StdEncoding.DecodeString(refreshToken.Value)
+	decodedToken, err := base64.RawURLEncoding.DecodeString(refreshToken.Value)
 	if err != nil {
 		// Handle malformed cookie value.
 		response.WriteJsonFailure(w,
 			"AuthenticationController.DecodeString",
 			"Invalid refresh token",
-			"The JWT refresh token could not be decoded",
+			err.Error(),
 			req.URL.RequestURI(),
 			http.StatusUnauthorized)
 		return
 	}
 	decodedTokenString := string(decodedToken)
+
 	result, err := handler.loginRefreshTokenCommandHandler.Handle(req.Context(), &decodedTokenString)
 	if err != nil {
 		helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
@@ -66,21 +67,20 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 		)
 		return
 	}
-	helpers.SetRefreshTokenCookie(w, result.RefreshToken, handler.configuration.Server().BasePath)
+	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(result.RefreshToken))
+	helpers.SetRefreshTokenCookie(w, encodedRefreshToken, handler.configuration.Server().BasePath)
 	helpers.SetAccessTokenCookie(w, result.AccessToken, handler.configuration.Server().BasePath)
 	response.WriteJsonNoContent(w)
 }
 
 func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http.Request) {
-	var command logout_command.Command
+	var command logout_user_command.LogoutUserCommand
 	userId, ok := application.GetUserIdFromContext(req.Context())
 	if !ok {
-		response.WriteJsonFailure(w,
-			"AuthenticationController.GetUserIdFromContext",
-			application.MissingUserIdInContextErrorMessage,
-			"Context did not include userID",
+		response.WriteJsonApplicationFailure(w,
+			application.NewMissingUserIdInContextError,
 			req.URL.RequestURI(),
-			http.StatusForbidden)
+		)
 		helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
 		helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
 		return
@@ -111,6 +111,5 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 			err,
 			req.URL.RequestURI(),
 		)
-		return
 	}
 }

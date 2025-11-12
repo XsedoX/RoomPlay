@@ -16,6 +16,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	"io"
 
@@ -106,4 +107,10 @@ func (enc *Encrypter) HashAndSalt(plaintext string) (hash []byte, err error) {
 func (enc *Encrypter) Verify(plaintext string, hash []byte) (ok bool) {
 	ok = bcrypt.CompareHashAndPassword(hash, []byte(plaintext)) == nil
 	return
+}
+
+func (enc *Encrypter) Hash(plaintext string) []byte {
+	hasher := sha256.New()
+	hasher.Write([]byte(plaintext))
+	return hasher.Sum(nil)
 }

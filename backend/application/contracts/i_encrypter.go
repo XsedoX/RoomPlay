@@ -6,4 +6,5 @@ type IEncrypter interface {
 	NewEncryptionKey() []byte
 	HashAndSalt(plaintext string) (hash []byte, err error)
 	Verify(plaintext string, hash []byte) (ok bool)
+	Hash(plaintext string) []byte
 }

@@ -22,6 +22,7 @@ func NewCustomCors(configuration config.IConfiguration) *CustomCors {
 		},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"X-Device-Type", "Content-Type"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		// Enable Debugging for testing, consider disabling in production
 		Debug: configuration.IsDevelopment(),
 	})

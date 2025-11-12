@@ -1,5 +1,7 @@
 package user
 
+import "fmt"
+
 type FullName struct {
 	name    string
 	surname string
@@ -20,4 +22,7 @@ func (fn FullName) Name() string {
 }
 func (fn FullName) Surname() string {
 	return fn.surname
+}
+func (fn FullName) String() string {
+	return fmt.Sprintf("%s %s", fn.name, fn.surname)
 }

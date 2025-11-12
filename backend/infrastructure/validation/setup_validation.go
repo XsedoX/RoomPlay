@@ -1,7 +1,9 @@
 package validation
 
 import (
+	"reflect"
 	"regexp"
+	"strings"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -19,7 +21,15 @@ var (
 
 func Initialize() {
 	ValidatorInstance = validator.New(validator.WithRequiredStructEnabled())
-	
+
+	ValidatorInstance.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
+
 	english := en.New()
 	Uni = ut.New(english, english)
 	trans, _ = Uni.GetTranslator("en")
@@ -37,10 +47,25 @@ func Initialize() {
 		panic(err)
 	}
 
-	registerCustomValidation("user_role_validation", "{0} is not a valid user role", trans, validateUserRoleEnum)
-	registerCustomValidation("device_type_validation", "{0} is not a valid device type", trans, validateDeviceType)
-	registerCustomValidation("no_whitespace", "{0} contains spaces.", trans, validateWhitespace)
+	overrideDefaultTranslation("required", "This field is required")
+	overrideDefaultTranslation("gte", "Value must be greater than or equal to {0}")
+	overrideDefaultTranslation("lte", "Value must be less than or equal to {0}")
+	overrideDefaultTranslation("eqcsfield", "Values must be equal")
 
+	registerCustomValidation("user_role_validation", "Not a valid user role", trans, validateUserRoleEnum)
+	registerCustomValidation("device_type_validation", "Not a valid device type", trans, validateDeviceType)
+	registerCustomValidation("no_whitespace", "It can not contain spaces.", trans, validateWhitespace)
+
+}
+func overrideDefaultTranslation(tag string, translation string) {
+	if err := ValidatorInstance.RegisterTranslation(tag, trans, func(ut ut.Translator) error {
+		return ut.Add(tag, translation, true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(tag, fe.Param())
+		return t
+	}); err != nil {
+		panic(err)
+	}
 }
 func registerCustomValidation(tag string, translation string, translator ut.Translator, fn validator.Func) {
 	if err := ValidatorInstance.RegisterValidation(tag, fn); err != nil {
@@ -67,5 +92,9 @@ func validateWhitespace(fl validator.FieldLevel) bool {
 	return !whitespaceRe.MatchString(fl.Field().String())
 }
 func MapValidationErrors(errs validator.ValidationErrors) map[string]string {
-	return errs.Translate(trans)
+	errorMap := make(map[string]string)
+	for _, e := range errs {
+		errorMap[e.Field()] = e.Translate(trans)
+	}
+	return errorMap
 }

@@ -38,7 +38,7 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
   <v-container fluid class="surface d-flex flex-column pa-0 pb-1 ma-0 ga-1">
     <PageTitle title="Settings">
       <template v-slot:top-left-corner>
-        <v-btn icon="arrow_back" :to="`/room/${$route.params['id']}`" variant="text"></v-btn>
+        <v-btn icon="arrow_back" :to="`/room`" variant="text"></v-btn>
       </template>
       <template v-slot:top-right-corner>
         <v-btn icon="arrow_back" disabled class="invisible" variant="text"></v-btn>

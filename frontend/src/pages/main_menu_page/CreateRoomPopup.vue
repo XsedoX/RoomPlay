@@ -3,7 +3,7 @@ import { shallowRef } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import type ICreateRoomRequest from '@/infrastructure/models/ICreateRoomRequest.ts';
+import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
 import { useRoomStore } from '@/stores/room_store.ts';
 
 const isPasswordVisible = shallowRef(false);
@@ -23,7 +23,7 @@ const validationSchema = toTypedSchema(
     repeatRoomPassword: z.string()
   }).refine((data) => data.roomPassword === data.repeatRoomPassword, {
     message: "Passwords don't match",
-    path: ['repeatPassword'],
+    path: ['repeatRoomPassword'],
   }),
 );
 const { handleSubmit, defineField, setErrors, errors } = useForm({

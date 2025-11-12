@@ -46,6 +46,9 @@ func NewServer(dependencies *initialization.ServerDependencies) *Server {
 
 		r.Route("/room", func(r chi.Router) {
 			r.Post("/", dependencies.RoomController().CreateRoom)
+			r.Get("/", dependencies.RoomController().GetRoom)
+			r.Delete("/", dependencies.RoomController().LeaveRoom)
+			r.Get("/membership", dependencies.RoomController().CheckUserRoomMembership)
 		})
 
 		r.Route("/user", func(r chi.Router) {

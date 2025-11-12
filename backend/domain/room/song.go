@@ -11,13 +11,27 @@ type Song struct {
 	shared.Entity[SongId]
 	externalId    string
 	title         string
-	artist        string
+	author        string
 	lengthSeconds uint8
 	addedBy       user.Id
 	addedAtUtc    time.Time
 	startedAtUtc  *time.Time
 	state         SongState
 	votes         uint8
+	wasUpVoted    bool
+	wasDownVoted  bool
+}
+
+func (s Song) WasDownVoted() bool {
+	return s.wasDownVoted
+}
+
+func (s Song) WasUpVoted() bool {
+	return s.wasUpVoted
+}
+
+func (s Song) WasPlayed() bool {
+	return s.State() == Played
 }
 
 func (s Song) ExternalId() string {
@@ -28,8 +42,8 @@ func (s Song) Title() string {
 	return s.title
 }
 
-func (s Song) Artist() string {
-	return s.artist
+func (s Song) Author() string {
+	return s.author
 }
 
 func (s Song) LengthSeconds() uint8 {
@@ -56,16 +70,48 @@ func (s Song) Votes() uint8 {
 	return s.votes
 }
 
-func NewSong(externalId string, title string, artist string, lengthSeconds uint8, addedBy user.Id) *Song {
+func NewSong(externalId string, title string, author string, lengthSeconds uint8, addedBy user.Id) *Song {
 	return &Song{
 		externalId:    externalId,
 		title:         title,
-		artist:        artist,
+		author:        author,
 		lengthSeconds: lengthSeconds,
 		addedBy:       addedBy,
 		addedAtUtc:    time.Now().UTC(),
 		startedAtUtc:  nil,
 		state:         Enqueued,
 		votes:         0,
+		wasUpVoted:    false,
+		wasDownVoted:  false,
 	}
+}
+func HydrateSong(
+	id SongId,
+	externalId string,
+	title string,
+	author string,
+	lengthSeconds uint8,
+	addedBy user.Id,
+	addedAtUtc time.Time,
+	startedAtUtc *time.Time,
+	state SongState,
+	votes uint8,
+	wasUpVoted bool,
+	wasDownVoted bool,
+) *Song {
+	result := &Song{
+		externalId:    externalId,
+		title:         title,
+		author:        author,
+		lengthSeconds: lengthSeconds,
+		addedBy:       addedBy,
+		addedAtUtc:    addedAtUtc,
+		startedAtUtc:  startedAtUtc,
+		state:         state,
+		votes:         votes,
+		wasUpVoted:    wasUpVoted,
+		wasDownVoted:  wasDownVoted,
+	}
+	result.SetId(id)
+	return result
 }

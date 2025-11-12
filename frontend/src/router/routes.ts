@@ -9,13 +9,13 @@ export const routes: RouteRecordRaw[] = [
   {path: '/', component: LoginPage, name: 'LoginPage'},
   {path: '/mainMenu', component: MainMenuPage, name: 'MainMenuPage', meta:{ requiresAuth: true }},
   {
-    path: '/room/:id',
+    path: '/room',
     component: RoomPage,
     name: 'RoomPage',
     meta:{ requiresAuth: true }
   },
   {
-    path: '/room/:id/settings',
+    path: '/room/settings',
     component: SettingsPage,
     name: 'SettingsPage',
     meta:{ requiresAuth: true }

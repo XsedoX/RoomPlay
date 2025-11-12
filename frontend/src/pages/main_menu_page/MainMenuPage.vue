@@ -4,9 +4,23 @@ import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 import JoinRoomPopup from '@/pages/main_menu_page/JoinRoomPopup.vue';
 import CreateRoomPopup from '@/pages/main_menu_page/CreateRoomPopup.vue';
 import { useUserStore } from '@/stores/user_store.ts';
+import { onMounted } from 'vue';
+import { useRoomStore } from '@/stores/room_store.ts';
+import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();
+const roomStore = useRoomStore();
+const router = useRouter();
 
+onMounted(async ()=>{
+  if(await roomStore.getUserRoomMembership()){
+    await router.replace({ name: 'RoomPage' })
+  }
+})
+async function logout() {
+  await userStore.logout()
+  await router.replace({ name: 'LoginPage' });
+}
 </script>
 
 <template>
@@ -69,7 +83,7 @@ const userStore = useUserStore();
                  variant="plain"
                  rounded="xl"
                  :ripple="false"
-                 @click="userStore.logout()"
+                 @click="logout()"
                  size="small"
                  color="error">
             Logout

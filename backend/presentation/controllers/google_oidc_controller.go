@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"xsedox.com/main/application/contracts"
+	contracts2 "xsedox.com/main/application/services/contracts"
 	"xsedox.com/main/config"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/presentation/helpers"
@@ -20,12 +21,12 @@ import (
 
 type OidcController struct {
 	configuration             config.IConfiguration
-	oidcAuthenticationService contracts.IOidcAuthenticationService
+	oidcAuthenticationService contracts2.IOidcAuthenticationService
 	googleOidcService         contracts.IGoogleOidcService
 }
 
 func NewOidcController(configuration config.IConfiguration,
-	oidcAuthenticationService contracts.IOidcAuthenticationService,
+	oidcAuthenticationService contracts2.IOidcAuthenticationService,
 	googleOidcService contracts.IGoogleOidcService) *OidcController {
 	return &OidcController{
 		configuration:             configuration,
@@ -70,7 +71,7 @@ func (handler *OidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *h
 		return
 	}
 
-	response.WriteJsonSuccess(w, googleUrl, http.StatusOK)
+	response.WriteJsonSuccess(w, http.StatusOK, googleUrl)
 }
 func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
@@ -128,9 +129,8 @@ func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *ht
 		response.WriteJsonApplicationFailure(w, err, r.URL.RequestURI())
 		return
 	}
-	base64AccessToken := base64.StdEncoding.EncodeToString([]byte(apiTokenResponse.AccessToken))
-	base64RefreshToken := base64.StdEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
-	helpers.SetAccessTokenCookie(w, base64AccessToken, handler.configuration.Server().BasePath)
+	base64RefreshToken := base64.RawURLEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
+	helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
 	helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath)
 	setDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
 	clearStateCookie(w, handler.configuration.Server().BasePath)

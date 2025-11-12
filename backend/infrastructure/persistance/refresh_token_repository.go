@@ -2,7 +2,6 @@ package persistance
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"xsedox.com/main/application/contracts"
@@ -21,30 +20,25 @@ func NewRefreshTokenRepository(encrypter contracts.IEncrypter) *RefreshTokenRepo
 	}
 }
 func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer contracts.IQueryer) (*credentials.RefreshToken, error) {
-	var tokenFromDb []daos.RefreshTokenDbDao
-	err := queryer.SelectContext(ctx, &tokenFromDb,
-		"SELECT * FROM users_refresh_token WHERE refresh_token = $1::bytea;",
-		[]byte(value))
+	encryptedRefreshToken := r.encrypter.Hash(value)
+	var tokenFromDb daos.RefreshTokenDao
+	err := queryer.GetContext(ctx, &tokenFromDb,
+		"SELECT * FROM users_refresh_token WHERE refresh_token = $1::bytea LIMIT 1;",
+		encryptedRefreshToken)
 	if err != nil {
 		return nil, err
 	}
-	if len(tokenFromDb) == 0 {
-		return nil, errors.New("refresh token not found")
-	}
-	return credentials.HydrateRefreshToken(user.Id(tokenFromDb[0].UserId),
-		user.DeviceId(tokenFromDb[0].DeviceId),
-		string(tokenFromDb[0].RefreshToken),
-		tokenFromDb[0].ExpiresAtUtc,
-		tokenFromDb[0].IssuedAtUtc), nil
+	return credentials.HydrateRefreshToken(user.Id(tokenFromDb.UserId),
+		user.DeviceId(tokenFromDb.DeviceId),
+		string(tokenFromDb.RefreshToken),
+		tokenFromDb.ExpiresAtUtc,
+		tokenFromDb.IssuedAtUtc), nil
 }
 func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer contracts.IQueryer) error {
-	encryptedRefreshToken, err := r.encrypter.HashAndSalt(refreshToken.RefreshToken())
-	if err != nil {
-		return err
-	}
+	encryptedRefreshToken := r.encrypter.Hash(refreshToken.RefreshToken())
 	userId := refreshToken.Id()
 	deviceId := refreshToken.DeviceId()
-	_, err = queryer.ExecContext(ctx,
+	_, err := queryer.ExecContext(ctx,
 		`
 		INSERT INTO users_refresh_token 
 		(
@@ -71,7 +65,6 @@ func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken
 	)
 	return err
 }
-
 func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer contracts.IQueryer) error {
 	uId := uuid.UUID(*userId)
 	dId := uuid.UUID(*deviceId)

@@ -17,7 +17,7 @@ CREATE TYPE "user_role" AS ENUM (
 
 CREATE TYPE "device_type" AS ENUM (
   'mobile',
-  'computer'
+  'desktop'
 );
 
 CREATE TYPE "device_state" AS ENUM (
@@ -29,8 +29,9 @@ CREATE TABLE "songs" (
   "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
   "title" varchar(256) NOT NULL,
-  "artist" varchar(256) NOT NULL,
-  "length_seconds" smallint NOT NULL
+  "author" varchar(256) NOT NULL,
+  "length_seconds" smallint NOT NULL,
+  "album_cover_url" text NOT NULL
 );
 
 CREATE TABLE "rooms" (
@@ -105,7 +106,7 @@ CREATE TABLE "enqueued_songs" (
 CREATE TABLE "rapid_songs" (
   "room_id" uuid,
   "song_id" uuid,
-  "enqeued_at_utc" timestamp NOT NULL,
+  "scheduled_at_utc" timestamp NOT NULL,
   PRIMARY KEY ("room_id", "song_id")
 );
 

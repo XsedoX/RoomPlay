@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"xsedox.com/main/application/applicationErrors"
+	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/infrastructure/validation"
 )
 
@@ -15,7 +15,7 @@ const (
 )
 
 type Success struct {
-	Data any `json:"data" swaggertype:"object"`
+	Data any `json:"data" swaggertype:"object" extensions:"x-nullable"`
 }
 
 type ProblemDetails struct {
@@ -51,10 +51,10 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 	}
 }
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	var applicationError *applicationErrors.ApplicationError
+	var applicationError *custom_errors.CustomError
 	if !errors.As(appErr, &applicationError) {
 		WriteJsonFailure(w,
-			"ApplicationError.CastingError",
+			"CustomError.CastingError",
 			"Error is not applicationError",
 			"Unexpected issue. Please try again.",
 			instance,
@@ -91,11 +91,20 @@ func WriteJsonNoContent(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }
-func WriteJsonSuccess[T any](w http.ResponseWriter, data T, statusCode int) {
+func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
+
+	if len(data) == 0 {
+		if err := json.NewEncoder(w).Encode(&Success{
+			Data: nil,
+		}); err != nil {
+			http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+		}
+		return
+	}
 	if err := json.NewEncoder(w).Encode(&Success{
-		Data: data,
+		Data: data[0],
 	}); err != nil {
 		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 	}

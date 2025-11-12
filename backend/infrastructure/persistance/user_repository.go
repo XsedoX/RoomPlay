@@ -21,7 +21,7 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
 func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, queryer contracts.IQueryer) (*user.User, error) {
-	var userDb daos.UserDbDao
+	var userDb daos.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
 		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
@@ -33,7 +33,7 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, q
 		return nil, err
 	}
 
-	var devicesDb []daos.DeviceDbDao
+	devicesDb := make([]daos.DeviceDao, 0)
 	err = queryer.SelectContext(ctx,
 		&devicesDb,
 		getDevicesQuery,
@@ -45,7 +45,7 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, q
 	return parseUser(&userDb, &devicesDb), nil
 }
 func (repository *UserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) (*user.User, error) {
-	var userDb daos.UserDbDao
+	var userDb daos.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
 		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
@@ -57,7 +57,7 @@ func (repository *UserRepository) GetUserByExternalId(ctx context.Context, exter
 		return nil, err
 	}
 
-	var devicesDb []daos.DeviceDbDao
+	devicesDb := make([]daos.DeviceDao, 0)
 	err = queryer.SelectContext(ctx,
 		&devicesDb,
 		getDevicesQuery,
@@ -219,7 +219,13 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 	_, err := queryer.ExecContext(ctx, query, params...)
 	return err
 }
-func parseUser(userDb *daos.UserDbDao, devicesDb *[]daos.DeviceDbDao) *user.User {
+func (repository *UserRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
+	_, err := queryer.ExecContext(ctx,
+		`UPDATE users SET room_id=NULL WHERE id=$1`,
+		id.ToUuid())
+	return err
+}
+func parseUser(userDb *daos.UserDao, devicesDb *[]daos.DeviceDao) *user.User {
 	var devices []user.Device
 	for _, deviceDb := range *devicesDb {
 		deviceResult := user.HydrateDevice(

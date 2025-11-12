@@ -30,6 +30,15 @@ type Room struct {
 	members              []user.Id
 }
 
+func (r Room) PlayingSong() *Song {
+	for _, song := range r.songsList {
+		if song.State() == Playing {
+			return &song
+		}
+	}
+	return nil
+}
+
 func (r Room) Name() string {
 	return r.name
 }
@@ -99,4 +108,28 @@ func NewRoom(name string,
 	}
 	result.SetId(shared.RoomId(uuid.New()))
 	return result
+}
+func HydrateRoom(
+	id shared.RoomId,
+	name string,
+	password string,
+	qrCode string,
+	boostCooldownSeconds *uint8,
+	createdAtUtc time.Time,
+	lifespanSeconds uint32,
+	songsList []Song,
+	members []user.Id,
+) *Room {
+	r := &Room{
+		name:                 name,
+		password:             password,
+		qrCode:               qrCode,
+		boostCooldownSeconds: boostCooldownSeconds,
+		createdAtUtc:         createdAtUtc,
+		lifespanSeconds:      lifespanSeconds,
+		songsList:            songsList,
+		members:              members,
+	}
+	r.SetId(id)
+	return r
 }

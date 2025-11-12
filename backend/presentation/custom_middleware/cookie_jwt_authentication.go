@@ -2,7 +2,6 @@ package customMiddleware
 
 import (
 	"context"
-	"encoding/base64"
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
@@ -32,24 +31,13 @@ func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler {
 			response.WriteJsonFailure(w,
 				"JwtAuthentication.MissingAuthCookie",
 				"Missing cookie",
-				"The authentication cookie has not been sent",
-				r.URL.RequestURI(),
-				http.StatusUnauthorized)
-			return
-		}
-		decodedToken, err := base64.StdEncoding.DecodeString(authCookie.Value)
-		if err != nil {
-			// Handle malformed cookie value.
-			response.WriteJsonFailure(w,
-				"JwtAuthentication.DecodeString",
-				"Invalid access token",
-				"The JWT token could not be decoded",
+				err.Error(),
 				r.URL.RequestURI(),
 				http.StatusUnauthorized)
 			return
 		}
 
-		userId, err := jwtAuth.jwtProvider.ValidateTokenAndGetUserId(string(decodedToken))
+		userId, err := jwtAuth.jwtProvider.ValidateTokenAndGetUserId(authCookie.Value)
 		if err != nil {
 			response.WriteJsonFailure(w, "JwtAuthentication.TokenNotValid",
 				"JWT issue",

@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/data_query"
+	"xsedox.com/main/application/user/get_user_query"
 	"xsedox.com/main/presentation/response"
 )
 
 type UserController struct {
-	getUserDataQueryHandler contracts.IQueryHandler[*data_query.UserQueryResponse]
+	getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]
 }
 
-func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*data_query.UserQueryResponse]) *UserController {
-	return &UserController{getUserDataQueryHandler: getUserDataQueryHandler}
+func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]) *UserController {
+	return &UserController{
+		getUserDataQueryHandler: getUserDataQueryHandler,
+	}
 }
 
 // GetUserData handles the HTTP request to retrieve user data.
@@ -22,9 +24,11 @@ func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*data_que
 // @Tags user
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Success
-// @Failure 400 {object} response.Error
-// @Router /user/data [get]
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router /user [get]
 // @Security BearerAuth
 func (userController *UserController) GetUserData(w http.ResponseWriter, r *http.Request) {
 	userData, err := userController.getUserDataQueryHandler.Handle(r.Context())
@@ -33,5 +37,5 @@ func (userController *UserController) GetUserData(w http.ResponseWriter, r *http
 			err,
 			r.URL.RequestURI())
 	}
-	response.WriteJsonSuccess(w, userData, http.StatusOK)
+	response.WriteJsonSuccess(w, http.StatusOK, userData)
 }

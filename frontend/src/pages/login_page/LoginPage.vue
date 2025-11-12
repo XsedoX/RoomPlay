@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
-import { LoginService } from '@/infrastructure/services/login_service.ts';
+import { AuthenticationService } from '@/infrastructure/authentication/authentication_service.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import { useRouter } from 'vue-router';
 const userStore = useUserStore();
@@ -8,7 +8,7 @@ const router = useRouter();
 
 async function login() {
   if (!userStore.user){
-    const redirectUri = await LoginService.loginWithGoogle()
+    const redirectUri = await AuthenticationService.loginWithGoogle()
     if (redirectUri){
       globalThis.location.href = redirectUri;
     }
