@@ -1,0 +1,50 @@
+name: Deploy Backend to Google Cloud Run
+
+on:
+  workflow_disptach:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+env:
+  PROJECT_ID: roomplay
+  SERVICE_NAME: my-go-api
+  REGION: us-central1
+  SERVICE_ACCOUNT: github-deployer@roomplay.iam.gserviceaccount.com
+  WIF_PROVIDER: projects/361061961111/locations/global/workloadIdentityPools/github/providers/roomplay
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: 'google-github-actions/auth@v3'
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      # Install the gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      # This is the new, simpler deploy command
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --source=./backend \
+            --allow-unauthenticated \
+            --set-secrets=NEON_DB_URL=${{ secrets.NEON_DB_URL }} \
+            --set-env-vars=PORT=8080
