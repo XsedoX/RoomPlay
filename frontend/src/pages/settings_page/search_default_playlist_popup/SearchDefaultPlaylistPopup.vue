@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 import SearchMusicPopupBase from '@/shared/search_popup_base/SearchMusicPopupBase.vue';
-import type { TSearchDefaultPlaylistPopupEmits } from '@/settings_page/search_default_playlist_popup/TSearchDefaultPlaylistPopupEmits.ts';
+import type { TSearchDefaultPlaylistPopupEmits } from '@/pages/settings_page/search_default_playlist_popup/TSearchDefaultPlaylistPopupEmits.ts';
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
 import { Guid } from '@/shared/Guid.ts';
 

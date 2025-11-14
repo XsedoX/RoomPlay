@@ -15,7 +15,7 @@ const (
 )
 
 type Server struct {
-	Port     string `json:"port" envconfig:"SERVER_PORT"`
+	Port     string `json:"port" envconfig:"PORT"`
 	Host     string `json:"host" envconfig:"SERVER_HOST"`
 	BasePath string `json:"BasePath" envconfig:"BASE_PATH"`
 }

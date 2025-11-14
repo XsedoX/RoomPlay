@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type IUserListElementDto from '@/settings_page/users_list/IUserListElementDto.ts';
+import type IUserListElementDto from '@/pages/settings_page/users_list/IUserListElementDto.ts';
 import { Guid, type IGuid } from '@/shared/Guid.ts';
 import { ref } from 'vue';
 

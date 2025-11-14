@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SettingsListElement from '@/settings_page/settings_list_element/SettingsListElement.vue';
+import SettingsListElement from '@/pages/settings_page/settings_list_element/SettingsListElement.vue';
 import { ref, shallowRef } from 'vue';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
