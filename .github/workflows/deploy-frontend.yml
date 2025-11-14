@@ -29,6 +29,8 @@ jobs:
       - name: Install Bun
         # Use the official action to install Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.0.0
 
       - name: Install Vercel CLI
         # We still use npm to globally install the Vercel CLI tool
