@@ -8,7 +8,8 @@ import { mount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import vuetify from '@/vuetify-setup.ts'
 import { darkTheme, lightTheme } from '@/assets/themes.ts';
-
+import { createPinia } from 'pinia';
+import { createMemoryHistory, createRouter } from 'vue-router';
 
 export const customIcons = {
   googleIcon: GoogleIcon,
@@ -36,12 +37,15 @@ export default createVuetify({
   }
 });
 
-export function mountVuetify(component: Component, customProps?: Record<string, unknown>) {
-  return mount(component, {
+export function mountVuetify(componentToRender: Component, customProps?: Record<string, unknown>) {
+  return mount(componentToRender, {
     ...(customProps && { props: customProps }),
     global: {
-      components: { component },
-      plugins: [vuetify],
+      components: { componentToRender },
+      plugins: [vuetify, createPinia(), createRouter({
+        history: createMemoryHistory(),
+        routes: []
+      })],
     },
   });
 }
