@@ -1,4 +1,6 @@
 name: Deploy Frontend to Vercel (Bun + Vite)
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
