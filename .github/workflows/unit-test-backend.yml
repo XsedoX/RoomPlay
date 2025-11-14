@@ -1,0 +1,37 @@
+# This workflow runs tests for the backend application
+# It is triggered ONLY on pull requests that modify files inside the 'backend/' directory.
+
+name: Backend CI
+permissions:
+  contents: 'read'
+  
+on:
+  pull_request:
+    paths:
+      - 'backend/**' # Trigger only for changes in the backend folder
+      - '.github/workflows/deploy-backend.yml'
+      - '.github/workflows/unit-test-backend.yml'
+
+jobs:
+  test-backend:
+    name: Unit Test Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: latest # Specify your Go version
+
+      - name: Install dependencies
+        # Use 'working-directory' to run commands in the backend folder
+        run: go mod tidy # This downloads dependencies like testify
+
+      - name: Run Go tests
+        run: go test ./... 
