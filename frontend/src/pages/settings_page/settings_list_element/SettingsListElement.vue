@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import type ISettingsListElementProps from '@/settings_page/settings_list_element/ISettingsListElementProps.ts';
+import type ISettingsListElementProps from '@/pages/settings_page/settings_list_element/ISettingsListElementProps.ts';
 
 const props = defineProps<ISettingsListElementProps>();
 </script>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import type ISettingsSelectProps from '@/settings_page/settings_select/ISettingsSelectProps.ts';
-import type { TSettingsSelectEmits } from '@/settings_page/settings_select/TSettingsSelectEmits.ts';
+import type ISettingsSelectProps from '@/pages/settings_page/settings_select/ISettingsSelectProps.ts';
+import type { TSettingsSelectEmits } from '@/pages/settings_page/settings_select/TSettingsSelectEmits.ts';
 
 const props = defineProps<ISettingsSelectProps>();
 defineEmits<TSettingsSelectEmits>();

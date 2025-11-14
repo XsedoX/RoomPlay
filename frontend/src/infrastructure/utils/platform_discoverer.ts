@@ -1,4 +1,4 @@
-import { THostDevice } from '@/settings_page/choose_host_device_list/THostDevice.ts';
+import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
 
 export const PlatformDiscoverer = {
   getDeviceType: (): THostDevice => {
