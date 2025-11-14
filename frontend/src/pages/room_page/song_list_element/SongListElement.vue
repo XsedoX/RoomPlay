@@ -3,14 +3,19 @@ import type { ISongListElementProps } from '@/pages/room_page/song_list_element/
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
 import TouchscreenTooltip from '@/shared/touchscreen_tooltip/TouchscreenTooltip.vue';
+import { useRoomStore } from '@/stores/room_store.ts';
+import { TSongState } from '@/infrastructure/room/TSongState.ts';
+import { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
 
 const props = defineProps<ISongListElementProps>();
-const backgroundColor = computed(() =>
-  props.songListDto.wasPlayed ? 'outline-variant' : 'surface-container',
-);
+const roomStore = useRoomStore();
+const backgroundColor = computed(() => (wasPlayed.value ? 'outline-variant' : 'surface-container'));
+const wasPlayed = computed(() => props.songListDto.state === TSongState.played);
+const wasUpVoted = computed(() => props.songListDto.voteStatus === TVoteStatus.upvoted);
+const wasDownVoted = computed(() => props.songListDto.voteStatus === TVoteStatus.downvoted);
 const theme = useTheme();
 const outlineColor = theme.current.value.colors['outline'];
-const isAdmin = true
+const isAdmin = true;
 </script>
 
 <template>
@@ -29,16 +34,18 @@ const isAdmin = true
     <v-container
       class="w-0 flex-shrink-1 flex-grow-1 py-0 ma-0 mr-auto d-flex flex-column justify-between px-2"
     >
-      <touchscreen-tooltip :open-on-hover="false"
-                           :text="props.songListDto.title"
-                           v-slot="{ tooltipProps }" >
-        <span v-bind="tooltipProps" class="text-truncate">
-            {{ props.songListDto.title }}</span
-        >
+      <touchscreen-tooltip
+        :open-on-hover="false"
+        :text="props.songListDto.title"
+        v-slot="{ tooltipProps }"
+      >
+        <span v-bind="tooltipProps" class="text-truncate"> {{ props.songListDto.title }}</span>
       </touchscreen-tooltip>
-      <touchscreen-tooltip :text="props.songListDto.author"
-                           :open-on-hover="false"
-                           v-slot="{ tooltipProps }">
+      <touchscreen-tooltip
+        :text="props.songListDto.author"
+        :open-on-hover="false"
+        v-slot="{ tooltipProps }"
+      >
         <span v-bind="tooltipProps" class="on-surface-variant text-truncate">{{
           props.songListDto.author
         }}</span>
@@ -57,33 +64,27 @@ const isAdmin = true
           size="medium"
           icon="offline_bolt"
           variant="text"
-          :disabled="props.songListDto.wasBoosted || props.songListDto.wasPlayed"
-          @click="
-            (event: Event) => props.onBoosted({ event: event, id: props.songListDto.id })
-          "
+          :disabled="!roomStore.isBoostAvailable || wasPlayed"
+          @click="(event: Event) => props.onBoosted({ event: event, id: props.songListDto.id })"
           :color="isAdmin ? 'primary' : 'primary-container'"
         ></v-btn>
         <v-btn
           size="small"
           icon="keyboard_arrow_up"
           variant="text"
-          :readonly="props.songListDto.wasDownVoted || props.songListDto.wasPlayed"
-          :disabled="props.songListDto.wasUpVoted || props.songListDto.wasPlayed"
-          @click="
-            (event: Event) => props.onVotedUp({ event: event, id: props.songListDto.id })
-          "
+          :readonly="wasDownVoted || wasPlayed"
+          :disabled="wasUpVoted || wasPlayed"
+          @click="(event: Event) => props.onVotedUp({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>
         <span class="outline">{{ props.songListDto.votes }}</span>
         <v-btn
           size="small"
           icon="keyboard_arrow_down"
-          :readonly="props.songListDto.wasUpVoted || props.songListDto.wasPlayed"
+          :readonly="wasUpVoted || wasPlayed"
           variant="text"
-          :disabled="props.songListDto.wasDownVoted || props.songListDto.wasPlayed"
-          @click="
-            (event: Event) => props.onVotedDown({ event: event, id: props.songListDto.id })
-          "
+          :disabled="wasDownVoted || wasPlayed"
+          @click="(event: Event) => props.onVotedDown({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>
       </div>

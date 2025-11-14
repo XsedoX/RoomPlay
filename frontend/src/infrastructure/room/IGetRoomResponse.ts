@@ -1,7 +1,7 @@
 
 export interface IGetRoomResponse {
   name: string;
-  boostUsedAtUtc: Date | null;
+  boostData: IGetRoomBoostData | null;
   qrCode: string;
   userRole: string;
   songs: IGetRoomSongListResponse[];
@@ -15,10 +15,15 @@ export interface IGetRoomSongListResponse {
   albumCoverUrl: string;
   id: string;
   state: string;
+  voteStatus: string;
 }
 export interface IGetRoomPlayingSongResponse {
   title: string;
   author: string;
   startedAtUtc: Date;
   lengthSeconds: number;
+}
+export interface IGetRoomBoostData {
+  boostUsedAtUtc: Date;
+  boostCooldownSeconds: number;
 }

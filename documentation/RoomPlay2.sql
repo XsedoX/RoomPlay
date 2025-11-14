@@ -54,7 +54,7 @@ CREATE TABLE "users_roles" (
 CREATE TABLE "users_votes" (
   "user_id" uuid,
   "enqueued_song_id" uuid,
-  "state" vote_status NOT NULL DEFAULT 'not_voted',
+  "vote_status" vote_status NOT NULL DEFAULT 'not_voted',
   PRIMARY KEY ("enqueued_song_id", "user_id")
 );
 
