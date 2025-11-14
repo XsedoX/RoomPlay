@@ -1,0 +1,40 @@
+# This workflow runs tests for the frontend application
+# It is triggered ONLY on pull requests that modify files inside the 'frontend/' directory.
+
+name: Frontend CI
+permissions:
+      contents: 'read'
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'  # Trigger only for changes in the frontend folder
+      - '.github/workflows/deploy-frontend.yml'
+      - '.github/workflows/unit-test-frontend.yml'
+
+jobs:
+  test-frontend:
+    name: Unit Test Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest # Or pin to a specific version
+
+      - name: Install dependencies
+        # Use 'working-directory' to run commands in the frontend folder
+        working-directory: ./frontend
+        run: bun install --frozen-lockfile # Use --frozen-lockfile for CI
+
+      - name: Run unit tests
+        working-directory: ./frontend
+        run: bun test:unit:ci
