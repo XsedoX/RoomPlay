@@ -27,7 +27,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: latest # Specify your Go version
+          go-version: 1.25 # Specify your Go version
 
       - name: Install dependencies
         # Use 'working-directory' to run commands in the backend folder
