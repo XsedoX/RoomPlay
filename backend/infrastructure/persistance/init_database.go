@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/jackc/pgx/v5"
 	"github.com/jmoiron/sqlx"
 	"xsedox.com/main/config"
 )

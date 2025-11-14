@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import PageTitle from '@/shared/page_title/PageTitle.vue';
 import { computed, ref, shallowRef } from 'vue';
-import SettingsListElement from '@/settings_page/settings_list_element/SettingsListElement.vue';
-import SettingsSelect from '@/settings_page/settings_select/SettingsSelect.vue';
-import SearchDefaultPlaylistPopup from '@/settings_page/search_default_playlist_popup/SearchDefaultPlaylistPopup.vue';
+import SettingsListElement from '@/pages/settings_page/settings_list_element/SettingsListElement.vue';
+import SettingsSelect from '@/pages/settings_page/settings_select/SettingsSelect.vue';
+import SearchDefaultPlaylistPopup from '@/pages/settings_page/search_default_playlist_popup/SearchDefaultPlaylistPopup.vue';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
-import ChooseHostDeviceList from '@/settings_page/choose_host_device_list/ChooseHostDeviceList.vue';
-import UsersList from '@/settings_page/users_list/UsersList.vue';
-import RapidSong from '@/settings_page/rapid_song/RapidSong.vue';
+import ChooseHostDeviceList from '@/pages/settings_page/choose_host_device_list/ChooseHostDeviceList.vue';
+import UsersList from '@/pages/settings_page/users_list/UsersList.vue';
+import RapidSong from '@/pages/settings_page/rapid_song/RapidSong.vue';
 
 const selectedCooldown = shallowRef('OFF');
 const selectedLifespan = shallowRef<number>(24);
