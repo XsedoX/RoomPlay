@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { testLogoWithTitleText } from '@/__tests__/shared/SharedTests.ts';
-import LoginPage from '@/login_page/LoginPage.vue';
+import LoginPage from '@/pages/login_page/LoginPage.vue';
 import { mountVuetify } from '@/vuetify-setup.ts'
 
 describe('Login menu', () => {

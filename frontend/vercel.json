@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://roomplay.vercel.app/api/:match*"
+    }
+  ]
+}
