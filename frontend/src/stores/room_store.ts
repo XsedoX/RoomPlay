@@ -10,6 +10,8 @@ import type { TSongState } from '@/infrastructure/room/TSongState.ts';
 import { Guid, type IGuid } from '@/shared/Guid.ts';
 import { useRouter } from 'vue-router';
 import type IPlayingSongModel from '@/infrastructure/room/IPlayingSongModel.ts';
+import type { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
+import 'pinia-plugin-persistedstate';
 
 export const useRoomStore = defineStore('room', () => {
   const room = ref<IRoomStoreModel|null>(null)
@@ -36,6 +38,12 @@ export const useRoomStore = defineStore('room', () => {
         return null
       });
   }
+  const isBoostAvailable = computed(()=> {
+    if (!room.value?.boostData) return false
+    const now = new Date();
+    const elapsedSeconds = (now.getTime() - room.value.boostData.boostUsedAtUtc.getTime()) / 1000;
+    return elapsedSeconds > room.value.boostData.boostCooldownSeconds
+  })
   function upVoteSong(songId: IGuid) {
     const song = songs.value?.find((song) =>
       song.id.toString() === songId.toString());
@@ -57,11 +65,12 @@ export const useRoomStore = defineStore('room', () => {
           name: response.name,
           qrCode: response.qrCode,
           userRole: response.userRole as TUserRole,
-          boostUsedAtUtc: response.boostUsedAtUtc,
+          boostData: response.boostData
         };
         songs.value = response.songs.map(song => ({
           ...song,
           state: song.state as TSongState,
+          voteStatus: song.voteStatus as TVoteStatus,
           id: new Guid(song.id)
         }))
         playingSong.value = response.playingSong
@@ -101,7 +110,8 @@ export const useRoomStore = defineStore('room', () => {
     upVoteSong,
     downVoteSong,
     getUserRoomMembership,
-    leaveRoom
+    leaveRoom,
+    isBoostAvailable
   };
 },
   {

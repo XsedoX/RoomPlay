@@ -4,8 +4,8 @@ type SongState int
 
 const (
 	Enqueued SongState = iota
-	Playing
-	Played
+	Playing  SongState = iota
+	Played   SongState = iota
 )
 
 var songStateName = map[SongState]string{

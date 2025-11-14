@@ -39,8 +39,16 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 		}
 		response.Name = roomData.Name
 		response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
-		response.BoostUsedAtUtc = roomData.BoostUsedAtUtc
 		response.UserRole = roomData.UserRole
+		if roomData.BoostUsedAtUtc != nil && roomData.BoostCooldownSeconds != nil {
+			response.BoostData = &BoostDataDto{
+				BoostUsedAtUtc:       *roomData.BoostUsedAtUtc,
+				BoostCooldownSeconds: *roomData.BoostCooldownSeconds,
+			}
+		} else {
+			response.BoostData = nil
+		}
+
 		if roomData.PlayingSongTitle != nil && roomData.PlayingSongAuthor != nil {
 			response.PlayingSong = &PlayingSongDto{
 				Title:         *roomData.PlayingSongTitle,
@@ -61,6 +69,7 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 				AlbumCoverUrl: songDb.AlbumCoverUrl,
 				Id:            songDb.Id,
 				State:         songDb.State.String(),
+				VoteStatus:    songDb.VoteStatus.String(),
 			})
 		}
 		return nil

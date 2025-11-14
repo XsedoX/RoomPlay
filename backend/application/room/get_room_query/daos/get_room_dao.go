@@ -10,6 +10,7 @@ type GetRoomDao struct {
 	PlayingSongStartedAtUtc  *time.Time `db:"playing_song_started_at_utc"`
 	PlayingSongLengthSeconds *uint8     `db:"playing_song_length_seconds"`
 	UserRole                 string     `db:"role"`
-	BoostUsedAtUtc           *time.Time `db:"used_at_utc"`
+	BoostUsedAtUtc           *time.Time `db:"boost_used_at_utc"`
+	BoostCooldownSeconds     *uint8     `db:"boost_cooldown_seconds"`
 	SongDaos                 []GetRoomSongDao
 }

@@ -67,7 +67,8 @@ func (rr *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, q
 		`
 SELECT rooms.name,
 	   rooms.qr_code_hash,
-	   boosts.used_at_utc,
+	   boosts.used_at_utc AS boost_used_at_utc,
+	   rooms.boost_cooldown_seconds,
 	   songs.title AS playing_song_title,
 	   songs.author AS playing_song_author,
 	   enqueued_songs.started_at_utc AS playing_song_started_at_utc,
@@ -97,6 +98,7 @@ SELECT enqueued_songs.id,
        songs.author,
        CONCAT(users_for_added_by.name, ' ', users_for_added_by.surname) AS added_by,
        enqueued_songs.state,
+       vote_status,
        enqueued_songs.votes,
        songs.album_cover_url
 FROM enqueued_songs
@@ -104,6 +106,7 @@ JOIN songs ON enqueued_songs.song_id = songs.id
 JOIN rooms ON enqueued_songs.room_id = rooms.id
 JOIN users ON users.room_id = rooms.id
 JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
+JOIN users_votes ON users.id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
 WHERE users.id = $1;
 `, userId.ToUuid())
 	if getRoomSongsErr != nil {
