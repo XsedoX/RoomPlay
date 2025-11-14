@@ -10,10 +10,6 @@
 name: ESLint
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-    paths:
-      - './frontend/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
@@ -38,7 +34,7 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.0.0
+          bun-version: latest
 
       - name: Install dependencies with Bun
         run: bun install
