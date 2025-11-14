@@ -14,6 +14,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./frontend
     
     steps:
       - name: Check out code
@@ -23,9 +26,7 @@ jobs:
       # Set defaults after checkout
       - name: Set working directory for subsequent steps
         run: echo "Setting working directory for subsequent steps"
-      defaults:
-        run:
-          working-directory: ./frontend
+      
       - name: Install Bun
         # Use the official action to install Bun
         uses: oven-sh/setup-bun@v2
