@@ -1,7 +1,7 @@
 name: Deploy Backend to Google Cloud Run
 
 on:
-  workflow_disptach:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,10 +11,12 @@ on:
 
 env:
   PROJECT_ID: roomplay
-  SERVICE_NAME: my-go-api
+  SERVICE_NAME: roomplay-api
   REGION: us-central1
   SERVICE_ACCOUNT: github-deployer@roomplay.iam.gserviceaccount.com
   WIF_PROVIDER: projects/361061961111/locations/global/workloadIdentityPools/github/providers/roomplay
+
+  PUBLIC_HOST_URL: https://roomplay.vercel.app
 
 jobs:
   deploy:
@@ -46,5 +48,4 @@ jobs:
             --region=${{ env.REGION }} \
             --source=./backend \
             --allow-unauthenticated \
-            --set-secrets=NEON_DB_URL=${{ secrets.NEON_DB_URL }} \
-            --set-env-vars=PORT=8080
+            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,SERVER_PORT=8080,DATABASE_CONNECTION_STRING=${{ secrets.SUPABASE_DB_CONNECTION_STRING }},CLIENT_ORIGIN=roomplay.vercel.app,ENCRYPTION_KEY=${{ secrets.DATABASE_ENCRYPTION_KEY }},JWT_KEY=${{ secrets.JWT_KEY }},
