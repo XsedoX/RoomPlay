@@ -48,4 +48,5 @@ jobs:
             --region=${{ env.REGION }} \
             --source=./backend \
             --allow-unauthenticated \
-            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,SERVER_PORT=8080,DATABASE_CONNECTION_STRING=${{ secrets.SUPABASE_DB_CONNECTION_STRING }},CLIENT_ORIGIN=roomplay.vercel.app,ENCRYPTION_KEY=${{ secrets.DATABASE_ENCRYPTION_KEY }},JWT_KEY=${{ secrets.JWT_KEY }}
+            --set-secrets=DATABASE_CONNECTION_STRING=ROOMPLAY_SUPABASE_DB_CONNECTION_STRING:latest,CLIENT_SECRET=ROOMPLAY_GOOGLE_OIDC_CLIENT_SECRET:latest,ENCRYPTION_KEY=ROOMPLAY_DATABASE_ENCRYPTION_KEY:latest,JWT_KEY=ROOMPLAY_JWT_KEY:latest
+            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,SERVER_PORT=8080,CLIENT_ORIGIN=${{ env.PUBLIC_HOST_URL }}
