@@ -1,0 +1,55 @@
+name: Deploy Backend to Google Cloud Run
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+env:
+  PROJECT_ID: roomplay
+  SERVICE_NAME: roomplay-api
+  REGION: us-central1
+  SERVICE_ACCOUNT: github-deployer@roomplay.iam.gserviceaccount.com
+  WIF_PROVIDER: projects/361061961111/locations/global/workloadIdentityPools/github/providers/roomplay
+
+  PUBLIC_HOST_URL: https://roomplay.vercel.app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: 'google-github-actions/auth@v3'
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      # Install the gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      # This is the new, simpler deploy command
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --source=./ \
+            --allow-unauthenticated \
+            --set-secrets=DATABASE_CONNECTION_STRING=ROOMPLAY_SUPABASE_DB_CONNECTION_STRING:latest,CLIENT_SECRET=ROOMPLAY_GOOGLE_OIDC_CLIENT_SECRET:latest,ENCRYPTION_KEY=ROOMPLAY_DATABASE_ENCRYPTION_KEY:latest,JWT_KEY=ROOMPLAY_JWT_KEY:latest
+            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,SERVER_PORT=8080,CLIENT_ORIGIN=${{ env.PUBLIC_HOST_URL }}

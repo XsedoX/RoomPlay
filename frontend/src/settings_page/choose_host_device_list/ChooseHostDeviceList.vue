@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import type IHostDeviceDto from '@/settings_page/choose_host_device_list/IHostDeviceDto.ts';
 import { THostDeviceState } from '@/settings_page/choose_host_device_list/THostDeviceState.ts';
 import { THostDevice } from '@/settings_page/choose_host_device_list/THostDevice.ts';
@@ -9,7 +9,7 @@ const devices = ref<IHostDeviceDto[]>([
   {
     id: Guid.generate(),
     isHost: true,
-    hostDeviceType: THostDevice.Computer,
+    hostDeviceType: THostDevice.Desktop,
     friendlyName: 'Living Room PC',
     state: THostDeviceState.Online,
     isCurrentDevice: false,
@@ -79,7 +79,7 @@ function minIconWidth(device: IHostDeviceDto) {
                 <v-icon
                   size="large"
                   :icon="
-                    device.hostDeviceType === THostDevice.Computer ? 'computer' : 'smartphone'
+                    device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'
                   "
                 ></v-icon>
               </v-badge>
@@ -87,7 +87,7 @@ function minIconWidth(device: IHostDeviceDto) {
                 v-else
                 size="large"
                 :icon="
-                  device.hostDeviceType === THostDevice.Computer ? 'computer' : 'smartphone'
+                  device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'
                 "
               ></v-icon>
             </v-sheet>

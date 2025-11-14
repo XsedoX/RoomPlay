@@ -1,0 +1,53 @@
+name: Deploy Frontend to Vercel (Bun + Vite)
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main  # Or your default branch
+    paths:
+      - 'frontend/**' # Only run on changes to the frontend
+      - '.github/workflows/deploy-frontend.yml' # Or this file
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Specify the working directory for all commands
+      # Set defaults after checkout
+      - name: Set working directory for subsequent steps
+        run: echo "Setting working directory for subsequent steps"
+      
+      - name: Install Bun
+        # Use the official action to install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Vercel CLI
+        # We still use npm to globally install the Vercel CLI tool
+        run: bun install -g vercel
+
+      - name: Install Dependencies
+        # Use Bun to install from your bun.lockb file
+        run: bun install
+
+      - name: Pull Vercel Project Info
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project
+        # Vercel's build command will detect Vite + Bun
+        # and run 'bun run build'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
