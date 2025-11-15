@@ -21,10 +21,10 @@ export default defineConfig(({mode})=>{
         policy: {
           "default-src": ["'self'"],
           "script-src": ["'self'"],
-          "style-src": ["'self'"],
-          "style-src-elem": ["'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+          "style-src": ["'self'", "https://fonts.googleapis.com"],
+          "style-src-elem": ["'self'","'unsafe-inline'", "https://fonts.googleapis.com"],
           "img-src": ["'self'"],
-          "font-src": ["'self'", "https://fonts.googleapis.com"],
+          "font-src": ["'self'", "https://fonts.gstatic.com"],
           "connect-src": ["'self'","http://localhost:7654"],
           "base-uri": ["'self'"],
           "form-action": ["'self'"],
