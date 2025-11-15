@@ -50,7 +50,7 @@ func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*dt
 	form.Add("code", code)
 	form.Add("client_id", g.configuration.Authentication().ClientId)
 	form.Add("client_secret", g.configuration.Authentication().ClientSecret)
-	form.Add("redirect_uri", getGoogleCallbackBackendUrl(g.configuration.Server().Host, g.configuration.Server().Port))
+	form.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
 	if err != nil {
@@ -85,7 +85,7 @@ func (g GoogleOidcService) GenerateOidcUrl(state string) (string, error) {
 	parameters.Add("client_id", g.configuration.Authentication().ClientId)
 	parameters.Add("scope", g.configuration.Authentication().ScopesField)
 	parameters.Add("access_type", "offline")
-	parameters.Add("redirect_uri", getGoogleCallbackBackendUrl(g.configuration.Server().Host, g.configuration.Server().Port))
+	parameters.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
 	parameters.Add("state", state)
 	googleGetUrl.RawQuery = parameters.Encode()
 	return googleGetUrl.String(), nil
@@ -94,6 +94,6 @@ func (g GoogleOidcService) GenerateOidcUrl(state string) (string, error) {
 func NewGoogleOidcService(configuration config.IConfiguration) *GoogleOidcService {
 	return &GoogleOidcService{configuration: configuration}
 }
-func getGoogleCallbackBackendUrl(host, port string) string {
-	return fmt.Sprintf("%s:%s%s", host, port, googleCallbackEndpoint)
+func getGoogleCallbackRedirectUri(host string) string {
+	return fmt.Sprintf("%s%s", host, googleCallbackEndpoint)
 }

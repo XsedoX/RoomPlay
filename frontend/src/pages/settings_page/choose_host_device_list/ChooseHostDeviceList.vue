@@ -47,16 +47,18 @@ function onDeviceSelected(id: string | null) {
   });
 }
 function minIconWidth(device: IHostDeviceDto) {
-  if(device.isHost) return '50px';
-  if(device.isCurrentDevice) return '70px';
+  if (device.isHost) return '50px';
+  if (device.isCurrentDevice) return '70px';
   return '0px';
 }
 </script>
 
 <template>
-  <v-radio-group :model-value="devicesRef"
-                 @update:model-value="onDeviceSelected"
-                 :hide-details="true">
+  <v-radio-group
+    :model-value="devicesRef"
+    @update:model-value="onDeviceSelected"
+    :hide-details="true"
+  >
     <template v-for="(device, index) in devices" :key="device.id.toString()">
       <v-radio
         :value="device.id.toString()"
@@ -78,17 +80,13 @@ function minIconWidth(device: IHostDeviceDto) {
               >
                 <v-icon
                   size="large"
-                  :icon="
-                    device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'
-                  "
+                  :icon="device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'"
                 ></v-icon>
               </v-badge>
               <v-icon
                 v-else
                 size="large"
-                :icon="
-                  device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'
-                "
+                :icon="device.hostDeviceType === THostDevice.Desktop ? 'computer' : 'smartphone'"
               ></v-icon>
             </v-sheet>
             <div class="d-flex flex-column">

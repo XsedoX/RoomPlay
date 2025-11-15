@@ -1,5 +1,5 @@
 export enum TSongState {
-  enqueued="enqueued",
-  playing="playing",
-  played="played",
+  enqueued = 'enqueued',
+  playing = 'playing',
+  played = 'played',
 }

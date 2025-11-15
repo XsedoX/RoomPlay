@@ -8,8 +8,8 @@ export class Guid implements IGuid {
   }
   static generate(): Guid {
     const guidString = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
     return new Guid(guidString);
@@ -28,8 +28,7 @@ export class Guid implements IGuid {
     return this.value === other.value;
   }
 }
-export interface IGuid{
+export interface IGuid {
   toString(): string;
   equals(other: Guid): boolean;
 }
-

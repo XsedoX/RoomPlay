@@ -4,18 +4,18 @@ import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
 import { describe, expect, it } from 'vitest';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 
-describe("Main Menu", () => {
+describe('Main Menu', () => {
   it('checks if a name of a user is visible', async () => {
     const page = mountVuetify(MainMenuPage);
     const avatarWithFullNameComponent = page.findComponent(AvatarWithFullName);
     const fullNameString = avatarWithFullNameComponent.get('span.text-body-1');
     const avatar = avatarWithFullNameComponent.get('.v-avatar');
 
-    expect(fullNameString.text()).toBe("Full Name");
-    expect(avatar.text()).toBe("FN");
+    expect(fullNameString.text()).toBe('Full Name');
+    expect(avatar.text()).toBe('FN');
   });
 
-  testLogoWithTitleText(()=>mountVuetify(MainMenuPage));
+  testLogoWithTitleText(() => mountVuetify(MainMenuPage));
 
   it("checks if the 'Join a Room' button is visible", () => {
     const page = mountVuetify(MainMenuPage);
@@ -39,5 +39,5 @@ describe("Main Menu", () => {
 
     expect(logoutButton.isVisible()).toBe(true);
     expect(logoutButton.text()).toBe('Logout');
-  })
+  });
 });

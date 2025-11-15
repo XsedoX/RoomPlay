@@ -24,7 +24,9 @@ function blockUser(id: IGuid) {
 </script>
 <template>
   <div class="d-flex flex-column w-100">
-    <div v-if="users.length === 0" class="h3 font-weight-bold text-center">Do you have friends? If so invite them to your room!</div>
+    <div v-if="users.length === 0" class="h3 font-weight-bold text-center">
+      Do you have friends? If so invite them to your room!
+    </div>
     <div v-for="(user, index) in users" :key="user.id.toString()" class="d-flex flex-column">
       <div class="d-flex align-center">
         <v-avatar color="primary" size="small">

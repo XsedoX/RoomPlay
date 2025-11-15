@@ -1,9 +1,9 @@
 export interface ITime {
-  hour: number,
-  minute: number
-  seconds: number
-  toString(): string
-  toDate(): Date
+  hour: number;
+  minute: number;
+  seconds: number;
+  toString(): string;
+  toDate(): Date;
 }
 export class Time implements ITime {
   hour: number;
@@ -12,15 +12,14 @@ export class Time implements ITime {
 
   constructor();
   constructor(date: Date);
-  constructor(hour: number, minute: number, seconds?: number)
+  constructor(hour: number, minute: number, seconds?: number);
   constructor(timeString: string);
   constructor(hourOrDateOrString?: number | Date | string, minute?: number, seconds?: number) {
-    if(hourOrDateOrString instanceof Date){
+    if (hourOrDateOrString instanceof Date) {
       this.hour = hourOrDateOrString.getHours();
       this.minute = hourOrDateOrString.getMinutes();
       this.seconds = hourOrDateOrString.getSeconds();
-    }
-    else if(typeof hourOrDateOrString === 'string'){
+    } else if (typeof hourOrDateOrString === 'string') {
       const parts = hourOrDateOrString.split(':');
       if (parts.length !== 2 && parts.length !== 3) {
         throw new Error('Invalid time string format. Expected "HH:mm:ss" or "HH:mm".');
@@ -32,26 +31,28 @@ export class Time implements ITime {
         secs = Number(parts[2]);
       }
       if (
-        !Number.isNaN(hour) && hour >= 0 && hour <= 23 &&
-        !Number.isNaN(min) && min >= 0 && min <= 59
+        !Number.isNaN(hour) &&
+        hour >= 0 &&
+        hour <= 23 &&
+        !Number.isNaN(min) &&
+        min >= 0 &&
+        min <= 59
       ) {
         this.hour = hour;
         this.minute = min;
-        if(!Number.isNaN(secs) && secs >= 0 && secs <= 59){
+        if (!Number.isNaN(secs) && secs >= 0 && secs <= 59) {
           this.seconds = secs;
         }
       } else {
         throw new Error('Invalid time string format. Expected "HH:mm:ss" or "HH:mm".');
       }
-    }
-    else if(typeof hourOrDateOrString === 'number' && typeof minute === 'number'){
+    } else if (typeof hourOrDateOrString === 'number' && typeof minute === 'number') {
       this.hour = hourOrDateOrString;
       this.minute = minute;
-      if(typeof seconds === 'number'){
+      if (typeof seconds === 'number') {
         this.seconds = seconds;
       }
-    }
-    else{
+    } else {
       const now = new Date();
       this.hour = now.getHours();
       this.minute = now.getMinutes();

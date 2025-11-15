@@ -11,7 +11,7 @@ import { useRouter } from 'vue-router';
 const roomStore = useRoomStore();
 const userStore = useUserStore();
 const router = useRouter();
-const qrCodeData = computed(()=>roomStore.room?.qrCode ? roomStore.room.qrCode : "")
+const qrCodeData = computed(() => (roomStore.room?.qrCode ? roomStore.room.qrCode : ''));
 const qrCode = useQRCode(qrCodeData);
 
 async function onMenuItemClick(id: MenuItemsTypes) {

@@ -1,4 +1,4 @@
 export default interface ITouchscreenTooltipProps {
-    text: string;
-    openOnHover?: boolean;
+  text: string;
+  openOnHover?: boolean;
 }

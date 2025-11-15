@@ -86,7 +86,8 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
             :sub-header="chosenPlaylist?.title ?? 'Choose a playlist.'"
           >
             <template v-slot:image>
-              <v-img v-if="chosenPlaylist"
+              <v-img
+                v-if="chosenPlaylist"
                 cover
                 max-width="50px"
                 min-width="50px"
@@ -96,9 +97,7 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
               ></v-img>
             </template>
             <template v-slot:default>
-              <v-btn variant="text"
-                     color="primary"
-                     rounded="xl">
+              <v-btn variant="text" color="primary" rounded="xl">
                 Change
                 <search-default-playlist-popup
                   @on-playlist-choice="choosePlaylist"

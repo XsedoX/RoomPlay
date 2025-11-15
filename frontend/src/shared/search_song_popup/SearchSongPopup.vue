@@ -56,7 +56,7 @@ const songList: IMusicDataListElementDto[] = [
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: new Guid("9593de37-416c-4bc8-9eee-8a98b7db66c7"),
+    id: new Guid('9593de37-416c-4bc8-9eee-8a98b7db66c7'),
     title: 'Hotel California',
     subtitle: 'Eagles',
     imageUrl: 'https://picsum.photos/200',

@@ -1,3 +1,7 @@
+cd ./backend
+go test ./...
+
+cd ../frontend
 bun run format
 bun run lint:eslint:ci
 bun run test:unit:ci

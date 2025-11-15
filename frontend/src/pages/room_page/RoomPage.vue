@@ -11,16 +11,18 @@ import { useUserStore } from '@/stores/user_store.ts';
 import { useRoomStore } from '@/stores/room_store.ts';
 import { useRouter } from 'vue-router';
 import { Time } from '@/shared/Time.ts';
-import { useIntervalFn } from '@vueuse/core'
+import { useIntervalFn } from '@vueuse/core';
 
 const userStore = useUserStore();
 const roomStore = useRoomStore();
 const router = useRouter();
 const playingSongMomentTimer = shallowRef<Time | null>(null);
-const songTimerPercentage = computed(()=>{
-  if (!playingSongMomentTimer.value || !roomStore.playingSong) return 0
-  return Math.round((playingSongMomentTimer.value!.totalSeconds()/roomStore.playingSong.lengthSeconds)*100)
-})
+const songTimerPercentage = computed(() => {
+  if (!playingSongMomentTimer.value || !roomStore.playingSong) return 0;
+  return Math.round(
+    (playingSongMomentTimer.value!.totalSeconds() / roomStore.playingSong.lengthSeconds) * 100,
+  );
+});
 
 onMounted(async () => {
   const isError = await roomStore.getRoom();
@@ -29,22 +31,21 @@ onMounted(async () => {
     return;
   }
   if (!roomStore.playingSong) {
-    pause()
-    return
+    pause();
+    return;
   }
-  playingSongMomentTimer.value = Time.from(roomStore.playingSong.startedAtUtc).to()
-  resume()
+  playingSongMomentTimer.value = Time.from(roomStore.playingSong.startedAtUtc).to();
+  resume();
 });
-const { pause, resume } = useIntervalFn(()=>{
-  if (playingSongMomentTimer.value && roomStore.playingSong){
-    if (playingSongMomentTimer.value.totalSeconds() < roomStore.playingSong.lengthSeconds){
-      playingSongMomentTimer.value?.incrementSeconds()
-    }
-    else {
-      pause()
+const { pause, resume } = useIntervalFn(() => {
+  if (playingSongMomentTimer.value && roomStore.playingSong) {
+    if (playingSongMomentTimer.value.totalSeconds() < roomStore.playingSong.lengthSeconds) {
+      playingSongMomentTimer.value?.incrementSeconds();
+    } else {
+      pause();
     }
   }
-}, 1000)
+}, 1000);
 function onSongUpvoted(event: IGuidEvent) {
   roomStore.upVoteSong(event.id);
 }
@@ -58,8 +59,8 @@ function chooseSong(id: IGuid) {
   console.log('Song chosen:', id);
 }
 async function leaveRoom() {
-  await roomStore.leaveRoom()
-  await router.replace({ name: 'MainMenuPage' })
+  await roomStore.leaveRoom();
+  await router.replace({ name: 'MainMenuPage' });
 }
 </script>
 
@@ -104,7 +105,7 @@ async function leaveRoom() {
                   class="text-left text-subtitle-1 flex-grow-1 on-surface text-truncate"
                   v-bind="tooltipProps"
                 >
-                  {{ roomStore.playingSong.title}}
+                  {{ roomStore.playingSong.title }}
                 </div>
               </touchscreen-tooltip>
               <touchscreen-tooltip
@@ -124,9 +125,11 @@ async function leaveRoom() {
               <div class="on-surface-variant">
                 {{ playingSongMomentTimer!.toString() }}
               </div>
-              <v-progress-linear height="6"
-                                 color="primary"
-                                 :model-value="songTimerPercentage"></v-progress-linear>
+              <v-progress-linear
+                height="6"
+                color="primary"
+                :model-value="songTimerPercentage"
+              ></v-progress-linear>
               <div class="on-surface-variant">
                 {{ Time.fromSeconds(roomStore.playingSong.lengthSeconds).toString() }}
               </div>

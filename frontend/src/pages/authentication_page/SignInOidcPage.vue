@@ -7,13 +7,11 @@ const router = useRouter();
 const userStore = useUserStore();
 
 onMounted(async () => {
-  await userStore.getUserData()
-  await router.replace({ name: 'MainMenuPage' })
-})
+  await userStore.getUserData();
+  await router.replace({ name: 'MainMenuPage' });
+});
 </script>
 
-<template>
-  Authenticating...
-</template>
+<template>Authenticating...</template>
 
 <style scoped></style>

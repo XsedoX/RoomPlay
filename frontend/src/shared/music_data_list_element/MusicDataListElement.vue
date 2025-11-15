@@ -11,9 +11,11 @@ function chooseMusic(event: IGuidEvent) {
 </script>
 
 <template>
-  <v-sheet @click="(event: Event)=>chooseMusic({event: event, id: props.musicDataListDto.id})"
-           rounded="lg"
-           color="surface-container justify-start pa-2 d-flex flex-nowrap align-center">
+  <v-sheet
+    @click="(event: Event) => chooseMusic({ event: event, id: props.musicDataListDto.id })"
+    rounded="lg"
+    color="surface-container justify-start pa-2 d-flex flex-nowrap align-center"
+  >
     <div class="d-flex align-center ga-2 justify-start w-100">
       <div class="overflow-hidden">
         <v-img
@@ -22,7 +24,8 @@ function chooseMusic(event: IGuidEvent) {
           min-width="50px"
           rounded="lg"
           aspect-ratio="1/1"
-          :src="props.musicDataListDto.imageUrl">
+          :src="props.musicDataListDto.imageUrl"
+        >
         </v-img>
       </div>
       <div class="d-flex flex-column flex-grow-1 w-0">
@@ -30,7 +33,7 @@ function chooseMusic(event: IGuidEvent) {
           {{ props.musicDataListDto.title }}
         </div>
         <div :class="['text-medium-emphasis', 'text-caption']">
-          {{props.musicDataListDto.subtitle}}
+          {{ props.musicDataListDto.subtitle }}
         </div>
       </div>
       <v-icon color="outline" icon="chevron_right"></v-icon>
