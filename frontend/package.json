@@ -21,7 +21,6 @@
     "lint:eslint:ci": "eslint . --fix",
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
-    "prepare": "cd .. && husky ./frontend/.husky",
     "test:cucumber": "cucumber-js --loader ts-node/esm --import './features/step_definitions/**/*.ts'"
   },
   "dependencies": {
@@ -59,7 +58,6 @@
     "eslint-plugin-oxlint": "~1.10.0",
     "eslint-plugin-playwright": "^2.3.0",
     "eslint-plugin-vue": "~10.4.0",
-    "husky": "^9.1.7",
     "jiti": "^2.6.1",
     "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",
