@@ -82,9 +82,8 @@ const playlistList: IMusicDataListElementDto[] = [
 ];
 function sendChosenPlaylist(event: IGuidEvent) {
   const chosenPlaylist = playlistList.find((playlist) => playlist.id === event.id);
-  if(!chosenPlaylist) throw new Error(
-    `Could not find playlist with id ${event.id} in playlistList: ${playlistList}`
-  )
+  if (!chosenPlaylist)
+    throw new Error(`Could not find playlist with id ${event.id} in playlistList: ${playlistList}`);
   emit('on-playlist-choice', chosenPlaylist);
 }
 </script>

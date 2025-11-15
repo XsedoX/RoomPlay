@@ -12,6 +12,7 @@
     "clientId": "361061961111-61l35l7srvr99ukrskfkg4iosgj98hj9.apps.googleusercontent.com",
     "clientSecret": "",
     "clientOrigin": "http://localhost:5173",
+    "clientRedirectUri": "http://localhost:5173",
     "scopes": "openid profile",
     "audience": "placeholder",
     "issuer": "roomplayAPI",

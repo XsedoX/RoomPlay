@@ -10,11 +10,10 @@ import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor.ts';
 export const RoomService = {
   createRoom: async (roomData: ICreateRoomRequest) => {
     const response = await RoomRepository.createRoom(roomData);
-    if (!response.isSuccess){
-      if (response.validationErrors){
+    if (!response.isSuccess) {
+      if (response.validationErrors) {
         throw new ValidationError(response.title, response.validationErrors);
-      }
-      else {
+      } else {
         throw new Error(response.title);
       }
     }
@@ -23,17 +22,18 @@ export const RoomService = {
   getRoom: async (): Promise<IGetRoomResponse> => {
     const response = await RoomRepository.getRoom();
     const notificationStore = useNotificationStore();
-    if (!response.isSuccess){
-      if (response.validationErrors){
+    if (!response.isSuccess) {
+      if (response.validationErrors) {
         throw new ValidationError(response.title, response.validationErrors);
-      }
-      else if (response.status === HttpCodes.notFound){
-        notificationStore.showSnackbar("The room you were a member of has either expired or you get kicked or banned from it.", TSnackbarColor.INFO)
+      } else if (response.status === HttpCodes.notFound) {
+        notificationStore.showSnackbar(
+          'The room you were a member of has either expired or you get kicked or banned from it.',
+          TSnackbarColor.INFO,
+        );
         throw new NotFoundError(response.title);
-      }
-      else {
-        notificationStore.showSnackbar(response.title, TSnackbarColor.ERROR)
-        console.error("CUSTOM",response);
+      } else {
+        notificationStore.showSnackbar(response.title, TSnackbarColor.ERROR);
+        console.error('CUSTOM', response);
         throw new Error(response.title);
       }
     }
@@ -41,21 +41,20 @@ export const RoomService = {
   },
   getUserRoomMembership: async () => {
     const response = await RoomRepository.getUserRoomMembership();
-    if (!response.isSuccess){
-      return false
+    if (!response.isSuccess) {
+      return false;
     }
     return response.data;
   },
   leaveRoom: async () => {
     const response = await RoomRepository.leaveRoom();
-    if (!response.isSuccess){
-      if (response.validationErrors){
+    if (!response.isSuccess) {
+      if (response.validationErrors) {
         throw new ValidationError(response.title, response.validationErrors);
-      }
-      else {
+      } else {
         throw new Error(response.title);
       }
     }
     return response;
-  }
+  },
 };

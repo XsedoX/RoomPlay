@@ -23,14 +23,15 @@ type Database struct {
 	ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
 }
 type Authentication struct {
-	ClientSecret  string `json:"clientSecret" envconfig:"CLIENT_SECRET"`
-	ClientId      string `json:"clientId" envconfig:"CLIENT_ID"`
-	ClientOrigin  string `json:"clientOrigin" envconfig:"CLIENT_ORIGIN"`
-	EncryptionKey string `json:"encryptionKey" envconfig:"ENCRYPTION_KEY"`
-	JwtKey        string `json:"jwtKey" envconfig:"JWT_KEY"`
-	ScopesField   string `json:"scopes" envconfig:"CLIENT_SCOPES"`
-	AudienceField string `json:"audience" envconfig:"CLIENT_AUDIENCE"`
-	Issuer        string `json:"issuer" envconfig:"CLIENT_ISSUER"`
+	ClientSecret      string `json:"clientSecret" envconfig:"CLIENT_SECRET"`
+	ClientId          string `json:"clientId" envconfig:"CLIENT_ID"`
+	ClientOrigin      string `json:"clientOrigin" envconfig:"CLIENT_ORIGIN"`
+	ClientRedirectUri string `json:"clientRedirectUri" envconfig:"CLIENT_REDIRECT_URI"`
+	EncryptionKey     string `json:"encryptionKey" envconfig:"ENCRYPTION_KEY"`
+	JwtKey            string `json:"jwtKey" envconfig:"JWT_KEY"`
+	ScopesField       string `json:"scopes" envconfig:"CLIENT_SCOPES"`
+	AudienceField     string `json:"audience" envconfig:"CLIENT_AUDIENCE"`
+	Issuer            string `json:"issuer" envconfig:"CLIENT_ISSUER"`
 }
 type Configuration struct {
 	ServerField   Server         `json:"server" envconfig:"SERVER"`

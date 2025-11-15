@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import logo from '@/assets/logo.png'
+import logo from '@/assets/logo.png';
 </script>
 
 <template>
-  <v-row no-gutters
-         align="center"
-         justify="center">
+  <v-row no-gutters align="center" justify="center">
     <v-col class="text-center d-flex justify-center">
       <v-img
         :src="logo"
@@ -13,17 +11,16 @@ import logo from '@/assets/logo.png'
         data-testid="logo"
         aspect-ratio="1"
         max-width="450"
-        class="w-100 mb-6"/>
+        class="w-100 mb-6"
+      />
     </v-col>
   </v-row>
-  <v-row no-gutters
-         justify="center">
+  <v-row no-gutters justify="center">
     <v-col cols="auto" class="text-center d-flex justify-center">
       <span class="text-h3">RoomPlay2</span>
     </v-col>
   </v-row>
-  <v-row no-gutters
-         justify="center">
+  <v-row no-gutters justify="center">
     <v-col cols="auto" class="text-center">
       <span class="text-subtitle-1 on-surface-variant">The playlist that creates itself.</span>
     </v-col>

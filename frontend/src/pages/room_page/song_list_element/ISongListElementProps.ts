@@ -1,4 +1,3 @@
-
 import type { ISongListRoomStoreModel } from '@/infrastructure/room/ISongListRoomStoreModel.ts';
 import type IGuidEvent from '@/shared/IGuidEvent.ts';
 

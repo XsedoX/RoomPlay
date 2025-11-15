@@ -5,46 +5,49 @@ import type { AxiosResponse } from 'axios';
 const URLS = {
   loginWithGoogle: '/auth/google/signin-oidc',
   logout: '/auth/logout',
-  refreshToken: '/auth/refresh-token'
-}
+  refreshToken: '/auth/refresh-token',
+};
 
 export const AuthenticationRepository = {
   loginWithGoogle: async (): Promise<IApiResponse<string>> => {
-    return api_client.get<AxiosResponse<string>>(URLS.loginWithGoogle)
-      .then(response => ({
+    return await api_client
+      .get<AxiosResponse<string>>(URLS.loginWithGoogle)
+      .then((response) => ({
         isSuccess: true,
-        data: response.data.data
+        data: response.data.data,
       }))
-      .catch(error => {
+      .catch((error) => {
         // Assuming error.response.data contains the failure details
         return {
           isSuccess: false,
-          ...error.response.data
+          ...error.response.data,
         };
       });
   },
 
   logout: async (): Promise<IApiResponse> => {
-    return api_client.post<AxiosResponse<void>>(URLS.logout)
+    return await api_client
+      .post<AxiosResponse<void>>(URLS.logout)
       .then(() => ({
         isSuccess: true,
-        data: undefined
+        data: undefined,
       }))
-      .catch(error => ({
+      .catch((error) => ({
         isSuccess: false,
-        ...error.response.data
+        ...error.response.data,
       }));
   },
 
   refreshToken: async (): Promise<IApiResponse> => {
-    return api_client.post<AxiosResponse<void>>(URLS.refreshToken)
+    return await api_client
+      .post<AxiosResponse<void>>(URLS.refreshToken)
       .then(() => ({
         isSuccess: true,
-        data: undefined
+        data: undefined,
       }))
-      .catch(error => ({
+      .catch((error) => ({
         isSuccess: false,
-        ...error.response.data
+        ...error.response.data,
       }));
-  }
+  },
 };

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import type ISettingsSelectProps from '@/pages/settings_page/settings_select/ISettingsSelectProps.ts';
 import type { TSettingsSelectEmits } from '@/pages/settings_page/settings_select/TSettingsSelectEmits.ts';
 
@@ -13,7 +12,7 @@ defineEmits<TSettingsSelectEmits>();
     :hide-details="true"
     flat
     :model-value="props.value"
-    @update:model-value="(newValue)=>$emit('on-selected', newValue)"
+    @update:model-value="(newValue) => $emit('on-selected', newValue)"
     :items="props.items"
     variant="solo"
     class="text-primary d-flex justify-end flex-shrink-0"

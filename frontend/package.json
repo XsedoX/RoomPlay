@@ -18,10 +18,10 @@
     "type-check": "vue-tsc --build",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
-    "lint:eslint:ci": "eslint . --fix --no-watch",
+    "lint:eslint:ci": "eslint . --fix",
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
-    "prepare": "cd .. && husky",
+    "prepare": "cd .. && husky ./frontend/.husky",
     "test:cucumber": "cucumber-js --loader ts-node/esm --import './features/step_definitions/**/*.ts'"
   },
   "dependencies": {
@@ -69,6 +69,7 @@
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@latest",
+    "vite-plugin-csp-guard": "^3.0.0",
     "vite-plugin-vue-devtools": "^8.0.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.1.3"
