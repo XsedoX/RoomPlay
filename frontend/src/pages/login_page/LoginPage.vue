@@ -11,7 +11,6 @@ async function login() {
     const redirectUri = await AuthenticationService.loginWithGoogle();
     if (redirectUri) {
       globalThis.location.assign(redirectUri);
-      return;
     }
   } else {
     await router.replace({ name: 'MainMenuPage' });

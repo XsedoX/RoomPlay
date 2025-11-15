@@ -5,7 +5,47 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'unsafe-inline' https://fonts.googleapis.com; img-src 'self'; font-src 'self' https://fonts.googleapis.com; connect-src 'self' http://localhost:7654; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "0"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-site"
+        },
+        {
+          "key": "Server",
+          "value": "ThisIsASecret"
+        },
+        {
+          "key": "X-Powered-By",
+          "value": "Nope"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "accelerometer=(), ambient-light-sensor=(), bluetooth=(), camera=(), capture-surface-control=(), compute-pressure=(), display-capture=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), on-device-speech-recognition=(), payment=(), serial=(), speaker-selection=(), storage-access=(), usb=(), xr-spatial-tracking=()"
         }
       ]
     }

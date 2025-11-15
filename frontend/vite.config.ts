@@ -24,7 +24,7 @@ export default defineConfig(({mode})=>{
           "style-src": ["'self'"],
           "style-src-elem": ["'unsafe-inline'", "https://fonts.googleapis.com"],
           "img-src": ["'self'"],
-          "font-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+          "font-src": ["'self'", "https://fonts.googleapis.com"],
           "connect-src": ["'self'","http://localhost:7654"],
           "base-uri": ["'self'"],
           "form-action": ["'self'"],
