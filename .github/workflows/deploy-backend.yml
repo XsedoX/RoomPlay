@@ -52,4 +52,4 @@ jobs:
             --source=./ \
             --allow-unauthenticated \
             --set-secrets=DATABASE_CONNECTION_STRING=ROOMPLAY_SUPABASE_DB_CONNECTION_STRING:latest,CLIENT_SECRET=ROOMPLAY_GOOGLE_OIDC_CLIENT_SECRET:latest,ENCRYPTION_KEY=ROOMPLAY_DATABASE_ENCRYPTION_KEY:latest,JWT_KEY=ROOMPLAY_JWT_KEY:latest \
-            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,CLIENT_ORIGIN=${{ env.PUBLIC_HOST_URL }}
+            --set-env-vars=SERVER_HOST=${{ env.PUBLIC_HOST_URL }},ENVIRONMENT=production,CLIENT_ORIGIN=${{ env.PUBLIC_HOST_URL }},CLIENT_REDIRECT_URI=${{ env.PUBLIC_HOST_URL }}
