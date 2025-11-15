@@ -54,6 +54,10 @@
     {
       "source": "/api/:match*",
       "destination": "https://roomplay-api-361061961111.us-central1.run.app/api/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
