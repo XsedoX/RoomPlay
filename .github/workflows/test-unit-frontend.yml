@@ -32,7 +32,7 @@ jobs:
 
       - name: Install dependencies
         # Use 'working-directory' to run commands in the frontend folder
-        run: bun install --frozen-lockfile # Use --frozen-lockfile for CI
+        run: bun install
 
       - name: Run unit tests
         run: bun test:unit:ci
