@@ -2,4 +2,4 @@ import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMus
 
 export type TSearchDefaultPlaylistPopupEmits = {
   'on-playlist-choice': [payload: IMusicDataListElementDto];
-}
+};

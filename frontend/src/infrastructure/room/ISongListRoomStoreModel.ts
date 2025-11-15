@@ -9,6 +9,6 @@ export interface ISongListRoomStoreModel {
   votes: number;
   albumCoverUrl: string;
   id: IGuid;
-  state: TSongState
-  voteStatus: TVoteStatus
+  state: TSongState;
+  voteStatus: TVoteStatus;
 }

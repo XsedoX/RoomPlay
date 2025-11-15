@@ -6,12 +6,14 @@ const notificationStore = useNotificationStore();
 
 <template>
   <v-app min-width="320px">
-      <RouterView/>
+    <RouterView />
   </v-app>
-  <v-snackbar v-model="notificationStore.snackbarVisible"
-              :color="notificationStore.snackbarColor"
-              :timeout="3000"
-              location="top right">
-    {{notificationStore.snackbarMessage}}
+  <v-snackbar
+    v-model="notificationStore.snackbarVisible"
+    :color="notificationStore.snackbarColor"
+    :timeout="3000"
+    location="top right"
+  >
+    {{ notificationStore.snackbarMessage }}
   </v-snackbar>
 </template>

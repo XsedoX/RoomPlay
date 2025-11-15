@@ -40,7 +40,7 @@ export const lightTheme = {
     'surface-container': '#eeedf5',
     'surface-container-high': '#e8e7ef',
     'surface-container-highest': '#e2e2ea',
-  }
+  },
 };
 
 // Dark theme generated based on Material Design 3 principles
@@ -86,5 +86,5 @@ export const darkTheme = {
     'surface-container': '#303034', // Neutral 20
     'surface-container-high': '#3b3b3f', // Neutral 25
     'surface-container-highest': '#46464a', // Neutral 30
-  }
+  },
 };

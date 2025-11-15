@@ -11,16 +11,15 @@ export const UserService = {
       const notificationStore = useNotificationStore();
 
       notificationStore.showSnackbar(userDataResponse.title, TSnackbarColor.ERROR);
-      if (userDataResponse.validationErrors){
+      if (userDataResponse.validationErrors) {
         throw new ValidationError(userDataResponse.title, userDataResponse.validationErrors);
-      }
-      else {
+      } else {
         throw new Error(userDataResponse.title);
       }
     }
     return {
       name: userDataResponse.data.name,
       surname: userDataResponse.data.surname,
-    }
-  }
-}
+    };
+  },
+};

@@ -9,9 +9,8 @@ export const AuthenticationService = {
   refreshToken: async (): Promise<boolean> => {
     const response = await AuthenticationRepository.refreshToken();
     return response.isSuccess;
-
   },
-  loginWithGoogle: async (): Promise<string|undefined> => {
+  loginWithGoogle: async (): Promise<string | undefined> => {
     const response = await AuthenticationRepository.loginWithGoogle();
     if (!response.isSuccess) {
       const notificationStore = useNotificationStore();
@@ -20,5 +19,5 @@ export const AuthenticationService = {
       return undefined;
     }
     return response.data;
-  }
-}
+  },
+};

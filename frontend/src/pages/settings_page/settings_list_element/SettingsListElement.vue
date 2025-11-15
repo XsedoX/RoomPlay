@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import type ISettingsListElementProps from '@/pages/settings_page/settings_list_element/ISettingsListElementProps.ts';
 
 const props = defineProps<ISettingsListElementProps>();
@@ -8,8 +7,10 @@ const props = defineProps<ISettingsListElementProps>();
 <template>
   <v-list-subheader class="remove-padding">{{ props.header }}</v-list-subheader>
   <v-list-item>
-    <v-sheet rounded="lg"
-             color="surface-container justify-start pa-2 d-flex flex-nowrap ga-2 align-center">
+    <v-sheet
+      rounded="lg"
+      color="surface-container justify-start pa-2 d-flex flex-nowrap ga-2 align-center"
+    >
       <slot name="content">
         <div class="d-flex align-center ga-2 mr-auto justify-start w-75">
           <slot name="image"></slot>
@@ -18,7 +19,7 @@ const props = defineProps<ISettingsListElementProps>();
               {{ props.subHeader }}
             </div>
             <div :class="['text-medium-emphasis', 'text-caption']">
-              {{props.hint}}
+              {{ props.hint }}
             </div>
           </div>
         </div>

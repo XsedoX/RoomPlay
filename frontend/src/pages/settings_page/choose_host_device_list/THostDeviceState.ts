@@ -1,4 +1,4 @@
 export enum THostDeviceState {
   Online = 'ONLINE',
-  Offline = 'OFFLINE'
+  Offline = 'OFFLINE',
 }

@@ -21,8 +21,10 @@ func NewServer(dependencies *initialization.ServerDependencies) *Server {
 	router := chi.NewRouter()
 	customCors := customMiddleware.NewCustomCors(dependencies.Configuration())
 	jwtAuthMiddleware := customMiddleware.NewCookieJwtAuthentication(dependencies.Configuration(), dependencies.JwtProvider())
+	securityHeadersMiddleware := customMiddleware.NewSecurityHeaders(dependencies.Configuration())
 
-	router.Use(customCors.CorsHandler(),
+	router.Use(securityHeadersMiddleware.Next,
+		customCors.CorsHandler(),
 		middleware.Logger,
 		middleware.Recoverer)
 

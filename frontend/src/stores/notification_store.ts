@@ -2,17 +2,19 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor.ts';
 
-export const useNotificationStore = defineStore("notification", ()=>{
+export const useNotificationStore = defineStore('notification', () => {
   const snackbarVisible = ref(false);
-  const snackbarMessage = ref("");
+  const snackbarMessage = ref('');
   const snackbarColor = ref(TSnackbarColor.ERROR);
 
   function showSnackbar(message: string, color: TSnackbarColor) {
-    if (snackbarVisible.value) {return;}
+    if (snackbarVisible.value) {
+      return;
+    }
     snackbarMessage.value = message;
     snackbarColor.value = color;
     snackbarVisible.value = true;
   }
 
   return { snackbarVisible, snackbarMessage, snackbarColor, showSnackbar };
-})
+});

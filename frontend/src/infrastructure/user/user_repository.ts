@@ -4,19 +4,20 @@ import type { IApiResponse } from '@/infrastructure/utils/IApiResponse.ts';
 import type { AxiosResponse } from 'axios';
 
 const URLS = {
-  getUserData: "/user"
-}
+  getUserData: '/user',
+};
 
 export const UserRepository = {
   getUserData: async (): Promise<IApiResponse<IGetUserResponse>> => {
-    return await api_client.get<AxiosResponse<IGetUserResponse>>(URLS.getUserData)
-      .then(response => ({
+    return await api_client
+      .get<AxiosResponse<IGetUserResponse>>(URLS.getUserData)
+      .then((response) => ({
         isSuccess: true,
-        data: response.data.data
+        data: response.data.data,
       }))
-      .catch(error => ({
+      .catch((error) => ({
         isSuccess: false,
-        ...error.response.data
+        ...error.response.data,
       }));
-  }
-}
+  },
+};

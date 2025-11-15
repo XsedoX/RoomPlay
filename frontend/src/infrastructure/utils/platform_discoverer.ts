@@ -8,5 +8,5 @@ export const PlatformDiscoverer = {
     } else {
       return THostDevice.Desktop;
     }
-  }
-}
+  },
+};

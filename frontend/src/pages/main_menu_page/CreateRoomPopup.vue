@@ -12,19 +12,23 @@ const dialog = shallowRef(false);
 const roomStore = useRoomStore();
 
 const validationSchema = toTypedSchema(
-  z.object({
-    roomName: z.string()
-      .min(5, 'Room name has to have at least 5 characters')
-      .max(30, 'Room name has to have at most 30 characters'),
-    roomPassword: z.string()
-      .min(10, 'Password has to have at least 10 characters')
-      .max(30, 'Password has to have at most 30 characters')
-      .regex(/^\S*$/, 'Password cannot contain whitespaces'),
-    repeatRoomPassword: z.string()
-  }).refine((data) => data.roomPassword === data.repeatRoomPassword, {
-    message: "Passwords don't match",
-    path: ['repeatRoomPassword'],
-  }),
+  z
+    .object({
+      roomName: z
+        .string()
+        .min(5, 'Room name has to have at least 5 characters')
+        .max(30, 'Room name has to have at most 30 characters'),
+      roomPassword: z
+        .string()
+        .min(10, 'Password has to have at least 10 characters')
+        .max(30, 'Password has to have at most 30 characters')
+        .regex(/^\S*$/, 'Password cannot contain whitespaces'),
+      repeatRoomPassword: z.string(),
+    })
+    .refine((data) => data.roomPassword === data.repeatRoomPassword, {
+      message: "Passwords don't match",
+      path: ['repeatRoomPassword'],
+    }),
 );
 const { handleSubmit, defineField, setErrors, errors } = useForm({
   validationSchema,
@@ -44,13 +48,13 @@ const onSubmit = handleSubmit(async (values) => {
     roomName: values.roomName,
     roomPassword: values.roomPassword,
     repeatRoomPassword: values.repeatRoomPassword,
-  }
-  const validationErrors = await roomStore.createRoom(request)
+  };
+  const validationErrors = await roomStore.createRoom(request);
   if (validationErrors) {
     setErrors(validationErrors);
     return;
   }
-})
+});
 </script>
 
 <template>

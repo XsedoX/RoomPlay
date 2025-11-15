@@ -7,14 +7,14 @@ const userStore = useUserStore();
 const router = useRouter();
 
 async function login() {
-  if (!userStore.user){
-    const redirectUri = await AuthenticationService.loginWithGoogle()
-    if (redirectUri){
-      globalThis.location.href = redirectUri;
+  if (!userStore.user) {
+    const redirectUri = await AuthenticationService.loginWithGoogle();
+    if (redirectUri) {
+      globalThis.location.assign(redirectUri);
+      return;
     }
-  }
-  else{
-    await router.replace({ name: 'MainMenuPage' })
+  } else {
+    await router.replace({ name: 'MainMenuPage' });
   }
 }
 </script>

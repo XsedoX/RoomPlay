@@ -3,8 +3,8 @@ import { shallowRef } from 'vue';
 import type ITouchscreenTooltipProps from '@/shared/touchscreen_tooltip/ITouchscreenTooltipProps.ts';
 
 const showTooltip = shallowRef(false);
-const props = withDefaults(defineProps<ITouchscreenTooltipProps>(),{
-  openOnHover: true
+const props = withDefaults(defineProps<ITouchscreenTooltipProps>(), {
+  openOnHover: true,
 });
 </script>
 
@@ -17,8 +17,7 @@ const props = withDefaults(defineProps<ITouchscreenTooltipProps>(),{
     :text="props.text"
   >
     <template v-slot:activator="{ props: tooltipProps }">
-      <slot :tooltipProps='tooltipProps'></slot>
+      <slot :tooltipProps="tooltipProps"></slot>
     </template>
   </v-tooltip>
 </template>
-

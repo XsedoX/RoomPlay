@@ -1,4 +1,3 @@
-
 export interface IGetRoomResponse {
   name: string;
   boostData: IGetRoomBoostData | null;

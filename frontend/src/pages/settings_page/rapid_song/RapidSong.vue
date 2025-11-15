@@ -103,7 +103,7 @@ const showTimePicker = shallowRef(false);
             format="24hr"
             color="primary"
             :model-value="rapidSongPlayTime.toString()"
-            @update:model-value="(value)=>rapidSongPlayTime = new Time(value)"
+            @update:model-value="(value) => (rapidSongPlayTime = new Time(value))"
           ></v-time-picker>
         </v-dialog>
       </v-btn>
