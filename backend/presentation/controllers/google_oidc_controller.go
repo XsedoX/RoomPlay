@@ -135,7 +135,7 @@ func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *ht
 	setDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
 	clearStateCookie(w, handler.configuration.Server().BasePath)
 
-	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusPermanentRedirect)
+	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)
 }
 func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) {
 	expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)

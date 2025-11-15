@@ -52,8 +52,12 @@
   ],
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "https://roomplay-api-361061961111.us-central1.run.app/api/:match*"
+      "source": "/api/:path*",
+      "destination": "https://roomplay-api-361061961111.us-central1.run.app/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
