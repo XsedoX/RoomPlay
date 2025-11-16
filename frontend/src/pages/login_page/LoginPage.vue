@@ -7,7 +7,7 @@ import { shallowRef } from 'vue';
 const userStore = useUserStore();
 const router = useRouter();
 
-const isLoading = shallowRef(false)
+const isLoading = shallowRef(false);
 
 async function login() {
   if (!userStore.user) {

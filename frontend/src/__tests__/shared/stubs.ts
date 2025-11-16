@@ -1,10 +1,6 @@
 import type { Component, ComponentOptions } from 'vue';
 
-export function stub(
-  tag: string,
-  opts ? : Partial<ComponentOptions>,
-  template ? : string,
-): Component {
+export function stub(tag: string, opts?: Partial<ComponentOptions>, template?: string): Component {
   const contents = template || `Stubbed ${tag}`;
   return {
     name: tag,
@@ -15,9 +11,10 @@ export function stub(
 
 export const sharedStubs = {
   vDialog: stub(
-    'v-dialog', {
+    'v-dialog',
+    {
       props: ['modelValue'],
     },
     '<slot />',
   ),
-}
+};

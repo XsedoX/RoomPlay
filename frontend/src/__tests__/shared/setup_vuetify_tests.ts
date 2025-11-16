@@ -1,30 +1,22 @@
-import { createPinia, type Pinia } from 'pinia';
 import { mount } from '@vue/test-utils';
-import { type Component } from 'vue';
+import { type Component} from 'vue';
 import createVuetify from '@/vuetify-setup.ts';
+import { createTestingPinia, type TestingOptions } from '@pinia/testing';
+import type { StoreGeneric } from 'pinia';
 
-const testingVuetify = createVuetify
-export function mountVuetify(componentToRender: Component,
-                             options?: Parameters<typeof mount>[1],
-                             storeSetup?: (pinia: Pinia) => void) {
-  const pinia = createPinia();
 
-  // Run store setup BEFORE mounting the component
-  // This ensures the store is properly configured when the component initializes
-  if (storeSetup) {
-    storeSetup(pinia);
-  }
-
+const testingVuetify = createVuetify;
+export function mountVuetify(
+  componentToRender: Component,
+  options?: Parameters<typeof mount>[1],
+  piniaStubs?: boolean | string[] | ((actionName: string, store: StoreGeneric) => boolean),
+) {
   return mount(componentToRender, {
     ...options,
     attachTo: document.body,
     global: {
       ...options?.global,
-      plugins: [
-        ...(options?.global?.plugins ?? []),
-        testingVuetify,
-        pinia
-      ],
+      plugins: [...(options?.global?.plugins ?? []), testingVuetify, createTestingPinia({ stubActions: piniaStubs } as unknown as TestingOptions)],
     },
   });
 }
