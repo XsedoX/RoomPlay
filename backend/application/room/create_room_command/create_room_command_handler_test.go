@@ -9,29 +9,26 @@ import (
 	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/mocks"
-	"xsedox.com/main/mocks/persistance"
+	"xsedox.com/main/tests"
+	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
 )
 
 func TestCreateRoomCommandHandler(t *testing.T) {
 	t.Run("ShouldCreateRoomSuccessfullyWhenCommandIsValid", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance.MockRoomRepository)
-		mockUoW := new(persistance.MockUnitOfWork)
-		mockEncrypter := new(persistance.MockEncrypter)
-
-		_, ctx := mocks.AddUserIdToContext(context.Background())
-
+		mockRoomRepo := new(persistance2.MockRoomRepository)
+		mockUoW := new(persistance2.MockUnitOfWork)
+		mockEncrypter := new(persistance2.MockEncrypter)
+		_, ctx := tests.AddUserIdToContext(context.Background())
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
 		}
-
 		encryptionKey := "some-random-key"
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
-		mockRoomRepo.On("CreateRoom", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockUoW.On("GetQueryer").Return(nil)
+		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mockUoW.GetQueryer()).Return(nil)
 
 		// Act
 		err := handler.Handle(ctx, command)
@@ -44,12 +41,10 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance.MockRoomRepository)
-		mockUoW := new(persistance.MockUnitOfWork)
-		mockEncrypter := new(persistance.MockEncrypter)
-
+		mockRoomRepo := new(persistance2.MockRoomRepository)
+		mockUoW := new(persistance2.MockUnitOfWork)
+		mockEncrypter := new(persistance2.MockEncrypter)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
-
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
@@ -61,17 +56,17 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
+		mockRoomRepo.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
 	})
 
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance.MockRoomRepository)
-		mockUoW := new(persistance.MockUnitOfWork)
-		mockEncrypter := new(persistance.MockEncrypter)
-
+		mockRoomRepo := new(persistance2.MockRoomRepository)
+		mockUoW := new(persistance2.MockUnitOfWork)
+		mockEncrypter := new(persistance2.MockEncrypter)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
-
-		_, ctx := mocks.AddUserIdToContext(context.Background())
+		_, ctx := tests.AddUserIdToContext(context.Background())
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
@@ -81,8 +76,8 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		errorCode := "CreateRoomCommandHandler.CreateRoom"
 		encryptionKey := "some-random-key"
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
-		mockRoomRepo.On("CreateRoom", mock.Anything, mock.Anything, mock.Anything).Return(repoErr)
 		mockUoW.On("GetQueryer").Return(nil)
+		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mockUoW.GetQueryer()).Return(repoErr)
 
 		// Act
 		err := handler.Handle(ctx, command)
@@ -93,5 +88,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
+		mockRoomRepo.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
 	})
 }

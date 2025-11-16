@@ -132,11 +132,15 @@ const onSubmit = handleSubmit(async (values) => {
             </v-row>
             <v-row justify="center" no-gutters>
               <v-col>
-                <v-btn color="primary"
-                       type="submit"
-                       data-testid="create-room-popup-btn"
-                       block
-                       rounded="xl"> Create </v-btn>
+                <v-btn
+                  color="primary"
+                  type="submit"
+                  data-testid="create-room-popup-btn"
+                  block
+                  rounded="xl"
+                >
+                  Create
+                </v-btn>
               </v-col>
             </v-row>
           </v-form>

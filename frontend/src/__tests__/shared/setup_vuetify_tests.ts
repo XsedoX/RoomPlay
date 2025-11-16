@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
-import { type Component} from 'vue';
+import { type Component } from 'vue';
 import createVuetify from '@/vuetify-setup.ts';
 import { createTestingPinia, type TestingOptions } from '@pinia/testing';
 import type { StoreGeneric } from 'pinia';
-
 
 const testingVuetify = createVuetify;
 export function mountVuetify(
@@ -16,7 +15,11 @@ export function mountVuetify(
     attachTo: document.body,
     global: {
       ...options?.global,
-      plugins: [...(options?.global?.plugins ?? []), testingVuetify, createTestingPinia({ stubActions: piniaStubs } as unknown as TestingOptions)],
+      plugins: [
+        ...(options?.global?.plugins ?? []),
+        testingVuetify,
+        createTestingPinia({ stubActions: piniaStubs } as unknown as TestingOptions),
+      ],
     },
   });
 }

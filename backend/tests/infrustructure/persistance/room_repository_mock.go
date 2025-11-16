@@ -21,6 +21,9 @@ func (m *MockRoomRepository) CreateRoom(ctx context.Context, roomParam *room.Roo
 
 func (m *MockRoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos.GetRoomDao, error) {
 	args := m.Called(ctx, userId, queryer)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*daos.GetRoomDao), args.Error(1)
 }
 

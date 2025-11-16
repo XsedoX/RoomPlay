@@ -2,9 +2,11 @@ package get_user_room_membership_query
 
 import (
 	"context"
+	"fmt"
 
 	"xsedox.com/main/application"
 	contracts2 "xsedox.com/main/application/contracts"
+	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/application/room/contracts"
 )
 
@@ -31,7 +33,10 @@ func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, e
 		if err != nil {
 			tempResult := false
 			result = &tempResult
-			return nil
+			return custom_errors.NewCustomError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
+				fmt.Sprintf("Something went wrong with getting room by userId: %s", *userId.String()),
+				err,
+				custom_errors.Unexpected)
 		}
 		tempResult := true
 		result = &tempResult

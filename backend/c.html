@@ -1,0 +1,4561 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>custom_errors: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">xsedox.com/main/application/custom_errors/custom_error.go (0.0%)</option>
+				
+				<option value="file1">xsedox.com/main/application/custom_errors/custom_error_type.go (0.0%)</option>
+				
+				<option value="file2">xsedox.com/main/application/helpers.go (0.0%)</option>
+				
+				<option value="file3">xsedox.com/main/application/room/create_room_command/create_room_command_handler.go (100.0%)</option>
+				
+				<option value="file4">xsedox.com/main/application/room/get_room_query/get_room_query_handler.go (100.0%)</option>
+				
+				<option value="file5">xsedox.com/main/application/room/get_user_room_membership_query/get_user_room_membership_query_handler.go (0.0%)</option>
+				
+				<option value="file6">xsedox.com/main/application/room/leave_room_command/leave_room_command_handler.go (0.0%)</option>
+				
+				<option value="file7">xsedox.com/main/application/services/oidc_authentication_service.go (0.0%)</option>
+				
+				<option value="file8">xsedox.com/main/application/user/get_user_query/get_user_query_handler.go (0.0%)</option>
+				
+				<option value="file9">xsedox.com/main/application/user/login_user_command/login_user_command_handler.go (0.0%)</option>
+				
+				<option value="file10">xsedox.com/main/application/user/login_user_refresh_token_command/login_user_refresh_token_command_handler.go (0.0%)</option>
+				
+				<option value="file11">xsedox.com/main/application/user/logout_user_command/logout_user_command_handler.go (0.0%)</option>
+				
+				<option value="file12">xsedox.com/main/application/user/register_user_command/register_user_command_handler.go (0.0%)</option>
+				
+				<option value="file13">xsedox.com/main/config/config.go (0.0%)</option>
+				
+				<option value="file14">xsedox.com/main/docs/docs.go (0.0%)</option>
+				
+				<option value="file15">xsedox.com/main/domain/credentials/external_credentials.go (0.0%)</option>
+				
+				<option value="file16">xsedox.com/main/domain/credentials/refresh_token.go (0.0%)</option>
+				
+				<option value="file17">xsedox.com/main/domain/domainErrors/domain_error.go (0.0%)</option>
+				
+				<option value="file18">xsedox.com/main/domain/room/room.go (0.0%)</option>
+				
+				<option value="file19">xsedox.com/main/domain/room/song.go (0.0%)</option>
+				
+				<option value="file20">xsedox.com/main/domain/room/song_id.go (0.0%)</option>
+				
+				<option value="file21">xsedox.com/main/domain/room/song_state.go (0.0%)</option>
+				
+				<option value="file22">xsedox.com/main/domain/room/vote_state.go (0.0%)</option>
+				
+				<option value="file23">xsedox.com/main/domain/shared/aggregate.go (0.0%)</option>
+				
+				<option value="file24">xsedox.com/main/domain/shared/entity.go (0.0%)</option>
+				
+				<option value="file25">xsedox.com/main/domain/shared/room_id.go (0.0%)</option>
+				
+				<option value="file26">xsedox.com/main/domain/user/device.go (0.0%)</option>
+				
+				<option value="file27">xsedox.com/main/domain/user/device_id.go (0.0%)</option>
+				
+				<option value="file28">xsedox.com/main/domain/user/device_state.go (0.0%)</option>
+				
+				<option value="file29">xsedox.com/main/domain/user/device_type.go (0.0%)</option>
+				
+				<option value="file30">xsedox.com/main/domain/user/full_name.go (0.0%)</option>
+				
+				<option value="file31">xsedox.com/main/domain/user/user.go (0.0%)</option>
+				
+				<option value="file32">xsedox.com/main/domain/user/user_id.go (0.0%)</option>
+				
+				<option value="file33">xsedox.com/main/domain/user/user_role.go (0.0%)</option>
+				
+				<option value="file34">xsedox.com/main/infrastructure/authentication/encrypter.go (0.0%)</option>
+				
+				<option value="file35">xsedox.com/main/infrastructure/authentication/google_oidc_service.go (0.0%)</option>
+				
+				<option value="file36">xsedox.com/main/infrastructure/authentication/jwt_provider.go (0.0%)</option>
+				
+				<option value="file37">xsedox.com/main/infrastructure/persistance/cache.go (0.0%)</option>
+				
+				<option value="file38">xsedox.com/main/infrastructure/persistance/external_credentials_repository.go (0.0%)</option>
+				
+				<option value="file39">xsedox.com/main/infrastructure/persistance/init_database.go (0.0%)</option>
+				
+				<option value="file40">xsedox.com/main/infrastructure/persistance/refresh_token_repository.go (0.0%)</option>
+				
+				<option value="file41">xsedox.com/main/infrastructure/persistance/room_repository.go (0.0%)</option>
+				
+				<option value="file42">xsedox.com/main/infrastructure/persistance/unit_of_work.go (0.0%)</option>
+				
+				<option value="file43">xsedox.com/main/infrastructure/persistance/user_repository.go (0.0%)</option>
+				
+				<option value="file44">xsedox.com/main/infrastructure/validation/setup_validation.go (0.0%)</option>
+				
+				<option value="file45">xsedox.com/main/initialization/dependencies.go (0.0%)</option>
+				
+				<option value="file46">xsedox.com/main/main.go (0.0%)</option>
+				
+				<option value="file47">xsedox.com/main/presentation/controllers/authentication_controller.go (0.0%)</option>
+				
+				<option value="file48">xsedox.com/main/presentation/controllers/google_oidc_controller.go (0.0%)</option>
+				
+				<option value="file49">xsedox.com/main/presentation/controllers/room_controller.go (0.0%)</option>
+				
+				<option value="file50">xsedox.com/main/presentation/controllers/user_controller.go (0.0%)</option>
+				
+				<option value="file51">xsedox.com/main/presentation/custom_middleware/cookie_jwt_authentication.go (0.0%)</option>
+				
+				<option value="file52">xsedox.com/main/presentation/custom_middleware/cors.go (0.0%)</option>
+				
+				<option value="file53">xsedox.com/main/presentation/custom_middleware/security_headers.go (0.0%)</option>
+				
+				<option value="file54">xsedox.com/main/presentation/helpers/helpers.go (0.0%)</option>
+				
+				<option value="file55">xsedox.com/main/presentation/response/response.go (0.0%)</option>
+				
+				<option value="file56">xsedox.com/main/presentation/server.go (0.0%)</option>
+				
+				<option value="file57">xsedox.com/main/tests/helpers.go (0.0%)</option>
+				
+				<option value="file58">xsedox.com/main/tests/persistance/encrypter_mock.go (0.0%)</option>
+				
+				<option value="file59">xsedox.com/main/tests/persistance/room_repository_mock.go (0.0%)</option>
+				
+				<option value="file60">xsedox.com/main/tests/persistance/unit_of_work_mock.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package custom_errors
+
+import (
+        "database/sql"
+        "errors"
+        "fmt"
+)
+
+type CustomError struct {
+        Code      string
+        ErrorType Type
+        Err       error
+        Title     string
+}
+
+func NewCustomError(code, title string, err error, errorType Type) *CustomError <span class="cov0" title="0">{
+        if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                return &amp;CustomError{Code: code, ErrorType: NotFound, Err: err, Title: title}
+        }</span>
+        <span class="cov0" title="0">return &amp;CustomError{Code: code, ErrorType: errorType, Err: err, Title: title}</span>
+
+}
+
+func (e CustomError) Error() string <span class="cov0" title="0">{
+        var errStr string
+        if e.Err != nil </span><span class="cov0" title="0">{
+                errStr = e.Err.Error()
+        }</span>
+        <span class="cov0" title="0">return fmt.Sprintf("code: %s, type: %s, error: %s, title:%s", e.Code, e.ErrorType.String(), errStr, e.Title)</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package custom_errors
+
+type Type int
+
+const (
+        Validation   Type = 400
+        Unexpected   Type = 500
+        NotFound     Type = 404
+        Unauthorized Type = 401
+        Forbidden    Type = 403
+)
+
+var typeNames = map[Type]string{
+        Validation:   "validation",
+        Unexpected:   "unexpected",
+        NotFound:     "notFound",
+        Unauthorized: "unauthorized",
+        Forbidden:    "forbidden",
+}
+var errorFromName = map[string]Type{
+        "validation":   Validation,
+        "unexpected":   Unexpected,
+        "notFound":     NotFound,
+        "unauthorized": Unauthorized,
+        "forbidden":    Forbidden,
+}
+
+func (t Type) String() string <span class="cov0" title="0">{
+        return typeNames[t]
+}</span>
+func ParseType(s string) (Type, bool) <span class="cov0" title="0">{
+        v, ok := errorFromName[s]
+        return v, ok
+}</span>
+func (t Type) Error() string <span class="cov0" title="0">{
+        return t.String()
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package application
+
+import (
+        "context"
+
+        "xsedox.com/main/application/custom_errors"
+        "xsedox.com/main/domain/user"
+)
+
+const missingUserIdInContextErrorMessage string = "User id not found in context"
+
+var (
+        NewMissingUserIdInContextError = custom_errors.NewCustomError("GetUserIdFromContext.MissingUserContext",
+                missingUserIdInContextErrorMessage,
+                nil,
+                custom_errors.Unauthorized)
+)
+
+func GetUserIdFromContext(ctx context.Context) (userId *user.Id, ok bool) <span class="cov0" title="0">{
+        value := ctx.Value(user.IdClaimContextKeyName)
+        if value == nil </span><span class="cov0" title="0">{
+                return nil, false
+        }</span>
+        <span class="cov0" title="0">userId, ok = value.(*user.Id)
+        return userId, ok</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package create_room_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts2 "xsedox.com/main/application/room/contracts"
+        "xsedox.com/main/domain/room"
+)
+
+type CreateRoomCommandHandler struct {
+        roomRepository contracts2.IRoomRepository
+        unitOfWork     contracts.IUnitOfWork
+        encrypter      contracts.IEncrypter
+}
+
+func NewCreateRoomCommandHandler(roomRepository contracts2.IRoomRepository,
+        unitOfWork contracts.IUnitOfWork,
+        encrypter contracts.IEncrypter) *CreateRoomCommandHandler <span class="cov8" title="1">{
+        return &amp;CreateRoomCommandHandler{
+                roomRepository: roomRepository,
+                unitOfWork:     unitOfWork,
+                encrypter:      encrypter,
+        }
+}</span>
+
+func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *CreateRoomCommand) error <span class="cov8" title="1">{
+        userId, ok := application.GetUserIdFromContext(ctx)
+        if !ok </span><span class="cov8" title="1">{
+                return application.NewMissingUserIdInContextError
+        }</span>
+        <span class="cov8" title="1">err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error </span><span class="cov8" title="1">{
+                qrCode := handler.encrypter.NewEncryptionKey()
+                roomInstance := room.NewRoom(command.RoomName, command.RoomPassword, string(qrCode), *userId)
+                err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov8" title="1">{
+                        return custom_errors.NewCustomError("CreateRoomCommandHandler.CreateRoom",
+                                "Problem with creating a room.",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov8" title="1">return nil</span>
+        })
+        <span class="cov8" title="1">return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package get_room_query
+
+import (
+        "context"
+        "encoding/base64"
+
+        "xsedox.com/main/application"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts3 "xsedox.com/main/application/room/contracts"
+)
+
+type GetRoomQueryHandler struct {
+        unitOfWork     contracts.IUnitOfWork
+        roomRepository contracts3.IRoomRepository
+}
+
+func NewGetRoomQueryHandler(unitOfWork contracts.IUnitOfWork,
+        roomRepository contracts3.IRoomRepository) *GetRoomQueryHandler <span class="cov8" title="1">{
+        return &amp;GetRoomQueryHandler{
+                unitOfWork:     unitOfWork,
+                roomRepository: roomRepository,
+        }
+}</span>
+
+func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse, error) <span class="cov8" title="1">{
+        var response GetRoomQueryResponse
+        userId, ok := application.GetUserIdFromContext(ctx)
+        if !ok </span><span class="cov8" title="1">{
+                return nil, application.NewMissingUserIdInContextError
+        }</span>
+        <span class="cov8" title="1">err := r.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error </span><span class="cov8" title="1">{
+                roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer())
+                if getRoomDataErr != nil </span><span class="cov8" title="1">{
+                        return custom_errors.NewCustomError("GetRoomQueryHandler.GetRoomByUserId",
+                                "Couldn't get user's room.",
+                                getRoomDataErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov8" title="1">response.Name = roomData.Name
+                response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
+                response.UserRole = roomData.UserRole
+                if roomData.BoostUsedAtUtc != nil &amp;&amp; roomData.BoostCooldownSeconds != nil </span><span class="cov8" title="1">{
+                        response.BoostData = &amp;BoostDataDto{
+                                BoostUsedAtUtc:       *roomData.BoostUsedAtUtc,
+                                BoostCooldownSeconds: *roomData.BoostCooldownSeconds,
+                        }
+                }</span> else<span class="cov8" title="1"> {
+                        response.BoostData = nil
+                }</span>
+
+                <span class="cov8" title="1">if roomData.PlayingSongTitle != nil &amp;&amp; roomData.PlayingSongAuthor != nil </span><span class="cov8" title="1">{
+                        response.PlayingSong = &amp;PlayingSongDto{
+                                Title:         *roomData.PlayingSongTitle,
+                                Author:        *roomData.PlayingSongAuthor,
+                                StartedAtUtc:  *roomData.PlayingSongStartedAtUtc,
+                                LengthSeconds: *roomData.PlayingSongLengthSeconds,
+                        }
+                }</span> else<span class="cov8" title="1"> {
+                        response.PlayingSong = nil
+                }</span>
+                <span class="cov8" title="1">response.Songs = make([]RoomSongListDto, 0)
+                for _, songDb := range roomData.SongDaos </span><span class="cov8" title="1">{
+                        response.Songs = append(response.Songs, RoomSongListDto{
+                                Title:         songDb.Title,
+                                Author:        songDb.Author,
+                                AddedBy:       songDb.AddedBy,
+                                Votes:         songDb.Votes,
+                                AlbumCoverUrl: songDb.AlbumCoverUrl,
+                                Id:            songDb.Id,
+                                State:         songDb.State.String(),
+                                VoteStatus:    songDb.VoteStatus.String(),
+                        })
+                }</span>
+                <span class="cov8" title="1">return nil</span>
+
+        })
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return &amp;response, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package get_user_room_membership_query
+
+import (
+        "context"
+
+        "xsedox.com/main/application"
+        contracts2 "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/room/contracts"
+)
+
+type GetUserRoomMembershipQueryHandler struct {
+        roomRepository contracts.IRoomRepository
+        unitOfWork     contracts2.IUnitOfWork
+}
+
+func NewGetUserRoomMembershipQueryHandler(roomRepository contracts.IRoomRepository,
+        unitOfWork contracts2.IUnitOfWork) *GetUserRoomMembershipQueryHandler <span class="cov0" title="0">{
+        return &amp;GetUserRoomMembershipQueryHandler{
+                roomRepository: roomRepository,
+                unitOfWork:     unitOfWork,
+        }
+}</span>
+func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, error) <span class="cov0" title="0">{
+        var result *bool
+        userId, ok := application.GetUserIdFromContext(ctx)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, application.NewMissingUserIdInContextError
+        }</span>
+        <span class="cov0" title="0">err := g.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                _, err := g.roomRepository.GetRoomByUserId(ctx, *userId, g.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        tempResult := false
+                        result = &amp;tempResult
+                        return nil
+                }</span>
+                <span class="cov0" title="0">tempResult := true
+                result = &amp;tempResult
+                return nil</span>
+        })
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return result, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package leave_room_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application"
+        contracts2 "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        "xsedox.com/main/application/user/contracts"
+)
+
+type LeaveRoomCommandHandler struct {
+        userRepository contracts.IUserRepository
+        unitOfWork     contracts2.IUnitOfWork
+}
+
+func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *LeaveRoomCommand) error <span class="cov0" title="0">{
+        userId, ok := application.GetUserIdFromContext(ctx)
+        if !ok </span><span class="cov0" title="0">{
+                return application.NewMissingUserIdInContextError
+        }</span>
+        <span class="cov0" title="0">err := l.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                err := l.userRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LeaveRoomCommandHandler.LeaveRoom",
+                                "Couldn't leave room.",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        })
+        <span class="cov0" title="0">return err</span>
+}
+
+func NewLeaveRoomCommandHandler(userRepository contracts.IUserRepository, unitOfWork contracts2.IUnitOfWork) *LeaveRoomCommandHandler <span class="cov0" title="0">{
+        return &amp;LeaveRoomCommandHandler{userRepository: userRepository, unitOfWork: unitOfWork}
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package services
+
+import (
+        "context"
+        "time"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        "xsedox.com/main/application/dtos"
+        contracts2 "xsedox.com/main/application/user/contracts"
+        "xsedox.com/main/application/user/login_user_command"
+        "xsedox.com/main/application/user/register_user_command"
+        "xsedox.com/main/domain/user"
+)
+
+type OidcAuthenticationService struct {
+        googleOidcService          contracts.IGoogleOidcService
+        userRepository             contracts2.IUserRepository
+        registerUserCommandHandler contracts.ICommandHandlerWithResponse[*register_user_command.RegisterUserCommand, *register_user_command.RegisterUserCommandResponse]
+        loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login_user_command.LoginUserCommand, *login_user_command.LoginUserCommandResponse]
+        unitOfWork                 contracts.IUnitOfWork
+}
+
+func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService,
+        userRepository contracts2.IUserRepository,
+        unitOfWork contracts.IUnitOfWork,
+        registerUserHandler contracts.ICommandHandlerWithResponse[*register_user_command.RegisterUserCommand, *register_user_command.RegisterUserCommandResponse],
+        loginUserHandler contracts.ICommandHandlerWithResponse[*login_user_command.LoginUserCommand, *login_user_command.LoginUserCommandResponse]) *OidcAuthenticationService <span class="cov0" title="0">{
+        return &amp;OidcAuthenticationService{
+                googleOidcService:          googleOidcService,
+                userRepository:             userRepository,
+                unitOfWork:                 unitOfWork,
+                registerUserCommandHandler: registerUserHandler,
+                loginUserCommandHandler:    loginUserHandler,
+        }
+}</span>
+
+func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx context.Context, code string, deviceId *user.DeviceId, deviceType *user.DeviceType) (*dtos.OidcAuthenticateUserServiceDto,
+        error) <span class="cov0" title="0">{
+        tokenResp, err := oidcAuthentication.googleOidcService.GetAccessToken(ctx, code)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, custom_errors.NewCustomError("OidcAuthenticationService.GetAccessToken",
+                        "Couldn't get access token",
+                        err,
+                        custom_errors.Unexpected)
+        }</span>
+
+        <span class="cov0" title="0">claims, err := oidcAuthentication.googleOidcService.ParseIdToken(tokenResp.IdToken)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, custom_errors.NewCustomError("OidcAuthenticationService.ParseIdToken",
+                        "Couldn't parse id token",
+                        err,
+                        custom_errors.Unexpected)
+        }</span>
+        <span class="cov0" title="0">var deviceTypeToPass user.DeviceType
+        if deviceType == nil </span><span class="cov0" title="0">{
+                deviceTypeToPass = user.Desktop
+        }</span> else<span class="cov0" title="0"> {
+                deviceTypeToPass = *deviceType
+        }</span>
+        <span class="cov0" title="0">var apiTokenResponse dtos.OidcAuthenticateUserServiceDto
+        if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer()) </span><span class="cov0" title="0">{
+                loginUserCommand := login_user_command.LoginUserCommand{
+                        Name: claims.GivenName,
+                        DeviceDto: login_user_command.DeviceDto{
+                                DeviceId:   deviceId,
+                                DeviceType: deviceTypeToPass,
+                        },
+                        ExternalId: claims.Subject,
+                        Surname:    claims.FamilyName,
+                        CredentialsDto: login_user_command.CredentialsDto{
+                                AccessToken:              tokenResp.AccessToken,
+                                RefreshToken:             tokenResp.RefreshToken,
+                                Scopes:                   tokenResp.Scope,
+                                AccessTokenExpiresAtUtc:  time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
+                                RefreshTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
+                        },
+                }
+                loginResponse, err := oidcAuthentication.loginUserCommandHandler.Handle(ctx, &amp;loginUserCommand)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">apiTokenResponse.AccessToken = loginResponse.AccessToken
+                apiTokenResponse.RefreshToken = loginResponse.RefreshToken
+                apiTokenResponse.DeviceId = loginResponse.DeviceId</span>
+        } else<span class="cov0" title="0"> {
+                registerUserCommand := register_user_command.RegisterUserCommand{
+                        Name:       claims.GivenName,
+                        DeviceType: deviceTypeToPass,
+                        ExternalId: claims.Subject,
+                        Surname:    claims.FamilyName,
+                        CredentialsDto: register_user_command.CredentialsDto{
+                                AccessToken:              tokenResp.AccessToken,
+                                RefreshToken:             tokenResp.RefreshToken,
+                                Scopes:                   tokenResp.Scope,
+                                AccessTokenExpiresAtUtc:  time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
+                                RefreshTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
+                        },
+                }
+                registerResponse, err := oidcAuthentication.registerUserCommandHandler.Handle(ctx, &amp;registerUserCommand)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">apiTokenResponse.AccessToken = registerResponse.AccessToken
+                apiTokenResponse.RefreshToken = registerResponse.RefreshToken
+                apiTokenResponse.DeviceId = registerResponse.DeviceId</span>
+        }
+        <span class="cov0" title="0">return &amp;apiTokenResponse, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package get_user_query
+
+import (
+        "context"
+
+        "xsedox.com/main/application"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts2 "xsedox.com/main/application/user/contracts"
+)
+
+type GetUserQueryHandler struct {
+        unitOfWork     contracts.IUnitOfWork
+        userRepository contracts2.IUserRepository
+}
+
+func NewGetUserQueryHandler(unitOfWork contracts.IUnitOfWork,
+        userRepository contracts2.IUserRepository) *GetUserQueryHandler <span class="cov0" title="0">{
+        return &amp;GetUserQueryHandler{
+                unitOfWork:     unitOfWork,
+                userRepository: userRepository}
+}</span>
+
+func (handler GetUserQueryHandler) Handle(ctx context.Context) (*GetUserQueryResponse, error) <span class="cov0" title="0">{
+        var response GetUserQueryResponse
+        userId, ok := application.GetUserIdFromContext(ctx)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, application.NewMissingUserIdInContextError
+        }</span>
+        <span class="cov0" title="0">err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer())
+                if er != nil </span><span class="cov0" title="0">{
+                        return er
+                }</span>
+                <span class="cov0" title="0">response.Name = user.FullName().Name()
+                response.Surname = user.FullName().Surname()
+                return nil</span>
+        })
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return nil, custom_errors.NewCustomError(
+                        "GetUserQueryHandler.ExecuteTransaction",
+                        "Problem with executing transaction.",
+                        err,
+                        custom_errors.Unexpected)
+        }</span>
+        <span class="cov0" title="0">return &amp;response, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package login_user_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts2 "xsedox.com/main/application/user/contracts"
+        "xsedox.com/main/domain/credentials"
+        "xsedox.com/main/domain/user"
+)
+
+type LoginUserCommandHandler struct {
+        unitOfWork                    contracts.IUnitOfWork
+        userRepository                contracts2.IUserRepository
+        externalCredentialsRepository contracts.IExternalCredentialsRepository
+        encrypter                     contracts.IEncrypter
+        jwtProvider                   contracts.IJwtProvider
+        refreshTokenRepository        contracts.IRefreshTokenRepository
+}
+
+func NewLoginUserCommandHandler(unitOfWork contracts.IUnitOfWork,
+        userRepository contracts2.IUserRepository,
+        encrypter contracts.IEncrypter,
+        jwtProvider contracts.IJwtProvider,
+        refreshTokenRepository contracts.IRefreshTokenRepository,
+        externalCredentialsRepository contracts.IExternalCredentialsRepository) *LoginUserCommandHandler <span class="cov0" title="0">{
+        return &amp;LoginUserCommandHandler{
+                unitOfWork:                    unitOfWork,
+                userRepository:                userRepository,
+                encrypter:                     encrypter,
+                jwtProvider:                   jwtProvider,
+                refreshTokenRepository:        refreshTokenRepository,
+                externalCredentialsRepository: externalCredentialsRepository,
+        }
+}</span>
+
+func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *LoginUserCommand) (*LoginUserCommandResponse, error) <span class="cov0" title="0">{
+        var response LoginUserCommandResponse
+        err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.ExternalId, handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginUserCommandHandler.GetUserByExternalId",
+                                "Problem with getting user with external id",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+
+                <span class="cov0" title="0">userFromDb.ChangeFullName(user.NewFullName(command.Name, command.Surname))
+
+                var deviceId user.DeviceId
+                if command.DeviceDto.DeviceId == nil </span><span class="cov0" title="0">{
+                        deviceId = userFromDb.LoginWithNewDevice(command.DeviceDto.DeviceType)
+                }</span> else<span class="cov0" title="0"> {
+                        userFromDb.ReloginWithKnownDevice(*command.DeviceDto.DeviceId)
+                        deviceId = *command.DeviceDto.DeviceId
+                }</span>
+                <span class="cov0" title="0">response.DeviceId = deviceId
+                err = handler.userRepository.Update(ctx, userFromDb, handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginUserCommandHandler.Update",
+                                "Problem with updating user in the database",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+
+                <span class="cov0" title="0">refreshTokenValue := handler.encrypter.NewEncryptionKey()
+                refreshToken := credentials.NewRefreshToken(userFromDb.Id(), deviceId, string(refreshTokenValue))
+                newTokenErr := handler.refreshTokenRepository.AssignNewToken(ctx, refreshToken, handler.unitOfWork.GetQueryer())
+                if newTokenErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginUserCommandHandler.AssignNewToken",
+                                "Problem with assigning new token to user",
+                                newTokenErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">response.RefreshToken = string(refreshTokenValue)
+
+                var tokenErr error
+                response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userFromDb.Id())
+                if tokenErr != nil </span><span class="cov0" title="0">{
+                        return tokenErr
+                }</span>
+
+                <span class="cov0" title="0">creds := credentials.NewExternalCredentials(userFromDb.Id(),
+                        command.CredentialsDto.AccessToken,
+                        command.CredentialsDto.RefreshToken,
+                        command.CredentialsDto.Scopes,
+                        command.CredentialsDto.AccessTokenExpiresAtUtc,
+                        command.CredentialsDto.RefreshTokenExpiresAtUtc)
+                grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())
+                if grantErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginUserCommandHandler.Grant",
+                                "Problem with assigning external credentials to user",
+                                grantErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        })
+        <span class="cov0" title="0">return &amp;response, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package login_user_refresh_token_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts2 "xsedox.com/main/application/user/contracts"
+        "xsedox.com/main/domain/credentials"
+)
+
+type LoginUserRefreshTokenCommandHandler struct {
+        refreshTokenRepository contracts.IRefreshTokenRepository
+        unitOfWork             contracts.IUnitOfWork
+        encrypter              contracts.IEncrypter
+        userRepository         contracts2.IUserRepository
+        jwtProvider            contracts.IJwtProvider
+}
+
+func NewLoginUserRefreshTokenCommandHandler(refreshToken contracts.IRefreshTokenRepository,
+        unitOfWork contracts.IUnitOfWork,
+        encrypter contracts.IEncrypter,
+        jwtProvider contracts.IJwtProvider,
+        userRepository contracts2.IUserRepository) *LoginUserRefreshTokenCommandHandler <span class="cov0" title="0">{
+        return &amp;LoginUserRefreshTokenCommandHandler{
+                refreshTokenRepository: refreshToken,
+                unitOfWork:             unitOfWork,
+                encrypter:              encrypter,
+                userRepository:         userRepository,
+                jwtProvider:            jwtProvider}
+}</span>
+
+func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, command *string) (*LoginUserRefreshTokenCommandResponse, error) <span class="cov0" title="0">{
+        var response LoginUserRefreshTokenCommandResponse
+        err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                tokenFromDb, err := handler.refreshTokenRepository.GetTokenByValue(ctx, *command, handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GetTokenByValue",
+                                "Couldn't fetch token from the database.",
+                                err,
+                                custom_errors.Unauthorized)
+                }</span>
+                <span class="cov0" title="0">if tokenFromDb.IsExpired() </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
+                                "Refresh token expired",
+                                nil,
+                                custom_errors.Unauthorized)
+                }</span>
+                <span class="cov0" title="0">userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.Id(), handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GetUserById",
+                                "Couldn't fetch user from the database.",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">newRefreshTokenValue := handler.encrypter.NewEncryptionKey()
+                newRefreshToken := credentials.NewRefreshToken(userFromDb.Id(), tokenFromDb.DeviceId(), string(newRefreshTokenValue))
+                newTokenErr := handler.refreshTokenRepository.AssignNewToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer())
+                if newTokenErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.AssignNewToken",
+                                "Couldn't assign a new refresh token to a user.",
+                                newTokenErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">response.RefreshToken = string(newRefreshTokenValue)
+
+                var tokenErr error
+                response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userFromDb.Id())
+                if tokenErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GenerateToken",
+                                "Couldn't generate a new access token for a user.",
+                                newTokenErr,
+                                custom_errors.Unexpected)
+                }</span>
+
+                <span class="cov0" title="0">return nil</span>
+        })
+
+        <span class="cov0" title="0">return &amp;response, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package logout_user_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application/contracts"
+)
+
+type LogoutUserCommandHandler struct {
+        refreshTokenRepository contracts.IRefreshTokenRepository
+        unitOfWork             contracts.IUnitOfWork
+}
+
+func NewLogoutUserCommandHandler(refreshTokenRepository contracts.IRefreshTokenRepository,
+        unitOfWork contracts.IUnitOfWork) *LogoutUserCommandHandler <span class="cov0" title="0">{
+        return &amp;LogoutUserCommandHandler{
+                refreshTokenRepository: refreshTokenRepository,
+                unitOfWork:             unitOfWork,
+        }
+}</span>
+
+func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *LogoutUserCommand) error <span class="cov0" title="0">{
+        userId := command.UserId
+        if command.DeviceId == nil </span><span class="cov0" title="0">{
+                return c.refreshTokenRepository.RetireTokenByUserId(ctx, &amp;userId, c.unitOfWork.GetQueryer())
+        }</span>
+        <span class="cov0" title="0">deviceId := command.DeviceId
+        return c.refreshTokenRepository.RetireTokenByUserIdAndDeviceId(ctx, &amp;userId, deviceId, c.unitOfWork.GetQueryer())</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package register_user_command
+
+import (
+        "context"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/custom_errors"
+        contracts2 "xsedox.com/main/application/user/contracts"
+        "xsedox.com/main/domain/credentials"
+        "xsedox.com/main/domain/user"
+)
+
+type RegisterUserCommandHandler struct {
+        userRepository                contracts2.IUserRepository
+        externalCredentialsRepository contracts.IExternalCredentialsRepository
+        refreshTokenRepository        contracts.IRefreshTokenRepository
+        unitOfWork                    contracts.IUnitOfWork
+        jwtProvider                   contracts.IJwtProvider
+        encrypter                     contracts.IEncrypter
+}
+
+func NewRegisterUserCommandHandler(userRepository contracts2.IUserRepository,
+        unitOfWork contracts.IUnitOfWork,
+        credsRepository contracts.IExternalCredentialsRepository,
+        jwtProvider contracts.IJwtProvider,
+        refreshTokenRepository contracts.IRefreshTokenRepository,
+        encrypter contracts.IEncrypter) *RegisterUserCommandHandler <span class="cov0" title="0">{
+        return &amp;RegisterUserCommandHandler{
+                userRepository:                userRepository,
+                externalCredentialsRepository: credsRepository,
+                unitOfWork:                    unitOfWork,
+                jwtProvider:                   jwtProvider,
+                refreshTokenRepository:        refreshTokenRepository,
+                encrypter:                     encrypter,
+        }
+}</span>
+func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *RegisterUserCommand) (*RegisterUserCommandResponse, error) <span class="cov0" title="0">{
+        var response RegisterUserCommandResponse
+        err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error </span><span class="cov0" title="0">{
+                userAgg := user.NewUser(command.ExternalId, command.Name, command.Surname, command.DeviceType)
+                deviceEnt := userAgg.GetMostRecentDevice()
+                err := handler.userRepository.Add(ctx, userAgg, handler.unitOfWork.GetQueryer())
+                if err != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("RegisterUserCommandHandler.UserRepository.Add",
+                                "Adding user problem",
+                                err,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">response.DeviceId = deviceEnt.Id()
+
+                var tokenErr error
+                response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userAgg.Id())
+                if tokenErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("RegisterUserCommandHandler.GenerateToken",
+                                "Access token generation problem",
+                                tokenErr,
+                                custom_errors.Unexpected)
+                }</span>
+
+                <span class="cov0" title="0">refreshTokenValue := handler.encrypter.NewEncryptionKey()
+                refreshToken := credentials.NewRefreshToken(userAgg.Id(), deviceEnt.Id(), string(refreshTokenValue))
+                newTokenErr := handler.refreshTokenRepository.AssignNewToken(ctx, refreshToken, handler.unitOfWork.GetQueryer())
+                if newTokenErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("RegisterUserCommandHandler.AssignNewToken",
+                                "Access token generation problem",
+                                newTokenErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">response.RefreshToken = string(refreshTokenValue)
+
+                creds := credentials.NewExternalCredentials(userAgg.Id(),
+                        command.CredentialsDto.AccessToken,
+                        command.CredentialsDto.RefreshToken,
+                        command.CredentialsDto.Scopes,
+                        command.CredentialsDto.AccessTokenExpiresAtUtc,
+                        command.CredentialsDto.RefreshTokenExpiresAtUtc)
+                grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())
+                if grantErr != nil </span><span class="cov0" title="0">{
+                        return custom_errors.NewCustomError("RegisterUserCommandHandler.Grant",
+                                "Problem with granting external credentials.",
+                                grantErr,
+                                custom_errors.Unexpected)
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        })
+        <span class="cov0" title="0">return &amp;response, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package config
+
+import (
+        "encoding/json"
+        "fmt"
+        "os"
+
+        "github.com/kelseyhightower/envconfig"
+)
+
+const (
+        envPrefix      = ""
+        envDevelopment = "development"
+        envProduction  = "production"
+)
+
+type Server struct {
+        Port     string `json:"port" envconfig:"PORT"`
+        Host     string `json:"host" envconfig:"SERVER_HOST"`
+        BasePath string `json:"BasePath" envconfig:"BASE_PATH"`
+}
+type Database struct {
+        ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
+}
+type Authentication struct {
+        ClientSecret      string `json:"clientSecret" envconfig:"CLIENT_SECRET"`
+        ClientId          string `json:"clientId" envconfig:"CLIENT_ID"`
+        ClientOrigin      string `json:"clientOrigin" envconfig:"CLIENT_ORIGIN"`
+        ClientRedirectUri string `json:"clientRedirectUri" envconfig:"CLIENT_REDIRECT_URI"`
+        EncryptionKey     string `json:"encryptionKey" envconfig:"ENCRYPTION_KEY"`
+        JwtKey            string `json:"jwtKey" envconfig:"JWT_KEY"`
+        ScopesField       string `json:"scopes" envconfig:"CLIENT_SCOPES"`
+        AudienceField     string `json:"audience" envconfig:"CLIENT_AUDIENCE"`
+        Issuer            string `json:"issuer" envconfig:"CLIENT_ISSUER"`
+}
+type Configuration struct {
+        ServerField   Server         `json:"server" envconfig:"SERVER"`
+        DatabaseField Database       `json:"database" envconfig:"DATABASE"`
+        Environment   string         `json:"environment" envconfig:"ENVIRONMENT"`
+        AuthField     Authentication `json:"authentication" envconfig:"AUTHENTICATION"`
+}
+
+func (conf *Configuration) Server() Server <span class="cov0" title="0">{
+        return conf.ServerField
+}</span>
+func (conf *Configuration) Database() Database <span class="cov0" title="0">{
+        return conf.DatabaseField
+}</span>
+func (conf *Configuration) Authentication() Authentication <span class="cov0" title="0">{
+        return conf.AuthField
+}</span>
+func (conf *Configuration) Scopes() string <span class="cov0" title="0">{
+        return conf.AuthField.ScopesField
+}</span>
+func (conf *Configuration) IsDevelopment() bool <span class="cov0" title="0">{
+        return conf.Environment == envDevelopment
+}</span>
+func (conf *Configuration) IsProduction() bool <span class="cov0" title="0">{
+        return conf.Environment == envProduction
+}</span>
+
+func Load() *Configuration <span class="cov0" title="0">{
+        var config Configuration
+        readFile(&amp;config)
+        loadEnv(&amp;config)
+        return &amp;config
+}</span>
+func loadEnv(cfg *Configuration) <span class="cov0" title="0">{
+        err := envconfig.Process(envPrefix, cfg)
+        if err != nil </span><span class="cov0" title="0">{
+                processError(err)
+        }</span>
+}
+func readFile(cfg *Configuration) <span class="cov0" title="0">{
+        f, err := os.Open("./config/config.json")
+        if err != nil </span><span class="cov0" title="0">{
+                processError(err)
+        }</span>
+        <span class="cov0" title="0">defer f.Close()
+        decoder := json.NewDecoder(f)
+        err = decoder.Decode(cfg)
+        if err != nil </span><span class="cov0" title="0">{
+                processError(err)
+        }</span>
+}
+func processError(err error) <span class="cov0" title="0">{
+        fmt.Println(err)
+        os.Exit(2)
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">// Package docs Code generated by swaggo/swag. DO NOT EDIT
+package docs
+
+import "github.com/swaggo/swag"
+
+const docTemplate = `{
+    "schemes": {{ marshal .Schemes }},
+    "swagger": "2.0",
+    "info": {
+        "description": "{{escape .Description}}",
+        "title": "{{.Title}}",
+        "contact": {},
+        "version": "{{.Version}}"
+    },
+    "host": "{{.Host}}",
+    "basePath": "{{.BasePath}}",
+    "paths": {
+        "/api/v1/room": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new room in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rooms"
+                ],
+                "summary": "Join a new room",
+                "parameters": [
+                    {
+                        "description": "Join Room",
+                        "name": "room",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/join.RoomCommand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/login": {
+            "post": {
+                "description": "Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AuthenticationController"
+                ],
+                "summary": "Initiate Google OAuth2 login",
+                "responses": {
+                    "302": {
+                        "description": "Redirect to Google OAuth",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid redirect URL",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/data": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user data based on the provided context",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Retrieve user data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "join.RoomCommand": {
+            "type": "object",
+            "required": [
+                "roomName",
+                "roomPassword",
+                "userId"
+            ],
+            "properties": {
+                "roomName": {
+                    "type": "string"
+                },
+                "roomPassword": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Error": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "null"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Success": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "message": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "null"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer {token}\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}`
+
+// SwaggerInfo holds exported Swagger Info so clients can modify it
+var SwaggerInfo = &amp;swag.Spec{
+        Version:          "1.0",
+        Host:             "localhost:7654",
+        BasePath:         "/api/v1",
+        Schemes:          []string{},
+        Title:            "RoomPlay API",
+        Description:      "This is the API for the RoomPlay service.",
+        InfoInstanceName: "swagger",
+        SwaggerTemplate:  docTemplate,
+        LeftDelim:        "{{",
+        RightDelim:       "}}",
+}
+
+func init() <span class="cov0" title="0">{
+        swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package credentials
+
+import (
+        "strings"
+        "time"
+
+        "xsedox.com/main/domain/shared"
+        "xsedox.com/main/domain/user"
+)
+
+type External struct {
+        shared.AggregateRoot[user.Id]
+        accessToken              string
+        refreshToken             string
+        scopes                   []string
+        accessTokenExpiresAtUtc  time.Time
+        refreshTokenExpiresAtUtc time.Time
+        issuedAtUtc              time.Time
+}
+
+func NewExternalCredentials(userId user.Id, accessToken, refreshToken, scopes string, accessTokenExpiration, refreshTokenExpiration time.Time) *External <span class="cov0" title="0">{
+        creds := &amp;External{
+                accessToken:              accessToken,
+                refreshToken:             refreshToken,
+                scopes:                   strings.Split(scopes, " "),
+                accessTokenExpiresAtUtc:  accessTokenExpiration,
+                refreshTokenExpiresAtUtc: refreshTokenExpiration,
+                issuedAtUtc:              time.Now(),
+        }
+        creds.SetId(userId)
+        return creds
+}</span>
+func (cr *External) AccessToken() string <span class="cov0" title="0">{
+        return cr.accessToken
+}</span>
+func (cr *External) RefreshToken() string <span class="cov0" title="0">{
+        return cr.refreshToken
+}</span>
+func (cr *External) Scopes() []string <span class="cov0" title="0">{
+        return cr.scopes
+}</span>
+func (cr *External) AccessTokenExpiresAtUtc() time.Time <span class="cov0" title="0">{
+        return cr.accessTokenExpiresAtUtc
+}</span>
+func (cr *External) RefreshTokenExpiresAtUtc() time.Time <span class="cov0" title="0">{
+        return cr.refreshTokenExpiresAtUtc
+}</span>
+func (cr *External) IssuedAtUtc() time.Time <span class="cov0" title="0">{
+        return cr.issuedAtUtc
+}</span>
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package credentials
+
+import (
+        "time"
+
+        "xsedox.com/main/domain/shared"
+        "xsedox.com/main/domain/user"
+)
+
+const (
+        RefreshTokenExpirationTime = time.Hour * 24 * 7 // 7 days
+)
+
+type RefreshToken struct {
+        shared.AggregateRoot[user.Id]
+        deviceId     user.DeviceId
+        refreshToken string
+        expiresAtUtc time.Time
+        issuedAtUtc  time.Time
+}
+
+func NewRefreshToken(userId user.Id, deviceId user.DeviceId, refreshToken string) *RefreshToken <span class="cov0" title="0">{
+        rt := &amp;RefreshToken{
+                refreshToken: refreshToken,
+                deviceId:     deviceId,
+                expiresAtUtc: time.Now().Add(RefreshTokenExpirationTime).UTC(),
+                issuedAtUtc:  time.Now().UTC(),
+        }
+        rt.SetId(userId)
+        return rt
+}</span>
+func (r RefreshToken) RefreshToken() string <span class="cov0" title="0">{
+        return r.refreshToken
+}</span>
+
+func (r RefreshToken) ExpiresAtUtc() time.Time <span class="cov0" title="0">{
+        return r.expiresAtUtc
+}</span>
+
+func (r RefreshToken) IssuedAtUtc() time.Time <span class="cov0" title="0">{
+        return r.issuedAtUtc
+}</span>
+func (r RefreshToken) DeviceId() user.DeviceId <span class="cov0" title="0">{
+        return r.deviceId
+}</span>
+func (r RefreshToken) IsExpired() bool <span class="cov0" title="0">{
+        return r.ExpiresAtUtc().Sub(time.Now().UTC()) &lt;= 0
+}</span>
+func HydrateRefreshToken(userId user.Id,
+        deviceId user.DeviceId,
+        refreshToken string,
+        expiresAtUtc time.Time,
+        issuedAtUtc time.Time) *RefreshToken <span class="cov0" title="0">{
+        result := &amp;RefreshToken{
+                deviceId:     deviceId,
+                refreshToken: refreshToken,
+                expiresAtUtc: expiresAtUtc.UTC(),
+                issuedAtUtc:  issuedAtUtc.UTC(),
+        }
+        result.SetId(userId)
+        return result
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package domainErrors
+
+import "fmt"
+
+type DomainErrorType int
+
+const (
+        Validation DomainErrorType = iota
+)
+
+var domainErrorTypeToString = map[DomainErrorType]string{
+        Validation: "validation",
+}
+var stringToDomainErrorType = map[string]DomainErrorType{
+        "validation": Validation,
+}
+
+func (t DomainErrorType) String() string <span class="cov0" title="0">{
+        return domainErrorTypeToString[t]
+}</span>
+func ParseType(s string) (DomainErrorType, bool) <span class="cov0" title="0">{
+        v, ok := stringToDomainErrorType[s]
+        return v, ok
+}</span>
+
+type DomainError struct {
+        code      string
+        comment   string
+        errorType DomainErrorType
+}
+
+func (d DomainError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("DomainError: Code: %s | Comment: %s | Type: %s ", d.code, d.comment, d.errorType.String())
+}</span>
+func NewValidationDomainError(code, comment string) *DomainError <span class="cov0" title="0">{
+        return &amp;DomainError{code: code, comment: comment, errorType: Validation}
+}</span>
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package room
+
+import (
+        "fmt"
+        "time"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/domain/domainErrors"
+        "xsedox.com/main/domain/shared"
+        "xsedox.com/main/domain/user"
+)
+
+const (
+        NameMaxLength          = 30
+        NameMinLength          = 5
+        PasswordMaxLength      = 30
+        PasswordMinLength      = 10
+        DefaultLifespanSeconds = 60 * 60 * 24 // 24 hours
+)
+
+type Room struct {
+        shared.AggregateRoot[shared.RoomId]
+        name                 string
+        password             string
+        qrCode               string
+        boostCooldownSeconds *uint8
+        createdAtUtc         time.Time
+        lifespanSeconds      uint32
+        songsList            []Song
+        members              []user.Id
+}
+
+func (r Room) PlayingSong() *Song <span class="cov0" title="0">{
+        for _, song := range r.songsList </span><span class="cov0" title="0">{
+                if song.State() == Playing </span><span class="cov0" title="0">{
+                        return &amp;song
+                }</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r Room) Name() string <span class="cov0" title="0">{
+        return r.name
+}</span>
+
+func (r Room) Password() string <span class="cov0" title="0">{
+        return r.password
+}</span>
+
+func (r Room) QrCode() string <span class="cov0" title="0">{
+        return r.qrCode
+}</span>
+
+func (r Room) BoostCooldownSeconds() *uint8 <span class="cov0" title="0">{
+        return r.boostCooldownSeconds
+}</span>
+
+func (r Room) CreatedAtUtc() time.Time <span class="cov0" title="0">{
+        return r.createdAtUtc
+}</span>
+
+func (r Room) LifespanSeconds() uint32 <span class="cov0" title="0">{
+        return r.lifespanSeconds
+}</span>
+
+func (r Room) SongsList() []Song <span class="cov0" title="0">{
+        return r.songsList
+}</span>
+
+func (r Room) Members() []user.Id <span class="cov0" title="0">{
+        return r.members
+}</span>
+
+func NewRoom(name string,
+        password string,
+        qrCode string,
+        roomHostId user.Id) *Room <span class="cov0" title="0">{
+
+        if len(name) &gt; NameMaxLength </span><span class="cov0" title="0">{
+                panic(domainErrors.NewValidationDomainError("Room.TooLong.Name",
+                        fmt.Sprintf("The room name exceeded %d characters.",
+                                NameMaxLength)))</span>
+        }
+        <span class="cov0" title="0">if len(name) &lt; NameMinLength </span><span class="cov0" title="0">{
+                panic(domainErrors.NewValidationDomainError("Room.TooShort.Name",
+                        fmt.Sprintf("The room was shorter than %d characters.",
+                                NameMinLength)))</span>
+        }
+        <span class="cov0" title="0">if len(password) &gt; PasswordMaxLength </span><span class="cov0" title="0">{
+                panic(domainErrors.NewValidationDomainError("Room.TooLong.Password",
+                        fmt.Sprintf("The room password exceeded %d characters.",
+                                PasswordMaxLength)))</span>
+        }
+        <span class="cov0" title="0">if len(password) &lt; PasswordMinLength </span><span class="cov0" title="0">{
+                panic(domainErrors.NewValidationDomainError("Room.TooShort.Password",
+                        fmt.Sprintf("The room password was shorter than %d characters.",
+                                PasswordMinLength)))</span>
+        }
+        <span class="cov0" title="0">result := &amp;Room{
+                name:                 name,
+                password:             password,
+                qrCode:               qrCode,
+                boostCooldownSeconds: nil,
+                createdAtUtc:         time.Now().UTC(),
+                lifespanSeconds:      DefaultLifespanSeconds,
+                songsList:            make([]Song, 0),
+                members:              []user.Id{roomHostId},
+        }
+        result.SetId(shared.RoomId(uuid.New()))
+        return result</span>
+}
+func HydrateRoom(
+        id shared.RoomId,
+        name string,
+        password string,
+        qrCode string,
+        boostCooldownSeconds *uint8,
+        createdAtUtc time.Time,
+        lifespanSeconds uint32,
+        songsList []Song,
+        members []user.Id,
+) *Room <span class="cov0" title="0">{
+        r := &amp;Room{
+                name:                 name,
+                password:             password,
+                qrCode:               qrCode,
+                boostCooldownSeconds: boostCooldownSeconds,
+                createdAtUtc:         createdAtUtc,
+                lifespanSeconds:      lifespanSeconds,
+                songsList:            songsList,
+                members:              members,
+        }
+        r.SetId(id)
+        return r
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package room
+
+import (
+        "time"
+
+        "xsedox.com/main/domain/shared"
+        "xsedox.com/main/domain/user"
+)
+
+type Song struct {
+        shared.Entity[SongId]
+        externalId    string
+        title         string
+        author        string
+        lengthSeconds uint8
+        addedBy       user.Id
+        addedAtUtc    time.Time
+        startedAtUtc  *time.Time
+        state         SongState
+        votes         uint8
+        wasUpVoted    bool
+        wasDownVoted  bool
+}
+
+func (s Song) WasDownVoted() bool <span class="cov0" title="0">{
+        return s.wasDownVoted
+}</span>
+
+func (s Song) WasUpVoted() bool <span class="cov0" title="0">{
+        return s.wasUpVoted
+}</span>
+
+func (s Song) WasPlayed() bool <span class="cov0" title="0">{
+        return s.State() == Played
+}</span>
+
+func (s Song) ExternalId() string <span class="cov0" title="0">{
+        return s.externalId
+}</span>
+
+func (s Song) Title() string <span class="cov0" title="0">{
+        return s.title
+}</span>
+
+func (s Song) Author() string <span class="cov0" title="0">{
+        return s.author
+}</span>
+
+func (s Song) LengthSeconds() uint8 <span class="cov0" title="0">{
+        return s.lengthSeconds
+}</span>
+
+func (s Song) AddedBy() user.Id <span class="cov0" title="0">{
+        return s.addedBy
+}</span>
+
+func (s Song) AddedAtUtc() time.Time <span class="cov0" title="0">{
+        return s.addedAtUtc
+}</span>
+
+func (s Song) StartedAtUtc() *time.Time <span class="cov0" title="0">{
+        return s.startedAtUtc
+}</span>
+
+func (s Song) State() SongState <span class="cov0" title="0">{
+        return s.state
+}</span>
+
+func (s Song) Votes() uint8 <span class="cov0" title="0">{
+        return s.votes
+}</span>
+
+func NewSong(externalId string, title string, author string, lengthSeconds uint8, addedBy user.Id) *Song <span class="cov0" title="0">{
+        return &amp;Song{
+                externalId:    externalId,
+                title:         title,
+                author:        author,
+                lengthSeconds: lengthSeconds,
+                addedBy:       addedBy,
+                addedAtUtc:    time.Now().UTC(),
+                startedAtUtc:  nil,
+                state:         Enqueued,
+                votes:         0,
+                wasUpVoted:    false,
+                wasDownVoted:  false,
+        }
+}</span>
+func HydrateSong(
+        id SongId,
+        externalId string,
+        title string,
+        author string,
+        lengthSeconds uint8,
+        addedBy user.Id,
+        addedAtUtc time.Time,
+        startedAtUtc *time.Time,
+        state SongState,
+        votes uint8,
+        wasUpVoted bool,
+        wasDownVoted bool,
+) *Song <span class="cov0" title="0">{
+        result := &amp;Song{
+                externalId:    externalId,
+                title:         title,
+                author:        author,
+                lengthSeconds: lengthSeconds,
+                addedBy:       addedBy,
+                addedAtUtc:    addedAtUtc,
+                startedAtUtc:  startedAtUtc,
+                state:         state,
+                votes:         votes,
+                wasUpVoted:    wasUpVoted,
+                wasDownVoted:  wasDownVoted,
+        }
+        result.SetId(id)
+        return result
+}</span>
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package room
+
+import (
+        "github.com/google/uuid"
+)
+
+type SongId uuid.UUID
+
+func (id *SongId) String() *string <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">uuId := uuid.UUID(*id).String()
+        return &amp;uuId</span>
+}
+func (id *SongId) ToUuid() *uuid.UUID <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">concreteId := uuid.UUID(*id)
+        return &amp;concreteId</span>
+}
+func ParseSongId(s string) *SongId <span class="cov0" title="0">{
+        uuidResult, err := uuid.Parse(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">result := SongId(uuidResult)
+        return &amp;result</span>
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package room
+
+type SongState int
+
+const (
+        Enqueued SongState = iota
+        Playing  SongState = iota
+        Played   SongState = iota
+)
+
+var songStateName = map[SongState]string{
+        Enqueued: "enqueued",
+        Playing:  "playing",
+        Played:   "played",
+}
+var songStateValue = map[string]SongState{
+        "enqueued": Enqueued,
+        "playing":  Playing,
+        "played":   Played,
+}
+
+func (s SongState) String() string <span class="cov0" title="0">{
+        return songStateName[s]
+}</span>
+func ParseSongState(s string) *SongState <span class="cov0" title="0">{
+        songState, ok := songStateValue[s]
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return &amp;songState</span>
+}
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package room
+
+type VoteStatus int
+
+const (
+        Upvoted   VoteStatus = iota
+        Downvoted VoteStatus = iota
+        NotVoted  VoteStatus = iota
+)
+
+var voteStatusToString = map[VoteStatus]string{
+        Upvoted:   "upvoted",
+        Downvoted: "downvoted",
+        NotVoted:  "not_voted",
+}
+var stringToVoteStatus = map[string]VoteStatus{
+        "upvoted":   Upvoted,
+        "downvoted": Downvoted,
+        "not_voted": NotVoted,
+}
+
+func (v VoteStatus) String() string <span class="cov0" title="0">{
+        return voteStatusToString[v]
+}</span>
+func ParseVoteStatus(s string) *VoteStatus <span class="cov0" title="0">{
+        voteStatus, ok := stringToVoteStatus[s]
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return &amp;voteStatus</span>
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package shared
+
+type AggregateRoot[T comparable] struct {
+        Entity[T]
+        domainEvents []IDomainEvent
+}
+
+func (ar *AggregateRoot[T]) RaiseDomainEvent(event IDomainEvent) <span class="cov0" title="0">{
+        ar.domainEvents = append(ar.domainEvents, event)
+}</span>
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package shared
+
+type Entity[T comparable] struct {
+        id T
+}
+
+func (e *Entity[T]) SetId(id T) <span class="cov0" title="0">{
+        e.id = id
+}</span>
+func (e *Entity[T]) Id() T <span class="cov0" title="0">{
+        return e.id
+}</span>
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package shared
+
+import (
+        "github.com/google/uuid"
+)
+
+type RoomId uuid.UUID
+
+func (id *RoomId) String() *string <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">uuId := uuid.UUID(*id).String()
+        return &amp;uuId</span>
+}
+func (id *RoomId) ToUuid() *uuid.UUID <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">concreteId := uuid.UUID(*id)
+        return &amp;concreteId</span>
+}
+func ParseRoomId(s string) *RoomId <span class="cov0" title="0">{
+        uuidResult, err := uuid.Parse(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">result := RoomId(uuidResult)
+        return &amp;result</span>
+}
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">package user
+
+import (
+        "fmt"
+        "time"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/domain/domainErrors"
+        "xsedox.com/main/domain/shared"
+)
+
+const (
+        DeviceNameMaxLength = 30
+        DeviceNameMinLength = 1
+)
+
+type Device struct {
+        shared.Entity[DeviceId]
+        friendlyName    string
+        deviceType      DeviceType
+        isHost          bool
+        state           DeviceState
+        lastLoggedInUtc time.Time
+}
+
+func (d *Device) LastLoggedInUtc() time.Time <span class="cov0" title="0">{
+        return d.lastLoggedInUtc
+}</span>
+
+func (d *Device) FriendlyName() string <span class="cov0" title="0">{
+        return d.friendlyName
+}</span>
+
+func (d *Device) DeviceType() DeviceType <span class="cov0" title="0">{
+        return d.deviceType
+}</span>
+
+func (d *Device) IsHost() bool <span class="cov0" title="0">{
+        return d.isHost
+}</span>
+
+func (d *Device) State() DeviceState <span class="cov0" title="0">{
+        return d.state
+}</span>
+
+func NewDevice(deviceType DeviceType) *Device <span class="cov0" title="0">{
+        var friendlyName string
+        switch deviceType </span>{
+        case Mobile:<span class="cov0" title="0">
+                friendlyName = "My lovely mobile device"</span>
+        case Desktop:<span class="cov0" title="0">
+                friendlyName = "My lovely computer device"</span>
+        }
+        <span class="cov0" title="0">device := &amp;Device{
+                friendlyName:    friendlyName,
+                deviceType:      deviceType,
+                state:           Online,
+                isHost:          false,
+                lastLoggedInUtc: time.Now().UTC(),
+        }
+        device.SetId(DeviceId(uuid.New()))
+        return device</span>
+}
+func (d *Device) RefreshDeviceState() <span class="cov0" title="0">{
+        d.state = Online
+        d.lastLoggedInUtc = time.Now().UTC()
+}</span>
+func (d *Device) ChangeDeviceFriendlyName(friendlyName string) error <span class="cov0" title="0">{
+        if len(friendlyName) &gt; DeviceNameMaxLength </span><span class="cov0" title="0">{
+                return domainErrors.NewValidationDomainError("Device.TooLong.FriendlyName", fmt.Sprintf("The device friendly name exceeded %d characters.", DeviceNameMaxLength))
+        }</span>
+        <span class="cov0" title="0">if len(friendlyName) &lt; DeviceNameMinLength </span><span class="cov0" title="0">{
+                return domainErrors.NewValidationDomainError("Device.TooShort.FriendlyName", fmt.Sprintf("The device friendly name was shorter than %d characters.", DeviceNameMinLength))
+        }</span>
+        <span class="cov0" title="0">d.friendlyName = friendlyName
+        return nil</span>
+}
+func (d *Device) ChangeDeviceType(deviceType DeviceType) <span class="cov0" title="0">{
+        d.deviceType = deviceType
+}</span>
+func HydrateDevice(
+        id DeviceId,
+        friendlyName string,
+        deviceType DeviceType,
+        isHost bool,
+        state DeviceState,
+        lastLoggedInUtc time.Time,
+) *Device <span class="cov0" title="0">{
+        device := &amp;Device{
+                friendlyName:    friendlyName,
+                deviceType:      deviceType,
+                isHost:          isHost,
+                state:           state,
+                lastLoggedInUtc: lastLoggedInUtc,
+        }
+        device.SetId(id)
+        return device
+}</span>
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">package user
+
+import (
+        "github.com/google/uuid"
+)
+
+type DeviceId uuid.UUID
+
+func (id *DeviceId) String() *string <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">uuId := uuid.UUID(*id).String()
+        return &amp;uuId</span>
+}
+func (id *DeviceId) ToUuid() *uuid.UUID <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">concreteId := uuid.UUID(*id)
+        return &amp;concreteId</span>
+}
+func ParseDeviceId(s string) *DeviceId <span class="cov0" title="0">{
+        uuidResult, err := uuid.Parse(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">result := DeviceId(uuidResult)
+        return &amp;result</span>
+}
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">package user
+
+type DeviceState int
+
+const (
+        Online DeviceState = iota
+        Offline
+)
+
+var deviceStateName = map[DeviceState]string{
+        Online:  "online",
+        Offline: "offline",
+}
+var deviceStateFromName = map[string]DeviceState{
+        "online":  Online,
+        "offline": Offline,
+}
+
+func (s DeviceState) String() string <span class="cov0" title="0">{
+        return deviceStateName[s]
+}</span>
+func ParseDeviceState(s *string) *DeviceState <span class="cov0" title="0">{
+        if s == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">deviceState, ok := deviceStateFromName[*s]
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return &amp;deviceState</span>
+}
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">package user
+
+type DeviceType int
+
+const (
+        Mobile DeviceType = iota
+        Desktop
+)
+
+var deviceTypeName = map[DeviceType]string{
+        Mobile:  "mobile",
+        Desktop: "desktop",
+}
+var deviceTypeFromName = map[string]DeviceType{
+        "mobile":  Mobile,
+        "desktop": Desktop,
+}
+
+func (t DeviceType) String() string <span class="cov0" title="0">{
+        return deviceTypeName[t]
+}</span>
+func ParseDeviceType(s *string) *DeviceType <span class="cov0" title="0">{
+        if s == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">deviceType, ok := deviceTypeFromName[*s]
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return &amp;deviceType</span>
+}
+func ListDeviceTypes() []string <span class="cov0" title="0">{
+        types := make([]string, 0, len(deviceTypeName))
+        for _, deviceType := range deviceTypeName </span><span class="cov0" title="0">{
+                types = append(types, deviceType)
+        }</span>
+        <span class="cov0" title="0">return types</span>
+}
+</pre>
+		
+		<pre class="file" id="file30" style="display: none">package user
+
+import "fmt"
+
+type FullName struct {
+        name    string
+        surname string
+}
+
+func NewFullName(name string, surname string) FullName <span class="cov0" title="0">{
+        return FullName{
+                name:    name,
+                surname: surname,
+        }
+}</span>
+
+func (fn FullName) Equals(fnOther FullName) bool <span class="cov0" title="0">{
+        return fn.name == fnOther.Name() &amp;&amp; fn.surname == fnOther.Surname()
+}</span>
+func (fn FullName) Name() string <span class="cov0" title="0">{
+        return fn.name
+}</span>
+func (fn FullName) Surname() string <span class="cov0" title="0">{
+        return fn.surname
+}</span>
+func (fn FullName) String() string <span class="cov0" title="0">{
+        return fmt.Sprintf("%s %s", fn.name, fn.surname)
+}</span>
+</pre>
+		
+		<pre class="file" id="file31" style="display: none">package user
+
+import (
+        "time"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/domain/shared"
+)
+
+const IdClaimContextKeyName = "userIdClaimContextKey"
+
+type User struct {
+        shared.AggregateRoot[Id]
+        externalId     string
+        fullName       FullName
+        role           *UserRole
+        roomId         *shared.RoomId
+        devices        []Device
+        boostUsedAtUtc *time.Time
+}
+
+func NewUser(externalId, name, surname string, deviceType DeviceType) *User <span class="cov0" title="0">{
+        deviceEntity := NewDevice(deviceType)
+        user := &amp;User{
+                externalId:     externalId,
+                fullName:       NewFullName(name, surname),
+                role:           nil,
+                roomId:         nil,
+                devices:        []Device{*deviceEntity},
+                boostUsedAtUtc: nil,
+        }
+        user.SetId(Id(uuid.New()))
+        return user
+}</span>
+func (u *User) GetMostRecentDevice() *Device <span class="cov0" title="0">{
+        mostRecent := &amp;u.devices[0]
+        for i := range u.devices </span><span class="cov0" title="0">{
+                if u.devices[i].LastLoggedInUtc().After(mostRecent.LastLoggedInUtc()) </span><span class="cov0" title="0">{
+                        mostRecent = &amp;u.devices[i]
+                }</span>
+        }
+        <span class="cov0" title="0">return mostRecent</span>
+}
+func (u *User) BoostUsedAtUtc() *time.Time <span class="cov0" title="0">{
+        return u.boostUsedAtUtc
+}</span>
+func (u *User) ChangeFullName(newFullName FullName) <span class="cov0" title="0">{
+        u.fullName = newFullName
+}</span>
+func (u *User) Devices() []Device <span class="cov0" title="0">{
+        return u.devices
+}</span>
+func (u *User) RoomId() *shared.RoomId <span class="cov0" title="0">{
+        return u.roomId
+}</span>
+func (u *User) FullName() FullName <span class="cov0" title="0">{
+        return u.fullName
+}</span>
+func (u *User) ExternalId() string <span class="cov0" title="0">{
+        return u.externalId
+}</span>
+func (u *User) Role() *UserRole <span class="cov0" title="0">{
+        return u.role
+}</span>
+func (u *User) LoginWithNewDevice(deviceType DeviceType) DeviceId <span class="cov0" title="0">{
+        newDevice := NewDevice(deviceType)
+        u.devices = append(u.devices, *newDevice)
+        return newDevice.Id()
+}</span>
+func (u *User) ReloginWithKnownDevice(deviceId DeviceId) <span class="cov0" title="0">{
+        u.getDeviceById(deviceId).RefreshDeviceState()
+}</span>
+func (u *User) getDeviceById(deviceId DeviceId) *Device <span class="cov0" title="0">{
+        for i := range u.devices </span><span class="cov0" title="0">{
+                if u.devices[i].Id() == deviceId </span><span class="cov0" title="0">{
+                        return &amp;u.devices[i]
+                }</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+func HydrateUser(
+        id Id,
+        externalId string,
+        name string,
+        surname string,
+        role *UserRole,
+        roomId *shared.RoomId,
+        devices []Device,
+        boostUsedAtUtc *time.Time,
+) *User <span class="cov0" title="0">{
+        user := &amp;User{
+                externalId:     externalId,
+                fullName:       NewFullName(name, surname),
+                role:           role,
+                roomId:         roomId,
+                devices:        devices,
+                boostUsedAtUtc: boostUsedAtUtc,
+        }
+        user.SetId(id)
+        return user
+}</span>
+</pre>
+		
+		<pre class="file" id="file32" style="display: none">package user
+
+import (
+        "github.com/google/uuid"
+)
+
+type Id uuid.UUID
+
+func (id *Id) String() *string <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">uuId := uuid.UUID(*id).String()
+        return &amp;uuId</span>
+}
+func (id *Id) ToUuid() *uuid.UUID <span class="cov0" title="0">{
+        if id == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">concreteId := uuid.UUID(*id)
+        return &amp;concreteId</span>
+}
+func ParseUserId(s string) *Id <span class="cov0" title="0">{
+        uuidResult, err := uuid.Parse(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">result := Id(uuidResult)
+        return &amp;result</span>
+}
+</pre>
+		
+		<pre class="file" id="file33" style="display: none">package user
+
+type UserRole int
+
+const (
+        Host UserRole = iota
+        Member
+)
+
+var userRoleName = map[UserRole]string{
+        Host:   "host",
+        Member: "member",
+}
+var userRoleFromName = map[string]UserRole{
+        "host":   Host,
+        "member": Member,
+}
+
+func (r *UserRole) String() *string <span class="cov0" title="0">{
+        if r == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">s := userRoleName[*r]
+        return &amp;s</span>
+}
+func ParseUserRole(s *string) *UserRole <span class="cov0" title="0">{
+        if s == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">role, ok := userRoleFromName[*s]
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return &amp;role</span>
+}
+</pre>
+		
+		<pre class="file" id="file34" style="display: none">// cryptopasta - basic cryptography examples
+//
+// Written in 2015 by George Tankersley &lt;george.tankersley@gmail.com&gt;
+//
+// To the extent possible under law, the author(s) have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along
+// with this software. If not, see // &lt;http://creativecommons.org/publicdomain/zero/1.0/&gt;.
+
+// Provides symmetric authenticated encryption using 256-bit AES-GCM with a random nonce.
+package authentication
+
+import (
+        "crypto/aes"
+        "crypto/cipher"
+        "crypto/rand"
+        "crypto/sha256"
+        "errors"
+        "io"
+
+        "golang.org/x/crypto/bcrypt"
+        "xsedox.com/main/config"
+)
+
+type Encrypter struct {
+        key [32]byte
+}
+
+func NewEncrypter(configuration config.IConfiguration) *Encrypter <span class="cov0" title="0">{
+        var arr [32]byte
+        copy(arr[:], configuration.Authentication().EncryptionKey)
+        return &amp;Encrypter{
+                key: arr,
+        }
+}</span>
+
+// NewEncryptionKey generates a random 256-bit key for Encrypt() and
+// Decrypt(). It panics if the source of randomness fails.
+func (enc *Encrypter) NewEncryptionKey() []byte <span class="cov0" title="0">{
+        key := [32]byte{}
+        _, err := io.ReadFull(rand.Reader, key[:])
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">return key[:]</span>
+}
+
+// Encrypt encrypts data using 256-bit AES-GCM.  This both hides the content of
+// the data and provides a check that it hasn't been altered. Output takes the
+// form nonce|ciphertext|tag where '|' indicates concatenation.
+func (enc *Encrypter) Encrypt(plaintextString string) (ciphertext []byte, err error) <span class="cov0" title="0">{
+        plaintext := []byte(plaintextString)
+        block, err := aes.NewCipher(enc.key[:])
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">gcm, err := cipher.NewGCM(block)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">nonce := make([]byte, gcm.NonceSize())
+        _, err = io.ReadFull(rand.Reader, nonce)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return gcm.Seal(nonce, nonce, plaintext, nil), nil</span>
+}
+
+// Decrypt decrypts data using 256-bit AES-GCM.  This both hides the content of
+// the data and provides a check that it hasn't been altered. Expects input
+// form nonce|ciphertext|tag where '|' indicates concatenation.
+func (enc *Encrypter) Decrypt(ciphertext []byte) (plaintext string, err error) <span class="cov0" title="0">{
+        block, err := aes.NewCipher(enc.key[:])
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov0" title="0">gcm, err := cipher.NewGCM(block)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov0" title="0">if len(ciphertext) &lt; gcm.NonceSize() </span><span class="cov0" title="0">{
+                return "", errors.New("malformed ciphertext")
+        }</span>
+
+        <span class="cov0" title="0">bytePlaintext, err := gcm.Open(nil,
+                ciphertext[:gcm.NonceSize()],
+                ciphertext[gcm.NonceSize():],
+                nil,
+        )
+        return string(bytePlaintext), nil</span>
+}
+
+func (enc *Encrypter) HashAndSalt(plaintext string) (hash []byte, err error) <span class="cov0" title="0">{
+        hash, err = bcrypt.GenerateFromPassword([]byte(plaintext), bcrypt.MinCost)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return hash, nil</span>
+}
+func (enc *Encrypter) Verify(plaintext string, hash []byte) (ok bool) <span class="cov0" title="0">{
+        ok = bcrypt.CompareHashAndPassword(hash, []byte(plaintext)) == nil
+        return
+}</span>
+
+func (enc *Encrypter) Hash(plaintext string) []byte <span class="cov0" title="0">{
+        hasher := sha256.New()
+        hasher.Write([]byte(plaintext))
+        return hasher.Sum(nil)
+}</span>
+</pre>
+		
+		<pre class="file" id="file35" style="display: none">package authentication
+
+import (
+        "context"
+        "encoding/json"
+        "errors"
+        "fmt"
+        "net/http"
+        "net/url"
+        "strings"
+        "time"
+
+        "github.com/golang-jwt/jwt/v5"
+        "xsedox.com/main/application/dtos"
+        "xsedox.com/main/config"
+)
+
+const (
+        googleCallbackEndpoint = "/api/v1/auth/google/callback"
+)
+
+type GoogleOidcService struct {
+        configuration config.IConfiguration
+}
+
+func (g GoogleOidcService) ParseIdToken(idToken string) (*dtos.GoogleIdTokenClaimsDto, error) <span class="cov0" title="0">{
+        type googleApiClaims struct {
+                jwt.RegisteredClaims
+                GivenName  string `json:"given_name" validate:"required"`
+                FamilyName string `json:"family_name" validate:"required"`
+        }
+        googleClaims := googleApiClaims{}
+        token, _ := jwt.ParseWithClaims(idToken, &amp;googleClaims, nil)
+
+        claims, ok := token.Claims.(*googleApiClaims)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, errors.New("couldn't parse id token")
+        }</span>
+        <span class="cov0" title="0">return &amp;dtos.GoogleIdTokenClaimsDto{
+                GivenName:  claims.GivenName,
+                FamilyName: claims.FamilyName,
+                Subject:    claims.Subject,
+        }, nil</span>
+}
+
+func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*dtos.GoogleTokenResponseDto, error) <span class="cov0" title="0">{
+        tokenURL := "https://oauth2.googleapis.com/token"
+        form := url.Values{}
+        form.Add("grant_type", "authorization_code")
+        form.Add("code", code)
+        form.Add("client_id", g.configuration.Authentication().ClientId)
+        form.Add("client_secret", g.configuration.Authentication().ClientSecret)
+        form.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
+
+        req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+        client := &amp;http.Client{Timeout: 10 * time.Second}
+        resp, err := client.Do(req)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer resp.Body.Close()
+
+        if resp.StatusCode != http.StatusOK </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">var response dtos.GoogleTokenResponseDto
+        if err := json.NewDecoder(resp.Body).Decode(&amp;response); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;response, nil</span>
+}
+
+func (g GoogleOidcService) GenerateOidcUrl(state string) (string, error) <span class="cov0" title="0">{
+        googleGetUrl, err := url.Parse("https://accounts.google.com/o/oauth2/v2/auth")
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">parameters := url.Values{}
+        parameters.Add("response_type", "code")
+        parameters.Add("client_id", g.configuration.Authentication().ClientId)
+        parameters.Add("scope", g.configuration.Authentication().ScopesField)
+        parameters.Add("access_type", "offline")
+        parameters.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
+        parameters.Add("state", state)
+        googleGetUrl.RawQuery = parameters.Encode()
+        return googleGetUrl.String(), nil</span>
+}
+
+func NewGoogleOidcService(configuration config.IConfiguration) *GoogleOidcService <span class="cov0" title="0">{
+        return &amp;GoogleOidcService{configuration: configuration}
+}</span>
+func getGoogleCallbackRedirectUri(host string) string <span class="cov0" title="0">{
+        return fmt.Sprintf("%s%s", host, googleCallbackEndpoint)
+}</span>
+</pre>
+		
+		<pre class="file" id="file36" style="display: none">package authentication
+
+import (
+        "errors"
+        "strings"
+        "time"
+
+        "github.com/golang-jwt/jwt/v5"
+        "github.com/google/uuid"
+        "xsedox.com/main/config"
+        "xsedox.com/main/domain/user"
+)
+
+const AccessTokenExpirationTime = time.Minute * 5
+
+type JwtProvider struct {
+        configuration config.IConfiguration
+}
+
+func NewJwtProvider(configuration config.IConfiguration) *JwtProvider <span class="cov0" title="0">{
+        return &amp;JwtProvider{
+                configuration: configuration,
+        }
+}</span>
+
+func (jwtProvider *JwtProvider) GenerateToken(userId user.Id) (string, error) <span class="cov0" title="0">{
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, &amp;jwt.RegisteredClaims{
+                Subject:   uuid.UUID(userId).String(),
+                Audience:  strings.Split(jwtProvider.configuration.Authentication().AudienceField, " "),
+                Issuer:    jwtProvider.configuration.Authentication().Issuer,
+                ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessTokenExpirationTime).UTC()),
+                IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+        })
+        tokenString, err := token.SignedString([]byte(jwtProvider.configuration.Authentication().JwtKey))
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">return tokenString, nil</span>
+}
+func (jwtProvider *JwtProvider) ValidateTokenAndGetUserId(tokenString string) (*user.Id, error) <span class="cov0" title="0">{
+
+        token, err := jwt.ParseWithClaims(tokenString, &amp;jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) </span><span class="cov0" title="0">{
+                return []byte(jwtProvider.configuration.Authentication().JwtKey), nil
+        }</span>)
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">claims, ok := token.Claims.(*jwt.RegisteredClaims)
+        if !ok || !token.Valid </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">if claims.ExpiresAt.Sub(time.Now().UTC()) &lt; 0 </span><span class="cov0" title="0">{
+                return nil, errors.New("token is expired")
+        }</span>
+        <span class="cov0" title="0">if claims.Audience[0] != jwtProvider.configuration.Authentication().AudienceField ||
+                claims.Issuer != jwtProvider.configuration.Authentication().Issuer </span><span class="cov0" title="0">{
+                return nil, errors.New("invalid token")
+        }</span>
+
+        <span class="cov0" title="0">userId, err := uuid.Parse(claims.Subject)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">userIdParsed := user.Id(userId)
+        return &amp;userIdParsed, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file37" style="display: none">package persistance
+
+import (
+        "context"
+        "encoding/json"
+
+        "github.com/jmoiron/sqlx"
+)
+
+type ICache[T any] interface {
+        Get(key string, ctx context.Context) (T, error)
+        Set(key string, value T, ctx context.Context) error
+        Remove(key string, ctx context.Context) error
+}
+type Cache[T any] struct {
+        db *sqlx.DB
+}
+
+func (c *Cache[T]) Get(key string, ctx context.Context) (*T, error) <span class="cov0" title="0">{
+        var value json.RawMessage
+        err := c.db.GetContext(ctx, &amp;value, `SELECT value FROM cache WHERE key = $1;`,
+                key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">var result T
+        err = json.Unmarshal(value, &amp;result)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;result, nil</span>
+}
+
+func (c *Cache[T]) Set(key string, value T, ctx context.Context) error <span class="cov0" title="0">{
+        b, err := json.Marshal(value)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">_, err = c.db.ExecContext(ctx, `
+                INSERT INTO cache(key, value)
+                VALUES($1, $2::jsonb)
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+        `, key, b)
+        return err</span>
+}
+
+func (c *Cache[T]) Remove(key string, ctx context.Context) error <span class="cov0" title="0">{
+        _, err := c.db.ExecContext(ctx, `DELETE FROM cache WHERE key = $1`, key)
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file38" style="display: none">package persistance
+
+import (
+        "context"
+        "strings"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/domain/credentials"
+)
+
+type ExternalCredentialsRepository struct {
+        encrypter contracts.IEncrypter
+}
+
+func NewExternalCredentialsRepository(encrypter contracts.IEncrypter) *ExternalCredentialsRepository <span class="cov0" title="0">{
+        return &amp;ExternalCredentialsRepository{
+                encrypter: encrypter,
+        }
+}</span>
+func (cr *ExternalCredentialsRepository) Grant(ctx context.Context, credentials *credentials.External, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        encryptedAccessToken, err := cr.encrypter.Encrypt(credentials.AccessToken())
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">encryptedRefreshToken, err := cr.encrypter.Encrypt(credentials.RefreshToken())
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">_, err = queryer.ExecContext(ctx,
+                `INSERT INTO users_external_credentials 
+                            (
+                                                user_id, 
+                                                access_token, 
+                                                refresh_token, 
+                                                scope, 
+                                                access_token_expires_at_utc, 
+                                                refresh_token_expires_at_utc,
+                                             issued_at_utc
+                                ) 
+                                VALUES (
+                                        $1::uuid, $2, $3, $4, $5, $6, $7
+                                )
+                                ON CONFLICT (user_id) DO UPDATE
+                                SET access_token = EXCLUDED.access_token,
+                                    refresh_token = EXCLUDED.refresh_token,
+                                    scope = EXCLUDED.scope,
+                                    access_token_expires_at_utc=EXCLUDED.access_token_expires_at_utc,
+                                    refresh_token_expires_at_utc=EXCLUDED.refresh_token_expires_at_utc,
+                                    issued_at_utc=EXCLUDED.issued_at_utc;`,
+                uuid.UUID(credentials.Id()),
+                encryptedAccessToken,
+                encryptedRefreshToken,
+                strings.Join(credentials.Scopes(), " "),
+                credentials.AccessTokenExpiresAtUtc(),
+                credentials.RefreshTokenExpiresAtUtc(),
+                credentials.IssuedAtUtc(),
+        )
+        return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file39" style="display: none">package persistance
+
+import (
+        "context"
+        "log"
+
+        _ "github.com/jackc/pgx/v5/stdlib"
+        "github.com/jmoiron/sqlx"
+        "xsedox.com/main/config"
+)
+
+func InitializeDatabase(ctx context.Context, configuration config.IConfiguration) *sqlx.DB <span class="cov0" title="0">{
+        db, err := sqlx.ConnectContext(ctx, "pgx", configuration.Database().ConnectionString)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Unable to connect to database: %v\n", err)
+        }</span>
+        <span class="cov0" title="0">_, err = db.ExecContext(ctx, `
+                CREATE UNLOGGED TABLE IF NOT EXISTS cache(
+                id SERIAL PRIMARY KEY,
+                key TEXT UNIQUE NOT NULL,
+                value JSONB,
+                created_at_utc TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+                
+                CREATE INDEX IF NOT EXISTS cache_idx ON cache(id) INCLUDE (value);`)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Unable to create cache table: %v\n", err)
+        }</span>
+        <span class="cov0" title="0">return db</span>
+}
+</pre>
+		
+		<pre class="file" id="file40" style="display: none">package persistance
+
+import (
+        "context"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/domain/credentials"
+        "xsedox.com/main/domain/user"
+        "xsedox.com/main/infrastructure/persistance/daos"
+)
+
+type RefreshTokenRepository struct {
+        encrypter contracts.IEncrypter
+}
+
+func NewRefreshTokenRepository(encrypter contracts.IEncrypter) *RefreshTokenRepository <span class="cov0" title="0">{
+        return &amp;RefreshTokenRepository{
+                encrypter: encrypter,
+        }
+}</span>
+func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer contracts.IQueryer) (*credentials.RefreshToken, error) <span class="cov0" title="0">{
+        encryptedRefreshToken := r.encrypter.Hash(value)
+        var tokenFromDb daos.RefreshTokenDao
+        err := queryer.GetContext(ctx, &amp;tokenFromDb,
+                "SELECT * FROM users_refresh_token WHERE refresh_token = $1::bytea LIMIT 1;",
+                encryptedRefreshToken)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return credentials.HydrateRefreshToken(user.Id(tokenFromDb.UserId),
+                user.DeviceId(tokenFromDb.DeviceId),
+                string(tokenFromDb.RefreshToken),
+                tokenFromDb.ExpiresAtUtc,
+                tokenFromDb.IssuedAtUtc), nil</span>
+}
+func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        encryptedRefreshToken := r.encrypter.Hash(refreshToken.RefreshToken())
+        userId := refreshToken.Id()
+        deviceId := refreshToken.DeviceId()
+        _, err := queryer.ExecContext(ctx,
+                `
+                INSERT INTO users_refresh_token 
+                (
+                         user_id,
+                          device_id,
+                         refresh_token,
+                         expires_at_utc,
+                         issued_at_utc
+                )
+                VALUES
+                (
+                     $1::uuid, $2::uuid, $3, $4, $5
+                )
+                ON CONFLICT (user_id, device_id) DO UPDATE
+                SET 
+                    refresh_token = EXCLUDED.refresh_token,
+                    expires_at_utc = EXCLUDED.expires_at_utc,
+                    issued_at_utc = EXCLUDED.issued_at_utc;`,
+                userId.ToUuid(),
+                deviceId.ToUuid(),
+                encryptedRefreshToken,
+                refreshToken.ExpiresAtUtc(),
+                refreshToken.IssuedAtUtc(),
+        )
+        return err
+}</span>
+func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        uId := uuid.UUID(*userId)
+        dId := uuid.UUID(*deviceId)
+        _, err := queryer.ExecContext(ctx,
+                "DELETE FROM users_refresh_token WHERE user_id = $1 AND device_id = $2;",
+                uId,
+                dId)
+        return err
+}</span>
+func (r RefreshTokenRepository) RetireTokenByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        id := uuid.UUID(*userId)
+        _, err := queryer.ExecContext(ctx,
+                "DELETE FROM users_refresh_token WHERE user_id = $1;",
+                id)
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file41" style="display: none">package persistance
+
+import (
+        "context"
+
+        "xsedox.com/main/application/contracts"
+        daos2 "xsedox.com/main/application/room/get_room_query/daos"
+        "xsedox.com/main/domain/room"
+        "xsedox.com/main/domain/user"
+)
+
+type RoomRepository struct {
+        encrypter contracts.IEncrypter
+}
+
+func NewRoomRepository(encrypter contracts.IEncrypter) *RoomRepository <span class="cov0" title="0">{
+        return &amp;RoomRepository{
+                encrypter: encrypter,
+        }
+}</span>
+func (rr *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        roomId := roomParam.Id()
+        userId := roomParam.Members()[0]
+        hashedPassword, err := rr.encrypter.HashAndSalt(roomParam.Password())
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">_, addRoomErr := queryer.ExecContext(ctx,
+                `INSERT INTO rooms VALUES ($1::uuid, $2, $3::bytea, $4::bytea, $5, $6, $7);`,
+                roomId.ToUuid(),
+                roomParam.Name(),
+                hashedPassword,
+                []byte(roomParam.QrCode()),
+                roomParam.BoostCooldownSeconds(),
+                roomParam.CreatedAtUtc().UTC(),
+                roomParam.LifespanSeconds(),
+        )
+        if addRoomErr != nil </span><span class="cov0" title="0">{
+                return addRoomErr
+        }</span>
+
+        <span class="cov0" title="0">_, usersUpdateErr := queryer.ExecContext(ctx,
+                `UPDATE users SET room_id = $1::uuid WHERE id = $2::uuid;`,
+                roomId.ToUuid(),
+                userId.ToUuid(),
+        )
+        if usersUpdateErr != nil </span><span class="cov0" title="0">{
+                return usersUpdateErr
+        }</span>
+
+        <span class="cov0" title="0">host := user.Host
+        _, usersRolesErr := queryer.ExecContext(ctx,
+                `INSERT INTO users_roles VALUES ($1, $2, $3);`,
+                roomId.ToUuid(),
+                userId.ToUuid(),
+                host.String(),
+        )
+        if usersRolesErr != nil </span><span class="cov0" title="0">{
+                return usersRolesErr
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+func (rr *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos2.GetRoomDao, error) <span class="cov0" title="0">{
+        var getRoomDaoInstance daos2.GetRoomDao
+        getRoomErr := queryer.GetContext(ctx,
+                &amp;getRoomDaoInstance,
+                `
+SELECT rooms.name,
+           rooms.qr_code_hash,
+           boosts.used_at_utc AS boost_used_at_utc,
+           rooms.boost_cooldown_seconds,
+           songs.title AS playing_song_title,
+           songs.author AS playing_song_author,
+           enqueued_songs.started_at_utc AS playing_song_started_at_utc,
+           songs.length_seconds AS playing_song_length_seconds,
+           users_roles.role
+FROM rooms
+JOIN users ON users.room_id = rooms.id
+LEFT JOIN boosts ON boosts.room_id = rooms.id
+                                AND boosts.user_id = users.id
+JOIN users_roles ON users.id = users_roles.user_id
+                                AND users_roles.room_id = rooms.id
+LEFT JOIN enqueued_songs ON enqueued_songs.room_id = rooms.id AND enqueued_songs.state = 'playing'
+LEFT JOIN songs ON songs.id = enqueued_songs.song_id
+WHERE users.id = $1::uuid 
+LIMIT 1;
+`, userId.ToUuid())
+        if getRoomErr != nil </span><span class="cov0" title="0">{
+                return nil, getRoomErr
+        }</span>
+
+        <span class="cov0" title="0">getRoomsSongDaoInstances := make([]daos2.GetRoomSongDao, 0)
+        getRoomSongsErr := queryer.SelectContext(ctx,
+                &amp;getRoomsSongDaoInstances,
+                `
+SELECT enqueued_songs.id,
+       songs.title,
+       songs.author,
+       CONCAT(users_for_added_by.name, ' ', users_for_added_by.surname) AS added_by,
+       enqueued_songs.state,
+       vote_status,
+       enqueued_songs.votes,
+       songs.album_cover_url
+FROM enqueued_songs
+JOIN songs ON enqueued_songs.song_id = songs.id
+JOIN rooms ON enqueued_songs.room_id = rooms.id
+JOIN users ON users.room_id = rooms.id
+JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
+JOIN users_votes ON users.id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
+WHERE users.id = $1;
+`, userId.ToUuid())
+        if getRoomSongsErr != nil </span><span class="cov0" title="0">{
+                return nil, getRoomSongsErr
+        }</span>
+        <span class="cov0" title="0">getRoomDaoInstance.SongDaos = getRoomsSongDaoInstances
+        return &amp;getRoomDaoInstance, nil</span>
+}
+func (rr *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool <span class="cov0" title="0">{
+        var response bool
+        err := queryer.GetContext(ctx, &amp;response, `
+                SELECT CASE 
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM users
+                        WHERE id=$1 AND room_id IS NOT NULL
+                        )
+                    THEN true 
+                    ELSE false
+                END`, userId.ToUuid())
+        if err != nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">return response</span>
+}
+</pre>
+		
+		<pre class="file" id="file42" style="display: none">package persistance
+
+import (
+        "context"
+
+        "github.com/jmoiron/sqlx"
+        "xsedox.com/main/application/contracts"
+)
+
+type UnitOfWork struct {
+        db *sqlx.DB
+        tx *sqlx.Tx
+}
+
+func NewUnitOfWork(db *sqlx.DB) *UnitOfWork <span class="cov0" title="0">{
+        return &amp;UnitOfWork{db: db}
+}</span>
+
+func (uow *UnitOfWork) GetQueryer() contracts.IQueryer <span class="cov0" title="0">{
+        if uow.tx != nil </span><span class="cov0" title="0">{
+                return uow.tx
+        }</span>
+        <span class="cov0" title="0">return uow.db</span>
+}
+
+func (uow *UnitOfWork) ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error <span class="cov0" title="0">{
+        if uow.tx != nil </span><span class="cov0" title="0">{
+                return fn(ctx)
+        }</span>
+        <span class="cov0" title="0">tx, err := uow.db.BeginTxx(ctx, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">uow.tx = tx
+        defer func() </span><span class="cov0" title="0">{
+                // clear tx pointer regardless of outcome to avoid reuse
+                defer func() </span><span class="cov0" title="0">{ uow.tx = nil }</span>()
+
+                <span class="cov0" title="0">if p := recover(); p != nil </span><span class="cov0" title="0">{
+                        _ = tx.Rollback()
+                        panic(p)</span>
+                }
+                <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                        _ = tx.Rollback()
+                        return
+                }</span>
+                // commit error (if any) should be returned to caller
+                <span class="cov0" title="0">err = tx.Commit()
+                if err != nil </span><span class="cov0" title="0">{
+                        _ = tx.Rollback()
+                        return
+                }</span>
+        }()
+
+        <span class="cov0" title="0">err = fn(ctx)
+        return err</span>
+}
+
+func (uow *UnitOfWork) ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error <span class="cov0" title="0">{
+        return fn(ctx)
+}</span>
+</pre>
+		
+		<pre class="file" id="file43" style="display: none">package persistance
+
+import (
+        "context"
+        "fmt"
+        "strings"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/domain/shared"
+        "xsedox.com/main/domain/user"
+        "xsedox.com/main/infrastructure/persistance/daos"
+)
+
+const getDevicesQuery = `SELECT * FROM devices WHERE user_id = $1`
+
+type UserRepository struct {
+}
+
+func NewUserRepository() *UserRepository <span class="cov0" title="0">{
+        return &amp;UserRepository{}
+}</span>
+func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, queryer contracts.IQueryer) (*user.User, error) <span class="cov0" title="0">{
+        var userDb daos.UserDao
+        err := queryer.GetContext(ctx,
+                &amp;userDb,
+                `SELECT u.*, ur.role, b.used_at_utc FROM users u 
+                    LEFT JOIN users_roles ur ON ur.user_id = u.id 
+                           LEFT JOIN boosts b ON b.user_id = u.id 
+                    WHERE id = $1`,
+                id.ToUuid())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">devicesDb := make([]daos.DeviceDao, 0)
+        err = queryer.SelectContext(ctx,
+                &amp;devicesDb,
+                getDevicesQuery,
+                userDb.Id)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return parseUser(&amp;userDb, &amp;devicesDb), nil</span>
+}
+func (repository *UserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) (*user.User, error) <span class="cov0" title="0">{
+        var userDb daos.UserDao
+        err := queryer.GetContext(ctx,
+                &amp;userDb,
+                `SELECT u.*, ur.role, b.used_at_utc FROM users u 
+                    LEFT JOIN users_roles ur ON ur.user_id = u.id 
+                           LEFT JOIN boosts b ON b.user_id = u.id 
+                    WHERE external_id = $1`,
+                externalId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">devicesDb := make([]daos.DeviceDao, 0)
+        err = queryer.SelectContext(ctx,
+                &amp;devicesDb,
+                getDevicesQuery,
+                userDb.Id)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return parseUser(&amp;userDb, &amp;devicesDb), nil</span>
+}
+func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) bool <span class="cov0" title="0">{
+        var response bool
+        err := queryer.GetContext(ctx, &amp;response, `
+                SELECT CASE 
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM users
+                        WHERE external_id=$1
+                        )
+                    THEN true 
+                    ELSE false
+                END`, externalId)
+        if err != nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">return response</span>
+}
+func (repository *UserRepository) Update(ctx context.Context, user *user.User, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        userId := user.Id()
+        _, err := queryer.ExecContext(ctx, `
+                UPDATE users 
+                SET name=$1, surname=$2, room_id=$3::uuid
+                WHERE id=$4::uuid`,
+                user.FullName().Name(),
+                user.FullName().Surname(),
+                user.RoomId().ToUuid(),
+                userId.ToUuid())
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">if user.Role() != nil &amp;&amp; user.RoomId() != nil &amp;&amp; user.BoostUsedAtUtc() != nil </span><span class="cov0" title="0">{
+                _, err = queryer.ExecContext(ctx,
+                        `INSERT INTO users_roles (room_id, user_id, role) 
+                                   VALUES ($1, $2, $3)
+                                   ON CONFLICT (room_id, user_id) DO UPDATE SET role=$3::user_role;`,
+                        user.RoomId().ToUuid(),
+                        userId.ToUuid(),
+                        user.Role().String())
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov0" title="0">if user.Role() != nil &amp;&amp; user.RoomId() != nil &amp;&amp; user.BoostUsedAtUtc() != nil </span><span class="cov0" title="0">{
+                _, err = queryer.ExecContext(ctx,
+                        `INSERT INTO boosts (room_id, user_id, used_at_utc)
+                                     VALUES ($1, $2, $3)
+                                     ON CONFLICT (room_id, user_id) DO UPDATE SET used_at_utc=$3;`,
+                        user.RoomId().ToUuid(),
+                        userId.ToUuid(),
+                        user.BoostUsedAtUtc())
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov0" title="0">values := make([]string, 0, len(user.Devices()))
+        var params []interface{}
+        for i, deviceToUpdate := range user.Devices() </span><span class="cov0" title="0">{
+                base := i * 7
+                tuple := fmt.Sprintf("($%d::uuid, $%d, $%d, $%d::device_type, $%d::uuid, $%d::device_state, $%d)",
+                        base+1, base+2, base+3, base+4, base+5, base+6, base+7,
+                )
+                values = append(values, tuple)
+                deviceId := deviceToUpdate.Id()
+                params = append(params,
+                        deviceId.ToUuid(),
+                        deviceToUpdate.FriendlyName(),
+                        deviceToUpdate.IsHost(),
+                        deviceToUpdate.DeviceType().String(),
+                        userId.ToUuid(),
+                        deviceToUpdate.State().String(),
+                        deviceToUpdate.LastLoggedInUtc(),
+                )
+        }</span>
+        <span class="cov0" title="0">query := `
+                INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc)
+                VALUES ` + strings.Join(values, ",") + ` 
+                ON CONFLICT (id, user_id) DO UPDATE
+                SET
+                        friendly_name = EXCLUDED.friendly_name,
+                        is_host = EXCLUDED.is_host,
+                        type = EXCLUDED.type,
+                        state = EXCLUDED.state,
+                        last_logged_in_at_utc = EXCLUDED.last_logged_in_at_utc;`
+
+        _, err = queryer.ExecContext(ctx, query, params...)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">values = make([]string, 0, len(user.Devices()))
+        params1 := make([]interface{}, 0, len(user.Devices())+1)
+        params1 = append(params1, userId.ToUuid())
+        for i, deviceToUpdate := range user.Devices() </span><span class="cov0" title="0">{
+                values = append(values, fmt.Sprintf("$%d", i+2))
+                deviceId := deviceToUpdate.Id()
+                params1 = append(params1, deviceId.ToUuid())
+        }</span>
+
+        <span class="cov0" title="0">deleteQuery := `DELETE FROM devices WHERE user_id=$1
+                                        AND id NOT IN (` + strings.Join(values, ",") + `);`
+
+        _, err = queryer.ExecContext(ctx, deleteQuery, params1...)
+
+        return err</span>
+}
+func (repository *UserRepository) Add(ctx context.Context, user *user.User, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        userId := user.Id()
+        params := []interface{}{
+                userId.ToUuid(),
+                user.ExternalId(),
+                user.FullName().Name(),
+                user.FullName().Surname(),
+                user.RoomId().ToUuid(),
+        }
+
+        // Build VALUES tuples and append deviceFromDb fields to params.
+        // Each deviceFromDb contributes 6 columns: id, fingerprint, friendly_name, is_host, type, state
+        values := make([]string, 0, len(user.Devices()))
+        for i, deviceFromDb := range user.Devices() </span><span class="cov0" title="0">{
+                // parameter indices start after the 5 user params
+                base := len(params) + i*5
+                // placeholders: ($6,$7,$8,$9,$10,$11), ...
+                tuple := fmt.Sprintf("($%d::uuid,$%d,$%d::boolean,$%d::device_type,$%d::device_state)",
+                        base+1, base+2, base+3, base+4, base+5,
+                )
+                values = append(values, tuple)
+
+                // append deviceFromDb values in the same order as the tuple
+                params = append(params,
+                        uuid.UUID(deviceFromDb.Id()),
+                        deviceFromDb.FriendlyName(),
+                        deviceFromDb.IsHost(),
+                        deviceFromDb.DeviceType().String(),
+                        deviceFromDb.State().String(),
+                )
+        }</span>
+
+        // Compose the CTE + INSERT ... SELECT ... FROM u, (VALUES ...) AS v(...)
+        <span class="cov0" title="0">query := `
+                WITH "user" AS (
+                  INSERT INTO users (id, external_id, name, surname, room_id)
+                  VALUES ($1, $2, $3, $4, $5)
+                  RETURNING id
+                )
+                INSERT INTO devices (id, friendly_name, is_host, type, user_id, state)
+                SELECT v.id, v.friendly_name, v.is_host, v.type, "user".id, v.state
+                FROM "user", (VALUES ` + strings.Join(values, ",") + `) AS v(id, friendly_name, is_host, type, state);`
+        _, err := queryer.ExecContext(ctx, query, params...)
+        return err</span>
+}
+func (repository *UserRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        _, err := queryer.ExecContext(ctx,
+                `UPDATE users SET room_id=NULL WHERE id=$1`,
+                id.ToUuid())
+        return err
+}</span>
+func parseUser(userDb *daos.UserDao, devicesDb *[]daos.DeviceDao) *user.User <span class="cov0" title="0">{
+        var devices []user.Device
+        for _, deviceDb := range *devicesDb </span><span class="cov0" title="0">{
+                deviceResult := user.HydrateDevice(
+                        user.DeviceId(deviceDb.Id),
+                        deviceDb.FriendlyName,
+                        *user.ParseDeviceType(&amp;deviceDb.Type),
+                        deviceDb.IsHost,
+                        *user.ParseDeviceState(&amp;deviceDb.State),
+                        deviceDb.LastLoggedInAtUtc,
+                )
+                devices = append(devices,
+                        *deviceResult)
+        }</span>
+
+        <span class="cov0" title="0">return user.HydrateUser(user.Id(userDb.Id),
+                userDb.ExternalId,
+                userDb.Name,
+                userDb.Surname,
+                user.ParseUserRole(userDb.Role),
+                (*shared.RoomId)(userDb.RoomId),
+                devices,
+                userDb.BoostUsedAtUtc)</span>
+}
+</pre>
+		
+		<pre class="file" id="file44" style="display: none">package validation
+
+import (
+        "reflect"
+        "regexp"
+        "strings"
+
+        "github.com/go-playground/locales/en"
+        ut "github.com/go-playground/universal-translator"
+        "github.com/go-playground/validator/v10"
+        entranslations "github.com/go-playground/validator/v10/translations/en"
+        "xsedox.com/main/domain/user"
+)
+
+var (
+        Uni               *ut.UniversalTranslator
+        ValidatorInstance *validator.Validate
+        trans             ut.Translator
+        whitespaceRe      = regexp.MustCompile(`\s`)
+)
+
+func Initialize() <span class="cov0" title="0">{
+        ValidatorInstance = validator.New(validator.WithRequiredStructEnabled())
+
+        ValidatorInstance.RegisterTagNameFunc(func(fld reflect.StructField) string </span><span class="cov0" title="0">{
+                name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+                if name == "-" </span><span class="cov0" title="0">{
+                        return ""
+                }</span>
+                <span class="cov0" title="0">return name</span>
+        })
+
+        <span class="cov0" title="0">english := en.New()
+        Uni = ut.New(english, english)
+        trans, _ = Uni.GetTranslator("en")
+
+        // Register default English translations for standard tags
+        if err := entranslations.RegisterDefaultTranslations(ValidatorInstance, trans); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">err := ValidatorInstance.RegisterValidation("user_role_validation", validateUserRoleEnum)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">err = ValidatorInstance.RegisterValidation("device_type_validation", validateDeviceType)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">overrideDefaultTranslation("required", "This field is required")
+        overrideDefaultTranslation("gte", "Value must be greater than or equal to {0}")
+        overrideDefaultTranslation("lte", "Value must be less than or equal to {0}")
+        overrideDefaultTranslation("eqcsfield", "Values must be equal")
+
+        registerCustomValidation("user_role_validation", "Not a valid user role", trans, validateUserRoleEnum)
+        registerCustomValidation("device_type_validation", "Not a valid device type", trans, validateDeviceType)
+        registerCustomValidation("no_whitespace", "It can not contain spaces.", trans, validateWhitespace)</span>
+
+}
+func overrideDefaultTranslation(tag string, translation string) <span class="cov0" title="0">{
+        if err := ValidatorInstance.RegisterTranslation(tag, trans, func(ut ut.Translator) error </span><span class="cov0" title="0">{
+                return ut.Add(tag, translation, true)
+        }</span>, func(ut ut.Translator, fe validator.FieldError) string <span class="cov0" title="0">{
+                t, _ := ut.T(tag, fe.Param())
+                return t
+        }</span>); err != nil <span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+func registerCustomValidation(tag string, translation string, translator ut.Translator, fn validator.Func) <span class="cov0" title="0">{
+        if err := ValidatorInstance.RegisterValidation(tag, fn); err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+        <span class="cov0" title="0">if err := ValidatorInstance.RegisterTranslation(tag, translator, func(ut ut.Translator) error </span><span class="cov0" title="0">{
+                return ut.Add(tag, translation, true)
+        }</span>, func(ut ut.Translator, fe validator.FieldError) string <span class="cov0" title="0">{
+                t, _ := ut.T(tag, fe.Field())
+                return t
+        }</span>); err != nil <span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+func validateUserRoleEnum(fl validator.FieldLevel) bool <span class="cov0" title="0">{
+        stringValue := fl.Field().String()
+        return user.ParseUserRole(&amp;stringValue) != nil
+}</span>
+func validateDeviceType(fl validator.FieldLevel) bool <span class="cov0" title="0">{
+        stringValue := fl.Field().String()
+        return user.ParseDeviceType(&amp;stringValue) != nil
+}</span>
+func validateWhitespace(fl validator.FieldLevel) bool <span class="cov0" title="0">{
+        return !whitespaceRe.MatchString(fl.Field().String())
+}</span>
+func MapValidationErrors(errs validator.ValidationErrors) map[string]string <span class="cov0" title="0">{
+        errorMap := make(map[string]string)
+        for _, e := range errs </span><span class="cov0" title="0">{
+                errorMap[e.Field()] = e.Translate(trans)
+        }</span>
+        <span class="cov0" title="0">return errorMap</span>
+}
+</pre>
+		
+		<pre class="file" id="file45" style="display: none">package initialization
+
+import (
+        "github.com/jmoiron/sqlx"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/room/create_room_command"
+        "xsedox.com/main/application/room/get_room_query"
+        "xsedox.com/main/application/room/get_user_room_membership_query"
+        "xsedox.com/main/application/room/leave_room_command"
+        "xsedox.com/main/application/services"
+        "xsedox.com/main/application/user/get_user_query"
+        "xsedox.com/main/application/user/login_user_command"
+        "xsedox.com/main/application/user/login_user_refresh_token_command"
+        "xsedox.com/main/application/user/logout_user_command"
+        "xsedox.com/main/application/user/register_user_command"
+        "xsedox.com/main/config"
+        "xsedox.com/main/infrastructure/authentication"
+        "xsedox.com/main/infrastructure/persistance"
+        "xsedox.com/main/presentation/controllers"
+)
+
+type ServerDependencies struct {
+        roomController           *controllers.RoomController
+        oidcController           *controllers.OidcController
+        userController           *controllers.UserController
+        authenticationController *controllers.AuthenticationController
+        configuration            config.IConfiguration
+        jwtProvider              contracts.IJwtProvider
+}
+
+func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *ServerDependencies <span class="cov0" title="0">{
+        encrypter := authentication.NewEncrypter(configuration)
+        jwtProvider := authentication.NewJwtProvider(configuration)
+        googleOidcService := authentication.NewGoogleOidcService(configuration)
+        unitOfWork := persistance.NewUnitOfWork(db)
+
+        userRepository := persistance.NewUserRepository()
+        externalCredentialsRepository := persistance.NewExternalCredentialsRepository(encrypter)
+        refreshTokenRepository := persistance.NewRefreshTokenRepository(encrypter)
+        roomRepository := persistance.NewRoomRepository(encrypter)
+
+        registerUserCommandHandler := register_user_command.NewRegisterUserCommandHandler(userRepository,
+                unitOfWork,
+                externalCredentialsRepository,
+                jwtProvider,
+                refreshTokenRepository,
+                encrypter,
+        )
+        loginUserCommandHandler := login_user_command.NewLoginUserCommandHandler(unitOfWork,
+                userRepository,
+                encrypter,
+                jwtProvider,
+                refreshTokenRepository,
+                externalCredentialsRepository)
+        getUserDataQueryHandler := get_user_query.NewGetUserQueryHandler(unitOfWork,
+                userRepository)
+
+        loginRefreshTokenCommandHandler := login_user_refresh_token_command.NewLoginUserRefreshTokenCommandHandler(refreshTokenRepository,
+                unitOfWork,
+                encrypter,
+                jwtProvider,
+                userRepository)
+        logoutRefreshTokenCommandHandler := logout_user_command.NewLogoutUserCommandHandler(refreshTokenRepository, unitOfWork)
+
+        createRoomCommandHandler := create_room_command.NewCreateRoomCommandHandler(roomRepository,
+                unitOfWork,
+                encrypter,
+        )
+        leaveRoomCommandHandler := leave_room_command.NewLeaveRoomCommandHandler(userRepository,
+                unitOfWork,
+        )
+        getRoomQueryHandler := get_room_query.NewGetRoomQueryHandler(unitOfWork,
+                roomRepository,
+        )
+        getUserRoomMembershipQueryHandler := get_user_room_membership_query.NewGetUserRoomMembershipQueryHandler(roomRepository,
+                unitOfWork)
+
+        oidcAuthenticationService := services.NewOidcAuthenticationService(googleOidcService,
+                userRepository,
+                unitOfWork,
+                registerUserCommandHandler,
+                loginUserCommandHandler)
+
+        oidcController := controllers.NewOidcController(configuration,
+                oidcAuthenticationService,
+                googleOidcService)
+        userController := controllers.NewUserController(getUserDataQueryHandler)
+        authenticationController := controllers.NewAuthenticationController(loginRefreshTokenCommandHandler,
+                configuration,
+                logoutRefreshTokenCommandHandler)
+        roomController := controllers.NewRoomController(createRoomCommandHandler,
+                getRoomQueryHandler,
+                getUserRoomMembershipQueryHandler,
+                leaveRoomCommandHandler)
+
+        return &amp;ServerDependencies{
+                oidcController:           oidcController,
+                userController:           userController,
+                authenticationController: authenticationController,
+                roomController:           roomController,
+                configuration:            configuration,
+                jwtProvider:              jwtProvider,
+        }
+}</span>
+func (sd ServerDependencies) RoomController() *controllers.RoomController <span class="cov0" title="0">{
+        return sd.roomController
+}</span>
+func (sd ServerDependencies) OidcController() *controllers.OidcController <span class="cov0" title="0">{
+        return sd.oidcController
+}</span>
+func (sd ServerDependencies) UserController() *controllers.UserController <span class="cov0" title="0">{
+        return sd.userController
+}</span>
+func (sd ServerDependencies) AuthenticationController() *controllers.AuthenticationController <span class="cov0" title="0">{
+        return sd.authenticationController
+}</span>
+func (sd ServerDependencies) Configuration() config.IConfiguration <span class="cov0" title="0">{
+        return sd.configuration
+}</span>
+func (sd ServerDependencies) JwtProvider() contracts.IJwtProvider <span class="cov0" title="0">{
+        return sd.jwtProvider
+}</span>
+</pre>
+		
+		<pre class="file" id="file46" style="display: none">package main
+
+import (
+        "log"
+
+        "github.com/jmoiron/sqlx"
+        "xsedox.com/main/config"
+        "xsedox.com/main/infrastructure/persistance"
+        "xsedox.com/main/infrastructure/validation"
+        "xsedox.com/main/initialization"
+        "xsedox.com/main/presentation"
+)
+
+import (
+        "context"
+
+        _ "xsedox.com/main/docs"
+)
+
+// @title RoomPlay API
+// @version 1.0
+// @description This is the API for the RoomPlay service.
+// @host localhost:7654
+// @BasePath /api/v1
+//
+// Security definition for Bearer JWT in the Authorization header
+// @securityDefinitions.apikey BearerAuth
+// @in cookie
+// @name Authorization
+// @description Type "Bearer {token}"
+func main() <span class="cov0" title="0">{
+        validation.Initialize()
+        ctx := context.Background()
+
+        configuration := config.Load()
+
+        db := persistance.InitializeDatabase(ctx, configuration)
+
+        dependencies := initialization.NewServerDependencies(db, configuration)
+
+        log.Printf("Loaded config: port: %v, host: %v, environment: %v", configuration.Server().Port, configuration.Server().Host, configuration.Environment)
+
+        defer func(db *sqlx.DB, ctx context.Context) </span><span class="cov0" title="0">{
+                err := db.Close()
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatalf("Unable to close database connection: %v\n", err)
+                }</span>
+        }(db, context.Background())
+        // Start Server
+        <span class="cov0" title="0">server := presentation.NewServer(dependencies)
+        server.Start(configuration)</span>
+}
+</pre>
+		
+		<pre class="file" id="file47" style="display: none">package controllers
+
+import (
+        "encoding/base64"
+        "net/http"
+
+        "xsedox.com/main/application"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/user/login_user_refresh_token_command"
+        "xsedox.com/main/application/user/logout_user_command"
+        "xsedox.com/main/config"
+        "xsedox.com/main/domain/user"
+        "xsedox.com/main/presentation/helpers"
+        "xsedox.com/main/presentation/response"
+)
+
+type AuthenticationController struct {
+        loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse]
+        configuration                    config.IConfiguration
+        logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]
+}
+
+func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse],
+        configuration config.IConfiguration,
+        logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]) *AuthenticationController <span class="cov0" title="0">{
+        return &amp;AuthenticationController{
+                loginRefreshTokenCommandHandler:  refreshTokenCommandHandler,
+                configuration:                    configuration,
+                logoutRefreshTokenCommandHandler: logoutRefreshTokenCommandHandler,
+        }
+}</span>
+
+func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req *http.Request) <span class="cov0" title="0">{
+        refreshToken, err := req.Cookie(helpers.RoomplayRefreshTokenCookieName)
+        if err != nil || refreshToken == nil || refreshToken.Value == "" </span><span class="cov0" title="0">{
+                helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
+                helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+                response.WriteJsonFailure(w,
+                        "AuthenticationController.MissingRefreshTokenCookie",
+                        "Missing refresh token cookie",
+                        "Cookie with refresh token had issues.",
+                        req.URL.RequestURI(),
+                        http.StatusUnauthorized)
+                return
+        }</span>
+
+        <span class="cov0" title="0">decodedToken, err := base64.RawURLEncoding.DecodeString(refreshToken.Value)
+        if err != nil </span><span class="cov0" title="0">{
+                // Handle malformed cookie value.
+                response.WriteJsonFailure(w,
+                        "AuthenticationController.DecodeString",
+                        "Invalid refresh token",
+                        err.Error(),
+                        req.URL.RequestURI(),
+                        http.StatusUnauthorized)
+                return
+        }</span>
+        <span class="cov0" title="0">decodedTokenString := string(decodedToken)
+
+        result, err := handler.loginRefreshTokenCommandHandler.Handle(req.Context(), &amp;decodedTokenString)
+        if err != nil </span><span class="cov0" title="0">{
+                helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
+                helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+                response.WriteJsonApplicationFailure(w,
+                        err,
+                        req.URL.RequestURI(),
+                )
+                return
+        }</span>
+        <span class="cov0" title="0">encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(result.RefreshToken))
+        helpers.SetRefreshTokenCookie(w, encodedRefreshToken, handler.configuration.Server().BasePath)
+        helpers.SetAccessTokenCookie(w, result.AccessToken, handler.configuration.Server().BasePath)
+        response.WriteJsonNoContent(w)</span>
+}
+
+func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http.Request) <span class="cov0" title="0">{
+        var command logout_user_command.LogoutUserCommand
+        userId, ok := application.GetUserIdFromContext(req.Context())
+        if !ok </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        application.NewMissingUserIdInContextError,
+                        req.URL.RequestURI(),
+                )
+                helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
+                helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+                return
+        }</span>
+        <span class="cov0" title="0">command.UserId = *userId
+
+        deviceId, err := req.Cookie(helpers.RoomPlayDeviceIdCookieName)
+        if deviceId == nil || err != nil </span><span class="cov0" title="0">{
+                helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
+                helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+                response.WriteJsonFailure(w,
+                        "AuthenticationController.RoomPlayDeviceIdCookie",
+                        "Missing device id cookie",
+                        err.Error(),
+                        req.URL.RequestURI(),
+                        http.StatusPartialContent)
+                command.DeviceId = nil
+        }</span> else<span class="cov0" title="0"> {
+                deviceIdValue := deviceId.Value
+                command.DeviceId = user.ParseDeviceId(deviceIdValue)
+                response.WriteJsonNoContent(w)
+        }</span>
+        <span class="cov0" title="0">err = handler.logoutRefreshTokenCommandHandler.Handle(req.Context(), &amp;command)
+        if err != nil </span><span class="cov0" title="0">{
+                helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
+                helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+                response.WriteJsonApplicationFailure(w,
+                        err,
+                        req.URL.RequestURI(),
+                )
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file48" style="display: none">package controllers
+
+import (
+        "encoding/base64"
+        "fmt"
+        "net/http"
+        "net/url"
+        "strings"
+        "time"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/application/contracts"
+        contracts2 "xsedox.com/main/application/services/contracts"
+        "xsedox.com/main/config"
+        "xsedox.com/main/domain/user"
+        "xsedox.com/main/presentation/helpers"
+        "xsedox.com/main/presentation/response"
+)
+
+//TODO save where the user started logging and return to the same url
+
+type OidcController struct {
+        configuration             config.IConfiguration
+        oidcAuthenticationService contracts2.IOidcAuthenticationService
+        googleOidcService         contracts.IGoogleOidcService
+}
+
+func NewOidcController(configuration config.IConfiguration,
+        oidcAuthenticationService contracts2.IOidcAuthenticationService,
+        googleOidcService contracts.IGoogleOidcService) *OidcController <span class="cov0" title="0">{
+        return &amp;OidcController{
+                configuration:             configuration,
+                oidcAuthenticationService: oidcAuthenticationService,
+                googleOidcService:         googleOidcService,
+        }
+}</span>
+
+// HandleLoginWithGoogle godoc
+//
+//        @Summary                Initiate Google OAuth2 login
+//        @Description        Starts the OAuth2 flow by generating a state cookie and redirecting to Google's authorization endpoint.
+//        @Tags                        AuthenticationController
+//        @Accept                        json
+//        @Produce                json
+//        @Success                302        {string}        string        "Redirect to Google OAuth"
+//        @Failure                403        {object}        response.Error        "Invalid redirect URL"
+//        @Router                        /auth/google/login [post]
+func (handler *OidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        state := setStateCookie(w, handler.configuration.Server().BasePath)
+        deviceType := r.Header.Get("X-Device-Type")
+        parsedDeviceType := user.ParseDeviceType(&amp;deviceType)
+        if parsedDeviceType == nil </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.ParseDeviceType",
+                        "Device type is not valid",
+                        fmt.Sprintf("Device type should be one of the following values: %s", strings.Join(user.ListDeviceTypes(), ", ")),
+                        r.URL.RequestURI(),
+                        http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov0" title="0">setDeviceTypeCookie(w, parsedDeviceType.String(), handler.configuration.Server().BasePath)
+
+        googleUrl, err := handler.googleOidcService.GenerateOidcUrl(state)
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.GenerateOidcUrl",
+                        "Something went wrong with generating google url",
+                        err.Error(),
+                        r.URL.RequestURI(),
+                        http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusOK, googleUrl)</span>
+}
+func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        params, err := url.ParseQuery(r.URL.RawQuery)
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.ParseQuery",
+                        "Problem with parsing query",
+                        err.Error(),
+                        r.URL.RequestURI(),
+                        http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov0" title="0">if !verifyStateCookie(r, params.Get("state")) </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.VerifyStateCookie",
+                        "Invalid state",
+                        "State cookie is not valid",
+                        r.URL.RequestURI(),
+                        http.StatusForbidden)
+                return
+        }</span>
+
+        <span class="cov0" title="0">code := params.Get("code")
+        if code == "" </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.GetCode",
+                        "Invalid code",
+                        "Code is empty",
+                        r.URL.RequestURI(),
+                        http.StatusForbidden)
+                return
+        }</span>
+
+        <span class="cov0" title="0">deviceType, err := r.Cookie(helpers.RoomPlayDeviceTypeCookieName)
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "OidcController.GetDeviceTypeCookie",
+                        "Couldn't get device type cookie",
+                        err.Error(),
+                        r.URL.RequestURI(),
+                        http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov0" title="0">var deviceIdValue *user.DeviceId
+        deviceId, err := r.Cookie(helpers.RoomPlayDeviceIdCookieName)
+        if err != nil </span><span class="cov0" title="0">{
+                deviceIdValue = nil
+        }</span> else<span class="cov0" title="0"> {
+                deviceIdValue = user.ParseDeviceId(deviceId.Value)
+        }</span>
+
+        <span class="cov0" title="0">apiTokenResponse, err := handler.oidcAuthenticationService.AuthenticateWithGoogle(r.Context(), code, deviceIdValue, user.ParseDeviceType(&amp;deviceType.Value))
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w, err, r.URL.RequestURI())
+                return
+        }</span>
+        <span class="cov0" title="0">base64RefreshToken := base64.RawURLEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
+        helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
+        helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath)
+        setDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
+        clearStateCookie(w, handler.configuration.Server().BasePath)
+
+        http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)</span>
+}
+func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) <span class="cov0" title="0">{
+        expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     helpers.RoomPlayDeviceTypeCookieName,
+                Value:    deviceType,
+                Expires:  expiresAt,
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+func setDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) <span class="cov0" title="0">{
+        expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     helpers.RoomPlayDeviceIdCookieName,
+                Value:    deviceId,
+                Expires:  expiresAt,
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+func setStateCookie(w http.ResponseWriter, basePath string) string <span class="cov0" title="0">{
+        expiresAt := time.Now().Add(helpers.RoomplayStateCookieExpirationTime).UTC()
+        state := uuid.NewString()
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     helpers.RoomplayStateCookieName,
+                Value:    state,
+                Expires:  expiresAt,
+                MaxAge:   int(helpers.RoomplayStateCookieExpirationTime.Seconds()),
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+        return state
+}</span>
+func clearStateCookie(w http.ResponseWriter, basePath string) <span class="cov0" title="0">{
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     helpers.RoomplayStateCookieName,
+                Value:    "",
+                MaxAge:   -1,
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+func verifyStateCookie(r *http.Request, stateFromUrl string) bool <span class="cov0" title="0">{
+        state, err := r.Cookie(helpers.RoomplayStateCookieName)
+        if err != nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">stateString := state.Value
+
+        if stateFromUrl != stateString </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">return true</span>
+}
+</pre>
+		
+		<pre class="file" id="file49" style="display: none">package controllers
+
+import (
+        "encoding/json"
+        "net/http"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/room/create_room_command"
+        "xsedox.com/main/application/room/get_room_query"
+        "xsedox.com/main/application/room/leave_room_command"
+        "xsedox.com/main/infrastructure/validation"
+        "xsedox.com/main/presentation/response"
+)
+
+type RoomController struct {
+        createRoomCommandHandler          contracts.ICommandHandler[*create_room_command.CreateRoomCommand]
+        getRoomQueryHandler               contracts.IQueryHandler[*get_room_query.GetRoomQueryResponse]
+        getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool]
+        leaveRoomCommandHandler           contracts.ICommandHandler[*leave_room_command.LeaveRoomCommand]
+}
+
+func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*create_room_command.CreateRoomCommand],
+        getRoomQueryHandler contracts.IQueryHandler[*get_room_query.GetRoomQueryResponse],
+        getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool],
+        leaveRoomCommandHandler contracts.ICommandHandler[*leave_room_command.LeaveRoomCommand],
+) *RoomController <span class="cov0" title="0">{
+        return &amp;RoomController{
+                createRoomCommandHandler:          createRoomCommandHandler,
+                getRoomQueryHandler:               getRoomQueryHandler,
+                getUserRoomMembershipQueryHandler: getUserRoomMembershipQueryHandler,
+                leaveRoomCommandHandler:           leaveRoomCommandHandler,
+        }
+}</span>
+
+// CreateRoom godoc
+// @Summary      Join a new room
+// @Description  Creates a new room in the system
+// @Tags         rooms
+// @Accept       json
+// @Produce      json
+// @Param        room  body      create_room_command.CreateRoomCommand        true  "Join CreateRoomCommand"
+// @Success      201   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router       /api/v1/room [post]
+// @Security BearerAuth
+func (rh *RoomController) CreateRoom(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        var command create_room_command.CreateRoomCommand
+        bodyDecodeErr := json.NewDecoder(r.Body).Decode(&amp;command)
+        if bodyDecodeErr != nil </span><span class="cov0" title="0">{
+                response.WriteJsonFailure(w,
+                        "CreateRoomController.Decoding",
+                        "Problem with decoding request body",
+                        bodyDecodeErr.Error(),
+                        r.URL.RequestURI(),
+                        http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov0" title="0">validationErr := validation.ValidatorInstance.Struct(command)
+        if validationErr != nil </span><span class="cov0" title="0">{
+                response.WriteJsonValidationFailure(w,
+                        "CreateRoom.Validation",
+                        r.URL.RequestURI(),
+                        validationErr)
+                return
+        }</span>
+        <span class="cov0" title="0">createRoomHandlerErr := rh.createRoomCommandHandler.Handle(r.Context(), &amp;command)
+        if createRoomHandlerErr != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        createRoomHandlerErr,
+                        r.URL.RequestURI())
+                return
+        }</span>
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusCreated)</span>
+}
+
+// GetRoom godoc
+// @Summary      Get room data
+// @Description  Gets details of a room.
+// @Tags         rooms
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router       /room [get]
+// @Security BearerAuth
+func (rh *RoomController) GetRoom(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        getRoomQueryResponse, getRoomErr := rh.getRoomQueryHandler.Handle(r.Context())
+        if getRoomErr != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        getRoomErr,
+                        r.URL.RequestURI(),
+                )
+                return
+        }</span>
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusOK, getRoomQueryResponse)</span>
+}
+
+// CheckUserRoomMembership godoc
+// @Summary      Checks if user is in any room.
+// @Description  Returns true if user is in a room.
+// @Tags         rooms
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router       /room/membership [get]
+// @Security BearerAuth
+func (rh *RoomController) CheckUserRoomMembership(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        handlerResponse, err := rh.getUserRoomMembershipQueryHandler.Handle(r.Context())
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        err,
+                        r.URL.RequestURI(),
+                )
+                return
+        }</span>
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusOK, handlerResponse)</span>
+}
+
+// LeaveRoom handles the HTTP request to leave a room.
+// @Summary Makes a user leave a room
+// @Description Used to leave a room
+// @Tags room
+// @Accept json
+// @Produce json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router /room [delete]
+// @Security BearerAuth
+func (rh *RoomController) LeaveRoom(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        err := rh.leaveRoomCommandHandler.Handle(r.Context(), &amp;leave_room_command.LeaveRoomCommand{})
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        err,
+                        r.URL.RequestURI())
+        }</span>
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusOK)</span>
+}
+</pre>
+		
+		<pre class="file" id="file50" style="display: none">package controllers
+
+import (
+        "net/http"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/user/get_user_query"
+        "xsedox.com/main/presentation/response"
+)
+
+type UserController struct {
+        getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]
+}
+
+func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]) *UserController <span class="cov0" title="0">{
+        return &amp;UserController{
+                getUserDataQueryHandler: getUserDataQueryHandler,
+        }
+}</span>
+
+// GetUserData handles the HTTP request to retrieve user data.
+// @Summary Retrieve user data
+// @Description Get user data based on the provided context
+// @Tags user
+// @Accept json
+// @Produce json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router /user [get]
+// @Security BearerAuth
+func (userController *UserController) GetUserData(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        userData, err := userController.getUserDataQueryHandler.Handle(r.Context())
+        if err != nil </span><span class="cov0" title="0">{
+                response.WriteJsonApplicationFailure(w,
+                        err,
+                        r.URL.RequestURI())
+        }</span>
+        <span class="cov0" title="0">response.WriteJsonSuccess(w, http.StatusOK, userData)</span>
+}
+</pre>
+		
+		<pre class="file" id="file51" style="display: none">package customMiddleware
+
+import (
+        "context"
+        "net/http"
+
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/config"
+        "xsedox.com/main/domain/user"
+        "xsedox.com/main/presentation/helpers"
+        "xsedox.com/main/presentation/response"
+)
+
+type CookieJwtAuthentication struct {
+        configuration config.IConfiguration
+        jwtProvider   contracts.IJwtProvider
+}
+
+func NewCookieJwtAuthentication(configuration config.IConfiguration,
+        jwtProvider contracts.IJwtProvider) *CookieJwtAuthentication <span class="cov0" title="0">{
+        return &amp;CookieJwtAuthentication{
+                configuration: configuration,
+                jwtProvider:   jwtProvider,
+        }
+}</span>
+
+func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler <span class="cov0" title="0">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                authCookie, err := r.Cookie(helpers.RoomplayAccessTokenCookieName)
+                if err != nil </span><span class="cov0" title="0">{
+                        response.WriteJsonFailure(w,
+                                "JwtAuthentication.MissingAuthCookie",
+                                "Missing cookie",
+                                err.Error(),
+                                r.URL.RequestURI(),
+                                http.StatusUnauthorized)
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userId, err := jwtAuth.jwtProvider.ValidateTokenAndGetUserId(authCookie.Value)
+                if err != nil </span><span class="cov0" title="0">{
+                        response.WriteJsonFailure(w, "JwtAuthentication.TokenNotValid",
+                                "JWT issue",
+                                err.Error(),
+                                r.URL.RequestURI(),
+                                http.StatusUnauthorized)
+                        return
+                }</span>
+
+                <span class="cov0" title="0">ctxWithClaims := context.WithValue(r.Context(), user.IdClaimContextKeyName, userId)
+                next.ServeHTTP(w, r.WithContext(ctxWithClaims))</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file52" style="display: none">package customMiddleware
+
+import (
+        "net/http"
+        "strings"
+
+        "github.com/rs/cors"
+        "xsedox.com/main/config"
+)
+
+type CustomCors struct {
+        corsMiddleware *cors.Cors
+}
+
+func NewCustomCors(configuration config.IConfiguration) *CustomCors <span class="cov0" title="0">{
+        corsMiddleware := cors.New(cors.Options{
+                AllowOriginVaryRequestFunc: func(r *http.Request, origin string) (bool, []string) </span><span class="cov0" title="0">{
+                        if strings.HasPrefix(r.RequestURI, "/api/v1/auth/google/callback") </span><span class="cov0" title="0">{
+                                return true, []string{}
+                        }</span>
+                        <span class="cov0" title="0">return origin == configuration.Authentication().ClientOrigin, []string{}</span>
+                },
+                AllowCredentials: true,
+                AllowedHeaders:   []string{"X-Device-Type", "Content-Type"},
+                AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+                // Enable Debugging for testing, consider disabling in production
+                Debug: configuration.IsDevelopment(),
+        })
+        <span class="cov0" title="0">return &amp;CustomCors{
+                corsMiddleware: corsMiddleware,
+        }</span>
+}
+
+func (customCors *CustomCors) CorsHandler() func(http.Handler) http.Handler <span class="cov0" title="0">{
+        return func(next http.Handler) http.Handler </span><span class="cov0" title="0">{
+                return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                        // If the request is for the Google callback and has no Origin, handle it and proceed.
+                        if strings.HasPrefix(r.URL.Path, "/api/v1/auth/google/callback") &amp;&amp; r.Header.Get("Origin") == "" </span><span class="cov0" title="0">{
+                                next.ServeHTTP(w, r)
+                                return
+                        }</span>
+                        // Otherwise, use the standard rs/cors handler.
+                        <span class="cov0" title="0">customCors.corsMiddleware.Handler(next).ServeHTTP(w, r)</span>
+                })
+        }
+}
+</pre>
+		
+		<pre class="file" id="file53" style="display: none">package customMiddleware
+
+import (
+        "net/http"
+
+        "xsedox.com/main/config"
+)
+
+type SecurityHeaders struct {
+        configuration config.IConfiguration
+}
+
+func NewSecurityHeaders(configuration config.IConfiguration) *SecurityHeaders <span class="cov0" title="0">{
+        return &amp;SecurityHeaders{configuration: configuration}
+}</span>
+
+func (s *SecurityHeaders) Next(next http.Handler) http.Handler <span class="cov0" title="0">{
+        cspValue := "default-src 'none';frame-ancestors 'none';"
+        isReportOnly := s.configuration.IsDevelopment()
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                if isReportOnly </span><span class="cov0" title="0">{
+                        w.Header().Set("Content-Security-Policy-Report-Only", cspValue)
+                }</span> else<span class="cov0" title="0"> {
+                        w.Header().Set("Content-Security-Policy", cspValue)
+                }</span>
+                <span class="cov0" title="0">w.Header().Set("Cache-Control", "no-store")
+                w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+                w.Header().Set("X-Content-Type-Options", "nosniff")
+                w.Header().Set("X-Frame-Options", "DENY")
+
+                next.ServeHTTP(w, r)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file54" style="display: none">package helpers
+
+import (
+        "net/http"
+        "time"
+
+        "xsedox.com/main/domain/credentials"
+        "xsedox.com/main/infrastructure/authentication"
+)
+
+func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) <span class="cov0" title="0">{
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     RoomplayAccessTokenCookieName,
+                Value:    "",
+                MaxAge:   -1,
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+func ClearRefreshTokenCookie(w http.ResponseWriter, basePath string) <span class="cov0" title="0">{
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     RoomplayRefreshTokenCookieName,
+                Value:    "",
+                MaxAge:   -1,
+                Path:     basePath + "/auth/refresh-token",
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+
+func SetAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) <span class="cov0" title="0">{
+        expiresAt := time.Now().Add(authentication.AccessTokenExpirationTime).UTC()
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     RoomplayAccessTokenCookieName,
+                Value:    accessToken,
+                Expires:  expiresAt,
+                Path:     basePath,
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string) <span class="cov0" title="0">{
+        expiresAt := time.Now().Add(credentials.RefreshTokenExpirationTime).UTC()
+        http.SetCookie(w, &amp;http.Cookie{
+                Name:     RoomplayRefreshTokenCookieName,
+                Value:    refreshToken,
+                Expires:  expiresAt,
+                Path:     basePath + "/auth/refresh-token",
+                HttpOnly: true,
+                Secure:   true,
+                SameSite: http.SameSiteLaxMode,
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file55" style="display: none">package response
+
+import (
+        "encoding/json"
+        "errors"
+        "net/http"
+
+        "github.com/go-playground/validator/v10"
+        "xsedox.com/main/application/custom_errors"
+        "xsedox.com/main/infrastructure/validation"
+)
+
+const (
+        encodingErrorMessage = "could not encode response object."
+)
+
+type Success struct {
+        Data any `json:"data" swaggertype:"object" extensions:"x-nullable"`
+}
+
+type ProblemDetails struct {
+        Type             string            `json:"type" example:"Error code unique for the error"`
+        ValidationErrors map[string]string `json:"validationErrors" example:"{\"name\":\"too long\"}" swaggertype:"object" extensions:"x-nullable"`
+        Title            string            `json:"title" example:"Short human readable description"`
+        Description      string            `json:"description" example:"Longer human readable description"`
+        Instance         string            `json:"instance" swaggertype:"string" example:"/api/v1/uri"`
+        Status           int               `json:"status" swaggertype:"integer" example:"400"`
+}
+
+func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance string, statusCode int, errors ...map[string]string) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/problem+json")
+        w.Header().Set("Content-Language", "en")
+        w.WriteHeader(statusCode)
+
+        var error1 map[string]string
+        if len(errors) &gt; 0 </span><span class="cov0" title="0">{
+                error1 = errors[0]
+        }</span> else<span class="cov0" title="0"> {
+                error1 = nil
+        }</span>
+
+        <span class="cov0" title="0">if err := json.NewEncoder(w).Encode(&amp;ProblemDetails{
+                Type:             type1,
+                ValidationErrors: error1,
+                Title:            title,
+                Description:      description,
+                Instance:         instance,
+                Status:           statusCode,
+        }); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+        }</span>
+}
+func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) <span class="cov0" title="0">{
+        var applicationError *custom_errors.CustomError
+        if !errors.As(appErr, &amp;applicationError) </span><span class="cov0" title="0">{
+                WriteJsonFailure(w,
+                        "CustomError.CastingError",
+                        "Error is not applicationError",
+                        "Unexpected issue. Please try again.",
+                        instance,
+                        http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov0" title="0">WriteJsonFailure(w,
+                applicationError.Code,
+                applicationError.Title,
+                applicationError.Error(),
+                instance,
+                int(applicationError.ErrorType))</span>
+}
+func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) <span class="cov0" title="0">{
+        var validationErrs validator.ValidationErrors
+        if !errors.As(err, &amp;validationErrs) </span><span class="cov0" title="0">{
+                WriteJsonFailure(w,
+                        "ValidationErrors.CastingError",
+                        "Error is not ValidationErrors",
+                        "Unexpected issue. Please try again.",
+                        instance,
+                        http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov0" title="0">WriteJsonFailure(w,
+                code,
+                "Validation error occurred.",
+                "One or more fields are not correctly filled.",
+                instance,
+                http.StatusBadRequest,
+                validation.MapValidationErrors(validationErrs))</span>
+}
+func WriteJsonNoContent(w http.ResponseWriter) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusNoContent)
+}</span>
+func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(statusCode)
+
+        if len(data) == 0 </span><span class="cov0" title="0">{
+                if err := json.NewEncoder(w).Encode(&amp;Success{
+                        Data: nil,
+                }); err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+                }</span>
+                <span class="cov0" title="0">return</span>
+        }
+        <span class="cov0" title="0">if err := json.NewEncoder(w).Encode(&amp;Success{
+                Data: data[0],
+        }); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file56" style="display: none">package presentation
+
+import (
+        "fmt"
+        "log"
+        "net/http"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/go-chi/chi/v5/middleware"
+        httpSwagger "github.com/swaggo/http-swagger"
+        "xsedox.com/main/config"
+        "xsedox.com/main/initialization"
+        customMiddleware "xsedox.com/main/presentation/custom_middleware"
+)
+
+type Server struct {
+        router *chi.Mux
+}
+
+func NewServer(dependencies *initialization.ServerDependencies) *Server <span class="cov0" title="0">{
+        router := chi.NewRouter()
+        customCors := customMiddleware.NewCustomCors(dependencies.Configuration())
+        jwtAuthMiddleware := customMiddleware.NewCookieJwtAuthentication(dependencies.Configuration(), dependencies.JwtProvider())
+        securityHeadersMiddleware := customMiddleware.NewSecurityHeaders(dependencies.Configuration())
+
+        router.Use(securityHeadersMiddleware.Next,
+                customCors.CorsHandler(),
+                middleware.Logger,
+                middleware.Recoverer)
+
+        swaggerDocUrl := fmt.Sprintf("%v:%v/api/swagger/doc.json",
+                (dependencies.Configuration()).Server().Host,
+                (dependencies.Configuration()).Server().Port)
+        router.Get("/api/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerDocUrl)))
+
+        apiV1 := chi.NewRouter()
+
+        // Public routes
+        apiV1.Get("/auth/google/signin-oidc", dependencies.OidcController().HandleLoginWithGoogle)
+        apiV1.Get("/auth/google/callback", dependencies.OidcController().HandleGoogleCallback)
+        apiV1.Post("/auth/refresh-token", dependencies.AuthenticationController().RefreshToken)
+
+        // Secured routes
+        apiV1.Group(func(r chi.Router) </span><span class="cov0" title="0">{
+                r.Use(jwtAuthMiddleware.Next)
+
+                r.Post("/auth/logout", dependencies.AuthenticationController().Logout)
+
+                r.Route("/room", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Post("/", dependencies.RoomController().CreateRoom)
+                        r.Get("/", dependencies.RoomController().GetRoom)
+                        r.Delete("/", dependencies.RoomController().LeaveRoom)
+                        r.Get("/membership", dependencies.RoomController().CheckUserRoomMembership)
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/user", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Get("/", dependencies.UserController().GetUserData)
+                }</span>)
+        })
+
+        <span class="cov0" title="0">router.Mount("/api/v1", apiV1)
+
+        return &amp;Server{
+                router: router,
+        }</span>
+}
+func (s *Server) Start(configuration config.IConfiguration) <span class="cov0" title="0">{
+        log.Printf("Starting API server on :%v", configuration.Server().Port)
+        //err := http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.Server().Port), "./certificates/server.crt", "./certificates/server.key", s.router)
+        err := http.ListenAndServe(fmt.Sprintf(":%v", configuration.Server().Port), s.router)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to start server: %v", err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file57" style="display: none">package tests
+
+import (
+        "context"
+        "time"
+
+        "github.com/google/uuid"
+        "xsedox.com/main/domain/user"
+)
+
+func AddUserIdToContext(ctx context.Context) (user.Id, context.Context) <span class="cov0" title="0">{
+        userId := user.Id(uuid.New())
+        ctx = context.WithValue(ctx, user.IdClaimContextKeyName, &amp;userId)
+        return userId, ctx
+}</span>
+
+type FakeValueProviders struct {
+        Sentence string `faker:"sentence"`
+        Word     string `faker:"word"`
+        Name     string `faker:"name"`
+        Url      string `faker:"url"`
+        UUID     string `faker:"uuid"`
+}
+
+func PtrString(s string) *string     <span class="cov0" title="0">{ return &amp;s }</span>
+func PtrTime(t time.Time) *time.Time <span class="cov0" title="0">{ return &amp;t }</span>
+</pre>
+		
+		<pre class="file" id="file58" style="display: none">package persistance
+
+import "github.com/stretchr/testify/mock"
+
+type MockEncrypter struct {
+        mock.Mock
+}
+
+func (m *MockEncrypter) Encrypt(plaintext string) (ciphertext []byte, err error) <span class="cov0" title="0">{
+        args := m.Called(plaintext)
+        return args.Get(0).([]byte), args.Error(1)
+}</span>
+
+func (m *MockEncrypter) Decrypt(ciphertext []byte) (plaintext string, err error) <span class="cov0" title="0">{
+        args := m.Called(ciphertext)
+        return args.Get(0).(string), args.Error(1)
+}</span>
+
+func (m *MockEncrypter) HashAndSalt(plaintext string) (hash []byte, err error) <span class="cov0" title="0">{
+        args := m.Called(plaintext)
+        return args.Get(0).([]byte), args.Error(1)
+}</span>
+
+func (m *MockEncrypter) Verify(plaintext string, hash []byte) (ok bool) <span class="cov0" title="0">{
+        args := m.Called(plaintext, hash)
+        return args.Bool(0)
+}</span>
+
+func (m *MockEncrypter) Hash(plaintext string) []byte <span class="cov0" title="0">{
+        args := m.Called(plaintext)
+        return args.Get(0).([]byte)
+}</span>
+
+func (m *MockEncrypter) NewEncryptionKey() []byte <span class="cov0" title="0">{
+        args := m.Called()
+        return args.Get(0).([]byte)
+}</span>
+</pre>
+		
+		<pre class="file" id="file59" style="display: none">package persistance
+
+import (
+        "context"
+
+        "github.com/stretchr/testify/mock"
+        "xsedox.com/main/application/contracts"
+        "xsedox.com/main/application/room/get_room_query/daos"
+        "xsedox.com/main/domain/room"
+        "xsedox.com/main/domain/user"
+)
+
+type MockRoomRepository struct {
+        mock.Mock
+}
+
+func (m *MockRoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error <span class="cov0" title="0">{
+        args := m.Called(ctx, roomParam, queryer)
+        return args.Error(0)
+}</span>
+
+func (m *MockRoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos.GetRoomDao, error) <span class="cov0" title="0">{
+        args := m.Called(ctx, userId, queryer)
+        if args.Get(0) == nil </span><span class="cov0" title="0">{
+                return nil, args.Error(1)
+        }</span>
+        <span class="cov0" title="0">return args.Get(0).(*daos.GetRoomDao), args.Error(1)</span>
+}
+
+func (m *MockRoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool <span class="cov0" title="0">{
+        args := m.Called(ctx, userId, queryer)
+        return args.Bool(0)
+}</span>
+</pre>
+		
+		<pre class="file" id="file60" style="display: none">package persistance
+
+import (
+        "context"
+
+        "github.com/stretchr/testify/mock"
+        "xsedox.com/main/application/contracts"
+)
+
+type MockUnitOfWork struct {
+        mock.Mock
+}
+
+func (m *MockUnitOfWork) ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error <span class="cov0" title="0">{
+        return fn(ctx)
+}</span>
+
+func (m *MockUnitOfWork) ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error <span class="cov0" title="0">{
+        return fn(ctx)
+}</span>
+
+func (m *MockUnitOfWork) GetQueryer() contracts.IQueryer <span class="cov0" title="0">{
+        args := m.Called()
+        if args.Get(0) == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">return args.Get(0).(contracts.IQueryer)</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
