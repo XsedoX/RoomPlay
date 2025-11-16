@@ -17,7 +17,7 @@ const primaryColor = theme.current.value.colors.primary;
       <v-col cols="auto">
         <div class="custom-avatar-card">
           <span class="text-body-1 text-nowrap text-black">{{ props.fullName }}</span>
-          <v-avatar color="primary" class="custom-avatar pa-1">{{
+          <v-avatar data-testid="avatar-with-full-name-initials" color="primary" class="custom-avatar pa-1">{{
             props.avatarAbbreviation
           }}</v-avatar>
         </div>

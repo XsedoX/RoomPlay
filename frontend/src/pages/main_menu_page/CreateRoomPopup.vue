@@ -58,14 +58,14 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <v-dialog activator="parent" max-width="290" v-model="dialog" persistent>
+  <v-dialog data-testid="create-room-popup" activator="parent" max-width="290" v-model="dialog" persistent>
     <template v-slot:default>
       <v-card rounded="xl" class="pa-4">
         <v-container class="pa-0">
           <v-row justify="center" align="center" no-gutters>
             <v-col cols="2"></v-col>
             <v-col cols="8" class="text-center">
-              <span class="text-h5 text-no-wrap">Create a Room</span>
+              <span data-testid="create-room-popup-title" class="text-h5 text-no-wrap">Create a Room</span>
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
               <v-btn icon="close" variant="text" size="small" @click="dialog = false"></v-btn>

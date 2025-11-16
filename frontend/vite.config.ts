@@ -10,6 +10,15 @@ import csp from "vite-plugin-csp-guard";
 export default defineConfig(({mode})=>{
   const env = loadEnv(mode, process.cwd(), '');
   return {
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      server: {
+        deps: {
+          inline: ['vuetify'],
+        },
+      },
+    },
     plugins: [vue(),
       vueJsx(),
       vueDevTools(),
@@ -23,7 +32,7 @@ export default defineConfig(({mode})=>{
           "script-src": ["'self'"],
           "style-src": ["'self'", "https://fonts.googleapis.com"],
           "style-src-elem": ["'self'","'unsafe-inline'", "https://fonts.googleapis.com"],
-          "img-src": ["'self'"],
+          "img-src": ["'self', data:"],
           "font-src": ["'self'", "https://fonts.gstatic.com"],
           "connect-src": ["'self'","http://localhost:7654"],
           "base-uri": ["'self'"],

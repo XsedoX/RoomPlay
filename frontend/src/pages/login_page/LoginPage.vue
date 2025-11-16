@@ -3,12 +3,17 @@ import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
 import { AuthenticationService } from '@/infrastructure/authentication/authentication_service.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import { useRouter } from 'vue-router';
+import { shallowRef } from 'vue';
 const userStore = useUserStore();
 const router = useRouter();
 
+const isLoading = shallowRef(false)
+
 async function login() {
   if (!userStore.user) {
+    isLoading.value = true;
     const redirectUri = await AuthenticationService.loginWithGoogle();
+    isLoading.value = false;
     if (redirectUri) {
       globalThis.location.assign(redirectUri);
     }
@@ -32,6 +37,7 @@ async function login() {
             <v-btn
               prepend-icon="$googleIcon"
               class="text-body-1"
+              :loading="isLoading"
               rounded="xl"
               @click="login"
               min-width="220"
