@@ -14,13 +14,5 @@ func AddUserIdToContext(ctx context.Context) (user.Id, context.Context) {
 	return userId, ctx
 }
 
-type FakeValueProviders struct {
-	Sentence string `faker:"sentence"`
-	Word     string `faker:"word"`
-	Name     string `faker:"name"`
-	Url      string `faker:"url"`
-	UUID     string `faker:"uuid"`
-}
-
 func PtrString(s string) *string     { return &s }
 func PtrTime(t time.Time) *time.Time { return &t }

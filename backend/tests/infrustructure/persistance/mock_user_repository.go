@@ -29,11 +29,17 @@ func (m *MockUserRepository) Update(ctx context.Context, user *user.User, querye
 
 func (m *MockUserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) (*user.User, error) {
 	args := m.Called(ctx, externalId, queryer)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*user.User), args.Error(1)
 }
 
 func (m *MockUserRepository) GetUserById(ctx context.Context, id user.Id, queryer contracts.IQueryer) (*user.User, error) {
 	args := m.Called(ctx, id, queryer)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*user.User), args.Error(1)
 }
 

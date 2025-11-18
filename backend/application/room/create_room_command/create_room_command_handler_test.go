@@ -28,7 +28,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		encryptionKey := "some-random-key"
 		mockUoW.On("GetQueryer").Return(nil)
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
-		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mockUoW.GetQueryer()).Return(nil)
+		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(nil)
 
 		// Act
 		err := handler.Handle(ctx, command)
@@ -37,6 +37,8 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		assert.NoError(t, err)
 		mockRoomRepo.AssertExpectations(t)
 		mockEncrypter.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})
 
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
@@ -58,6 +60,8 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 0)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
 
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
@@ -71,13 +75,12 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
 		}
-
 		repoErr := errors.New("database error")
 		errorCode := "CreateRoomCommandHandler.CreateRoom"
 		encryptionKey := "some-random-key"
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
 		mockUoW.On("GetQueryer").Return(nil)
-		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mockUoW.GetQueryer()).Return(repoErr)
+		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(repoErr)
 
 		// Act
 		err := handler.Handle(ctx, command)
@@ -90,5 +93,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		assert.ErrorIs(t, customErr.Err, repoErr)
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})
 }

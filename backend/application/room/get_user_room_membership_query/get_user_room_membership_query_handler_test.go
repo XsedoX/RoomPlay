@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/tests"
@@ -19,7 +20,7 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		mockUoW.On("GetQueryer").Return(nil)
 		userId, ctx := tests.AddUserIdToContext(context.Background())
 		mockRoomRepo.
-			On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).
+			On("GetRoomByUserId", ctx, userId, mock.Anything).
 			Return(nil, nil)
 		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepo, mockUoW)
 
@@ -28,6 +29,8 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		assert.NoError(t, err)
 		mockUoW.AssertExpectations(t)
 		mockRoomRepo.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 		assert.Equal(t, true, *resp)
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
@@ -45,6 +48,8 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		assert.Nil(t, resp)
 		mockUoW.AssertExpectations(t)
 		mockRoomRepo.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
+		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
@@ -55,7 +60,7 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepository, mockUoW)
 		repoErr := errors.New("database error")
 		errorCode := "GetUserRoomMembershipQueryHandler.GetRoomByUserId"
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).Return(nil, repoErr)
+		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(nil, repoErr)
 
 		resp, err := handler.Handle(ctx)
 
@@ -66,6 +71,8 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		assert.Equal(t, errorCode, customErr.Code)
 		mockUoW.AssertExpectations(t)
 		mockRoomRepository.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 		assert.ErrorIs(t, customErr.Err, repoErr)
 	})
 }

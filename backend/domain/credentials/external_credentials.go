@@ -18,7 +18,12 @@ type External struct {
 	issuedAtUtc              time.Time
 }
 
-func NewExternalCredentials(userId user.Id, accessToken, refreshToken, scopes string, accessTokenExpiration, refreshTokenExpiration time.Time) *External {
+func NewExternalCredentials(userId user.Id,
+	accessToken,
+	refreshToken,
+	scopes string,
+	accessTokenExpiration,
+	refreshTokenExpiration time.Time) *External {
 	creds := &External{
 		accessToken:              accessToken,
 		refreshToken:             refreshToken,

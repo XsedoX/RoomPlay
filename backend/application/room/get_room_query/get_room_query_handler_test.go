@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/application/room/get_room_query/daos"
@@ -26,16 +26,14 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW := new(persistance2.MockUnitOfWork)
 		userId, ctx := tests.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
-		var f tests.FakeValueProviders
-		_ = faker.FakeData(&f)
 		userRole := user.Host
 		now := time.Now().UTC().Truncate(time.Second)
 		length := uint8(120)
 		roomToBeReturned := &daos.GetRoomDao{
-			Name:                     f.Sentence,
-			QrCode:                   []byte(f.UUID),
-			PlayingSongTitle:         tests.PtrString(f.Sentence),
-			PlayingSongAuthor:        tests.PtrString(f.Name),
+			Name:                     faker.Name(),
+			QrCode:                   []byte(faker.UUIDHyphenated()),
+			PlayingSongTitle:         tests.PtrString(faker.Word()),
+			PlayingSongAuthor:        tests.PtrString(faker.Name()),
 			PlayingSongStartedAtUtc:  tests.PtrTime(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
@@ -44,7 +42,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			SongDaos:                 []daos.GetRoomSongDao{},
 		}
 		mockRoomRepository.
-			On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).
+			On("GetRoomByUserId", ctx, userId, mock.Anything).
 			Return(roomToBeReturned, nil)
 
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
@@ -55,6 +53,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.NotNil(t, resp)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
 		expectedQr := base64.RawURLEncoding.EncodeToString(roomToBeReturned.QrCode)
 		assert.Equal(t, expectedQr, resp.QrCode)
@@ -80,16 +80,6 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		userId, ctx := tests.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Member
-		var f1 tests.FakeValueProviders
-		err := faker.FakeData(&f1)
-		if err != nil {
-			fmt.Println(err)
-		}
-		var f2 tests.FakeValueProviders
-		err = faker.FakeData(&f2)
-		if err != nil {
-			fmt.Println(err)
-		}
 		now := time.Now().UTC().Truncate(time.Second)
 		boostUsed := now.Add(-5 * time.Minute)
 		boostCooldown := uint8(30)
@@ -97,10 +87,10 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		song1ID := uuid.New()
 		song2ID := uuid.New()
 		roomToBeReturned := &daos.GetRoomDao{
-			Name:                     f1.Sentence,
-			QrCode:                   []byte(f1.UUID),
-			PlayingSongTitle:         tests.PtrString(f2.Sentence),
-			PlayingSongAuthor:        tests.PtrString(f2.Name),
+			Name:                     faker.Name(),
+			QrCode:                   []byte(faker.UUIDHyphenated()),
+			PlayingSongTitle:         tests.PtrString(faker.Word()),
+			PlayingSongAuthor:        tests.PtrString(faker.Name()),
 			PlayingSongStartedAtUtc:  tests.PtrTime(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
@@ -109,28 +99,28 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			SongDaos: []daos.GetRoomSongDao{
 				{
 					Id:            song1ID,
-					Title:         f1.Word,
-					Author:        f1.Name,
-					AddedBy:       f1.Word,
+					Title:         faker.Word(),
+					Author:        faker.Name(),
+					AddedBy:       faker.LastName(),
 					State:         room.Playing,
 					Votes:         uint8(3),
-					AlbumCoverUrl: f1.Url,
+					AlbumCoverUrl: faker.URL(),
 					VoteStatus:    room.Upvoted,
 				},
 				{
 					Id:            song2ID,
-					Title:         f2.Word,
-					Author:        f2.Name,
-					AddedBy:       f2.Word,
+					Title:         faker.Word(),
+					Author:        faker.Name(),
+					AddedBy:       faker.LastName(),
 					State:         room.Enqueued,
 					Votes:         uint8(1),
-					AlbumCoverUrl: f2.Url,
+					AlbumCoverUrl: faker.URL(),
 					VoteStatus:    room.NotVoted,
 				},
 			},
 		}
 		mockRoomRepository.
-			On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).
+			On("GetRoomByUserId", ctx, userId, mock.Anything).
 			Return(roomToBeReturned, nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 
@@ -140,6 +130,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.NotNil(t, resp)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
 		expectedQr := base64.RawURLEncoding.EncodeToString(roomToBeReturned.QrCode)
 		assert.Equal(t, expectedQr, resp.QrCode)
@@ -198,7 +190,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			BoostCooldownSeconds:     nil,
 			SongDaos:                 []daos.GetRoomSongDao{},
 		}
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).Return(roomToBeReturned, nil)
+		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(roomToBeReturned, nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 
 		roomResponse, err := handler.Handle(ctx)
@@ -206,6 +198,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.NoError(t, err)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 		assert.Equal(t, roomToBeReturned.Name, roomResponse.Name)
 		assert.Equal(t, "VGVzdCBRckNvZGU", roomResponse.QrCode)
 		assert.Nil(t, roomResponse.BoostData)
@@ -228,6 +222,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Nil(t, resp)
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
+		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
@@ -238,7 +234,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 		repoErr := errors.New("database error")
 		errorCode := "GetRoomQueryHandler.GetRoomByUserId"
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mockUoW.GetQueryer()).Return(nil, repoErr)
+		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(nil, repoErr)
 
 		resp, err := handler.Handle(ctx)
 
@@ -250,5 +246,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.ErrorIs(t, customErr.Err, repoErr)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 	})
 }
