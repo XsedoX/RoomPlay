@@ -53,7 +53,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://roomplay-api-361061961111.us-central1.run.app/api/:path*"
+      "destination": "https://roomplay-api-361061961111.europe-central2.run.app/api/:path*"
     },
     {
       "source": "/:path*",

@@ -75,6 +75,9 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &response, err
 }
