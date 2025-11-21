@@ -69,7 +69,7 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 		if tokenErr != nil {
 			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GenerateToken",
 				"Couldn't generate a new access token for a user.",
-				newTokenErr,
+				tokenErr,
 				custom_errors.Unexpected)
 		}
 

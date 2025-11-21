@@ -62,7 +62,6 @@ func TestGetUserQueryHandler(t *testing.T) {
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockUoW.AssertExpectations(t)
-
 		assert.Equal(t, resp.Name, userToBeReturned.FullName().Name())
 		assert.Equal(t, resp.Surname, userToBeReturned.FullName().Surname())
 	})
