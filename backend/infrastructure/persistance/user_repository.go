@@ -123,26 +123,27 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 		}
 	}
 
-	values := make([]string, 0, len(user.Devices()))
-	var params []interface{}
-	for i, deviceToUpdate := range user.Devices() {
-		base := i * 7
-		tuple := fmt.Sprintf("($%d::uuid, $%d, $%d, $%d::device_type, $%d::uuid, $%d::device_state, $%d)",
-			base+1, base+2, base+3, base+4, base+5, base+6, base+7,
-		)
-		values = append(values, tuple)
-		deviceId := deviceToUpdate.Id()
-		params = append(params,
-			deviceId.ToUuid(),
-			deviceToUpdate.FriendlyName(),
-			deviceToUpdate.IsHost(),
-			deviceToUpdate.DeviceType().String(),
-			userId.ToUuid(),
-			deviceToUpdate.State().String(),
-			deviceToUpdate.LastLoggedInUtc(),
-		)
-	}
-	query := `
+	if len(user.Devices()) > 0 {
+		values := make([]string, 0, len(user.Devices()))
+		var params []any
+		for i, deviceToUpdate := range user.Devices() {
+			base := i * 7
+			tuple := fmt.Sprintf("($%d::uuid, $%d, $%d, $%d::device_type, $%d::uuid, $%d::device_state, $%d)",
+				base+1, base+2, base+3, base+4, base+5, base+6, base+7,
+			)
+			values = append(values, tuple)
+			deviceId := deviceToUpdate.Id()
+			params = append(params,
+				deviceId.ToUuid(),
+				deviceToUpdate.FriendlyName(),
+				deviceToUpdate.IsHost(),
+				deviceToUpdate.DeviceType().String(),
+				userId.ToUuid(),
+				deviceToUpdate.State().String(),
+				deviceToUpdate.LastLoggedInUtc(),
+			)
+		}
+		query := `
 		INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc)
 		VALUES ` + strings.Join(values, ",") + ` 
 		ON CONFLICT (id, user_id) DO UPDATE
@@ -153,13 +154,19 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 			state = EXCLUDED.state,
 			last_logged_in_at_utc = EXCLUDED.last_logged_in_at_utc;`
 
-	_, err = queryer.ExecContext(ctx, query, params...)
-	if err != nil {
+		_, err = queryer.ExecContext(ctx, query, params...)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(user.Devices()) == 0 {
+		_, err = queryer.ExecContext(ctx, `DELETE FROM devices WHERE user_id=$1`, userId.ToUuid())
 		return err
 	}
 
-	values = make([]string, 0, len(user.Devices()))
-	params1 := make([]interface{}, 0, len(user.Devices())+1)
+	values := make([]string, 0, len(user.Devices()))
+	params1 := make([]any, 0, len(user.Devices())+1)
 	params1 = append(params1, userId.ToUuid())
 	for i, deviceToUpdate := range user.Devices() {
 		values = append(values, fmt.Sprintf("$%d", i+2))

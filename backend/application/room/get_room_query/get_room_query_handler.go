@@ -68,8 +68,8 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 				Votes:         songDb.Votes,
 				AlbumCoverUrl: songDb.AlbumCoverUrl,
 				Id:            songDb.Id,
-				State:         songDb.State.String(),
-				VoteStatus:    songDb.VoteStatus.String(),
+				State:         songDb.State,
+				VoteStatus:    songDb.VoteStatus,
 			})
 		}
 		return nil

@@ -96,5 +96,8 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *Log
 		}
 		return nil
 	})
-	return &response, err
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }

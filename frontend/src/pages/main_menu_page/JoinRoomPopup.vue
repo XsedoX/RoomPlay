@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
+import { PlatformDiscoverer } from '@/infrastructure/utils/platform_discoverer.ts';
+import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
 
 const dialog = shallowRef(false);
 const isPasswordVisible = shallowRef(false);
@@ -18,7 +20,7 @@ const isPasswordVisible = shallowRef(false);
         <v-container class="pa-0">
           <v-row justify="center" align="center" no-gutters>
             <v-col cols="2"></v-col>
-            <v-col cols="8" class="text-center">
+            <v-col cols="8" data-testid="join-room-dialog-title" class="text-center">
               <span class="text-h5">Join a Room</span>
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
@@ -35,6 +37,7 @@ const isPasswordVisible = shallowRef(false);
               <v-col>
                 <v-text-field
                   label="Room Name"
+                  data-testid="join-room-popup-name-input"
                   required
                   clearable
                   clear-icon="close"
@@ -45,6 +48,7 @@ const isPasswordVisible = shallowRef(false);
               <v-col>
                 <v-text-field
                   label="Password"
+                  data-testid="join-room-popup-password-input"
                   required
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'visibility' : 'visibility_off'"
@@ -52,23 +56,31 @@ const isPasswordVisible = shallowRef(false);
                 ></v-text-field>
               </v-col>
             </v-row>
-            <v-row justify="center" no-gutters class="pb-2">
-              <v-col>
-                <v-divider>
-                  <span class="text-body-1">or</span>
-                </v-divider>
-              </v-col>
-            </v-row>
-            <v-row justify="center" no-gutters>
-              <v-col>
-                <v-btn variant="plain" color="primary" block :ripple="false" prepend-icon="qr_code">
-                  Scan a QR Code
-                </v-btn>
-              </v-col>
-            </v-row>
+            <div v-if="PlatformDiscoverer.getDeviceType() === THostDevice.Mobile">
+              <v-row justify="center" no-gutters class="pb-2">
+                <v-col>
+                  <v-divider>
+                    <span class="text-body-1">or</span>
+                  </v-divider>
+                </v-col>
+              </v-row>
+              <v-row justify="center" no-gutters>
+                <v-col>
+                  <v-btn
+                    variant="plain"
+                    color="primary"
+                    block
+                    :ripple="false"
+                    prepend-icon="qr_code"
+                  >
+                    Scan a QR Code
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </div>
             <v-row justify="center">
               <v-col>
-                <v-btn color="primary" block rounded="xl"> Join </v-btn>
+                <v-btn type="submit" color="primary" block rounded="xl"> Join </v-btn>
               </v-col>
             </v-row>
           </v-form>

@@ -58,14 +58,22 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <v-dialog activator="parent" max-width="290" v-model="dialog" persistent>
+  <v-dialog
+    data-testid="create-room-popup"
+    activator="parent"
+    max-width="290"
+    v-model="dialog"
+    persistent
+  >
     <template v-slot:default>
       <v-card rounded="xl" class="pa-4">
         <v-container class="pa-0">
           <v-row justify="center" align="center" no-gutters>
             <v-col cols="2"></v-col>
             <v-col cols="8" class="text-center">
-              <span class="text-h5 text-no-wrap">Create a Room</span>
+              <span data-testid="create-room-popup-title" class="text-h5 text-no-wrap"
+                >Create a Room</span
+              >
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
               <v-btn icon="close" variant="text" size="small" @click="dialog = false"></v-btn>
@@ -81,6 +89,7 @@ const onSubmit = handleSubmit(async (values) => {
               <v-col>
                 <v-text-field
                   v-model="roomName"
+                  data-testid="create-room-popup-name-input"
                   :error-messages="errors.roomName ?? []"
                   label="Room Name"
                   required
@@ -95,6 +104,7 @@ const onSubmit = handleSubmit(async (values) => {
               <v-col>
                 <v-text-field
                   v-model="roomPassword"
+                  data-testid="create-room-popup-password-input"
                   :error-messages="errors.roomPassword ?? []"
                   label="Password"
                   hint="This cannot be changed later"
@@ -110,6 +120,7 @@ const onSubmit = handleSubmit(async (values) => {
               <v-col>
                 <v-text-field
                   label="Repeat Password"
+                  data-testid="create-room-popup-repeat-password-input"
                   v-model="repeatRoomPassword"
                   :error-messages="errors.repeatRoomPassword ?? []"
                   required
@@ -121,7 +132,15 @@ const onSubmit = handleSubmit(async (values) => {
             </v-row>
             <v-row justify="center" no-gutters>
               <v-col>
-                <v-btn color="primary" type="submit" block rounded="xl"> Create </v-btn>
+                <v-btn
+                  color="primary"
+                  type="submit"
+                  data-testid="create-room-popup-btn"
+                  block
+                  rounded="xl"
+                >
+                  Create
+                </v-btn>
               </v-col>
             </v-row>
           </v-form>

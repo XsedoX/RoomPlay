@@ -1,4 +1,4 @@
-package persistance
+package persistance_mocks
 
 import (
 	"context"
