@@ -14,21 +14,21 @@ import (
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/tests"
-	"xsedox.com/main/tests/infrustructure/authentication"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/authentication_mocks"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestLoginUserCommandHandler(t *testing.T) {
 	t.Run("ShouldReturnErrorWhenExternalIdMethodFails", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,
 			mockEncrypter,
@@ -57,13 +57,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 	})
 	t.Run("ShouldReturnErrorWhenUserUpdateFails", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,
 			mockEncrypter,
@@ -135,14 +135,14 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 2)
 	})
 	t.Run("ShouldLoginWithNewDeviceWhenDeviceIdIsNil", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, _ := tests.AddUserIdToContext(context.Background())
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, _ := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,
 			mockEncrypter,
@@ -216,13 +216,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 4)
 	})
 	t.Run("ShouldReloginWithKnownDevice", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,
 			mockEncrypter,
@@ -301,13 +301,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 4)
 	})
 	t.Run("ShouldCallGrantWithCorrectValues", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		userId := user.Id(uuid.New())
 		deviceId := user.DeviceId(uuid.New())
 		loginUserCommand := &LoginUserCommand{
@@ -388,13 +388,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.AssertExpectations(t)
 	})
 	t.Run("ShouldReturnErrorWhenAssignNewTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		userId := user.Id(uuid.New())
 		deviceId := user.DeviceId(uuid.New())
 		loginUserCommand := &LoginUserCommand{
@@ -462,13 +462,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.AssertExpectations(t)
 	})
 	t.Run("ShouldReturnErrorWhenGrantFails", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		userId := user.Id(uuid.New())
 		deviceId := user.DeviceId(uuid.New())
 		loginUserCommand := &LoginUserCommand{
@@ -540,13 +540,13 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.AssertExpectations(t)
 	})
 	t.Run("ShouldReturnErrorWhenGenerateTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		mockJwtProvider := new(authentication.MockJwtProvider)
-		mockRefreshTokenRepository := new(persistance2.MockRefreshTokenRepository)
-		mockExternalCredentialsRepository := new(persistance2.MockExternalCredentialsRepository)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
 		userId := user.Id(uuid.New())
 		deviceId := user.DeviceId(uuid.New())
 		loginUserCommand := &LoginUserCommand{

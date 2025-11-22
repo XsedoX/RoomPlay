@@ -1,4 +1,4 @@
-package authentication
+package authentication_mocks
 
 import (
 	"github.com/stretchr/testify/mock"

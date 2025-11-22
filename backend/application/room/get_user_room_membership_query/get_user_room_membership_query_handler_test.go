@@ -9,16 +9,16 @@ import (
 	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/tests"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnBoolSuccess", func(t *testing.T) {
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockRoomRepo.
 			On("GetRoomByUserId", ctx, userId, mock.Anything).
 			Return(nil, nil)
@@ -35,8 +35,8 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 
 		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepo, mockUoW)
 
@@ -53,9 +53,9 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
-		mockRoomRepository := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepository, mockUoW)
 		repoErr := errors.New("database error")

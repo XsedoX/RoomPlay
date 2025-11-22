@@ -1,4 +1,4 @@
-package persistance
+package persistance_mocks
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func (m *MockRefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.
 	return args.Error(0)
 }
 
-func (m *MockRefreshTokenRepository) RetireTokenByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
+func (m *MockRefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
 	args := m.Called(ctx, userId, queryer)
 	return args.Error(0)
 }

@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/tests"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestLeaveRoomCommandHandler(t *testing.T) {
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		handler := NewLeaveRoomCommandHandler(mockUserRepository, mockUoW)
 		command := &LeaveRoomCommand{}
@@ -33,8 +33,8 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		handler := NewLeaveRoomCommandHandler(mockUserRepository, mockUoW)
 		command := &LeaveRoomCommand{}
 
@@ -50,9 +50,9 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenUserRepositoryFails", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		handler := NewLeaveRoomCommandHandler(mockUserRepository, mockUoW)
 		repoErr := errors.New("database error")

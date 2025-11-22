@@ -74,7 +74,7 @@ func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Conte
 		dId)
 	return err
 }
-func (r RefreshTokenRepository) RetireTokenByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
+func (r RefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
 	id := uuid.UUID(*userId)
 	_, err := queryer.ExecContext(ctx,
 		"DELETE FROM users_refresh_token WHERE user_id = $1;",

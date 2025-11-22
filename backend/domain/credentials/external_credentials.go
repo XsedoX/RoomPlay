@@ -30,7 +30,7 @@ func NewExternalCredentials(userId user.Id,
 		scopes:                   strings.Split(scopes, " "),
 		accessTokenExpiresAtUtc:  accessTokenExpiration,
 		refreshTokenExpiresAtUtc: refreshTokenExpiration,
-		issuedAtUtc:              time.Now(),
+		issuedAtUtc:              time.Now().UTC(),
 	}
 	creds.SetId(userId)
 	return creds

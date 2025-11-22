@@ -13,16 +13,16 @@ import (
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/tests"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestGetUserQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnUserSuccess", func(t *testing.T) {
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		mockUoW.On("GetQueryer").Return(nil)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		now := time.Now().UTC().Truncate(time.Second)
 		deviceID1 := user.DeviceId(uuid.New())
 		deviceID2 := user.DeviceId(uuid.New())
@@ -67,8 +67,8 @@ func TestGetUserQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 		handler := NewGetUserQueryHandler(mockUoW, mockUserRepository)
 		// Act
 		userObj, err := handler.Handle(context.Background())
@@ -83,9 +83,9 @@ func TestGetUserQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserRepositoryFails", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance2.MockUserRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, cont := tests.AddUserIdToContext(context.Background())
+		mockUserRepository := new(persistance_mocks.MockUserRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, cont := test_helpers.AddUserIdToContext(context.Background())
 		repoErr := errors.New("database error")
 		errorCode := "NewGetUserQueryHandler.GetUserById"
 		mockUoW.On("GetQueryer").Return(nil)

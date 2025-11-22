@@ -16,15 +16,15 @@ import (
 	"xsedox.com/main/application/room/get_room_query/daos"
 	"xsedox.com/main/domain/room"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/tests"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestGetRoomQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnRoomSuccessWithPlayingSongNotNilAndBoostNil", func(t *testing.T) {
-		mockRoomRepository := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Host
 		now := time.Now().UTC().Truncate(time.Second)
@@ -32,9 +32,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		roomToBeReturned := &daos.GetRoomDao{
 			Name:                     faker.Name(),
 			QrCode:                   []byte(faker.UUIDHyphenated()),
-			PlayingSongTitle:         tests.PtrString(faker.Word()),
-			PlayingSongAuthor:        tests.PtrString(faker.Name()),
-			PlayingSongStartedAtUtc:  tests.PtrTime(now),
+			PlayingSongTitle:         test_helpers.PtrString(faker.Word()),
+			PlayingSongAuthor:        test_helpers.PtrString(faker.Name()),
+			PlayingSongStartedAtUtc:  test_helpers.PtrTime(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
 			BoostUsedAtUtc:           nil,
@@ -75,9 +75,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccessWithBoostNotNil", func(t *testing.T) {
-		mockRoomRepository := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Member
 		now := time.Now().UTC().Truncate(time.Second)
@@ -89,9 +89,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		roomToBeReturned := &daos.GetRoomDao{
 			Name:                     faker.Name(),
 			QrCode:                   []byte(faker.UUIDHyphenated()),
-			PlayingSongTitle:         tests.PtrString(faker.Word()),
-			PlayingSongAuthor:        tests.PtrString(faker.Name()),
-			PlayingSongStartedAtUtc:  tests.PtrTime(now),
+			PlayingSongTitle:         test_helpers.PtrString(faker.Word()),
+			PlayingSongAuthor:        test_helpers.PtrString(faker.Name()),
+			PlayingSongStartedAtUtc:  test_helpers.PtrTime(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
 			BoostUsedAtUtc:           &boostUsed,
@@ -102,20 +102,20 @@ func TestGetRoomQueryHandler(t *testing.T) {
 					Title:         faker.Word(),
 					Author:        faker.Name(),
 					AddedBy:       faker.LastName(),
-					State:         room.Playing,
+					State:         room.Playing.String(),
 					Votes:         uint8(3),
 					AlbumCoverUrl: faker.URL(),
-					VoteStatus:    room.Upvoted,
+					VoteStatus:    room.Upvoted.String(),
 				},
 				{
 					Id:            song2ID,
 					Title:         faker.Word(),
 					Author:        faker.Name(),
 					AddedBy:       faker.LastName(),
-					State:         room.Enqueued,
+					State:         room.Enqueued.String(),
 					Votes:         uint8(1),
 					AlbumCoverUrl: faker.URL(),
-					VoteStatus:    room.NotVoted,
+					VoteStatus:    room.NotVoted.String(),
 				},
 			},
 		}
@@ -173,9 +173,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 	})
 	t.Run("ShouldReturnRoomSuccess", func(t *testing.T) {
-		mockRoomRepository := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Host
 		roomToBeReturned := &daos.GetRoomDao{
@@ -209,8 +209,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
 
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepo)
 
@@ -227,9 +227,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
-		mockRoomRepository := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		userId, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		mockUoW.On("GetQueryer").Return(nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 		repoErr := errors.New("database error")

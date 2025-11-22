@@ -9,17 +9,17 @@ import (
 	"github.com/stretchr/testify/mock"
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/tests"
-	persistance2 "xsedox.com/main/tests/infrustructure/persistance"
+	"xsedox.com/main/test_helpers"
+	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
 )
 
 func TestCreateRoomCommandHandler(t *testing.T) {
 	t.Run("ShouldCreateRoomSuccessfullyWhenCommandIsValid", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		mockEncrypter := new(persistance2.MockEncrypter)
-		_, ctx := tests.AddUserIdToContext(context.Background())
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		_, ctx := test_helpers.AddUserIdToContext(context.Background())
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
@@ -43,9 +43,9 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		mockEncrypter := new(persistance2.MockEncrypter)
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
@@ -66,11 +66,11 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance2.MockRoomRepository)
-		mockUoW := new(persistance2.MockUnitOfWork)
-		mockEncrypter := new(persistance2.MockEncrypter)
+		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockEncrypter := new(persistance_mocks.MockEncrypter)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
-		_, ctx := tests.AddUserIdToContext(context.Background())
+		_, ctx := test_helpers.AddUserIdToContext(context.Background())
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
