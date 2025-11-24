@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { testLogoWithTitleText } from '@/__tests__/shared/SharedTests.ts';
+import { testLogoWithTitleText } from '@/__tests__/shared/shared_tests.ts';
 import LoginPage from '@/pages/login_page/LoginPage.vue';
 import { mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
 

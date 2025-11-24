@@ -28,7 +28,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Host
 		now := time.Now().UTC().Truncate(time.Second)
-		length := uint8(120)
+		length := uint16(120)
 		roomToBeReturned := &daos.GetRoomDao{
 			Name:                     faker.Name(),
 			QrCode:                   []byte(faker.UUIDHyphenated()),
@@ -82,8 +82,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		userRole := user.Member
 		now := time.Now().UTC().Truncate(time.Second)
 		boostUsed := now.Add(-5 * time.Minute)
-		boostCooldown := uint8(30)
-		length := uint8(200)
+		boostCooldown := uint16(30)
+		length := uint16(200)
 		song1ID := uuid.New()
 		song2ID := uuid.New()
 		roomToBeReturned := &daos.GetRoomDao{

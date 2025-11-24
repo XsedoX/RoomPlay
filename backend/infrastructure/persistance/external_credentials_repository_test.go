@@ -14,24 +14,24 @@ import (
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	infrastructure_test "xsedox.com/main/test_helpers/infrustructure_test"
+	infrastructuretest "xsedox.com/main/test_helpers/infrustructure_test"
 	"xsedox.com/main/test_helpers/infrustructure_test/authentication_mocks"
 )
 
 var (
-	pgContainer *infrastructure_test.PostgresContainer
+	pgContainer *infrastructuretest.PostgresContainer
 )
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 
 	var err error
-	pgContainer, err = infrastructure_test.SetupPostgres(ctx)
+	pgContainer, err = infrastructuretest.SetupPostgres(ctx)
 	if err != nil {
 		log.Fatalf("failed to setup postgres: %v", err)
 	}
 
-	projectRoot, err := infrastructure_test.FindProjectRoot()
+	projectRoot, err := infrastructuretest.FindProjectRoot()
 	if err != nil {
 		log.Fatalf("failed to find project root: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 
 	// Seed database once
 	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	seeder := infrastructure_test.NewSeeder(dbx)
+	seeder := infrastructuretest.NewSeeder(dbx)
 	if err := seeder.SeedAll(ctx); err != nil {
 		log.Fatalf("failed to seed database: %v", err)
 	}

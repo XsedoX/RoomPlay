@@ -13,6 +13,7 @@ const props = defineProps<IPageTitleProps>();
     <slot name="top-left-corner"></slot>
     <touchscreen-tooltip :open-on-hover="false" :text="props.title" v-slot="{ tooltipProps }">
       <div
+        data-testid="page-title"
         v-bind="tooltipProps"
         class="text-h6 w-0 text-no-wrap text-truncate text-center flex-grow-1"
       >

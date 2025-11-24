@@ -23,16 +23,10 @@ func TestUserRepository_Add(t *testing.T) {
 
 	repo := NewUserRepository()
 
-	// Prepare data
 	userID := user.Id(uuid.New())
 	deviceID := user.DeviceId(uuid.New())
 	roomID := shared.RoomId(uuid.New())
 
-	// We need a room to exist if we reference it?
-	// The schema usually enforces foreign keys. Let's insert a room first.
-	// Or we can set room_id to nil if allowed. The Add method takes room_id.
-	// Let's look at Add implementation: it inserts room_id.
-	// Let's insert a dummy room.
 	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, uuid.UUID(roomID), time.Now().UTC())
 	require.NoError(t, err)
 
@@ -67,7 +61,7 @@ func TestUserRepository_Add(t *testing.T) {
 	assert.Equal(t, "John", userDb.Name)
 	assert.Equal(t, "Doe", userDb.Surname)
 	assert.Equal(t, "ext-id-1", userDb.ExternalId)
-	assert.Equal(t, uuid.UUID(roomID), uuid.UUID(*userDb.RoomId))
+	assert.Equal(t, uuid.UUID(roomID), *userDb.RoomId)
 
 	// Assert Device
 	var deviceDb daos.DeviceDao
@@ -130,6 +124,16 @@ func TestUserRepository_Update(t *testing.T) {
 	rID := shared.RoomId(roomID)
 	role := user.Member
 	boostTime := time.Now().UTC()
+	deviceID := user.DeviceId(uuid.New())
+
+	device := user.HydrateDevice(
+		deviceID,
+		"My Device",
+		user.Mobile,
+		false,
+		user.Online,
+		time.Now().UTC(),
+	)
 
 	u := user.HydrateUser(
 		user.Id(userID),
@@ -138,7 +142,7 @@ func TestUserRepository_Update(t *testing.T) {
 		"Smith",
 		&role, // Added role
 		&rID,  // Added room
-		nil,
+		[]user.Device{*device},
 		&boostTime, // Added boost
 	)
 
@@ -151,7 +155,7 @@ func TestUserRepository_Update(t *testing.T) {
 	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", userID)
 	require.NoError(t, err)
 	assert.Equal(t, "Bobby", userDb.Name)
-	assert.Equal(t, roomID, uuid.UUID(*userDb.RoomId))
+	assert.Equal(t, roomID, *userDb.RoomId)
 
 	// Check Role
 	var roleDb string
@@ -164,6 +168,15 @@ func TestUserRepository_Update(t *testing.T) {
 	err = txx.QueryRowContext(ctx, "SELECT used_at_utc FROM boosts WHERE user_id = $1", userID).Scan(&boostDb)
 	require.NoError(t, err)
 	assert.WithinDuration(t, boostTime, boostDb, time.Second)
+
+	//check device
+	var deviceDb daos.DeviceDao
+	err = txx.GetContext(ctx, &deviceDb, "SELECT * FROM devices WHERE id = $1", deviceID)
+	require.NoError(t, err)
+	assert.Equal(t, "My Device", deviceDb.FriendlyName)
+	assert.Equal(t, userID, deviceDb.UserId)
+	assert.Equal(t, deviceDb.Type, device.DeviceType().String())
+	assert.Equal(t, deviceDb.State, user.Online.String())
 }
 
 func TestUserRepository_LeaveRoom(t *testing.T) {

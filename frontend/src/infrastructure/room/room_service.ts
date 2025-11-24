@@ -33,7 +33,6 @@ export const RoomService = {
         throw new NotFoundError(response.title);
       } else {
         notificationStore.showSnackbar(response.title, TSnackbarColor.ERROR);
-        console.error('CUSTOM', response);
         throw new Error(response.title);
       }
     }

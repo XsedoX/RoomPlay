@@ -10,7 +10,7 @@ import type { TSongState } from '@/infrastructure/room/TSongState.ts';
 import { Guid, type IGuid } from '@/shared/Guid.ts';
 import { useRouter } from 'vue-router';
 import type IPlayingSongModel from '@/infrastructure/room/IPlayingSongModel.ts';
-import type { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
+import { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
 import 'pinia-plugin-persistedstate';
 
 export const useRoomStore = defineStore(
@@ -47,15 +47,23 @@ export const useRoomStore = defineStore(
       return elapsedSeconds > room.value.boostData.boostCooldownSeconds;
     });
     function upVoteSong(songId: IGuid) {
-      const song = songs.value?.find((song) => song.id.toString() === songId.toString());
+      const song = songs.value?.find(
+        (song) =>
+          song.id.toString() === songId.toString() && song.voteStatus === TVoteStatus.notVoted,
+      );
       if (song) {
         song.votes += 1;
+        song.voteStatus = TVoteStatus.upvoted;
       }
     }
     function downVoteSong(songId: IGuid) {
-      const song = songs.value?.find((song) => song.id.toString() === songId.toString());
-      if (song && song.votes > 0) {
+      const song = songs.value?.find(
+        (song) =>
+          song.id.toString() === songId.toString() && song.voteStatus === TVoteStatus.notVoted,
+      );
+      if (song) {
         song.votes -= 1;
+        song.voteStatus = TVoteStatus.downvoted;
       }
     }
     async function getRoom() {

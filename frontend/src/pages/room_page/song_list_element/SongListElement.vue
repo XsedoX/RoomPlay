@@ -72,8 +72,8 @@ const isAdmin = true;
           size="small"
           icon="keyboard_arrow_up"
           variant="text"
-          :readonly="wasDownVoted || wasPlayed"
-          :disabled="wasUpVoted || wasPlayed"
+          :disabled="wasPlayed || wasDownVoted"
+          :readonly="wasUpVoted || wasPlayed || wasDownVoted"
           @click="(event: Event) => props.onVotedUp({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>
@@ -81,9 +81,9 @@ const isAdmin = true;
         <v-btn
           size="small"
           icon="keyboard_arrow_down"
-          :readonly="wasUpVoted || wasPlayed"
+          :disabled="wasPlayed || wasUpVoted"
           variant="text"
-          :disabled="wasDownVoted || wasPlayed"
+          :readonly="wasDownVoted || wasPlayed || wasUpVoted"
           @click="(event: Event) => props.onVotedDown({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>

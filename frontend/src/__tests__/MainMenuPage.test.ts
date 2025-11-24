@@ -1,4 +1,4 @@
-import { testLogoWithTitleText } from '@/__tests__/shared/SharedTests.ts';
+import { testLogoWithTitleText } from '@/__tests__/shared/shared_tests.ts';
 import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
 import { describe, expect, it, vi } from 'vitest';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
