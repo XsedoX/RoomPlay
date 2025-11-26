@@ -5,6 +5,7 @@ import { aliases as mdAliases, md } from 'vuetify/iconsets/md';
 import 'vuetify/styles';
 import GoogleIcon from '@/pages/login_page/GoogleIcon.vue';
 import { darkTheme, lightTheme } from '@/assets/themes.ts';
+import { TThemes } from './pages/room_page/settings_menu/TThemes';
 
 export const customIcons = {
   googleIcon: GoogleIcon,
@@ -24,10 +25,10 @@ export default createVuetify({
     },
   },
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: TThemes.LightMode,
     themes: {
-      light: lightTheme,
-      dark: darkTheme,
+      [TThemes.LightMode]: lightTheme,
+      [TThemes.DarkMode]: darkTheme,
     },
   },
 });

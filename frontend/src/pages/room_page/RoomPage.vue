@@ -85,7 +85,7 @@ async function leaveRoom() {
             </v-btn>
           </template>
           <template v-slot:top-right-corner>
-            <v-btn icon variant="text">
+            <v-btn icon variant="text" data-testid="settings-menu-btn">
               <v-avatar data-testid="user-initials" size="small" color="primary">
                 {{ userStore.usersInitials }}
               </v-avatar>
@@ -98,6 +98,7 @@ async function leaveRoom() {
     <v-row no-gutters justify="center">
       <v-col cols="11">
         <v-sheet
+          data-testid="playing-song"
           v-if="roomStore.playingSong"
           color="surface-container"
           class="elevation-1 px-4 py-1 rounded-b-xl d-flex justify-start align-center ga-1"

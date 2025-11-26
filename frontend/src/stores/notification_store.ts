@@ -11,7 +11,7 @@ export const useNotificationStore = defineStore('notification', () => {
     if (snackbarVisible.value) {
       return;
     }
-    snackbarMessage.value = message ?? "An unexpected error occurred.";
+    snackbarMessage.value = message ?? 'An unexpected error occurred.';
     snackbarColor.value = color;
     snackbarVisible.value = true;
   }

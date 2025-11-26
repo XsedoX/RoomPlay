@@ -5,13 +5,20 @@ export function stub(tag: string, opts?: Partial<ComponentOptions>, template?: s
   return {
     name: tag,
     template: `<div class="${tag}-stub">${contents}</div>`,
-    ...(opts || {}),
+    ...opts,
   };
 }
 
 export const sharedStubs = {
   vDialog: stub(
     'v-dialog',
+    {
+      props: ['modelValue'],
+    },
+    '<slot />',
+  ),
+  vMenu: stub(
+    'v-menu',
     {
       props: ['modelValue'],
     },

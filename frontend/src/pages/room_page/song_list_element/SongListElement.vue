@@ -19,7 +19,11 @@ const isAdmin = true;
 </script>
 
 <template>
-  <v-sheet class="d-flex px-4 py-2 justify-start align-center w-100" :color="backgroundColor">
+  <v-sheet
+    data-testid="song-list-element"
+    class="d-flex px-4 py-2 justify-start align-center w-100"
+    :color="backgroundColor"
+  >
     <div class="overflow-hidden">
       <v-img
         cover
