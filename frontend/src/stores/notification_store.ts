@@ -7,11 +7,11 @@ export const useNotificationStore = defineStore('notification', () => {
   const snackbarMessage = ref('');
   const snackbarColor = ref(TSnackbarColor.ERROR);
 
-  function showSnackbar(message: string, color: TSnackbarColor) {
+  function showSnackbar(message: string | null | undefined, color: TSnackbarColor) {
     if (snackbarVisible.value) {
       return;
     }
-    snackbarMessage.value = message;
+    snackbarMessage.value = message ?? 'An unexpected error occurred.';
     snackbarColor.value = color;
     snackbarVisible.value = true;
   }

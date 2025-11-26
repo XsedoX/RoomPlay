@@ -72,7 +72,8 @@ func (u *User) ReloginWithKnownDevice(deviceId DeviceId) {
 }
 func (u *User) getDeviceById(deviceId DeviceId) *Device {
 	for i := range u.devices {
-		if u.devices[i].Id() == deviceId {
+		usersDeviceId := u.devices[i].Id()
+		if usersDeviceId == deviceId {
 			return &u.devices[i]
 		}
 	}

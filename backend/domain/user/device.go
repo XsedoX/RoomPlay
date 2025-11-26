@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/domainErrors"
+	domainErrors "xsedox.com/main/domain/domain_errors"
 	"xsedox.com/main/domain/shared"
 )
 

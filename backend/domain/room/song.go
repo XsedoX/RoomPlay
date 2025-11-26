@@ -12,7 +12,7 @@ type Song struct {
 	externalId    string
 	title         string
 	author        string
-	lengthSeconds uint8
+	lengthSeconds uint16
 	addedBy       user.Id
 	addedAtUtc    time.Time
 	startedAtUtc  *time.Time
@@ -46,7 +46,7 @@ func (s Song) Author() string {
 	return s.author
 }
 
-func (s Song) LengthSeconds() uint8 {
+func (s Song) LengthSeconds() uint16 {
 	return s.lengthSeconds
 }
 
@@ -70,7 +70,7 @@ func (s Song) Votes() uint8 {
 	return s.votes
 }
 
-func NewSong(externalId string, title string, author string, lengthSeconds uint8, addedBy user.Id) *Song {
+func NewSong(externalId string, title string, author string, lengthSeconds uint16, addedBy user.Id) *Song {
 	return &Song{
 		externalId:    externalId,
 		title:         title,
@@ -90,7 +90,7 @@ func HydrateSong(
 	externalId string,
 	title string,
 	author string,
-	lengthSeconds uint8,
+	lengthSeconds uint16,
 	addedBy user.Id,
 	addedAtUtc time.Time,
 	startedAtUtc *time.Time,

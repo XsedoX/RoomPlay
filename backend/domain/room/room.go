@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/domainErrors"
+	domainErrors "xsedox.com/main/domain/domain_errors"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
 )
@@ -23,7 +23,7 @@ type Room struct {
 	name                 string
 	password             string
 	qrCode               string
-	boostCooldownSeconds *uint8
+	boostCooldownSeconds *uint16
 	createdAtUtc         time.Time
 	lifespanSeconds      uint32
 	songsList            []Song
@@ -51,7 +51,7 @@ func (r Room) QrCode() string {
 	return r.qrCode
 }
 
-func (r Room) BoostCooldownSeconds() *uint8 {
+func (r Room) BoostCooldownSeconds() *uint16 {
 	return r.boostCooldownSeconds
 }
 
@@ -114,7 +114,7 @@ func HydrateRoom(
 	name string,
 	password string,
 	qrCode string,
-	boostCooldownSeconds *uint8,
+	boostCooldownSeconds *uint16,
 	createdAtUtc time.Time,
 	lifespanSeconds uint32,
 	songsList []Song,

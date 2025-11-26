@@ -35,7 +35,7 @@ func main() {
 	configuration := config.Load()
 
 	db := persistance.InitializeDatabase(ctx, configuration)
-
+	
 	dependencies := initialization.NewServerDependencies(db, configuration)
 
 	log.Printf("Loaded config: port: %v, host: %v, environment: %v", configuration.Server().Port, configuration.Server().Host, configuration.Environment)

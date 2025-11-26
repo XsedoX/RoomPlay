@@ -1,4 +1,4 @@
-export enum MenuItemsTypes {
+export enum TMenuItems {
   Logout = 'LOGOUT',
   Settings = 'SETTINGS',
   QrCode = 'QR_CODE',

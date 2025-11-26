@@ -19,7 +19,11 @@ const isAdmin = true;
 </script>
 
 <template>
-  <v-sheet class="d-flex px-4 py-2 justify-start align-center w-100" :color="backgroundColor">
+  <v-sheet
+    data-testid="song-list-element"
+    class="d-flex px-4 py-2 justify-start align-center w-100"
+    :color="backgroundColor"
+  >
     <div class="overflow-hidden">
       <v-img
         cover
@@ -72,8 +76,8 @@ const isAdmin = true;
           size="small"
           icon="keyboard_arrow_up"
           variant="text"
-          :readonly="wasDownVoted || wasPlayed"
-          :disabled="wasUpVoted || wasPlayed"
+          :disabled="wasPlayed || wasDownVoted"
+          :readonly="wasUpVoted || wasPlayed || wasDownVoted"
           @click="(event: Event) => props.onVotedUp({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>
@@ -81,9 +85,9 @@ const isAdmin = true;
         <v-btn
           size="small"
           icon="keyboard_arrow_down"
-          :readonly="wasUpVoted || wasPlayed"
+          :disabled="wasPlayed || wasUpVoted"
           variant="text"
-          :disabled="wasDownVoted || wasPlayed"
+          :readonly="wasDownVoted || wasPlayed || wasUpVoted"
           @click="(event: Event) => props.onVotedDown({ event: event, id: props.songListDto.id })"
           color="primary"
         ></v-btn>

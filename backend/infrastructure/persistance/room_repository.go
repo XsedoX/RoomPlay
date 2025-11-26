@@ -98,15 +98,15 @@ SELECT enqueued_songs.id,
        songs.author,
        CONCAT(users_for_added_by.name, ' ', users_for_added_by.surname) AS added_by,
        enqueued_songs.state,
-       vote_status,
+       COALESCE(users_votes.vote_status, 'not_voted') AS vote_status,
        enqueued_songs.votes,
        songs.album_cover_url
 FROM enqueued_songs
-JOIN songs ON enqueued_songs.song_id = songs.id
-JOIN rooms ON enqueued_songs.room_id = rooms.id
-JOIN users ON users.room_id = rooms.id
-JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
-JOIN users_votes ON users.id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
+         JOIN songs ON enqueued_songs.song_id = songs.id
+         JOIN rooms ON enqueued_songs.room_id = rooms.id
+         JOIN users ON users.room_id = rooms.id
+         JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
+         LEFT JOIN users_votes ON users.id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
 WHERE users.id = $1;
 `, userId.ToUuid())
 	if getRoomSongsErr != nil {

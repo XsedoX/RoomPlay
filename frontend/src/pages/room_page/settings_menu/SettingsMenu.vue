@@ -1,29 +1,31 @@
 <script setup lang="ts">
 import PopupBase from '@/shared/popup_base/PopupBase.vue';
 import { computed, ref } from 'vue';
-import { useTheme } from 'vuetify';
-import { MenuItemsTypes } from '@/pages/room_page/settings_menu/MenuItemsTypes.ts';
+import { TMenuItems } from '@/pages/room_page/settings_menu/TMenuItems';
+import { TThemes } from '@/pages/room_page/settings_menu/TThemes';
 import { useRoomStore } from '@/stores/room_store.ts';
 import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { useUserStore } from '@/stores/user_store.ts';
 import { useRouter } from 'vue-router';
+import { useThemeStore } from '@/stores/theme_store.ts';
 
 const roomStore = useRoomStore();
 const userStore = useUserStore();
 const router = useRouter();
 const qrCodeData = computed(() => (roomStore.room?.qrCode ? roomStore.room.qrCode : ''));
 const qrCode = useQRCode(qrCodeData);
+const themeStore = useThemeStore();
 
-async function onMenuItemClick(id: MenuItemsTypes) {
+async function onMenuItemClick(id: TMenuItems) {
   switch (id) {
-    case MenuItemsTypes.QrCode:
+    case TMenuItems.QrCode:
       popup.value?.open();
       break;
-    case MenuItemsTypes.Logout:
+    case TMenuItems.Logout:
       await logout();
       break;
-    case MenuItemsTypes.ThemeMode:
-      theme.toggle();
+    case TMenuItems.ThemeMode:
+      themeStore.toggleTheme();
       break;
   }
 }
@@ -32,57 +34,61 @@ async function logout() {
   await router.replace({ name: 'LoginPage' });
 }
 const popup = ref<InstanceType<typeof PopupBase> | null>(null);
-const theme = useTheme();
 </script>
 
 <template>
   <v-menu activator="parent">
-    <v-list
-      density="compact"
-      @click:select="(value) => onMenuItemClick(value.id as MenuItemsTypes)"
-    >
+    <v-list density="compact" @click:select="(value) => onMenuItemClick(value.id as TMenuItems)">
       <v-list-item
-        :key="MenuItemsTypes.ThemeMode"
+        :key="TMenuItems.ThemeMode"
         slim
-        :prepend-icon="theme.global.current.value.dark ? 'light_mode' : 'dark_mode'"
-        :value="MenuItemsTypes.ThemeMode"
+        :prepend-icon="themeStore.storedTheme === TThemes.DarkMode ? 'light_mode' : 'dark_mode'"
+        :value="TMenuItems.ThemeMode"
       >
-        {{ theme.global.current.value.dark ? 'Light Mode' : 'Dark Mode' }}
+        {{ themeStore.storedTheme === TThemes.DarkMode ? 'Light Mode' : 'Dark Mode' }}
       </v-list-item>
       <v-list-item
-        :key="MenuItemsTypes.QrCode"
+        :key="TMenuItems.QrCode"
         slim
+        data-testid="qr-code-menu-item"
         prepend-icon="qr_code"
-        :value="MenuItemsTypes.QrCode"
+        :value="TMenuItems.QrCode"
       >
         QR Code
       </v-list-item>
       <v-list-item
-        :key="MenuItemsTypes.Settings"
+        :key="TMenuItems.Settings"
         v-if="roomStore.isHost"
         slim
         :to="`/room/settings`"
         prepend-icon="settings"
-        :value="MenuItemsTypes.Settings"
+        :value="TMenuItems.Settings"
       >
         Settings
       </v-list-item>
       <v-list-item
-        :key="MenuItemsTypes.Logout"
+        :key="TMenuItems.Logout"
         slim
+        data-testid="logout-menu-item"
         prepend-icon="logout"
-        :value="MenuItemsTypes.Logout"
+        :value="TMenuItems.Logout"
         base-color="red"
       >
         Logout
       </v-list-item>
     </v-list>
   </v-menu>
-  <v-theme-provider theme="light">
-    <popup-base ref="popup" popup-title="Scan the QR Code">
-      <v-img cover rounded="xl" :src="qrCode" alt="QR Code" aspect-ratio="1/1" width="240" />
-    </popup-base>
-  </v-theme-provider>
+  <popup-base ref="popup" popup-title="Scan the QR Code">
+    <v-img
+      data-testid="qr-code-img"
+      cover
+      rounded="xl"
+      :src="qrCode"
+      alt="QR Code"
+      aspect-ratio="1/1"
+      width="240"
+    />
+  </popup-base>
 </template>
 <style scoped>
 @import '@/assets/shared.css';

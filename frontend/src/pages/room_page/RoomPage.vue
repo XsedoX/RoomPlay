@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowRef } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import SongListElement from '@/pages/room_page/song_list_element/SongListElement.vue';
 import { type IGuid } from '@/shared/Guid.ts';
 import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
@@ -16,7 +16,7 @@ import { useIntervalFn } from '@vueuse/core';
 const userStore = useUserStore();
 const roomStore = useRoomStore();
 const router = useRouter();
-const playingSongMomentTimer = shallowRef<Time | null>(null);
+const playingSongMomentTimer = ref<Time | null>(null);
 const songTimerPercentage = computed(() => {
   if (!playingSongMomentTimer.value || !roomStore.playingSong) return 0;
   return Math.round(
@@ -74,11 +74,19 @@ async function leaveRoom() {
           class="px-1"
         >
           <template v-slot:top-left-corner>
-            <v-btn color="red" rounded="xl" @click="leaveRoom" variant="text"> Leave </v-btn>
+            <v-btn
+              data-testid="leave-room-btn"
+              color="red"
+              rounded="xl"
+              @click="leaveRoom"
+              variant="text"
+            >
+              Leave
+            </v-btn>
           </template>
           <template v-slot:top-right-corner>
-            <v-btn icon variant="text">
-              <v-avatar size="small" color="primary">
+            <v-btn icon variant="text" data-testid="settings-menu-btn">
+              <v-avatar data-testid="user-initials" size="small" color="primary">
                 {{ userStore.usersInitials }}
               </v-avatar>
               <SettingsMenu></SettingsMenu>
@@ -90,6 +98,7 @@ async function leaveRoom() {
     <v-row no-gutters justify="center">
       <v-col cols="11">
         <v-sheet
+          data-testid="playing-song"
           v-if="roomStore.playingSong"
           color="surface-container"
           class="elevation-1 px-4 py-1 rounded-b-xl d-flex justify-start align-center ga-1"
@@ -123,7 +132,7 @@ async function leaveRoom() {
             </v-sheet>
             <v-sheet color="transparent" class="d-flex align-center justify-start ga-2">
               <div class="on-surface-variant">
-                {{ playingSongMomentTimer!.toString() }}
+                {{ playingSongMomentTimer?.toString() }}
               </div>
               <v-progress-linear
                 height="6"
@@ -172,6 +181,7 @@ async function leaveRoom() {
       <v-col cols="11">
         <v-text-field
           label="Search"
+          data-testid="search-song-text-field"
           prepend-inner-icon="search"
           hide-details
           rounded="xl"

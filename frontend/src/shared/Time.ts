@@ -42,6 +42,8 @@ export class Time implements ITime {
         this.minute = min;
         if (!Number.isNaN(secs) && secs >= 0 && secs <= 59) {
           this.seconds = secs;
+        } else {
+          throw new Error('Invalid time string format. Expected "HH:mm:ss" or "HH:mm".');
         }
       } else {
         throw new Error('Invalid time string format. Expected "HH:mm:ss" or "HH:mm".');

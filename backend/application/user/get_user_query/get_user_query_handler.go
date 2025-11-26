@@ -30,18 +30,17 @@ func (handler GetUserQueryHandler) Handle(ctx context.Context) (*GetUserQueryRes
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer())
 		if er != nil {
-			return er
+			return custom_errors.NewCustomError("NewGetUserQueryHandler.GetUserById",
+				"Problem with creating a room.",
+				er,
+				custom_errors.Unexpected)
 		}
 		response.Name = user.FullName().Name()
 		response.Surname = user.FullName().Surname()
 		return nil
 	})
 	if err != nil {
-		return nil, custom_errors.NewCustomError(
-			"GetUserQueryHandler.ExecuteTransaction",
-			"Problem with executing transaction.",
-			err,
-			custom_errors.Unexpected)
+		return nil, err
 	}
 	return &response, nil
 }

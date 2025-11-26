@@ -28,9 +28,9 @@ type PlayingSongDto struct {
 	Title         string    `json:"title"`
 	Author        string    `json:"author"`
 	StartedAtUtc  time.Time `json:"startedAtUtc"`
-	LengthSeconds uint8     `json:"lengthSeconds"`
+	LengthSeconds uint16    `json:"lengthSeconds"`
 }
 type BoostDataDto struct {
 	BoostUsedAtUtc       time.Time `json:"boostUsedAtUtc"`
-	BoostCooldownSeconds uint8     `json:"boostCooldownSeconds"`
+	BoostCooldownSeconds uint16    `json:"boostCooldownSeconds"`
 }
