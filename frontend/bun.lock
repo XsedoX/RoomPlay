@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "frontend",
@@ -38,7 +37,7 @@
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "eslint": "^9.39.1",
-        "eslint-plugin-oxlint": "^1.30.0",
+        "eslint-plugin-oxlint": "^1.31.0",
         "eslint-plugin-playwright": "^2.3.0",
         "eslint-plugin-vue": "^10.6.1",
         "jiti": "^2.6.1",
@@ -52,7 +51,7 @@
         "vite": "npm:rolldown-vite@latest",
         "vite-plugin-csp-guard": "^3.0.0",
         "vite-plugin-vue-devtools": "^8.0.5",
-        "vitest": "^4.0.10",
+        "vitest": "^4.0.14",
         "vue-tsc": "^3.1.5",
       },
     },
@@ -748,7 +747,7 @@
 
     "eslint-config-prettier": ["eslint-config-prettier@10.1.8", "", { "peerDependencies": { "eslint": ">=7.0.0" }, "bin": { "eslint-config-prettier": "bin/cli.js" } }, "sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w=="],
 
-    "eslint-plugin-oxlint": ["eslint-plugin-oxlint@1.30.0", "", { "dependencies": { "jsonc-parser": "^3.3.1" } }, "sha512-agkV2OauZuFWLFNuG5/EunH4IwUcd/eyUbBE/Y9SAKvvvdMmY066IX09Uz2/3a/qdQ00LaL+lEAbP12eA19qJQ=="],
+    "eslint-plugin-oxlint": ["eslint-plugin-oxlint@1.31.0", "", { "dependencies": { "jsonc-parser": "^3.3.1" } }, "sha512-yIUkBg9qZCL9DZVSvH3FklF5urG7LRboZD0/YLf/CvihPpcfBeMyH1onaG3+iKMCIRa/uwXgdRjB5MSOplFTVw=="],
 
     "eslint-plugin-playwright": ["eslint-plugin-playwright@2.3.0", "", { "dependencies": { "globals": "^16.4.0" }, "peerDependencies": { "eslint": ">=8.40.0" } }, "sha512-7UeUuIb5SZrNkrUGb2F+iwHM97kn33/huajcVtAaQFCSMUYGNFvjzRPil5C0OIppslPfuOV68M/zsisXx+/ZvQ=="],
 
