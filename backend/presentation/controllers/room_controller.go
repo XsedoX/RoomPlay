@@ -5,24 +5,24 @@ import (
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/room/create_room_command"
-	"xsedox.com/main/application/room/get_room_query"
-	"xsedox.com/main/application/room/leave_room_command"
+	"xsedox.com/main/application/room/create_room"
+	"xsedox.com/main/application/room/get_room"
+	"xsedox.com/main/application/room/leave_room"
 	"xsedox.com/main/infrastructure/validation"
 	"xsedox.com/main/presentation/response"
 )
 
 type RoomController struct {
-	createRoomCommandHandler          contracts.ICommandHandler[*create_room_command.CreateRoomCommand]
-	getRoomQueryHandler               contracts.IQueryHandler[*get_room_query.GetRoomQueryResponse]
+	createRoomCommandHandler          contracts.ICommandHandler[*create_room.CreateRoomCommand]
+	getRoomQueryHandler               contracts.IQueryHandler[*get_room.GetRoomQueryResponse]
 	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool]
-	leaveRoomCommandHandler           contracts.ICommandHandler[*leave_room_command.LeaveRoomCommand]
+	leaveRoomCommandHandler           contracts.ICommandHandler[*leave_room.LeaveRoomCommand]
 }
 
-func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*create_room_command.CreateRoomCommand],
-	getRoomQueryHandler contracts.IQueryHandler[*get_room_query.GetRoomQueryResponse],
+func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*create_room.CreateRoomCommand],
+	getRoomQueryHandler contracts.IQueryHandler[*get_room.GetRoomQueryResponse],
 	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool],
-	leaveRoomCommandHandler contracts.ICommandHandler[*leave_room_command.LeaveRoomCommand],
+	leaveRoomCommandHandler contracts.ICommandHandler[*leave_room.LeaveRoomCommand],
 ) *RoomController {
 	return &RoomController{
 		createRoomCommandHandler:          createRoomCommandHandler,
@@ -38,7 +38,7 @@ func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*creat
 // @Tags         rooms
 // @Accept       json
 // @Produce      json
-// @Param        room  body      create_room_command.CreateRoomCommand	true  "Join CreateRoomCommand"
+// @Param        room  body      create_room.CreateRoomCommand	true  "Join CreateRoomCommand"
 // @Success      201   {object}  response.Success
 // @Failure      400   {object}  response.ProblemDetails
 // @Failure      401   {object}  response.ProblemDetails
@@ -46,7 +46,7 @@ func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*creat
 // @Router       /api/v1/room [post]
 // @Security BearerAuth
 func (rh *RoomController) CreateRoom(w http.ResponseWriter, r *http.Request) {
-	var command create_room_command.CreateRoomCommand
+	var command create_room.CreateRoomCommand
 	bodyDecodeErr := json.NewDecoder(r.Body).Decode(&command)
 	if bodyDecodeErr != nil {
 		response.WriteJsonFailure(w,
@@ -136,7 +136,7 @@ func (rh *RoomController) CheckUserRoomMembership(w http.ResponseWriter, r *http
 // @Router /room [delete]
 // @Security BearerAuth
 func (rh *RoomController) LeaveRoom(w http.ResponseWriter, r *http.Request) {
-	err := rh.leaveRoomCommandHandler.Handle(r.Context(), &leave_room_command.LeaveRoomCommand{})
+	err := rh.leaveRoomCommandHandler.Handle(r.Context(), &leave_room.LeaveRoomCommand{})
 	if err != nil {
 		response.WriteJsonApplicationFailure(w,
 			err,

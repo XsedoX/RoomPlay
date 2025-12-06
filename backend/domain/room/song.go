@@ -20,6 +20,11 @@ type Song struct {
 	votes         uint8
 	wasUpVoted    bool
 	wasDownVoted  bool
+	albumCoverUrl string
+}
+
+func (s Song) AlbumCoverUrl() string {
+	return s.albumCoverUrl
 }
 
 func (s Song) WasDownVoted() bool {
@@ -70,9 +75,10 @@ func (s Song) Votes() uint8 {
 	return s.votes
 }
 
-func NewSong(externalId string, title string, author string, lengthSeconds uint16, addedBy user.Id) *Song {
+func NewSong(externalId, title, author, albumCoverUrl string, lengthSeconds uint16, addedBy user.Id) *Song {
 	return &Song{
 		externalId:    externalId,
+		albumCoverUrl: albumCoverUrl,
 		title:         title,
 		author:        author,
 		lengthSeconds: lengthSeconds,
@@ -98,6 +104,7 @@ func HydrateSong(
 	votes uint8,
 	wasUpVoted bool,
 	wasDownVoted bool,
+	albumCoverUrl string,
 ) *Song {
 	result := &Song{
 		externalId:    externalId,
@@ -111,6 +118,7 @@ func HydrateSong(
 		votes:         votes,
 		wasUpVoted:    wasUpVoted,
 		wasDownVoted:  wasDownVoted,
+		albumCoverUrl: albumCoverUrl,
 	}
 	result.SetId(id)
 	return result

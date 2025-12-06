@@ -2,10 +2,12 @@ package persistance
 
 import (
 	"context"
+	"database/sql"
 
 	"xsedox.com/main/application/contracts"
-	daos2 "xsedox.com/main/application/room/get_room_query/daos"
+	daos2 "xsedox.com/main/application/room/get_room/daos"
 	"xsedox.com/main/domain/room"
+	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
 )
 
@@ -18,10 +20,10 @@ func NewRoomRepository(encrypter contracts.IEncrypter) *RoomRepository {
 		encrypter: encrypter,
 	}
 }
-func (rr *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error {
+func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error {
 	roomId := roomParam.Id()
 	userId := roomParam.Members()[0]
-	hashedPassword, err := rr.encrypter.HashAndSalt(roomParam.Password())
+	hashedPassword, err := repository.encrypter.HashAndSalt(roomParam.Password())
 	if err != nil {
 		return err
 	}
@@ -39,50 +41,37 @@ func (rr *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, 
 		return addRoomErr
 	}
 
+	role := user.Host
 	_, usersUpdateErr := queryer.ExecContext(ctx,
-		`UPDATE users SET room_id = $1::uuid WHERE id = $2::uuid;`,
+		`INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, $3)`,
 		roomId.ToUuid(),
 		userId.ToUuid(),
+		role.String(),
 	)
 	if usersUpdateErr != nil {
 		return usersUpdateErr
 	}
-
-	host := user.Host
-	_, usersRolesErr := queryer.ExecContext(ctx,
-		`INSERT INTO users_roles VALUES ($1, $2, $3);`,
-		roomId.ToUuid(),
-		userId.ToUuid(),
-		host.String(),
-	)
-	if usersRolesErr != nil {
-		return usersRolesErr
-	}
 	return nil
 }
-func (rr *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos2.GetRoomDao, error) {
+func (repository *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos2.GetRoomDao, error) {
 	var getRoomDaoInstance daos2.GetRoomDao
 	getRoomErr := queryer.GetContext(ctx,
 		&getRoomDaoInstance,
 		`
 SELECT rooms.name,
 	   rooms.qr_code_hash,
-	   boosts.used_at_utc AS boost_used_at_utc,
+	   users_room_data.boost_used_at_utc,
 	   rooms.boost_cooldown_seconds,
 	   songs.title AS playing_song_title,
 	   songs.author AS playing_song_author,
 	   enqueued_songs.started_at_utc AS playing_song_started_at_utc,
 	   songs.length_seconds AS playing_song_length_seconds,
-	   users_roles.role
+	   users_room_data.role
 FROM rooms
-JOIN users ON users.room_id = rooms.id
-LEFT JOIN boosts ON boosts.room_id = rooms.id
-				AND boosts.user_id = users.id
-JOIN users_roles ON users.id = users_roles.user_id
-				AND users_roles.room_id = rooms.id
+JOIN users_room_data ON users_room_data.room_id = rooms.id
 LEFT JOIN enqueued_songs ON enqueued_songs.room_id = rooms.id AND enqueued_songs.state = 'playing'
 LEFT JOIN songs ON songs.id = enqueued_songs.song_id
-WHERE users.id = $1::uuid 
+WHERE users_room_data.user_id = $1::uuid 
 LIMIT 1;
 `, userId.ToUuid())
 	if getRoomErr != nil {
@@ -104,10 +93,10 @@ SELECT enqueued_songs.id,
 FROM enqueued_songs
          JOIN songs ON enqueued_songs.song_id = songs.id
          JOIN rooms ON enqueued_songs.room_id = rooms.id
-         JOIN users ON users.room_id = rooms.id
+         JOIN users_room_data ON users_room_data.room_id = rooms.id
          JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
-         LEFT JOIN users_votes ON users.id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
-WHERE users.id = $1;
+         LEFT JOIN users_votes ON users_room_data.user_id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
+WHERE users_room_data.user_id = $1;
 `, userId.ToUuid())
 	if getRoomSongsErr != nil {
 		return nil, getRoomSongsErr
@@ -115,14 +104,14 @@ WHERE users.id = $1;
 	getRoomDaoInstance.SongDaos = getRoomsSongDaoInstances
 	return &getRoomDaoInstance, nil
 }
-func (rr *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool {
+func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool {
 	var response bool
 	err := queryer.GetContext(ctx, &response, `
 		SELECT CASE 
 		    WHEN EXISTS (
 		        SELECT 1
-		        FROM users
-		        WHERE id=$1 AND room_id IS NOT NULL
+		        FROM users_room_data
+		        WHERE user_id=$1
 			)
 		    THEN true 
 		    ELSE false
@@ -131,4 +120,37 @@ func (rr *RoomRepository) CheckUserMembership(ctx context.Context, userId user.I
 		return false
 	}
 	return response
+}
+func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
+	_, err := queryer.ExecContext(ctx,
+		`DELETE FROM users_room_data WHERE user_id=$1`,
+		id.ToUuid())
+	return err
+}
+func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user.Id, roomId shared.RoomId, queryer contracts.IQueryer) error {
+	_, err := queryer.ExecContext(ctx,
+		`INSERT INTO users_room_data (user_id, room_id) VALUES ($1, $2)`, userId.ToUuid(), roomId.ToUuid())
+	return err
+}
+func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string, queryer contracts.IQueryer) (*shared.RoomId, error) {
+	type roomWithNamePasswordAndId struct {
+		roomId       shared.RoomId `db:"id"`
+		roomPassword []byte        `db:"password"`
+	}
+	var rooms []roomWithNamePasswordAndId
+	getRoomsErr := queryer.SelectContext(ctx,
+		&rooms,
+		`SELECT id, password FROM rooms WHERE name=$1;`, roomName)
+	if getRoomsErr != nil {
+		return nil, getRoomsErr
+	}
+	if len(rooms) == 0 {
+		return nil, sql.ErrNoRows
+	}
+	for _, roomDb := range rooms {
+		if repository.encrypter.Verify(roomPassword, roomDb.roomPassword) {
+			return &roomDb.roomId, nil
+		}
+	}
+	return nil, sql.ErrNoRows
 }

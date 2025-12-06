@@ -23,7 +23,7 @@ func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value strin
 	encryptedRefreshToken := r.encrypter.Hash(value)
 	var tokenFromDb daos.RefreshTokenDao
 	err := queryer.GetContext(ctx, &tokenFromDb,
-		"SELECT * FROM users_refresh_token WHERE refresh_token = $1::bytea LIMIT 1;",
+		"SELECT * FROM users_refresh_tokens WHERE refresh_token = $1::bytea LIMIT 1;",
 		encryptedRefreshToken)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken
 	deviceId := refreshToken.DeviceId()
 	_, err := queryer.ExecContext(ctx,
 		`
-		INSERT INTO users_refresh_token 
+		INSERT INTO users_refresh_tokens 
 		(
 			 user_id,
 		 	 device_id,
@@ -69,7 +69,7 @@ func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Conte
 	uId := uuid.UUID(*userId)
 	dId := uuid.UUID(*deviceId)
 	_, err := queryer.ExecContext(ctx,
-		"DELETE FROM users_refresh_token WHERE user_id = $1 AND device_id = $2;",
+		"DELETE FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2;",
 		uId,
 		dId)
 	return err
@@ -77,7 +77,7 @@ func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Conte
 func (r RefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
 	id := uuid.UUID(*userId)
 	_, err := queryer.ExecContext(ctx,
-		"DELETE FROM users_refresh_token WHERE user_id = $1;",
+		"DELETE FROM users_refresh_tokens WHERE user_id = $1;",
 		id)
 	return err
 }

@@ -3,16 +3,16 @@ package initialization
 import (
 	"github.com/jmoiron/sqlx"
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/room/create_room_command"
-	"xsedox.com/main/application/room/get_room_query"
-	"xsedox.com/main/application/room/get_user_room_membership_query"
-	"xsedox.com/main/application/room/leave_room_command"
+	"xsedox.com/main/application/room/create_room"
+	"xsedox.com/main/application/room/get_room"
+	"xsedox.com/main/application/room/get_user_room_membership"
+	"xsedox.com/main/application/room/leave_room"
 	"xsedox.com/main/application/services"
-	"xsedox.com/main/application/user/get_user_query"
-	"xsedox.com/main/application/user/login_user_command"
-	"xsedox.com/main/application/user/login_user_refresh_token_command"
-	"xsedox.com/main/application/user/logout_user_command"
-	"xsedox.com/main/application/user/register_user_command"
+	"xsedox.com/main/application/user/get_user"
+	"xsedox.com/main/application/user/login_user"
+	"xsedox.com/main/application/user/login_user_refresh_token"
+	"xsedox.com/main/application/user/logout_user"
+	"xsedox.com/main/application/user/register_user"
 	"xsedox.com/main/config"
 	"xsedox.com/main/infrastructure/authentication"
 	"xsedox.com/main/infrastructure/persistance"
@@ -39,40 +39,40 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 	refreshTokenRepository := persistance.NewRefreshTokenRepository(encrypter)
 	roomRepository := persistance.NewRoomRepository(encrypter)
 
-	registerUserCommandHandler := register_user_command.NewRegisterUserCommandHandler(userRepository,
+	registerUserCommandHandler := register_user.NewRegisterUserCommandHandler(userRepository,
 		unitOfWork,
 		externalCredentialsRepository,
 		jwtProvider,
 		refreshTokenRepository,
 		encrypter,
 	)
-	loginUserCommandHandler := login_user_command.NewLoginUserCommandHandler(unitOfWork,
+	loginUserCommandHandler := login_user.NewLoginUserCommandHandler(unitOfWork,
 		userRepository,
 		encrypter,
 		jwtProvider,
 		refreshTokenRepository,
 		externalCredentialsRepository)
-	getUserDataQueryHandler := get_user_query.NewGetUserQueryHandler(unitOfWork,
+	getUserDataQueryHandler := get_user.NewGetUserQueryHandler(unitOfWork,
 		userRepository)
 
-	loginRefreshTokenCommandHandler := login_user_refresh_token_command.NewLoginUserRefreshTokenCommandHandler(refreshTokenRepository,
+	loginRefreshTokenCommandHandler := login_user_refresh_token.NewLoginUserRefreshTokenCommandHandler(refreshTokenRepository,
 		unitOfWork,
 		encrypter,
 		jwtProvider,
 		userRepository)
-	logoutRefreshTokenCommandHandler := logout_user_command.NewLogoutUserCommandHandler(refreshTokenRepository, unitOfWork)
+	logoutRefreshTokenCommandHandler := logout_user.NewLogoutUserCommandHandler(refreshTokenRepository, unitOfWork)
 
-	createRoomCommandHandler := create_room_command.NewCreateRoomCommandHandler(roomRepository,
+	createRoomCommandHandler := create_room.NewCreateRoomCommandHandler(roomRepository,
 		unitOfWork,
 		encrypter,
 	)
-	leaveRoomCommandHandler := leave_room_command.NewLeaveRoomCommandHandler(userRepository,
+	leaveRoomCommandHandler := leave_room.NewLeaveRoomCommandHandler(roomRepository,
 		unitOfWork,
 	)
-	getRoomQueryHandler := get_room_query.NewGetRoomQueryHandler(unitOfWork,
+	getRoomQueryHandler := get_room.NewGetRoomQueryHandler(unitOfWork,
 		roomRepository,
 	)
-	getUserRoomMembershipQueryHandler := get_user_room_membership_query.NewGetUserRoomMembershipQueryHandler(roomRepository,
+	getUserRoomMembershipQueryHandler := get_user_room_membership.NewGetUserRoomMembershipQueryHandler(roomRepository,
 		unitOfWork)
 
 	oidcAuthenticationService := services.NewOidcAuthenticationService(googleOidcService,

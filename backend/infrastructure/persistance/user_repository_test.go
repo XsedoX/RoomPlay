@@ -61,7 +61,6 @@ func TestUserRepository_Add(t *testing.T) {
 	assert.Equal(t, "John", userDb.Name)
 	assert.Equal(t, "Doe", userDb.Surname)
 	assert.Equal(t, "ext-id-1", userDb.ExternalId)
-	assert.Equal(t, uuid.UUID(roomID), *userDb.RoomId)
 
 	// Assert Device
 	var deviceDb daos.DeviceDao
@@ -155,17 +154,16 @@ func TestUserRepository_Update(t *testing.T) {
 	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", userID)
 	require.NoError(t, err)
 	assert.Equal(t, "Bobby", userDb.Name)
-	assert.Equal(t, roomID, *userDb.RoomId)
 
 	// Check Role
 	var roleDb string
-	err = txx.QueryRowContext(ctx, "SELECT role FROM users_roles WHERE user_id = $1", userID).Scan(&roleDb)
+	err = txx.QueryRowContext(ctx, "SELECT role FROM users_room_data WHERE user_id = $1", userID).Scan(&roleDb)
 	require.NoError(t, err)
 	assert.Equal(t, "member", roleDb)
 
 	// Check Boost
 	var boostDb time.Time
-	err = txx.QueryRowContext(ctx, "SELECT used_at_utc FROM boosts WHERE user_id = $1", userID).Scan(&boostDb)
+	err = txx.QueryRowContext(ctx, "SELECT boost_used_at_utc FROM users_room_data WHERE user_id = $1", userID).Scan(&boostDb)
 	require.NoError(t, err)
 	assert.WithinDuration(t, boostTime, boostDb, time.Second)
 
@@ -195,7 +193,7 @@ func TestUserRepository_LeaveRoom(t *testing.T) {
 	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname, room_id) VALUES ($1, 'ext-4', 'Alice', 'Wonder', $2)`, userID, roomID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-4', 'Alice', 'Wonder')`, userID)
 	require.NoError(t, err)
 
 	// Act

@@ -74,13 +74,13 @@ func TestRoomRepository_CreateRoom(t *testing.T) {
 
 	// Assert User Updated
 	var userRoomID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT room_id FROM users WHERE id = $1", uuid.UUID(userID)).Scan(&userRoomID)
+	err = txx.QueryRowContext(ctx, "SELECT room_id FROM users_room_data WHERE user_id = $1", uuid.UUID(userID)).Scan(&userRoomID)
 	require.NoError(t, err)
 	assert.Equal(t, uuid.UUID(roomID), userRoomID)
 
 	// Assert User Role
 	var role string
-	err = txx.QueryRowContext(ctx, "SELECT role FROM users_roles WHERE user_id = $1 AND room_id = $2", uuid.UUID(userID), uuid.UUID(roomID)).Scan(&role)
+	err = txx.QueryRowContext(ctx, "SELECT role FROM users_room_data WHERE user_id = $1 AND room_id = $2", uuid.UUID(userID), uuid.UUID(roomID)).Scan(&role)
 	require.NoError(t, err)
 	assert.Equal(t, "host", role)
 
@@ -108,11 +108,11 @@ func TestRoomRepository_GetRoomByUserId(t *testing.T) {
 	require.NoError(t, err)
 
 	// Insert User
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname, room_id) VALUES ($1, 'ext-user', 'Test', 'User', $2)`, userID, roomID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-user', 'Test', 'User')`, userID)
 	require.NoError(t, err)
 
 	// Insert Role
-	_, err = txx.ExecContext(ctx, `INSERT INTO users_roles (room_id, user_id, role) VALUES ($1, $2, 'member')`, roomID, userID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, 'member')`, roomID, userID)
 	require.NoError(t, err)
 
 	// Insert Song
@@ -158,7 +158,9 @@ func TestRoomRepository_CheckUserMembership(t *testing.T) {
 	roomID := uuid.New()
 	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname, room_id) VALUES ($1, 'ext-1', 'User', 'One', $2)`, userID1, roomID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-1', 'User', 'One')`, userID1)
+	require.NoError(t, err)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, 'member')`, roomID, userID1)
 	require.NoError(t, err)
 
 	// Setup User without Room
@@ -172,4 +174,14 @@ func TestRoomRepository_CheckUserMembership(t *testing.T) {
 
 	exists2 := repo.CheckUserMembership(ctx, user.Id(userID2), txx)
 	assert.False(t, exists2)
+}
+
+func TestRoomRepository_GetRoomIdByNameAndPassword(t *testing.T) {
+	ctx := context.Background()
+	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
+	txx, err := dbx.BeginTxx(ctx, nil)
+	require.NoError(t, err)
+	defer txx.Rollback()
+	mockEncrypter := new(authentication_mocks.MockEncrypter)
+	repo := NewRoomRepository(mockEncrypter)
 }

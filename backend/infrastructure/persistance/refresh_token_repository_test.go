@@ -69,7 +69,7 @@ func TestRefreshTokenRepository_AssignNewToken(t *testing.T) {
 		IssuedAtUtc  time.Time `db:"issued_at_utc"`
 	}
 
-	err = txx.GetContext(ctx, &storedToken, "SELECT * FROM users_refresh_token WHERE user_id = $1 AND device_id = $2", userID, deviceID)
+	err = txx.GetContext(ctx, &storedToken, "SELECT * FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2", userID, deviceID)
 	require.NoError(t, err)
 
 	assert.Equal(t, userID, storedToken.UserID)
@@ -113,7 +113,7 @@ func TestRefreshTokenRepository_GetTokenByValue(t *testing.T) {
 
 	// Insert token directly into DB
 	_, err = txx.ExecContext(ctx, `
-		INSERT INTO users_refresh_token (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
+		INSERT INTO users_refresh_tokens (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
 		VALUES ($1, $2, $3, $4, $5)
 	`, userID, deviceID, encryptedToken, expiresAt, issuedAt)
 	require.NoError(t, err)
@@ -169,7 +169,7 @@ func TestRefreshTokenRepository_RetireTokenByUserIdAndDeviceId(t *testing.T) {
 
 	// Insert token
 	_, err = txx.ExecContext(ctx, `
-		INSERT INTO users_refresh_token (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
+		INSERT INTO users_refresh_tokens (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
 		VALUES ($1, $2, $3, $4, $5)
 	`, userID, deviceID, []byte("some_token"), time.Now().UTC(), time.Now().UTC())
 	require.NoError(t, err)
@@ -182,7 +182,7 @@ func TestRefreshTokenRepository_RetireTokenByUserIdAndDeviceId(t *testing.T) {
 
 	// Assert
 	var count int
-	err = txx.QueryRowContext(ctx, "SELECT COUNT(*) FROM users_refresh_token WHERE user_id = $1 AND device_id = $2", userID, deviceID).Scan(&count)
+	err = txx.QueryRowContext(ctx, "SELECT COUNT(*) FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2", userID, deviceID).Scan(&count)
 	require.NoError(t, err)
 	assert.Equal(t, 0, count)
 }
@@ -215,7 +215,7 @@ func TestRefreshTokenRepository_RetireAllTokensByUserId(t *testing.T) {
 
 	// Insert tokens
 	_, err = txx.ExecContext(ctx, `
-		INSERT INTO users_refresh_token (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
+		INSERT INTO users_refresh_tokens (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
 		VALUES ($1, $2, $4, $6, $6), ($1, $3, $5, $6, $6)
 	`, userID, deviceID1, deviceID2, []byte("token1"), []byte("token2"), time.Now().UTC())
 	require.NoError(t, err)
@@ -227,7 +227,7 @@ func TestRefreshTokenRepository_RetireAllTokensByUserId(t *testing.T) {
 
 	// Assert
 	var count int
-	err = txx.QueryRowContext(ctx, "SELECT COUNT(*) FROM users_refresh_token WHERE user_id = $1", userID).Scan(&count)
+	err = txx.QueryRowContext(ctx, "SELECT COUNT(*) FROM users_refresh_tokens WHERE user_id = $1", userID).Scan(&count)
 	require.NoError(t, err)
 	assert.Equal(t, 0, count)
 }

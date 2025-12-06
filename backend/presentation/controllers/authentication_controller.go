@@ -6,8 +6,8 @@ import (
 
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/login_user_refresh_token_command"
-	"xsedox.com/main/application/user/logout_user_command"
+	"xsedox.com/main/application/user/login_user_refresh_token"
+	"xsedox.com/main/application/user/logout_user"
 	"xsedox.com/main/config"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/presentation/helpers"
@@ -15,14 +15,14 @@ import (
 )
 
 type AuthenticationController struct {
-	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse]
+	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse]
 	configuration                    config.IConfiguration
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]
+	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand]
 }
 
-func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command.LoginUserRefreshTokenCommandResponse],
+func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse],
 	configuration config.IConfiguration,
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user_command.LogoutUserCommand]) *AuthenticationController {
+	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand]) *AuthenticationController {
 	return &AuthenticationController{
 		loginRefreshTokenCommandHandler:  refreshTokenCommandHandler,
 		configuration:                    configuration,
@@ -74,7 +74,7 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 }
 
 func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http.Request) {
-	var command logout_user_command.LogoutUserCommand
+	var command logout_user.LogoutUserCommand
 	userId, ok := application.GetUserIdFromContext(req.Context())
 	if !ok {
 		response.WriteJsonApplicationFailure(w,

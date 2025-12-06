@@ -44,13 +44,6 @@ CREATE TABLE "rooms" (
   "lifespan_seconds" int NOT NULL DEFAULT 172800
 );
 
-CREATE TABLE "users_roles" (
-  "room_id" uuid,
-  "user_id" uuid,
-  "role" user_role NOT NULL DEFAULT 'member',
-  PRIMARY KEY ("room_id", "user_id")
-);
-
 CREATE TABLE "users_votes" (
   "user_id" uuid,
   "enqueued_song_id" uuid,
@@ -62,8 +55,7 @@ CREATE TABLE "users" (
   "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
   "name" varchar(256) NOT NULL,
-  "surname" varchar(256) NOT NULL,
-  "room_id" uuid
+  "surname" varchar(256) NOT NULL
 );
 
 CREATE TABLE "users_external_credentials" (
@@ -76,7 +68,7 @@ CREATE TABLE "users_external_credentials" (
   "issued_at_utc" timestamp NOT NULL
 );
 
-CREATE TABLE "users_refresh_token" (
+CREATE TABLE "users_refresh_tokens" (
   "user_id" uuid,
   "device_id" uuid,
   "refresh_token" bytea UNIQUE NOT NULL,
@@ -85,10 +77,11 @@ CREATE TABLE "users_refresh_token" (
   PRIMARY KEY ("user_id", "device_id")
 );
 
-CREATE TABLE "boosts" (
+CREATE TABLE "users_room_data" (
   "room_id" uuid,
   "user_id" uuid,
-  "used_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  "boost_used_at_utc" timestamp,
+  "role" user_role NOT NULL DEFAULT 'member',
   PRIMARY KEY ("room_id", "user_id")
 );
 
@@ -139,25 +132,19 @@ CREATE UNIQUE INDEX ON "devices" ("id", "user_id");
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';
 
-ALTER TABLE "users_refresh_token" ADD CONSTRAINT "users__users_refresh_token" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_refresh_tokens" ADD CONSTRAINT "users__users_refresh_tokens" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "users_refresh_token" ADD CONSTRAINT "device__users_refresh_token" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_refresh_tokens" ADD CONSTRAINT "device__users_refresh_tokens" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "users_external_credentials" ADD CONSTRAINT "users__users_credentials" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "users_room_data" ADD CONSTRAINT "users__users_room_data" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "users_room_data" ADD CONSTRAINT "rooms__users_room_data" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__song" FOREIGN KEY ("enqueued_song_id") REFERENCES "enqueued_songs" ("id") ON DELETE CASCADE;
-
-ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
-
-ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
-
-ALTER TABLE "users" ADD CONSTRAINT "user__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE SET NULL;
-
-ALTER TABLE "boosts" ADD CONSTRAINT "boosts__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
-
-ALTER TABLE "boosts" ADD CONSTRAINT "boosts__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
 

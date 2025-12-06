@@ -13,5 +13,5 @@ type UserDao struct {
 	Surname        string     `db:"surname"`
 	RoomId         *uuid.UUID `db:"room_id"`
 	Role           *string    `db:"role"`
-	BoostUsedAtUtc *time.Time `db:"used_at_utc"`
+	BoostUsedAtUtc *time.Time `db:"boost_used_at_utc"`
 }

@@ -42,8 +42,3 @@ func (m *MockUserRepository) GetUserById(ctx context.Context, id user.Id, querye
 	}
 	return args.Get(0).(*user.User), args.Error(1)
 }
-
-func (m *MockUserRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
-	args := m.Called(ctx, id, queryer)
-	return args.Error(0)
-}

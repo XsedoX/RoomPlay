@@ -24,9 +24,8 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, q
 	var userDb daos.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
-		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
-         	   LEFT JOIN users_roles ur ON ur.user_id = u.id 
-			   LEFT JOIN boosts b ON b.user_id = u.id 
+		`SELECT u.*, ur.role, ur.boost_used_at_utc FROM users u 
+         	   LEFT JOIN users_room_data ur ON ur.user_id = u.id 
          	   WHERE id = $1`,
 		id.ToUuid())
 	if err != nil {
@@ -49,7 +48,7 @@ func (repository *UserRepository) GetUserByExternalId(ctx context.Context, exter
 	err := queryer.GetContext(ctx,
 		&userDb,
 		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
-         	   LEFT JOIN users_roles ur ON ur.user_id = u.id 
+         	   LEFT JOIN users_room_data ur ON ur.user_id = u.id 
 			   LEFT JOIN boosts b ON b.user_id = u.id 
          	   WHERE external_id = $1`,
 		externalId)
@@ -88,11 +87,10 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 	userId := user.Id()
 	_, err := queryer.ExecContext(ctx, `
 		UPDATE users 
-		SET name=$1, surname=$2, room_id=$3::uuid
-		WHERE id=$4::uuid`,
+		SET name=$1, surname=$2
+		WHERE id=$3::uuid`,
 		user.FullName().Name(),
 		user.FullName().Surname(),
-		user.RoomId().ToUuid(),
 		userId.ToUuid())
 	if err != nil {
 		return err
@@ -100,23 +98,12 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 
 	if user.Role() != nil && user.RoomId() != nil && user.BoostUsedAtUtc() != nil {
 		_, err = queryer.ExecContext(ctx,
-			`INSERT INTO users_roles (room_id, user_id, role) 
-				   VALUES ($1, $2, $3)
-				   ON CONFLICT (room_id, user_id) DO UPDATE SET role=$3::user_role;`,
+			`INSERT INTO users_room_data (room_id, user_id, role, boost_used_at_utc) 
+				   VALUES ($1, $2, $3, $4)
+				   ON CONFLICT (room_id, user_id) DO UPDATE SET role=$3::user_role, boost_used_at_utc=$4;`,
 			user.RoomId().ToUuid(),
 			userId.ToUuid(),
-			user.Role().String())
-		if err != nil {
-			return err
-		}
-	}
-	if user.Role() != nil && user.RoomId() != nil && user.BoostUsedAtUtc() != nil {
-		_, err = queryer.ExecContext(ctx,
-			`INSERT INTO boosts (room_id, user_id, used_at_utc)
-  				   VALUES ($1, $2, $3)
-  				   ON CONFLICT (room_id, user_id) DO UPDATE SET used_at_utc=$3;`,
-			user.RoomId().ToUuid(),
-			userId.ToUuid(),
+			user.Role().String(),
 			user.BoostUsedAtUtc())
 		if err != nil {
 			return err
@@ -188,7 +175,6 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 		user.ExternalId(),
 		user.FullName().Name(),
 		user.FullName().Surname(),
-		user.RoomId().ToUuid(),
 	}
 
 	// Build VALUES tuples and append deviceFromDb fields to params.
@@ -216,20 +202,14 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 	// Compose the CTE + INSERT ... SELECT ... FROM u, (VALUES ...) AS v(...)
 	query := `
 		WITH "user" AS (
-		  INSERT INTO users (id, external_id, name, surname, room_id)
-		  VALUES ($1, $2, $3, $4, $5)
+		  INSERT INTO users (id, external_id, name, surname)
+		  VALUES ($1, $2, $3, $4)
 		  RETURNING id
 		)
 		INSERT INTO devices (id, friendly_name, is_host, type, user_id, state)
 		SELECT v.id, v.friendly_name, v.is_host, v.type, "user".id, v.state
 		FROM "user", (VALUES ` + strings.Join(values, ",") + `) AS v(id, friendly_name, is_host, type, state);`
 	_, err := queryer.ExecContext(ctx, query, params...)
-	return err
-}
-func (repository *UserRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
-	_, err := queryer.ExecContext(ctx,
-		`UPDATE users SET room_id=NULL WHERE id=$1`,
-		id.ToUuid())
 	return err
 }
 func parseUser(userDb *daos.UserDao, devicesDb *[]daos.DeviceDao) *user.User {

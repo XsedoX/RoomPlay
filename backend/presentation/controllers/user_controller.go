@@ -4,15 +4,15 @@ import (
 	"net/http"
 
 	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/get_user_query"
+	"xsedox.com/main/application/user/get_user"
 	"xsedox.com/main/presentation/response"
 )
 
 type UserController struct {
-	getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]
+	getUserDataQueryHandler contracts.IQueryHandler[*get_user.GetUserQueryResponse]
 }
 
-func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*get_user_query.GetUserQueryResponse]) *UserController {
+func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*get_user.GetUserQueryResponse]) *UserController {
 	return &UserController{
 		getUserDataQueryHandler: getUserDataQueryHandler,
 	}

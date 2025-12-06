@@ -8,24 +8,24 @@ import (
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/application/dtos"
 	contracts2 "xsedox.com/main/application/user/contracts"
-	"xsedox.com/main/application/user/login_user_command"
-	"xsedox.com/main/application/user/register_user_command"
+	"xsedox.com/main/application/user/login_user"
+	"xsedox.com/main/application/user/register_user"
 	"xsedox.com/main/domain/user"
 )
 
 type OidcAuthenticationService struct {
 	googleOidcService          contracts.IGoogleOidcService
 	userRepository             contracts2.IUserRepository
-	registerUserCommandHandler contracts.ICommandHandlerWithResponse[*register_user_command.RegisterUserCommand, *register_user_command.RegisterUserCommandResponse]
-	loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login_user_command.LoginUserCommand, *login_user_command.LoginUserCommandResponse]
+	registerUserCommandHandler contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse]
+	loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse]
 	unitOfWork                 contracts.IUnitOfWork
 }
 
 func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService,
 	userRepository contracts2.IUserRepository,
 	unitOfWork contracts.IUnitOfWork,
-	registerUserHandler contracts.ICommandHandlerWithResponse[*register_user_command.RegisterUserCommand, *register_user_command.RegisterUserCommandResponse],
-	loginUserHandler contracts.ICommandHandlerWithResponse[*login_user_command.LoginUserCommand, *login_user_command.LoginUserCommandResponse]) *OidcAuthenticationService {
+	registerUserHandler contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse],
+	loginUserHandler contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse]) *OidcAuthenticationService {
 	return &OidcAuthenticationService{
 		googleOidcService:          googleOidcService,
 		userRepository:             userRepository,
@@ -60,15 +60,15 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 	}
 	var apiTokenResponse dtos.OidcAuthenticateUserServiceDto
 	if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer()) {
-		loginUserCommand := login_user_command.LoginUserCommand{
+		loginUserCommand := login_user.LoginUserCommand{
 			Name: claims.GivenName,
-			DeviceDto: login_user_command.DeviceDto{
+			DeviceDto: login_user.DeviceDto{
 				DeviceId:   deviceId,
 				DeviceType: deviceTypeToPass,
 			},
 			ExternalId: claims.Subject,
 			Surname:    claims.FamilyName,
-			CredentialsDto: login_user_command.CredentialsDto{
+			CredentialsDto: login_user.CredentialsDto{
 				AccessToken:              tokenResp.AccessToken,
 				RefreshToken:             tokenResp.RefreshToken,
 				Scopes:                   tokenResp.Scope,
@@ -84,12 +84,12 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 		apiTokenResponse.RefreshToken = loginResponse.RefreshToken
 		apiTokenResponse.DeviceId = loginResponse.DeviceId
 	} else {
-		registerUserCommand := register_user_command.RegisterUserCommand{
+		registerUserCommand := register_user.RegisterUserCommand{
 			Name:       claims.GivenName,
 			DeviceType: deviceTypeToPass,
 			ExternalId: claims.Subject,
 			Surname:    claims.FamilyName,
-			CredentialsDto: register_user_command.CredentialsDto{
+			CredentialsDto: register_user.CredentialsDto{
 				AccessToken:              tokenResp.AccessToken,
 				RefreshToken:             tokenResp.RefreshToken,
 				Scopes:                   tokenResp.Scope,
