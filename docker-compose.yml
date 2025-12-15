@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+    sonar-db:
+        image: postgres:15
+        container_name: sonar-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: sonar
+            POSTGRES_PASSWORD: sonar
+            POSTGRES_DB: sonar-db
+        volumes:
+            - sonar-db-data:/var/lib/postgresql/data
+        networks:
+            - sonar-net
+
+    sonarqube:
+        image: sonarqube:latest
+        mem_limit: 4g
+        container_name: sonarqube_server
+        restart: unless-stopped
+        environment:
+            - SONAR_JDBC_URL=jdbc:postgresql://sonar-db:5432/sonar-db
+            - SONAR_JDBC_USERNAME=sonar
+            - SONAR_JDBC_PASSWORD=sonar
+        volumes:
+            - sonarqube-data:/opt/sonarqube/data
+            - sonarqube-extensions:/opt/sonarqube/extensions
+            - sonarqube-logs:/opt/sonarqube/logs
+        ports:
+            - "9000:9000"
+        networks:
+            - sonar-net
+        depends_on:
+            - sonar-db
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
+
+    roomplay-api-db:
+        image: postgres:15
+        container_name: roomplay-api-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: dupa1234
+            POSTGRES_DB: postgres
+        volumes:
+            - roomplay-api-db-data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+volumes:
+    sonar-db-data:
+    sonarqube-data:
+    sonarqube-extensions:
+    sonarqube-logs:
+    roomplay-api-db-data:
+networks:
+    sonar-net:
