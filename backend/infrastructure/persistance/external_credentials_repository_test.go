@@ -1,77 +1,26 @@
 package persistance
 
 import (
-	"context"
-	"log"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	infrastructuretest "xsedox.com/main/test_helpers/infrustructure_test"
-	"xsedox.com/main/test_helpers/infrustructure_test/authentication_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
 )
 
-var (
-	pgContainer *infrastructuretest.PostgresContainer
-)
-
-func TestMain(m *testing.M) {
-	ctx := context.Background()
-
-	var err error
-	pgContainer, err = infrastructuretest.SetupPostgres(ctx)
-	if err != nil {
-		log.Fatalf("failed to setup postgres: %v", err)
-	}
-
-	projectRoot, err := infrastructuretest.FindProjectRoot()
-	if err != nil {
-		log.Fatalf("failed to find project root: %v", err)
-	}
-
-	schemaPath := filepath.Join(projectRoot, "infrastructure", "persistance", "RoomPlay2.sql")
-	if err := pgContainer.ApplySchema(ctx, schemaPath); err != nil {
-		log.Fatalf("failed to apply schema: %v", err)
-	}
-
-	// Seed database once
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	seeder := infrastructuretest.NewSeeder(dbx)
-	if err := seeder.SeedAll(ctx); err != nil {
-		log.Fatalf("failed to seed database: %v", err)
-	}
-
-	code := m.Run()
-
-	if err := pgContainer.Teardown(ctx); err != nil {
-		log.Printf("failed to teardown postgres: %v", err)
-	}
-
-	os.Exit(code)
-}
-
-func TestExternalCredentialsRepository_Grant(t *testing.T) {
-	ctx := context.Background()
-
-	// Start transaction
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestExternalCredentialsRepositoryGrant(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := NewExternalCredentialsRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
+	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
 	require.NoError(t, err, "failed to find a user in the database")
 
 	accessToken := "access_token_123"

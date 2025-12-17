@@ -15,8 +15,8 @@ import (
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/infrustructure_test/authentication_mocks"
-	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/persistance_mocks"
 )
 
 func TestLoginUserCommandHandler(t *testing.T) {

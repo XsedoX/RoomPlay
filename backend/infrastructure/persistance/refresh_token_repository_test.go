@@ -1,34 +1,26 @@
 package persistance
 
 import (
-	"context"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers/infrustructure_test/authentication_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
 )
 
-func TestRefreshTokenRepository_AssignNewToken(t *testing.T) {
-	ctx := context.Background()
-
-	// Start transaction
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
+	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
 	require.NoError(t, err, "failed to find a user in the database")
 
 	// Create a device for the user (if not exists, but seeder should have created one)
@@ -81,21 +73,15 @@ func TestRefreshTokenRepository_AssignNewToken(t *testing.T) {
 	mockEncrypter.AssertExpectations(t)
 }
 
-func TestRefreshTokenRepository_GetTokenByValue(t *testing.T) {
-	ctx := context.Background()
-
-	// Start transaction
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestRefreshTokenRepositoryGetTokenByValue(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
+	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
 	require.NoError(t, err, "failed to find a user in the database")
 
 	// Create device
@@ -142,21 +128,15 @@ func TestRefreshTokenRepository_GetTokenByValue(t *testing.T) {
 	mockEncrypter.AssertExpectations(t)
 }
 
-func TestRefreshTokenRepository_RetireTokenByUserIdAndDeviceId(t *testing.T) {
-	ctx := context.Background()
-
-	// Start transaction
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestRefreshTokenRepositoryRetireTokenByUserIdAndDeviceId(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
+	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
 	require.NoError(t, err)
 
 	// Create device
@@ -187,21 +167,15 @@ func TestRefreshTokenRepository_RetireTokenByUserIdAndDeviceId(t *testing.T) {
 	assert.Equal(t, 0, count)
 }
 
-func TestRefreshTokenRepository_RetireAllTokensByUserId(t *testing.T) {
-	ctx := context.Background()
-
-	// Start transaction
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestRefreshTokenRepositoryRetireAllTokensByUserId(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID
-	err = txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
+	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
 	require.NoError(t, err)
 
 	// Create 2 devices

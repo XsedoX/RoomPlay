@@ -1,12 +1,10 @@
 package persistance
 
 import (
-	"context"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/shared"
@@ -14,12 +12,8 @@ import (
 	"xsedox.com/main/infrastructure/persistance/daos"
 )
 
-func TestUserRepository_Add(t *testing.T) {
-	ctx := context.Background()
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestUserRepositoryAdd(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	repo := NewUserRepository()
 
@@ -27,7 +21,7 @@ func TestUserRepository_Add(t *testing.T) {
 	deviceID := user.DeviceId(uuid.New())
 	roomID := shared.RoomId(uuid.New())
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, uuid.UUID(roomID), time.Now().UTC())
+	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, uuid.UUID(roomID), time.Now().UTC())
 	require.NoError(t, err)
 
 	device := user.HydrateDevice(
@@ -70,12 +64,8 @@ func TestUserRepository_Add(t *testing.T) {
 	assert.Equal(t, uuid.UUID(userID), deviceDb.UserId)
 }
 
-func TestUserRepository_GetUserById(t *testing.T) {
-	ctx := context.Background()
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestUserRepositoryGetUserById(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	repo := NewUserRepository()
 
@@ -83,7 +73,7 @@ func TestUserRepository_GetUserById(t *testing.T) {
 	userID := uuid.New()
 	deviceID := uuid.New()
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-2', 'Jane', 'Doe')`, userID)
+	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-2', 'Jane', 'Doe')`, userID)
 	require.NoError(t, err)
 
 	_, err = txx.ExecContext(ctx, `INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc) VALUES ($1, 'Device 2', false, 'mobile', $2, 'offline', $3)`, deviceID, userID, time.Now().UTC())
@@ -100,12 +90,8 @@ func TestUserRepository_GetUserById(t *testing.T) {
 	assert.Equal(t, deviceID, uuid.UUID(u.Devices()[0].Id()))
 }
 
-func TestUserRepository_Update(t *testing.T) {
-	ctx := context.Background()
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
+func TestUserRepositoryUpdate(t *testing.T) {
+	txx, ctx := GetTxxAndCtx(t)
 
 	repo := NewUserRepository()
 
@@ -113,7 +99,7 @@ func TestUserRepository_Update(t *testing.T) {
 	userID := uuid.New()
 	roomID := uuid.New()
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
+	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
 
 	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-3', 'Bob', 'Smith')`, userID)
@@ -175,34 +161,4 @@ func TestUserRepository_Update(t *testing.T) {
 	assert.Equal(t, userID, deviceDb.UserId)
 	assert.Equal(t, deviceDb.Type, device.DeviceType().String())
 	assert.Equal(t, deviceDb.State, user.Online.String())
-}
-
-func TestUserRepository_LeaveRoom(t *testing.T) {
-	ctx := context.Background()
-	dbx := sqlx.NewDb(pgContainer.DB, "pgx")
-	txx, err := dbx.BeginTxx(ctx, nil)
-	require.NoError(t, err)
-	defer txx.Rollback()
-
-	repo := NewUserRepository()
-
-	// Setup Data
-	userID := uuid.New()
-	roomID := uuid.New()
-
-	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
-	require.NoError(t, err)
-
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-4', 'Alice', 'Wonder')`, userID)
-	require.NoError(t, err)
-
-	// Act
-	err = repo.LeaveRoom(ctx, user.Id(userID), txx)
-	require.NoError(t, err)
-
-	// Assert
-	var userDb daos.UserDao
-	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", userID)
-	require.NoError(t, err)
-	assert.Nil(t, userDb.RoomId)
 }

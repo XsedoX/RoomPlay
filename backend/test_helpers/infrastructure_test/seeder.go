@@ -1,10 +1,11 @@
-package infrustructure_test
+package infrastructure_test
 
 import (
 	"context"
 	"fmt"
 	"time"
 
+	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"xsedox.com/main/application/contracts"
 	"xsedox.com/main/domain/room"
@@ -19,6 +20,11 @@ var userIds = []user.Id{
 	user.Id(uuid.New()),
 	user.Id(uuid.New()),
 }
+var songsPlayedAt = []time.Time{
+	time.Date(2001, 11, 22, 12, 5, 00, 00, time.UTC),
+	time.Date(2022, 12, 1, 15, 30, 00, 00, time.UTC),
+	time.Date(2023, 6, 15, 18, 45, 00, 00, time.UTC),
+}
 var songs = []room.Song{
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId1",
@@ -27,11 +33,12 @@ var songs = []room.Song{
 		349,
 		userIds[0],
 		time.Date(2001, 11, 22, 12, 00, 00, 00, time.UTC),
-		nil,
+		&songsPlayedAt[0],
 		room.Played,
 		88,
 		false,
 		false,
+		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId2",
@@ -45,6 +52,7 @@ var songs = []room.Song{
 		8,
 		true,
 		false,
+		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId3",
@@ -58,6 +66,7 @@ var songs = []room.Song{
 		0,
 		false,
 		true,
+		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId4",
@@ -71,6 +80,7 @@ var songs = []room.Song{
 		5,
 		false,
 		false,
+		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId5",
@@ -84,6 +94,7 @@ var songs = []room.Song{
 		15,
 		true,
 		true,
+		faker.URL(),
 	),
 }
 var rooms = []room.Room{
@@ -147,17 +158,24 @@ var devices = []user.Device{
 		user.Offline,
 		time.Date(2023, 2, 2, 12, 00, 00, 00, time.UTC),
 	),
+	*user.HydrateDevice(user.DeviceId(uuid.New()),
+		"device5",
+		user.Desktop,
+		false,
+		user.Online,
+		time.Date(2025, 2, 2, 12, 00, 00, 00, time.UTC),
+	),
 }
-var users = []*user.User{
-	user.HydrateUser(userIds[0],
+var users = []user.User{
+	*user.HydrateUser(userIds[0],
 		"externalId1",
 		"name1",
 		"surname1",
 		nil,
 		nil,
-		devices,
+		[]user.Device{devices[4]},
 		nil),
-	user.HydrateUser(userIds[1],
+	*user.HydrateUser(userIds[1],
 		"externalId2",
 		"name2",
 		"surname2",
@@ -165,7 +183,7 @@ var users = []*user.User{
 		nil,
 		[]user.Device{devices[1]},
 		nil),
-	user.HydrateUser(userIds[2],
+	*user.HydrateUser(userIds[2],
 		"externalId3",
 		"name3",
 		"surname3",
@@ -173,7 +191,7 @@ var users = []*user.User{
 		nil,
 		[]user.Device{devices[2]},
 		nil),
-	user.HydrateUser(userIds[3],
+	*user.HydrateUser(userIds[3],
 		"externalId4",
 		"name4",
 		"surname4",
@@ -181,7 +199,7 @@ var users = []*user.User{
 		nil,
 		[]user.Device{devices[3]},
 		nil),
-	user.HydrateUser(userIds[4],
+	*user.HydrateUser(userIds[4],
 		"externalId5",
 		"name5",
 		"surname5",
@@ -192,9 +210,16 @@ var users = []*user.User{
 }
 
 var SeedData = struct {
-	Room room.Room
-	User user.User
-}{}
+	Rooms   []room.Room
+	Users   []user.User
+	Songs   []room.Song
+	Devices []user.Device
+}{
+	Rooms:   rooms,
+	Songs:   songs,
+	Users:   users,
+	Devices: devices,
+}
 
 type Seeder struct {
 	Queryer contracts.IQueryer
@@ -207,13 +232,13 @@ func NewSeeder(queryer contracts.IQueryer) *Seeder {
 }
 
 func (s *Seeder) SeedAll(ctx context.Context) error {
-	for _, user := range users {
-		if err := s.SeedUser(ctx, user); err != nil {
+	for _, user1 := range users {
+		if err := s.SeedUser(ctx, &user1); err != nil {
 			return err
 		}
-		devices := user.Devices()
-		for i := range devices {
-			if err := s.SeedDevice(ctx, &devices[i], user.Id()); err != nil {
+		devices1 := user1.Devices()
+		for i := range devices1 {
+			if err := s.SeedDevice(ctx, &devices1[i], user1.Id()); err != nil {
 				return err
 			}
 		}
@@ -226,18 +251,18 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 	}
 
 	for i := range rooms {
-		room := &rooms[i]
-		if err := s.SeedRoom(ctx, room); err != nil {
+		room1 := &rooms[i]
+		if err := s.SeedRoom(ctx, room1); err != nil {
 			return err
 		}
-		songsInRoom := room.SongsList()
+		songsInRoom := room1.SongsList()
 		for j := range songsInRoom {
-			if err := s.SeedEnqueuedSong(ctx, &songsInRoom[j], room.Id()); err != nil {
+			if err := s.SeedEnqueuedSong(ctx, &songsInRoom[j], room1.Id()); err != nil {
 				return err
 			}
 		}
-		for _, memberId := range room.Members() {
-			if err := s.SeedUserRoomData(ctx, room.Id(), memberId); err != nil {
+		for _, memberId := range room1.Members() {
+			if err := s.SeedUserRoomData(ctx, room1.Id(), memberId); err != nil {
 				return err
 			}
 		}
@@ -272,7 +297,7 @@ func (s *Seeder) SeedSong(ctx context.Context, song *room.Song) error {
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO songs (id, external_id, title, author, length_seconds, album_cover_url)
 		VALUES ($1, $2, $3, $4, $5, $6)
-	`, song.Id(), song.ExternalId(), song.Title(), song.Author(), song.LengthSeconds(), song.a())
+	`, song.Id(), song.ExternalId(), song.Title(), song.Author(), song.LengthSeconds(), song.AlbumCoverUrl())
 	if err != nil {
 		return fmt.Errorf("failed to seed song: %w", err)
 	}
@@ -283,7 +308,7 @@ func (s *Seeder) SeedEnqueuedSong(ctx context.Context, song *room.Song, roomID s
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO enqueued_songs (id, room_id, song_id, added_by, added_at_utc, state, votes)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, uuid.New(), roomID, song.Id(), song.AddedBy(), song.StartedAtUtc(), song.State().String(), song.Votes())
+	`, uuid.New(), roomID, song.Id(), song.AddedBy(), song.AddedAtUtc(), song.State().String(), song.Votes())
 	if err != nil {
 		return fmt.Errorf("failed to seed enqueued song: %w", err)
 	}

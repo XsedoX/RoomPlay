@@ -10,7 +10,7 @@ import (
 	"xsedox.com/main/application"
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/persistance_mocks"
 )
 
 func TestGetUserRoomMembershipQueryHandler(t *testing.T) {

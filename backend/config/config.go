@@ -63,6 +63,9 @@ func Load() *Configuration {
 	var config Configuration
 	readFile(&config)
 	loadEnv(&config)
+	if config.Authentication().ClientSecret == "" {
+		processError(fmt.Errorf("client secret is required"))
+	}
 	return &config
 }
 func loadEnv(cfg *Configuration) {

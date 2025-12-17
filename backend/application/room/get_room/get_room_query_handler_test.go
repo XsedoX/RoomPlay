@@ -17,7 +17,7 @@ import (
 	"xsedox.com/main/domain/room"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/infrustructure_test/persistance_mocks"
+	"xsedox.com/main/test_helpers/infrastructure_test/persistance_mocks"
 )
 
 func TestGetRoomQueryHandler(t *testing.T) {
