@@ -17,21 +17,25 @@ type Server struct {
 	router *chi.Mux
 }
 
-func NewServer(dependencies *initialization.ServerDependencies) *Server {
+func NewServer(dependencies *initialization.ServerDependencies, customMiddlewares ...func(http.Handler) http.Handler) *Server {
 	router := chi.NewRouter()
 	customCors := customMiddleware.NewCustomCors(dependencies.Configuration())
 	jwtAuthMiddleware := customMiddleware.NewCookieJwtAuthentication(dependencies.Configuration(), dependencies.JwtProvider())
 	securityHeadersMiddleware := customMiddleware.NewSecurityHeaders(dependencies.Configuration())
+	// Apply custom middlewares
+	router.Use(customMiddlewares...)
 
-	router.Use(securityHeadersMiddleware.Next,
-		customCors.CorsHandler(),
-		middleware.Logger,
-		middleware.Recoverer)
+	if !dependencies.Configuration().IsTesting() {
+		router.Use(securityHeadersMiddleware.Next,
+			customCors.CorsHandler(),
+			middleware.Logger,
+			middleware.Recoverer)
 
-	swaggerDocUrl := fmt.Sprintf("%v:%v/api/swagger/doc.json",
-		(dependencies.Configuration()).Server().Host,
-		(dependencies.Configuration()).Server().Port)
-	router.Get("/api/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerDocUrl)))
+		swaggerDocUrl := fmt.Sprintf("%v:%v/api/swagger/doc.json",
+			(dependencies.Configuration()).Server().Host,
+			(dependencies.Configuration()).Server().Port)
+		router.Get("/api/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerDocUrl)))
+	}
 
 	apiV1 := chi.NewRouter()
 
@@ -42,7 +46,9 @@ func NewServer(dependencies *initialization.ServerDependencies) *Server {
 
 	// Secured routes
 	apiV1.Group(func(r chi.Router) {
-		r.Use(jwtAuthMiddleware.Next)
+		if !dependencies.Configuration().IsTesting() {
+			r.Use(jwtAuthMiddleware.Next)
+		}
 
 		r.Post("/auth/logout", dependencies.AuthenticationController().Logout)
 
@@ -71,4 +77,10 @@ func (s *Server) Start(configuration config.IConfiguration) {
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+}
+func (s *Server) Router() *chi.Mux {
+	return s.router
+}
+func (s *Server) UpdateRouter(newRouter *chi.Mux) {
+	s.router = newRouter
 }

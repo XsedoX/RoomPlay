@@ -1,4 +1,4 @@
-package persistance
+package persistance_tests
 
 import (
 	"testing"
@@ -9,14 +9,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
+	"xsedox.com/main/infrastructure/persistance"
+	"xsedox.com/main/test_helpers/integration_tests"
+	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
 )
 
 func TestExternalCredentialsRepositoryGrant(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewExternalCredentialsRepository(mockEncrypter)
+	repo := persistance.NewExternalCredentialsRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID

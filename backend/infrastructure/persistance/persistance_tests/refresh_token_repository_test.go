@@ -1,4 +1,4 @@
-package persistance
+package persistance_tests
 
 import (
 	"testing"
@@ -9,14 +9,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/credentials"
 	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
+	"xsedox.com/main/infrastructure/persistance"
+	"xsedox.com/main/test_helpers/integration_tests"
+	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
 )
 
 func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRefreshTokenRepository(mockEncrypter)
+	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
@@ -74,10 +76,10 @@ func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {
 }
 
 func TestRefreshTokenRepositoryGetTokenByValue(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRefreshTokenRepository(mockEncrypter)
+	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
@@ -115,24 +117,16 @@ func TestRefreshTokenRepositoryGetTokenByValue(t *testing.T) {
 	assert.NotNil(t, retrievedToken)
 	assert.Equal(t, user.Id(userID), retrievedToken.Id())
 	assert.Equal(t, user.DeviceId(deviceID), retrievedToken.DeviceId())
-	// Note: The repository implementation seems to return the encrypted token bytes cast to string in HydrateRefreshToken?
-	// Let's check the implementation of GetTokenByValue in refresh_token_repository.go
-	// It does: string(tokenFromDb.RefreshToken) passed to HydrateRefreshToken.
-	// So the domain object will hold the encrypted string if that's what is passed.
-	// Wait, HydrateRefreshToken expects the raw token string usually?
-	// Looking at the code:
-	// return credentials.HydrateRefreshToken(..., string(tokenFromDb.RefreshToken), ...)
-	// So it returns whatever is in the DB.
 	assert.Equal(t, string(encryptedToken), retrievedToken.RefreshToken())
 
 	mockEncrypter.AssertExpectations(t)
 }
 
 func TestRefreshTokenRepositoryRetireTokenByUserIdAndDeviceId(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRefreshTokenRepository(mockEncrypter)
+	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID
@@ -168,10 +162,10 @@ func TestRefreshTokenRepositoryRetireTokenByUserIdAndDeviceId(t *testing.T) {
 }
 
 func TestRefreshTokenRepositoryRetireAllTokensByUserId(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRefreshTokenRepository(mockEncrypter)
+	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID

@@ -1,4 +1,4 @@
-package persistance
+package persistance_tests
 
 import (
 	"testing"
@@ -9,13 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
+	"xsedox.com/main/infrastructure/persistance"
 	"xsedox.com/main/infrastructure/persistance/daos"
+	"xsedox.com/main/test_helpers/integration_tests"
 )
 
 func TestUserRepositoryAdd(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
-	repo := NewUserRepository()
+	repo := persistance.NewUserRepository()
 
 	userID := user.Id(uuid.New())
 	deviceID := user.DeviceId(uuid.New())
@@ -65,9 +67,9 @@ func TestUserRepositoryAdd(t *testing.T) {
 }
 
 func TestUserRepositoryGetUserById(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
-	repo := NewUserRepository()
+	repo := persistance.NewUserRepository()
 
 	// Setup Data
 	userID := uuid.New()
@@ -91,9 +93,9 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 }
 
 func TestUserRepositoryUpdate(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
-	repo := NewUserRepository()
+	repo := persistance.NewUserRepository()
 
 	// Setup Data
 	userID := uuid.New()

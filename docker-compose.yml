@@ -8,7 +8,7 @@ services:
             POSTGRES_PASSWORD: sonar
             POSTGRES_DB: sonar-db
         volumes:
-            - sonar-db-data:/var/lib/postgresql/data
+            - ./data/sonar-db-data:/var/lib/postgresql/data
         networks:
             - sonar-net
 
@@ -22,9 +22,9 @@ services:
             - SONAR_JDBC_USERNAME=sonar
             - SONAR_JDBC_PASSWORD=sonar
         volumes:
-            - sonarqube-data:/opt/sonarqube/data
-            - sonarqube-extensions:/opt/sonarqube/extensions
-            - sonarqube-logs:/opt/sonarqube/logs
+            - ./data/sonarqube-data:/opt/sonarqube/data
+            - ./data/sonarqube-extensions:/opt/sonarqube/extensions
+            - ./data/sonarqube-logs:/opt/sonarqube/logs
         ports:
             - "9000:9000"
         networks:
@@ -45,14 +45,8 @@ services:
             POSTGRES_PASSWORD: dupa1234
             POSTGRES_DB: postgres
         volumes:
-            - roomplay-api-db-data:/var/lib/postgresql/data
+            - ./data/roomplay-api-db-data:/var/lib/postgresql/data
         ports:
             - "5432:5432"
-volumes:
-    sonar-db-data:
-    sonarqube-data:
-    sonarqube-extensions:
-    sonarqube-logs:
-    roomplay-api-db-data:
 networks:
     sonar-net:

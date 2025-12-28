@@ -1,4 +1,4 @@
-package infrastructure_test
+package integration_tests
 
 import (
 	"context"
@@ -20,7 +20,7 @@ var userIds = []user.Id{
 	user.Id(uuid.New()),
 	user.Id(uuid.New()),
 }
-var songsPlayedAt = []time.Time{
+var songsStartedAt = []time.Time{
 	time.Date(2001, 11, 22, 12, 5, 00, 00, time.UTC),
 	time.Date(2022, 12, 1, 15, 30, 00, 00, time.UTC),
 	time.Date(2023, 6, 15, 18, 45, 00, 00, time.UTC),
@@ -33,7 +33,7 @@ var songs = []room.Song{
 		349,
 		userIds[0],
 		time.Date(2001, 11, 22, 12, 00, 00, 00, time.UTC),
-		&songsPlayedAt[0],
+		&songsStartedAt[0],
 		room.Played,
 		88,
 		false,
@@ -47,7 +47,7 @@ var songs = []room.Song{
 		349,
 		userIds[1],
 		time.Date(2001, 10, 22, 12, 00, 00, 00, time.UTC),
-		nil,
+		&songsStartedAt[1],
 		room.Playing,
 		8,
 		true,
@@ -89,7 +89,7 @@ var songs = []room.Song{
 		180,
 		userIds[3],
 		time.Date(2023, 5, 10, 12, 00, 00, 00, time.UTC),
-		nil,
+		&songsStartedAt[2],
 		room.Played,
 		15,
 		true,
@@ -106,7 +106,7 @@ var rooms = []room.Room{
 		time.Date(2001, 11, 12, 12, 00, 00, 00, time.UTC),
 		uint32(time.Hour*30/time.Second),
 		songs,
-		userIds,
+		[]user.Id{userIds[3]},
 	),
 	*room.HydrateRoom(shared.RoomId(uuid.New()),
 		"room2",
@@ -166,12 +166,17 @@ var devices = []user.Device{
 		time.Date(2025, 2, 2, 12, 00, 00, 00, time.UTC),
 	),
 }
+var user1Role = user.Host
+var user2Role = user.Member
+var user3Role = user.Member
+var user4Role = user.Member
+var user5Role = user.Member
 var users = []user.User{
 	*user.HydrateUser(userIds[0],
 		"externalId1",
 		"name1",
 		"surname1",
-		nil,
+		&user1Role,
 		nil,
 		[]user.Device{devices[4]},
 		nil),
@@ -179,7 +184,7 @@ var users = []user.User{
 		"externalId2",
 		"name2",
 		"surname2",
-		nil,
+		&user2Role,
 		nil,
 		[]user.Device{devices[1]},
 		nil),
@@ -187,7 +192,7 @@ var users = []user.User{
 		"externalId3",
 		"name3",
 		"surname3",
-		nil,
+		&user3Role,
 		nil,
 		[]user.Device{devices[2]},
 		nil),
@@ -195,7 +200,7 @@ var users = []user.User{
 		"externalId4",
 		"name4",
 		"surname4",
-		nil,
+		&user4Role,
 		nil,
 		[]user.Device{devices[3]},
 		nil),
@@ -203,7 +208,7 @@ var users = []user.User{
 		"externalId5",
 		"name5",
 		"surname5",
-		nil,
+		&user5Role,
 		nil,
 		[]user.Device{devices[0]},
 		nil),
@@ -262,7 +267,14 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 			}
 		}
 		for _, memberId := range room1.Members() {
-			if err := s.SeedUserRoomData(ctx, room1.Id(), memberId); err != nil {
+			var userRole *user.UserRole
+			for _, u := range users {
+				if u.Id() == memberId {
+					userRole = u.Role()
+					break
+				}
+			}
+			if err := s.SeedUserRoomData(ctx, room1.Id(), memberId, userRole); err != nil {
 				return err
 			}
 		}
@@ -306,9 +318,9 @@ func (s *Seeder) SeedSong(ctx context.Context, song *room.Song) error {
 
 func (s *Seeder) SeedEnqueuedSong(ctx context.Context, song *room.Song, roomID shared.RoomId) error {
 	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO enqueued_songs (id, room_id, song_id, added_by, added_at_utc, state, votes)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, uuid.New(), roomID, song.Id(), song.AddedBy(), song.AddedAtUtc(), song.State().String(), song.Votes())
+		INSERT INTO enqueued_songs (id, room_id, song_id, added_by, added_at_utc, started_at_utc, state, votes)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`, uuid.New(), roomID, song.Id(), song.AddedBy(), song.AddedAtUtc(), song.StartedAtUtc(), song.State().String(), song.Votes())
 	if err != nil {
 		return fmt.Errorf("failed to seed enqueued song: %w", err)
 	}
@@ -326,8 +338,7 @@ func (s *Seeder) SeedDevice(ctx context.Context, device *user.Device, userID use
 	return nil
 }
 
-func (s *Seeder) SeedUserRoomData(ctx context.Context, roomID shared.RoomId, userID user.Id) error {
-	role := user.Member
+func (s *Seeder) SeedUserRoomData(ctx context.Context, roomID shared.RoomId, userID user.Id, role *user.UserRole) error {
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO users_room_data (room_id, user_id, role)
 		VALUES ($1, $2, $3)

@@ -49,7 +49,7 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 			response.BoostData = nil
 		}
 
-		if roomData.PlayingSongTitle != nil && roomData.PlayingSongAuthor != nil {
+		if roomData.PlayingSongTitle != nil && roomData.PlayingSongAuthor != nil && roomData.PlayingSongStartedAtUtc != nil && roomData.PlayingSongLengthSeconds != nil {
 			response.PlayingSong = &PlayingSongDto{
 				Title:         *roomData.PlayingSongTitle,
 				Author:        *roomData.PlayingSongAuthor,

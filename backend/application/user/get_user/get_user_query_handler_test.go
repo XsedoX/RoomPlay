@@ -14,7 +14,7 @@ import (
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/domain/user"
 	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/infrastructure_test/persistance_mocks"
+	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestGetUserQueryHandler(t *testing.T) {

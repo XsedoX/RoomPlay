@@ -1,4 +1,4 @@
-package persistance
+package persistance_tests
 
 import (
 	"testing"
@@ -10,16 +10,17 @@ import (
 	"xsedox.com/main/domain/room"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/domain/user"
+	"xsedox.com/main/infrastructure/persistance"
 	"xsedox.com/main/infrastructure/persistance/daos"
-	"xsedox.com/main/test_helpers/infrastructure_test"
-	"xsedox.com/main/test_helpers/infrastructure_test/authentication_mocks"
+	"xsedox.com/main/test_helpers/integration_tests"
+	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
 )
 
 func TestRoomRepositoryCreateRoom(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
 	// Setup User
 	userID := user.Id(uuid.New())
@@ -83,10 +84,10 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 	mockEncrypter.AssertExpectations(t)
 }
 func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
 	// Setup Data
 	roomID := uuid.New()
@@ -134,10 +135,10 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	assert.Equal(t, "upvoted", songDao.VoteStatus)
 }
 func TestRoomRepositoryCheckUserMembership(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
 	// Setup User with Room
 	userID1 := uuid.New()
@@ -162,11 +163,11 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 	assert.False(t, exists2)
 }
 func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
-	userIdToLeaveRoomFrom := infrastructure_test.SeedData.Rooms[0].Members()[0]
+	userIdToLeaveRoomFrom := integration_tests.SeedData.Rooms[0].Members()[0]
 	err := repo.LeaveRoom(ctx, userIdToLeaveRoomFrom, txx)
 
 	require.NoError(t, err)
@@ -176,10 +177,10 @@ func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 	assert.False(t, isUserInRoom)
 }
 func TestRoomRepositoryLeaveRoom(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
 	// Setup Data
 	userID := uuid.New()
@@ -202,11 +203,11 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	assert.Nil(t, userDb.RoomId)
 }
 func TestRoomRepositoryJoinRoomById(t *testing.T) {
-	txx, ctx := GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t)
 	var err error
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := persistance.NewRoomRepository(mockEncrypter)
 
 	// Setup: create a user and a room
 	userID := uuid.New()

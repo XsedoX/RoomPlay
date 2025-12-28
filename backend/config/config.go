@@ -59,6 +59,9 @@ func (conf *Configuration) IsProduction() bool {
 	return conf.Environment == envProduction
 }
 
+func (conf *Configuration) IsTesting() bool {
+	return conf.Environment == "testing"
+}
 func Load() *Configuration {
 	var config Configuration
 	readFile(&config)

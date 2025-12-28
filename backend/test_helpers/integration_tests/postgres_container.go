@@ -1,13 +1,13 @@
-package infrastructure_test
+package integration_tests
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -15,7 +15,7 @@ import (
 
 type PostgresContainer struct {
 	Container *postgres.PostgresContainer
-	DB        *sql.DB
+	DB        *sqlx.DB
 	ConnStr   string
 }
 
@@ -32,7 +32,7 @@ func SetupPostgres(ctx context.Context) (*PostgresContainer, error) {
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2).
-				WithStartupTimeout(5*time.Second)),
+				WithStartupTimeout(30*time.Second)),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start postgres container: %w", err)
@@ -43,7 +43,7 @@ func SetupPostgres(ctx context.Context) (*PostgresContainer, error) {
 		return nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
-	db, err := sql.Open("pgx", connStr)
+	db, err := sqlx.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open db connection: %w", err)
 	}

@@ -7,4 +7,5 @@ type IConfiguration interface {
 	Database() Database
 	Authentication() Authentication
 	Scopes() string
+	IsTesting() bool
 }

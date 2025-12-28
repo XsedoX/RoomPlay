@@ -13,7 +13,7 @@ import (
 	"xsedox.com/main/application/custom_errors"
 	"xsedox.com/main/domain/shared"
 	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/infrastructure_test/persistance_mocks"
+	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestJoinRoomPasswordCommandHandler(t *testing.T) {
