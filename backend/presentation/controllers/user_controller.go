@@ -8,6 +8,10 @@ import (
 	"xsedox.com/main/presentation/response"
 )
 
+const (
+	UserBasePath = "/user"
+)
+
 type UserController struct {
 	getUserDataQueryHandler contracts.IQueryHandler[*get_user.GetUserQueryResponse]
 }

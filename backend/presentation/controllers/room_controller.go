@@ -12,6 +12,11 @@ import (
 	"xsedox.com/main/presentation/response"
 )
 
+const (
+	RoomBasePath           = "/room"
+	RoomMembershipBasePath = "/membership"
+)
+
 type RoomController struct {
 	createRoomCommandHandler          contracts.ICommandHandler[*create_room.CreateRoomCommand]
 	getRoomQueryHandler               contracts.IQueryHandler[*get_room.GetRoomQueryResponse]

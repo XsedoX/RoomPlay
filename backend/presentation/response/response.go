@@ -30,7 +30,6 @@ type ProblemDetails struct {
 func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance string, statusCode int, errors ...map[string]string) {
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.Header().Set("Content-Language", "en")
-	w.WriteHeader(statusCode)
 
 	var error1 map[string]string
 	if len(errors) > 0 {
@@ -39,16 +38,23 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 		error1 = nil
 	}
 
-	if err := json.NewEncoder(w).Encode(&ProblemDetails{
+	resp := &ProblemDetails{
 		Type:             type1,
 		ValidationErrors: error1,
 		Title:            title,
 		Description:      description,
 		Instance:         instance,
 		Status:           statusCode,
-	}); err != nil {
-		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 	}
+
+	bytes, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(statusCode)
+	w.Write(bytes)
 }
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
 	var applicationError *custom_errors.CustomError
@@ -93,19 +99,18 @@ func WriteJsonNoContent(w http.ResponseWriter) {
 }
 func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
 
-	if len(data) == 0 {
-		if err := json.NewEncoder(w).Encode(&Success{
-			Data: nil,
-		}); err != nil {
-			http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
-		}
+	resp := &Success{Data: nil}
+	if len(data) > 0 {
+		resp.Data = data[0]
+	}
+
+	bytes, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(&Success{
-		Data: data[0],
-	}); err != nil {
-		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
-	}
+
+	w.WriteHeader(statusCode)
+	w.Write(bytes)
 }

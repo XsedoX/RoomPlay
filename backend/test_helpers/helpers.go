@@ -16,3 +16,7 @@ func AddUserIdToContext(ctx context.Context) (user.Id, context.Context) {
 
 func PtrString(s string) *string     { return &s }
 func PtrTime(t time.Time) *time.Time { return &t }
+
+type TestResponseWrapper[T any] struct {
+	Data T `json:"data"`
+}

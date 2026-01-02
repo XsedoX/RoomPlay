@@ -22,7 +22,8 @@ type AuthenticationController struct {
 
 func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse],
 	configuration config.IConfiguration,
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand]) *AuthenticationController {
+	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand],
+) *AuthenticationController {
 	return &AuthenticationController{
 		loginRefreshTokenCommandHandler:  refreshTokenCommandHandler,
 		configuration:                    configuration,

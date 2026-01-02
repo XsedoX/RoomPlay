@@ -10,7 +10,9 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	"xsedox.com/main/config"
 	"xsedox.com/main/initialization"
+	"xsedox.com/main/presentation/controllers"
 	customMiddleware "xsedox.com/main/presentation/custom_middleware"
+	"xsedox.com/main/presentation/helpers"
 )
 
 type Server struct {
@@ -52,19 +54,19 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 
 		r.Post("/auth/logout", dependencies.AuthenticationController().Logout)
 
-		r.Route("/room", func(r chi.Router) {
+		r.Route(controllers.RoomBasePath, func(r chi.Router) {
 			r.Post("/", dependencies.RoomController().CreateRoom)
 			r.Get("/", dependencies.RoomController().GetRoom)
 			r.Delete("/", dependencies.RoomController().LeaveRoom)
-			r.Get("/membership", dependencies.RoomController().CheckUserRoomMembership)
+			r.Get(controllers.RoomMembershipBasePath, dependencies.RoomController().CheckUserRoomMembership)
 		})
 
-		r.Route("/user", func(r chi.Router) {
+		r.Route(controllers.UserBasePath, func(r chi.Router) {
 			r.Get("/", dependencies.UserController().GetUserData)
 		})
 	})
 
-	router.Mount("/api/v1", apiV1)
+	router.Mount(helpers.ApiBasePath, apiV1)
 
 	return &Server{
 		router: router,

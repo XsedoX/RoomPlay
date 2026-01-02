@@ -18,10 +18,10 @@ import (
 )
 
 var (
-	PgContainer    *PostgresContainer
-	TestServer     *presentation.Server
-	Ctx            context.Context
-	InjectedUserId user.Id
+	PgContainer  *PostgresContainer
+	TestServer   *presentation.Server
+	Ctx          context.Context
+	InjectedUser = SeedData.Users[0]
 )
 
 func InitializeDatabaseContainer() {
@@ -77,8 +77,7 @@ func InitializeApiServer(m *testing.M) {
 	configuration := othermocks.MockConfiguration{}
 
 	db := PgContainer.DB
-	injectedUser := SeedData.Users[0]
-	InjectedUserId = injectedUser.Id()
+	InjectedUserId := InjectedUser.Id()
 	injectedUserClaim := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := context.WithValue(r.Context(), user.IdClaimContextKeyName, &InjectedUserId)
