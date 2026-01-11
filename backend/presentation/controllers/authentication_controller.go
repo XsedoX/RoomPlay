@@ -14,6 +14,11 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
+const (
+	AuthBasePath   = "/auth"
+	LogoutBasePath = "/logout"
+)
+
 type AuthenticationController struct {
 	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse]
 	configuration                    config.IConfiguration

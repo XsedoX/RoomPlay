@@ -133,7 +133,7 @@ func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *ht
 	base64RefreshToken := base64.RawURLEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
 	helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
 	helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath)
-	setDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
+	helpers.SetDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
 	clearStateCookie(w, handler.configuration.Server().BasePath)
 
 	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)
@@ -144,19 +144,6 @@ func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath stri
 	http.SetCookie(w, &http.Cookie{
 		Name:     helpers.RoomPlayDeviceTypeCookieName,
 		Value:    deviceType,
-		Expires:  expiresAt,
-		Path:     basePath,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	})
-}
-
-func setDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
-	expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)
-	http.SetCookie(w, &http.Cookie{
-		Name:     helpers.RoomPlayDeviceIdCookieName,
-		Value:    deviceId,
 		Expires:  expiresAt,
 		Path:     basePath,
 		HttpOnly: true,

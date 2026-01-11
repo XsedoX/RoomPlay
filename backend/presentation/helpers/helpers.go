@@ -19,6 +19,7 @@ func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {
 		SameSite: http.SameSiteLaxMode,
 	})
 }
+
 func ClearRefreshTokenCookie(w http.ResponseWriter, basePath string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     RoomplayRefreshTokenCookieName,
@@ -43,6 +44,7 @@ func SetAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) {
 		SameSite: http.SameSiteLaxMode,
 	})
 }
+
 func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string) {
 	expiresAt := time.Now().Add(credentials.RefreshTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
@@ -50,6 +52,19 @@ func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string)
 		Value:    refreshToken,
 		Expires:  expiresAt,
 		Path:     basePath + "/auth/refresh-token",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func SetDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
+	expiresAt := time.Now().UTC().Add(RoomPlayDeviceIdCookieExpirationTime)
+	http.SetCookie(w, &http.Cookie{
+		Name:     RoomPlayDeviceIdCookieName,
+		Value:    deviceId,
+		Expires:  expiresAt,
+		Path:     basePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
