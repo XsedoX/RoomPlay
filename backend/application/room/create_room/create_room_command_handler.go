@@ -3,11 +3,11 @@ package create_room
 import (
 	"context"
 
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	contracts2 "xsedox.com/main/application/room/contracts"
-	"xsedox.com/main/domain/room"
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	contracts2 "github.com/XsedoX/RoomPlay/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/domain/room"
 )
 
 type CreateRoomCommandHandler struct {
@@ -18,7 +18,8 @@ type CreateRoomCommandHandler struct {
 
 func NewCreateRoomCommandHandler(roomRepository contracts2.IRoomRepository,
 	unitOfWork contracts.IUnitOfWork,
-	encrypter contracts.IEncrypter) *CreateRoomCommandHandler {
+	encrypter contracts.IEncrypter,
+) *CreateRoomCommandHandler {
 	return &CreateRoomCommandHandler{
 		roomRepository: roomRepository,
 		unitOfWork:     unitOfWork,
@@ -36,10 +37,10 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *Cre
 		roomInstance := room.NewRoom(command.RoomName, command.RoomPassword, string(qrCode), *userId)
 		err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_errors.NewCustomError("CreateRoomCommandHandler.CreateRoom",
+			return customerrors.NewCustomError("CreateRoomCommandHandler.CreateRoom",
 				"Problem with creating a room.",
 				err,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		return nil
 	})

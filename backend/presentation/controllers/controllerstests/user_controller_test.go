@@ -8,11 +8,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/application/user/get_user"
-	"xsedox.com/main/presentation/controllers"
-	"xsedox.com/main/presentation/helpers"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests"
+	"github.com/XsedoX/RoomPlay/application/user/get_user"
+	"github.com/XsedoX/RoomPlay/presentation/controllers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 )
 
 func TestGetUserData(t *testing.T) {

@@ -4,17 +4,17 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	"xsedox.com/main/config"
-	"xsedox.com/main/infrastructure/persistance"
-	"xsedox.com/main/infrastructure/validation"
-	"xsedox.com/main/initialization"
-	"xsedox.com/main/presentation"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
+	"github.com/XsedoX/RoomPlay/infrastructure/validation"
+	"github.com/XsedoX/RoomPlay/initialization"
+	"github.com/XsedoX/RoomPlay/presentation"
 )
 
 import (
 	"context"
 
-	_ "xsedox.com/main/docs"
+	_ "github.com/XsedoX/RoomPlay/docs"
 )
 
 // @title RoomPlay API

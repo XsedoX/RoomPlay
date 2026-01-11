@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/application/room/get_room/daos"
+	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/application/room/get_room/daos"
-	"xsedox.com/main/domain/room"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestGetRoomQueryHandler(t *testing.T) {
@@ -170,7 +170,6 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		}
 
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
-
 	})
 	t.Run("ShouldReturnRoomSuccess", func(t *testing.T) {
 		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
@@ -240,7 +239,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)

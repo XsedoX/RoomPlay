@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/contracts"
 )
 
 type MockUnitOfWork struct {

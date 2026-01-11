@@ -1,4 +1,4 @@
-package custom_errors
+package customerrors
 
 import (
 	"database/sql"
@@ -18,7 +18,6 @@ func NewCustomError(code, title string, err error, errorType Type) *CustomError 
 		return &CustomError{Code: code, ErrorType: NotFound, Err: err, Title: title}
 	}
 	return &CustomError{Code: code, ErrorType: errorType, Err: err, Title: title}
-
 }
 
 func (e CustomError) Error() string {

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/credentials"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 )
 
 type MockExternalCredentialsRepository struct {

@@ -3,8 +3,8 @@ package room
 import (
 	"time"
 
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type Song struct {

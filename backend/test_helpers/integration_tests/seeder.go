@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/room"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 var userIds = []user.Id{

@@ -3,8 +3,8 @@ package contracts
 import (
 	"context"
 
-	contracts2 "xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/user"
+	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type IUserRepository interface {

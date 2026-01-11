@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"xsedox.com/main/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/contracts"
 )
 
 type UnitOfWork struct {

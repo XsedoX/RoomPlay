@@ -1,19 +1,19 @@
-package persistance_tests
+package persistancetests
 
 import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/domain/room"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/persistance"
-	"xsedox.com/main/infrastructure/persistance/daos"
-	"xsedox.com/main/test_helpers/integration_tests"
-	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
 )
 
 func TestRoomRepositoryCreateRoom(t *testing.T) {
@@ -83,6 +83,7 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 
 	mockEncrypter.AssertExpectations(t)
 }
+
 func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
@@ -134,6 +135,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	assert.Equal(t, "Test User", songDao.AddedBy) // Concat name + surname
 	assert.Equal(t, "upvoted", songDao.VoteStatus)
 }
+
 func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
@@ -162,6 +164,7 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 	exists2 := repo.CheckUserMembership(ctx, user.Id(userID2), txx)
 	assert.False(t, exists2)
 }
+
 func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 	txx, ctx := integration_tests.GetTxxAndCtx(t)
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
@@ -176,6 +179,7 @@ func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, isUserInRoom)
 }
+
 func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	txx, ctx := integration_tests.GetTxxAndCtx(t)
 
@@ -202,6 +206,7 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	require.NoError(t, err)
 	assert.Nil(t, userDb.RoomId)
 }
+
 func TestRoomRepositoryJoinRoomById(t *testing.T) {
 	txx, ctx := integration_tests.GetTxxAndCtx(t)
 	var err error

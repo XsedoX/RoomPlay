@@ -1,7 +1,7 @@
 package contracts
 
 import (
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type IJwtProvider interface {

@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	contracts3 "xsedox.com/main/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	contracts3 "github.com/XsedoX/RoomPlay/application/room/contracts"
 )
 
 type GetRoomQueryHandler struct {
@@ -16,7 +16,8 @@ type GetRoomQueryHandler struct {
 }
 
 func NewGetRoomQueryHandler(unitOfWork contracts.IUnitOfWork,
-	roomRepository contracts3.IRoomRepository) *GetRoomQueryHandler {
+	roomRepository contracts3.IRoomRepository,
+) *GetRoomQueryHandler {
 	return &GetRoomQueryHandler{
 		unitOfWork:     unitOfWork,
 		roomRepository: roomRepository,
@@ -32,10 +33,10 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 	err := r.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer())
 		if getRoomDataErr != nil {
-			return custom_errors.NewCustomError("GetRoomQueryHandler.GetRoomByUserId",
+			return customerrors.NewCustomError("GetRoomQueryHandler.GetRoomByUserId",
 				"Couldn't get user's room.",
 				getRoomDataErr,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		response.Name = roomData.Name
 		response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
@@ -73,7 +74,6 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*GetRoomQueryResponse,
 			})
 		}
 		return nil
-
 	})
 	if err != nil {
 		return nil, err

@@ -11,12 +11,12 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/application/room/create_room"
-	"xsedox.com/main/application/room/get_room"
-	"xsedox.com/main/presentation/controllers"
-	"xsedox.com/main/presentation/helpers"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests"
+	"github.com/XsedoX/RoomPlay/application/room/create_room"
+	"github.com/XsedoX/RoomPlay/application/room/get_room"
+	"github.com/XsedoX/RoomPlay/presentation/controllers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 )
 
 func TestGetRoomSuccess(t *testing.T) {

@@ -4,14 +4,14 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/login_user_refresh_token"
-	"xsedox.com/main/application/user/logout_user"
-	"xsedox.com/main/config"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/presentation/helpers"
-	"xsedox.com/main/presentation/response"
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/login_user_refresh_token"
+	"github.com/XsedoX/RoomPlay/application/user/logout_user"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
 type AuthenticationController struct {

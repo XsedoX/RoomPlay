@@ -6,7 +6,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	"xsedox.com/main/config"
+	"github.com/XsedoX/RoomPlay/config"
 )
 
 func InitializeDatabase(ctx context.Context, configuration config.IConfiguration) *sqlx.DB {

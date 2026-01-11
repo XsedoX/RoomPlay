@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/room/create_room"
-	"xsedox.com/main/application/room/get_room"
-	"xsedox.com/main/application/room/leave_room"
-	"xsedox.com/main/infrastructure/validation"
-	"xsedox.com/main/presentation/response"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/create_room"
+	"github.com/XsedoX/RoomPlay/application/room/get_room"
+	"github.com/XsedoX/RoomPlay/application/room/leave_room"
+	"github.com/XsedoX/RoomPlay/infrastructure/validation"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
 const (

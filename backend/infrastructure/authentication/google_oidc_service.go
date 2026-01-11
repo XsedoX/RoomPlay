@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"xsedox.com/main/application/dtos"
-	"xsedox.com/main/config"
+	"github.com/XsedoX/RoomPlay/application/dtos"
+	"github.com/XsedoX/RoomPlay/config"
 )
 
 const (

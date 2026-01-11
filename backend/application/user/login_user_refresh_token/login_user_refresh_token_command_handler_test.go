@@ -6,15 +6,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
@@ -42,7 +42,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -65,10 +65,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		)
 		tokenCommand := uuid.New().String()
 		mockUoW.On("GetQueryer").Return(nil)
-		errToBeReturned := custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
+		errToBeReturned := customerrors.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
 			"Refresh token expired",
 			nil,
-			custom_errors.Unauthorized)
+			customerrors.Unauthorized)
 		returnedRefreshToken := credentials.HydrateRefreshToken(
 			user.Id(uuid.New()),
 			user.DeviceId(uuid.New()),
@@ -83,10 +83,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_errors.CustomError
+		var parsedErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, errToBeReturned.Err)
-		assert.Equal(t, parsedErr.ErrorType, custom_errors.Unauthorized)
+		assert.Equal(t, parsedErr.ErrorType, customerrors.Unauthorized)
 		assert.Equal(t, parsedErr.Title, errToBeReturned.Title)
 		assert.Equal(t, parsedErr.Code, errToBeReturned.Code)
 		mockUoW.AssertExpectations(t)
@@ -126,10 +126,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_errors.CustomError
+		var parsedErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, userRepositoryErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_errors.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertExpectations(t)
 		mockRefreshTokenRepository.AssertExpectations(t)
@@ -191,10 +191,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_errors.CustomError
+		var parsedErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, assignTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_errors.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertExpectations(t)
 		mockRefreshTokenRepository.AssertExpectations(t)
@@ -255,10 +255,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Empty(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_errors.CustomError
+		var parsedErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, generateTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_errors.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertExpectations(t)
 		mockRefreshTokenRepository.AssertExpectations(t)

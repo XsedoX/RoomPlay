@@ -3,7 +3,7 @@ package contracts
 import (
 	"context"
 
-	"xsedox.com/main/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/shared"
 )
 
 type IEventPublisher interface {

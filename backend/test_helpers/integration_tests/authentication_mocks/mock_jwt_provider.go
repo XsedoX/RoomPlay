@@ -2,7 +2,7 @@ package authentication_mocks
 
 import (
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type MockJwtProvider struct {

@@ -3,10 +3,10 @@ package get_user
 import (
 	"context"
 
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	contracts2 "xsedox.com/main/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
 )
 
 type GetUserQueryHandler struct {
@@ -15,10 +15,12 @@ type GetUserQueryHandler struct {
 }
 
 func NewGetUserQueryHandler(unitOfWork contracts.IUnitOfWork,
-	userRepository contracts2.IUserRepository) *GetUserQueryHandler {
+	userRepository contracts2.IUserRepository,
+) *GetUserQueryHandler {
 	return &GetUserQueryHandler{
 		unitOfWork:     unitOfWork,
-		userRepository: userRepository}
+		userRepository: userRepository,
+	}
 }
 
 func (handler GetUserQueryHandler) Handle(ctx context.Context) (*GetUserQueryResponse, error) {
@@ -30,10 +32,10 @@ func (handler GetUserQueryHandler) Handle(ctx context.Context) (*GetUserQueryRes
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer())
 		if er != nil {
-			return custom_errors.NewCustomError("NewGetUserQueryHandler.GetUserById",
+			return customerrors.NewCustomError("NewGetUserQueryHandler.GetUserById",
 				"Problem with creating a room.",
 				er,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		response.Name = user.FullName().Name()
 		response.Surname = user.FullName().Surname()

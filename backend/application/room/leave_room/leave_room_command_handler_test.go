@@ -5,12 +5,12 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestLeaveRoomCommandHandler(t *testing.T) {
@@ -63,7 +63,7 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 		err := handler.Handle(ctx, command)
 
 		assert.Error(t, err)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		mockUoW.AssertExpectations(t)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)

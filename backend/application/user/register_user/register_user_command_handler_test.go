@@ -7,15 +7,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestRegisterUserCommandHandler(t *testing.T) {
@@ -63,7 +63,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -121,7 +121,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -183,7 +183,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -250,7 +250,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)

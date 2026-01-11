@@ -3,10 +3,10 @@ package join_room_password
 import (
 	"context"
 
-	"xsedox.com/main/application"
-	contracts2 "xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application"
+	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/application/room/contracts"
 )
 
 type JoinRoomPasswordCommandHandler struct {
@@ -26,17 +26,17 @@ func (handler *JoinRoomPasswordCommandHandler) Handle(ctx context.Context, comma
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		roomId, getRoomIdErr := handler.roomRepository.GetRoomIdByNameAndPassword(ctx, command.RoomName, command.RoomPassword, handler.unitOfWork.GetQueryer())
 		if getRoomIdErr != nil {
-			return custom_errors.NewCustomError("JoinRoomPasswordCommandHandler.GetRoomIdByNameAndPassword",
+			return customerrors.NewCustomError("JoinRoomPasswordCommandHandler.GetRoomIdByNameAndPassword",
 				"Room with given name and password does not exist.",
 				getRoomIdErr,
-				custom_errors.NotFound)
+				customerrors.NotFound)
 		}
 		joinRoomErr := handler.roomRepository.JoinRoomById(ctx, *userId, *roomId, handler.unitOfWork.GetQueryer())
 		if joinRoomErr != nil {
-			return custom_errors.NewCustomError("JoinRoomPasswordCommandHandler.JoinRoomById",
+			return customerrors.NewCustomError("JoinRoomPasswordCommandHandler.JoinRoomById",
 				"Something went wrong while joining the room.",
 				joinRoomErr,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		return nil
 	})

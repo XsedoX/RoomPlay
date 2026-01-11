@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/config"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/presentation/helpers"
-	"xsedox.com/main/presentation/response"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
 type CookieJwtAuthentication struct {

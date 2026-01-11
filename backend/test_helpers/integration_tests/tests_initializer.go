@@ -10,11 +10,11 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/validation"
-	"xsedox.com/main/initialization"
-	"xsedox.com/main/presentation"
-	othermocks "xsedox.com/main/test_helpers/integration_tests/other_mocks"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/validation"
+	"github.com/XsedoX/RoomPlay/initialization"
+	"github.com/XsedoX/RoomPlay/presentation"
+	othermocks "github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks"
 )
 
 var (

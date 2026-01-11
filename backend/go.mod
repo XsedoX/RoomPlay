@@ -1,4 +1,4 @@
-module xsedox.com/main
+module github.com/XsedoX/RoomPlay
 
 go 1.25
 

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room"
 )
 
 type EnqueuedSongDao struct {

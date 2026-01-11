@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"xsedox.com/main/application"
-	contracts2 "xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application"
+	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/application/room/contracts"
 )
 
 type GetUserRoomMembershipQueryHandler struct {
@@ -16,12 +16,14 @@ type GetUserRoomMembershipQueryHandler struct {
 }
 
 func NewGetUserRoomMembershipQueryHandler(roomRepository contracts.IRoomRepository,
-	unitOfWork contracts2.IUnitOfWork) *GetUserRoomMembershipQueryHandler {
+	unitOfWork contracts2.IUnitOfWork,
+) *GetUserRoomMembershipQueryHandler {
 	return &GetUserRoomMembershipQueryHandler{
 		roomRepository: roomRepository,
 		unitOfWork:     unitOfWork,
 	}
 }
+
 func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, error) {
 	var result *bool
 	userId, ok := application.GetUserIdFromContext(ctx)
@@ -33,10 +35,10 @@ func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, e
 		if err != nil {
 			tempResult := false
 			result = &tempResult
-			return custom_errors.NewCustomError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
+			return customerrors.NewCustomError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
 				fmt.Sprintf("Something went wrong with getting room by userId: %s", *userId.String()),
 				err,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		tempResult := true
 		result = &tempResult

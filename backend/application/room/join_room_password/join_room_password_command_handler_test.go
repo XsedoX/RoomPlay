@@ -5,15 +5,15 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestJoinRoomPasswordCommandHandler(t *testing.T) {
@@ -60,7 +60,7 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 0)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
@@ -93,7 +93,7 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 2)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 1)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)

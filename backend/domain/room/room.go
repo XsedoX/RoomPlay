@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	domainErrors "xsedox.com/main/domain/domain_errors"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
+	domainErrors "github.com/XsedoX/RoomPlay/domain/domain_errors"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 const (

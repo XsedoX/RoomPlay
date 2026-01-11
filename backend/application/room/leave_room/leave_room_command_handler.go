@@ -3,10 +3,10 @@ package leave_room
 import (
 	"context"
 
-	"xsedox.com/main/application"
-	contracts2 "xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	contracts3 "xsedox.com/main/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application"
+	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	contracts3 "github.com/XsedoX/RoomPlay/application/room/contracts"
 )
 
 type LeaveRoomCommandHandler struct {
@@ -22,10 +22,10 @@ func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *LeaveRoomCommand
 	err := l.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		err := l.roomRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_errors.NewCustomError("LeaveRoomCommandHandler.LeaveRoom",
+			return customerrors.NewCustomError("LeaveRoomCommandHandler.LeaveRoom",
 				"Couldn't leave room.",
 				err,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		return nil
 	})

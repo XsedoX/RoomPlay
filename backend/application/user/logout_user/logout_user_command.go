@@ -1,7 +1,7 @@
 package logout_user
 
 import (
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type LogoutUserCommand struct {

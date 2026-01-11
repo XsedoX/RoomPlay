@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/persistance/daos"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
 )
 
 const getDevicesQuery = `SELECT * FROM devices WHERE user_id = $1`

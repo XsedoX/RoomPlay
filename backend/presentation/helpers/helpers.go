@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/infrastructure/authentication"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/infrastructure/authentication"
 )
 
 func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {

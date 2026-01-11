@@ -8,17 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	contracts2 "github.com/XsedoX/RoomPlay/application/services/contracts"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 	"github.com/google/uuid"
-	"xsedox.com/main/application/contracts"
-	contracts2 "xsedox.com/main/application/services/contracts"
-	"xsedox.com/main/config"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/presentation/helpers"
-	"xsedox.com/main/presentation/response"
 )
 
-//TODO save where the user started logging and return to the same url
-
+// TODO save where the user started logging and return to the same url
 type OidcController struct {
 	configuration             config.IConfiguration
 	oidcAuthenticationService contracts2.IOidcAuthenticationService
@@ -27,7 +26,8 @@ type OidcController struct {
 
 func NewOidcController(configuration config.IConfiguration,
 	oidcAuthenticationService contracts2.IOidcAuthenticationService,
-	googleOidcService contracts.IGoogleOidcService) *OidcController {
+	googleOidcService contracts.IGoogleOidcService,
+) *OidcController {
 	return &OidcController{
 		configuration:             configuration,
 		oidcAuthenticationService: oidcAuthenticationService,
@@ -73,6 +73,7 @@ func (handler *OidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *h
 
 	response.WriteJsonSuccess(w, http.StatusOK, googleUrl)
 }
+
 func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -137,6 +138,7 @@ func (handler *OidcController) HandleGoogleCallback(w http.ResponseWriter, r *ht
 
 	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)
 }
+
 func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) {
 	expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
@@ -149,6 +151,7 @@ func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath stri
 		SameSite: http.SameSiteLaxMode,
 	})
 }
+
 func setDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
 	expiresAt := time.Now().UTC().Add(helpers.RoomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
@@ -161,6 +164,7 @@ func setDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) 
 		SameSite: http.SameSiteLaxMode,
 	})
 }
+
 func setStateCookie(w http.ResponseWriter, basePath string) string {
 	expiresAt := time.Now().Add(helpers.RoomplayStateCookieExpirationTime).UTC()
 	state := uuid.NewString()
@@ -176,6 +180,7 @@ func setStateCookie(w http.ResponseWriter, basePath string) string {
 	})
 	return state
 }
+
 func clearStateCookie(w http.ResponseWriter, basePath string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     helpers.RoomplayStateCookieName,
@@ -187,6 +192,7 @@ func clearStateCookie(w http.ResponseWriter, basePath string) {
 		SameSite: http.SameSiteLaxMode,
 	})
 }
+
 func verifyStateCookie(r *http.Request, stateFromUrl string) bool {
 	state, err := r.Cookie(helpers.RoomplayStateCookieName)
 	if err != nil {

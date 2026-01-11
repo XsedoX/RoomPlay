@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/infrastructure/validation"
 	"github.com/go-playground/validator/v10"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/infrastructure/validation"
 )
 
 const (
@@ -56,8 +56,9 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 	w.WriteHeader(statusCode)
 	w.Write(bytes)
 }
+
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	var applicationError *custom_errors.CustomError
+	var applicationError *customerrors.CustomError
 	if !errors.As(appErr, &applicationError) {
 		WriteJsonFailure(w,
 			"CustomError.CastingError",
@@ -74,6 +75,7 @@ func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance s
 		instance,
 		int(applicationError.ErrorType))
 }
+
 func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) {
 	var validationErrs validator.ValidationErrors
 	if !errors.As(err, &validationErrs) {
@@ -93,10 +95,12 @@ func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, er
 		http.StatusBadRequest,
 		validation.MapValidationErrors(validationErrs))
 }
+
 func WriteJsonNoContent(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }
+
 func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
 	w.Header().Set("Content-Type", "application/json")
 

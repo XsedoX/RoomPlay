@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/application/dtos"
-	contracts2 "xsedox.com/main/application/user/contracts"
-	"xsedox.com/main/application/user/login_user"
-	"xsedox.com/main/application/user/register_user"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/application/dtos"
+	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/login_user"
+	"github.com/XsedoX/RoomPlay/application/user/register_user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type OidcAuthenticationService struct {
@@ -25,7 +25,8 @@ func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService
 	userRepository contracts2.IUserRepository,
 	unitOfWork contracts.IUnitOfWork,
 	registerUserHandler contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse],
-	loginUserHandler contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse]) *OidcAuthenticationService {
+	loginUserHandler contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse],
+) *OidcAuthenticationService {
 	return &OidcAuthenticationService{
 		googleOidcService:          googleOidcService,
 		userRepository:             userRepository,
@@ -36,21 +37,22 @@ func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService
 }
 
 func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx context.Context, code string, deviceId *user.DeviceId, deviceType *user.DeviceType) (*dtos.OidcAuthenticateUserServiceDto,
-	error) {
+	error,
+) {
 	tokenResp, err := oidcAuthentication.googleOidcService.GetAccessToken(ctx, code)
 	if err != nil {
-		return nil, custom_errors.NewCustomError("OidcAuthenticationService.GetAccessToken",
+		return nil, customerrors.NewCustomError("OidcAuthenticationService.GetAccessToken",
 			"Couldn't get access token",
 			err,
-			custom_errors.Unexpected)
+			customerrors.Unexpected)
 	}
 
 	claims, err := oidcAuthentication.googleOidcService.ParseIdToken(tokenResp.IdToken)
 	if err != nil {
-		return nil, custom_errors.NewCustomError("OidcAuthenticationService.ParseIdToken",
+		return nil, customerrors.NewCustomError("OidcAuthenticationService.ParseIdToken",
 			"Couldn't parse id token",
 			err,
-			custom_errors.Unexpected)
+			customerrors.Unexpected)
 	}
 	var deviceTypeToPass user.DeviceType
 	if deviceType == nil {

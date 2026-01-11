@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/rs/cors"
-	"xsedox.com/main/config"
+	"github.com/XsedoX/RoomPlay/config"
 )
 
 type CustomCors struct {

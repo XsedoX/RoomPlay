@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 func AddUserIdToContext(ctx context.Context) (user.Id, context.Context) {

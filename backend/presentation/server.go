@@ -8,11 +8,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"xsedox.com/main/config"
-	"xsedox.com/main/initialization"
-	"xsedox.com/main/presentation/controllers"
-	customMiddleware "xsedox.com/main/presentation/custom_middleware"
-	"xsedox.com/main/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/initialization"
+	"github.com/XsedoX/RoomPlay/presentation/controllers"
+	customMiddleware "github.com/XsedoX/RoomPlay/presentation/custom_middleware"
+	"github.com/XsedoX/RoomPlay/presentation/helpers"
 )
 
 type Server struct {

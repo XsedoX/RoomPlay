@@ -1,9 +1,9 @@
-package persistance_tests
+package persistancetests
 
 import (
 	"testing"
 
-	"xsedox.com/main/test_helpers/integration_tests"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 )
 
 func TestMain(m *testing.M) {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
 )
 
 type LogoutUserCommandHandler struct {
@@ -14,7 +14,8 @@ type LogoutUserCommandHandler struct {
 }
 
 func NewLogoutUserCommandHandler(refreshTokenRepository contracts.IRefreshTokenRepository,
-	unitOfWork contracts.IUnitOfWork) *LogoutUserCommandHandler {
+	unitOfWork contracts.IUnitOfWork,
+) *LogoutUserCommandHandler {
 	return &LogoutUserCommandHandler{
 		refreshTokenRepository: refreshTokenRepository,
 		unitOfWork:             unitOfWork,
@@ -27,20 +28,20 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *LogoutUse
 		if command.DeviceId == nil {
 			retireAllTokensErr := c.refreshTokenRepository.RetireAllTokensByUserId(ctx, &userId, c.unitOfWork.GetQueryer())
 			if retireAllTokensErr != nil {
-				return custom_errors.NewCustomError("LogoutUserCommandHandler.RetireAllTokensByUserId",
+				return customerrors.NewCustomError("LogoutUserCommandHandler.RetireAllTokensByUserId",
 					fmt.Sprintf("Couldn't retire users tokens for user id %s.", *userId.String()),
 					retireAllTokensErr,
-					custom_errors.Unexpected)
+					customerrors.Unexpected)
 			}
 			return nil
 		}
 		deviceId := command.DeviceId
 		retireTokenWithDeviceId := c.refreshTokenRepository.RetireTokenByUserIdAndDeviceId(ctx, &userId, deviceId, c.unitOfWork.GetQueryer())
 		if retireTokenWithDeviceId != nil {
-			return custom_errors.NewCustomError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
+			return customerrors.NewCustomError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
 				fmt.Sprintf("Couldn't retire users tokens for user id %s and device id %s.", *userId.String(), *deviceId.String()),
 				retireTokenWithDeviceId,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		return nil
 	})

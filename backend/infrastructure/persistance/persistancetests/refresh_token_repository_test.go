@@ -1,17 +1,17 @@
-package persistance_tests
+package persistancetests
 
 import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/persistance"
-	"xsedox.com/main/test_helpers/integration_tests"
-	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
 )
 
 func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {

@@ -3,8 +3,8 @@ package contracts
 import (
 	"context"
 
-	"xsedox.com/main/application/dtos"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/application/dtos"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type IOidcAuthenticationService interface {

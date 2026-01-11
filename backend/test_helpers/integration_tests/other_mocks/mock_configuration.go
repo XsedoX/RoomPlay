@@ -1,6 +1,6 @@
 package othermocks
 
-import "xsedox.com/main/config"
+import "github.com/XsedoX/RoomPlay/config"
 
 type MockConfiguration struct{}
 

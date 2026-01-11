@@ -8,10 +8,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/infrastructure/validation"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/infrastructure/validation"
 )
 
 func TestMain(m *testing.M) {
@@ -67,7 +67,7 @@ func TestWriteJsonFailure(t *testing.T) {
 func TestWriteJsonApplicationFailure(t *testing.T) {
 	t.Run("Valid Custom Error", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		customErr := custom_errors.NewCustomError("code", "title", errors.New("inner error"), custom_errors.Validation)
+		customErr := customerrors.NewCustomError("code", "title", errors.New("inner error"), customerrors.Validation)
 		WriteJsonApplicationFailure(w, customErr, "instance")
 
 		assert.Equal(t, http.StatusBadRequest, w.Code) // Validation type maps to 400
@@ -104,7 +104,7 @@ func TestWriteJsonValidationFailure(t *testing.T) {
 
 	t.Run("Valid Validation Error", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		var validate = validator.New()
+		validate := validator.New()
 		err := validate.Struct(TestStruct{}) // Should fail
 		assert.Error(t, err)
 

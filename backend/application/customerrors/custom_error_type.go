@@ -1,4 +1,4 @@
-package custom_errors
+package customerrors
 
 type Type int
 
@@ -17,6 +17,7 @@ var typeNames = map[Type]string{
 	Unauthorized: "unauthorized",
 	Forbidden:    "forbidden",
 }
+
 var errorFromName = map[string]Type{
 	"validation":   Validation,
 	"unexpected":   Unexpected,
@@ -28,10 +29,12 @@ var errorFromName = map[string]Type{
 func (t Type) String() string {
 	return typeNames[t]
 }
+
 func ParseType(s string) (Type, bool) {
 	v, ok := errorFromName[s]
 	return v, ok
 }
+
 func (t Type) Error() string {
 	return t.String()
 }

@@ -21,7 +21,7 @@ import (
 	"io"
 
 	"golang.org/x/crypto/bcrypt"
-	"xsedox.com/main/config"
+	"github.com/XsedoX/RoomPlay/config"
 )
 
 type Encrypter struct {

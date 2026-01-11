@@ -3,7 +3,7 @@ package login_user
 import (
 	"time"
 
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type LoginUserCommand struct {

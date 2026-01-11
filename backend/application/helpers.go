@@ -3,18 +3,16 @@ package application
 import (
 	"context"
 
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 const missingUserIdInContextErrorMessage string = "User id not found in context"
 
-var (
-	NewMissingUserIdInContextError = custom_errors.NewCustomError("GetUserIdFromContext.MissingUserContext",
-		missingUserIdInContextErrorMessage,
-		nil,
-		custom_errors.Unauthorized)
-)
+var NewMissingUserIdInContextError = customerrors.NewCustomError("GetUserIdFromContext.MissingUserContext",
+	missingUserIdInContextErrorMessage,
+	nil,
+	customerrors.Unauthorized)
 
 func GetUserIdFromContext(ctx context.Context) (userId *user.Id, ok bool) {
 	value := ctx.Value(user.IdClaimContextKeyName)

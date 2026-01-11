@@ -3,7 +3,7 @@ package customMiddleware
 import (
 	"net/http"
 
-	"xsedox.com/main/config"
+	"github.com/XsedoX/RoomPlay/config"
 )
 
 type SecurityHeaders struct {

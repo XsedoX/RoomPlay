@@ -3,10 +3,10 @@ package login_user_refresh_token
 import (
 	"context"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/custom_errors"
-	contracts2 "xsedox.com/main/application/user/contracts"
-	"xsedox.com/main/domain/credentials"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 )
 
 type LoginUserRefreshTokenCommandHandler struct {
@@ -21,13 +21,15 @@ func NewLoginUserRefreshTokenCommandHandler(refreshToken contracts.IRefreshToken
 	unitOfWork contracts.IUnitOfWork,
 	encrypter contracts.IEncrypter,
 	jwtProvider contracts.IJwtProvider,
-	userRepository contracts2.IUserRepository) *LoginUserRefreshTokenCommandHandler {
+	userRepository contracts2.IUserRepository,
+) *LoginUserRefreshTokenCommandHandler {
 	return &LoginUserRefreshTokenCommandHandler{
 		refreshTokenRepository: refreshToken,
 		unitOfWork:             unitOfWork,
 		encrypter:              encrypter,
 		userRepository:         userRepository,
-		jwtProvider:            jwtProvider}
+		jwtProvider:            jwtProvider,
+	}
 }
 
 func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, command *string) (*LoginUserRefreshTokenCommandResponse, error) {
@@ -35,42 +37,42 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		tokenFromDb, err := handler.refreshTokenRepository.GetTokenByValue(ctx, *command, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GetTokenByValue",
+			return customerrors.NewCustomError("LoginRefreshTokenCommandHandler.GetTokenByValue",
 				"Couldn't fetch token from the database.",
 				err,
-				custom_errors.Unauthorized)
+				customerrors.Unauthorized)
 		}
 		if tokenFromDb.IsExpired() {
-			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
+			return customerrors.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
 				"Refresh token expired",
 				nil,
-				custom_errors.Unauthorized)
+				customerrors.Unauthorized)
 		}
 		userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.Id(), handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GetUserById",
+			return customerrors.NewCustomError("LoginRefreshTokenCommandHandler.GetUserById",
 				"Couldn't fetch user from the database.",
 				err,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		newRefreshTokenValue := handler.encrypter.NewEncryptionKey()
 		newRefreshToken := credentials.NewRefreshToken(userFromDb.Id(), tokenFromDb.DeviceId(), string(newRefreshTokenValue))
 		newTokenErr := handler.refreshTokenRepository.AssignNewToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer())
 		if newTokenErr != nil {
-			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.AssignNewToken",
+			return customerrors.NewCustomError("LoginRefreshTokenCommandHandler.AssignNewToken",
 				"Couldn't assign a new refresh token to a user.",
 				newTokenErr,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 		response.RefreshToken = string(newRefreshTokenValue)
 
 		var tokenErr error
 		response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userFromDb.Id())
 		if tokenErr != nil {
-			return custom_errors.NewCustomError("LoginRefreshTokenCommandHandler.GenerateToken",
+			return customerrors.NewCustomError("LoginRefreshTokenCommandHandler.GenerateToken",
 				"Couldn't generate a new access token for a user.",
 				tokenErr,
-				custom_errors.Unexpected)
+				customerrors.Unexpected)
 		}
 
 		return nil

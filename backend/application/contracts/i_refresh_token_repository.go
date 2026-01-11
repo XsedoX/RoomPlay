@@ -3,8 +3,8 @@ package contracts
 import (
 	"context"
 
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type IRefreshTokenRepository interface {

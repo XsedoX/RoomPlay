@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/test_helpers"
-	"xsedox.com/main/test_helpers/integration_tests/authentication_mocks"
-	"xsedox.com/main/test_helpers/integration_tests/persistance_mocks"
 )
 
 func TestLoginUserCommandHandler(t *testing.T) {
@@ -36,7 +36,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			mockRefreshTokenRepository,
 			mockExternalCredentialsRepository,
 		)
-		var loginUserCommand = &LoginUserCommand{}
+		loginUserCommand := &LoginUserCommand{}
 		repoErr := errors.New("database error")
 		errorCode := "LoginUserCommandHandler.GetUserByExternalId"
 		mockUserRepository.
@@ -47,7 +47,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
@@ -124,7 +124,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
@@ -452,7 +452,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, "LoginUserCommandHandler.AssignNewToken", customErr.Code)
 		assert.ErrorIs(t, customErr.Err, assignErr)
@@ -528,7 +528,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_errors.CustomError
+		var customErr *customerrors.CustomError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, "LoginUserCommandHandler.Grant", customErr.Code)
 		assert.ErrorIs(t, customErr.Err, grantErr)

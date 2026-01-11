@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/shared"
 )
 
 const IdClaimContextKeyName = "userIdClaimContextKey"

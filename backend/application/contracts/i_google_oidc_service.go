@@ -3,7 +3,7 @@ package contracts
 import (
 	"context"
 
-	"xsedox.com/main/application/dtos"
+	"github.com/XsedoX/RoomPlay/application/dtos"
 )
 
 type IGoogleOidcService interface {

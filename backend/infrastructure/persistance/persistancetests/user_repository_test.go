@@ -1,17 +1,17 @@
-package persistance_tests
+package persistancetests
 
 import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/persistance"
-	"xsedox.com/main/infrastructure/persistance/daos"
-	"xsedox.com/main/test_helpers/integration_tests"
 )
 
 func TestUserRepositoryAdd(t *testing.T) {
@@ -155,7 +155,7 @@ func TestUserRepositoryUpdate(t *testing.T) {
 	require.NoError(t, err)
 	assert.WithinDuration(t, boostTime, boostDb, time.Second)
 
-	//check device
+	// check device
 	var deviceDb daos.DeviceDao
 	err = txx.GetContext(ctx, &deviceDb, "SELECT * FROM devices WHERE id = $1", deviceID)
 	require.NoError(t, err)

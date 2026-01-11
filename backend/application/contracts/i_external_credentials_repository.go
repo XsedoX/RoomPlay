@@ -3,7 +3,7 @@ package contracts
 import (
 	"context"
 
-	"xsedox.com/main/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 )
 
 type IExternalCredentialsRepository interface {

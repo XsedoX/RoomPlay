@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/stretchr/testify/mock"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/room/get_room/daos"
-	"xsedox.com/main/domain/room"
-	"xsedox.com/main/domain/shared"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/get_room/daos"
+	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type MockRoomRepository struct {

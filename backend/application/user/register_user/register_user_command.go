@@ -3,7 +3,7 @@ package register_user
 import (
 	"time"
 
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type RegisterUserCommand struct {

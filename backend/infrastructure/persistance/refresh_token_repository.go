@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/credentials"
-	"xsedox.com/main/domain/user"
-	"xsedox.com/main/infrastructure/persistance/daos"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
+	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
 )
 
 type RefreshTokenRepository struct {

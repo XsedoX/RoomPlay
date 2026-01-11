@@ -2,7 +2,7 @@ package daos
 
 import (
 	"github.com/google/uuid"
-	"xsedox.com/main/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room"
 )
 
 type UsersVotesDao struct {

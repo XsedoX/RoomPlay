@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/domain/credentials"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 )
 
 type ExternalCredentialsRepository struct {

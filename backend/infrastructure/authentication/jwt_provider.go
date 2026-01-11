@@ -7,8 +7,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"xsedox.com/main/config"
-	"xsedox.com/main/domain/user"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 const AccessTokenExpirationTime = time.Minute * 5

@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"xsedox.com/main/application/contracts"
-	"xsedox.com/main/application/user/get_user"
-	"xsedox.com/main/presentation/response"
+	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/get_user"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
 const (
