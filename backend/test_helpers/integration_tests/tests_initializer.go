@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/require"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/validation"
 	"github.com/XsedoX/RoomPlay/initialization"
 	"github.com/XsedoX/RoomPlay/presentation"
 	othermocks "github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -38,7 +38,7 @@ func InitializeDatabaseContainer() {
 	}
 
 	schemaPath := filepath.Join(projectRoot, "infrastructure", "persistance", "RoomPlay2.sql")
-	if err := PgContainer.ApplySchema(Ctx, schemaPath); err != nil {
+	if err := ApplySchema(Ctx, schemaPath, PgContainer.DB); err != nil {
 		log.Fatalf("failed to apply schema: %v", err)
 	}
 
@@ -48,8 +48,8 @@ func InitializeDatabaseContainer() {
 	if err := seeder.SeedAll(Ctx); err != nil {
 		log.Fatalf("failed to seed database: %v", err)
 	}
-
 }
+
 func RunTestsWithDatabase(m *testing.M) {
 	code := m.Run()
 	if err := PgContainer.Teardown(Ctx); err != nil {

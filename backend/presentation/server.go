@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/initialization"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
 	customMiddleware "github.com/XsedoX/RoomPlay/presentation/custom_middleware"
 	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Server struct {
@@ -72,17 +72,20 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 		router: router,
 	}
 }
+
 func (s *Server) Start(configuration config.IConfiguration) {
 	log.Printf("Starting API server on :%v", configuration.Server().Port)
-	//err := http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.Server().Port), "./certificates/server.crt", "./certificates/server.key", s.router)
+	// err := http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.Server().Port), "./certificates/server.crt", "./certificates/server.key", s.router)
 	err := http.ListenAndServe(fmt.Sprintf(":%v", configuration.Server().Port), s.router)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
+
 func (s *Server) Router() *chi.Mux {
 	return s.router
 }
+
 func (s *Server) UpdateRouter(newRouter *chi.Mux) {
 	s.router = newRouter
 }

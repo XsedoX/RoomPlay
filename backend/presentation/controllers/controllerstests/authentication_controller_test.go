@@ -1,11 +1,13 @@
 package controllerstests
 
 import (
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
 	"github.com/XsedoX/RoomPlay/presentation/helpers"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
@@ -35,4 +37,11 @@ func TestLogoutSuccess(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
+	dbx := integration_tests.PgContainer.DB
+
+	var tokenFromDb daos.RefreshTokenDao
+	err := dbx.Get(&tokenFromDb,
+		"SELECT * FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2;",
+		integration_tests.InjectedUser.Id(), deviceId)
+	assert.Equal(t, sql.ErrNoRows, err)
 }

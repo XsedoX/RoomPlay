@@ -2,21 +2,22 @@ package controllerstests
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
 	"github.com/XsedoX/RoomPlay/presentation/helpers"
 	"github.com/XsedoX/RoomPlay/test_helpers"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetRoomSuccess(t *testing.T) {
@@ -69,6 +70,11 @@ func TestCreateRoomSuccess(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
+	var roomExists bool
+	dbx := integration_tests.PgContainer.DB
+	err = dbx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
+	assert.NoError(t, err)
+	assert.Equal(t, true, roomExists)
 }
 
 func TestCreateRoomValidationFailure(t *testing.T) {
@@ -90,6 +96,10 @@ func TestCreateRoomValidationFailure(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
+	var roomExists bool
+	dbx := integration_tests.PgContainer.DB
+	err = dbx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
+	assert.Error(t, sql.ErrNoRows, err)
 }
 
 func TestCheckUserRoomMembershipSuccess(t *testing.T) {
@@ -120,4 +130,10 @@ func TestLeaveRoomSuccess(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
+	dbx := integration_tests.PgContainer.DB
+	var isUserInRoom bool
+	_ = dbx.Get(&isUserInRoom,
+		"SELECT EXISTS (SELECT 1 FROM users_room_data WHERE user_id = $1)::text;",
+		integration_tests.InjectedUser.Id())
+	assert.Equal(t, false, isUserInRoom)
 }

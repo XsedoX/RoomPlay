@@ -69,13 +69,13 @@ func (pc *PostgresContainer) Teardown(ctx context.Context) error {
 	return nil
 }
 
-func (pc *PostgresContainer) ApplySchema(ctx context.Context, schemaPath string) error {
+func ApplySchema(ctx context.Context, schemaPath string, db *sqlx.DB) error {
 	schema, err := os.ReadFile(schemaPath)
 	if err != nil {
 		return fmt.Errorf("failed to read schema file: %w", err)
 	}
 
-	_, err = pc.DB.ExecContext(ctx, string(schema))
+	_, err = db.ExecContext(ctx, string(schema))
 	if err != nil {
 		return fmt.Errorf("failed to execute schema: %w", err)
 	}
