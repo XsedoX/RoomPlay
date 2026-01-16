@@ -6,13 +6,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/XsedoX/RoomPlay/application/user/get_user"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
-	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetUserData(t *testing.T) {
@@ -21,7 +21,7 @@ func TestGetUserData(t *testing.T) {
 	userName := integration_tests.InjectedUser.FullName().Name()
 	userSurname := integration_tests.InjectedUser.FullName().Surname()
 
-	req := httptest.NewRequest(http.MethodGet, helpers.ApiBasePath+controllers.UserBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+controllers.UserBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)

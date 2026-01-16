@@ -12,7 +12,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
-	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -26,7 +26,7 @@ func TestGetRoomSuccess(t *testing.T) {
 	roomName := integration_tests.SeedData.Rooms[1].Name()
 
 	// Perform Request
-	req := httptest.NewRequest(http.MethodGet, helpers.ApiBasePath+controllers.RoomBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+controllers.RoomBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -52,6 +52,7 @@ func TestGetRoomSuccess(t *testing.T) {
 }
 
 func TestCreateRoomSuccess(t *testing.T) {
+	txx, _ := integration_tests.GetTxxAndCtx(t)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
@@ -64,20 +65,20 @@ func TestCreateRoomSuccess(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, helpers.ApiBasePath+controllers.RoomBasePath, bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+controllers.RoomBasePath, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var roomExists bool
-	dbx := integration_tests.PgContainer.DB
-	err = dbx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
+	err = txx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
 	assert.NoError(t, err)
 	assert.Equal(t, true, roomExists)
 }
 
 func TestCreateRoomValidationFailure(t *testing.T) {
+	txx, _ := integration_tests.GetTxxAndCtx(t)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
@@ -90,15 +91,14 @@ func TestCreateRoomValidationFailure(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, helpers.ApiBasePath+controllers.RoomBasePath, bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+controllers.RoomBasePath, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	var roomExists bool
-	dbx := integration_tests.PgContainer.DB
-	err = dbx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
+	err = txx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
 	assert.Error(t, sql.ErrNoRows, err)
 }
 
@@ -106,7 +106,7 @@ func TestCheckUserRoomMembershipSuccess(t *testing.T) {
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodGet, helpers.ApiBasePath+controllers.RoomBasePath+controllers.RoomMembershipBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+controllers.RoomBasePath+controllers.RoomMembershipBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -121,18 +121,18 @@ func TestCheckUserRoomMembershipSuccess(t *testing.T) {
 }
 
 func TestLeaveRoomSuccess(t *testing.T) {
+	txx, _ := integration_tests.GetTxxAndCtx(t)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodDelete, helpers.ApiBasePath+controllers.RoomBasePath, nil)
+	req := httptest.NewRequest(http.MethodDelete, constants.ApiBasePath+controllers.RoomBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	dbx := integration_tests.PgContainer.DB
 	var isUserInRoom bool
-	_ = dbx.Get(&isUserInRoom,
+	_ = txx.Get(&isUserInRoom,
 		"SELECT EXISTS (SELECT 1 FROM users_room_data WHERE user_id = $1)::text;",
 		integration_tests.InjectedUser.Id())
 	assert.Equal(t, false, isUserInRoom)

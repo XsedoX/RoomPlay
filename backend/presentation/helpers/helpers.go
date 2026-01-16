@@ -6,11 +6,12 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 )
 
 func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     RoomplayAccessTokenCookieName,
+		Name:     constants.RoomPlayAccessTokenCookieName,
 		Value:    "",
 		MaxAge:   -1,
 		Path:     basePath,
@@ -22,10 +23,10 @@ func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {
 
 func ClearRefreshTokenCookie(w http.ResponseWriter, basePath string) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     RoomplayRefreshTokenCookieName,
+		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    "",
 		MaxAge:   -1,
-		Path:     basePath + "/auth/refresh-token",
+		Path:     basePath + constants.RefreshTokenPath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -35,7 +36,7 @@ func ClearRefreshTokenCookie(w http.ResponseWriter, basePath string) {
 func SetAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) {
 	expiresAt := time.Now().Add(authentication.AccessTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
-		Name:     RoomplayAccessTokenCookieName,
+		Name:     constants.RoomPlayAccessTokenCookieName,
 		Value:    accessToken,
 		Expires:  expiresAt,
 		Path:     basePath,
@@ -48,10 +49,10 @@ func SetAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) {
 func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string) {
 	expiresAt := time.Now().Add(credentials.RefreshTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
-		Name:     RoomplayRefreshTokenCookieName,
+		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    refreshToken,
 		Expires:  expiresAt,
-		Path:     basePath + "/auth/refresh-token",
+		Path:     basePath + constants.RefreshTokenPath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -59,9 +60,9 @@ func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string)
 }
 
 func SetDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
-	expiresAt := time.Now().UTC().Add(RoomPlayDeviceIdCookieExpirationTime)
+	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
-		Name:     RoomPlayDeviceIdCookieName,
+		Name:     constants.RoomPlayDeviceIdCookieName,
 		Value:    deviceId,
 		Expires:  expiresAt,
 		Path:     basePath,

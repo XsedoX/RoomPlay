@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-faker/faker/v4"
-	"github.com/google/uuid"
 	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/authentication"
+	othermocks "github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks"
+	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
 )
 
 var userIds = []user.Id{
@@ -20,11 +23,13 @@ var userIds = []user.Id{
 	user.Id(uuid.New()),
 	user.Id(uuid.New()),
 }
+
 var songsStartedAt = []time.Time{
-	time.Date(2001, 11, 22, 12, 5, 00, 00, time.UTC),
-	time.Date(2022, 12, 1, 15, 30, 00, 00, time.UTC),
-	time.Date(2023, 6, 15, 18, 45, 00, 00, time.UTC),
+	time.Date(2001, 11, 22, 12, 5, 0o0, 0o0, time.UTC),
+	time.Date(2022, 12, 1, 15, 30, 0o0, 0o0, time.UTC),
+	time.Date(2023, 6, 15, 18, 45, 0o0, 0o0, time.UTC),
 }
+
 var songs = []room.Song{
 	*room.HydrateSong(room.SongId(uuid.New()),
 		"songExternalId1",
@@ -32,7 +37,7 @@ var songs = []room.Song{
 		"author1",
 		349,
 		userIds[0],
-		time.Date(2001, 11, 22, 12, 00, 00, 00, time.UTC),
+		time.Date(2001, 11, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 		&songsStartedAt[0],
 		room.Played,
 		88,
@@ -46,7 +51,7 @@ var songs = []room.Song{
 		"author2",
 		349,
 		userIds[1],
-		time.Date(2001, 10, 22, 12, 00, 00, 00, time.UTC),
+		time.Date(2001, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 		&songsStartedAt[1],
 		room.Playing,
 		8,
@@ -60,7 +65,7 @@ var songs = []room.Song{
 		"author3",
 		349,
 		userIds[0],
-		time.Date(2003, 10, 22, 12, 00, 00, 00, time.UTC),
+		time.Date(2003, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 		nil,
 		room.Enqueued,
 		0,
@@ -74,7 +79,7 @@ var songs = []room.Song{
 		"author4",
 		250,
 		userIds[2],
-		time.Date(2024, 1, 1, 12, 00, 00, 00, time.UTC),
+		time.Date(2024, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 		nil,
 		room.Enqueued,
 		5,
@@ -88,7 +93,7 @@ var songs = []room.Song{
 		"author5",
 		180,
 		userIds[3],
-		time.Date(2023, 5, 10, 12, 00, 00, 00, time.UTC),
+		time.Date(2023, 5, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 		&songsStartedAt[2],
 		room.Played,
 		15,
@@ -97,13 +102,14 @@ var songs = []room.Song{
 		faker.URL(),
 	),
 }
+
 var rooms = []room.Room{
 	*room.HydrateRoom(shared.RoomId(uuid.New()),
 		"room1",
 		"roompass1",
 		"qrCode1",
 		nil,
-		time.Date(2001, 11, 12, 12, 00, 00, 00, time.UTC),
+		time.Date(2001, 11, 12, 12, 0o0, 0o0, 0o0, time.UTC),
 		uint32(time.Hour*30/time.Second),
 		songs,
 		[]user.Id{userIds[3]},
@@ -113,7 +119,7 @@ var rooms = []room.Room{
 		"roompass2",
 		"qrCode2",
 		nil,
-		time.Date(2001, 11, 10, 12, 00, 00, 00, time.UTC),
+		time.Date(2001, 11, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 		uint32(time.Hour*12/time.Second),
 		songs,
 		[]user.Id{userIds[0]},
@@ -123,107 +129,121 @@ var rooms = []room.Room{
 		"roompass3",
 		"qrCode3",
 		nil,
-		time.Date(2022, 1, 1, 12, 00, 00, 00, time.UTC),
+		time.Date(2022, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 		uint32(time.Hour*24/time.Second),
 		[]room.Song{songs[2], songs[3]},
 		[]user.Id{userIds[1], userIds[2]},
 	),
 }
+
 var devices = []user.Device{
 	*user.HydrateDevice(user.DeviceId(uuid.New()),
 		"device1",
 		user.Mobile,
 		false,
 		user.Offline,
-		time.Date(2001, 12, 22, 12, 00, 00, 00, time.UTC),
+		time.Date(2001, 12, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 	),
 	*user.HydrateDevice(user.DeviceId(uuid.New()),
 		"device2",
 		user.Desktop,
 		true,
 		user.Online,
-		time.Date(2002, 12, 22, 12, 00, 00, 00, time.UTC),
+		time.Date(2002, 12, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 	),
 	*user.HydrateDevice(user.DeviceId(uuid.New()),
 		"device3",
 		user.Mobile,
 		true,
 		user.Online,
-		time.Date(2023, 1, 1, 12, 00, 00, 00, time.UTC),
+		time.Date(2023, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 	),
 	*user.HydrateDevice(user.DeviceId(uuid.New()),
 		"device4",
 		user.Desktop,
 		false,
 		user.Offline,
-		time.Date(2023, 2, 2, 12, 00, 00, 00, time.UTC),
+		time.Date(2023, 2, 2, 12, 0o0, 0o0, 0o0, time.UTC),
 	),
 	*user.HydrateDevice(user.DeviceId(uuid.New()),
 		"device5",
 		user.Desktop,
 		false,
 		user.Online,
-		time.Date(2025, 2, 2, 12, 00, 00, 00, time.UTC),
+		time.Date(2025, 2, 2, 12, 0o0, 0o0, 0o0, time.UTC),
 	),
 }
-var user1Role = user.Host
-var user2Role = user.Member
-var user3Role = user.Member
-var user4Role = user.Member
-var user5Role = user.Member
-var users = []user.User{
-	*user.HydrateUser(userIds[0],
-		"externalId1",
-		"name1",
-		"surname1",
-		&user1Role,
-		nil,
-		[]user.Device{devices[4]},
-		nil),
-	*user.HydrateUser(userIds[1],
-		"externalId2",
-		"name2",
-		"surname2",
-		&user2Role,
-		nil,
-		[]user.Device{devices[1]},
-		nil),
-	*user.HydrateUser(userIds[2],
-		"externalId3",
-		"name3",
-		"surname3",
-		&user3Role,
-		nil,
-		[]user.Device{devices[2]},
-		nil),
-	*user.HydrateUser(userIds[3],
-		"externalId4",
-		"name4",
-		"surname4",
-		&user4Role,
-		nil,
-		[]user.Device{devices[3]},
-		nil),
-	*user.HydrateUser(userIds[4],
-		"externalId5",
-		"name5",
-		"surname5",
-		&user5Role,
-		nil,
-		[]user.Device{devices[0]},
-		nil),
+
+var (
+	user1Role = user.Host
+	user2Role = user.Member
+	user3Role = user.Member
+	user4Role = user.Member
+	user5Role = user.Member
+	users     = []user.User{
+		*user.HydrateUser(userIds[0],
+			"externalId1",
+			"name1",
+			"surname1",
+			&user1Role,
+			nil,
+			[]user.Device{devices[4]},
+			nil),
+		*user.HydrateUser(userIds[1],
+			"externalId2",
+			"name2",
+			"surname2",
+			&user2Role,
+			nil,
+			[]user.Device{devices[1]},
+			nil),
+		*user.HydrateUser(userIds[2],
+			"externalId3",
+			"name3",
+			"surname3",
+			&user3Role,
+			nil,
+			[]user.Device{devices[2]},
+			nil),
+		*user.HydrateUser(userIds[3],
+			"externalId4",
+			"name4",
+			"surname4",
+			&user4Role,
+			nil,
+			[]user.Device{devices[3]},
+			nil),
+		*user.HydrateUser(userIds[4],
+			"externalId5",
+			"name5",
+			"surname5",
+			&user5Role,
+			nil,
+			[]user.Device{devices[0]},
+			nil),
+	}
+)
+
+var refreshTokens = []credentials.RefreshToken{
+	*credentials.HydrateRefreshToken(users[0].Id(),
+		users[0].Devices()[0].Id(),
+		"refreshTokenValue1",
+		time.Now().AddDate(1, 0, 0),
+		time.Date(2023, 12, 1, 12, 0o0, 0o0, 0o0, time.UTC)),
 }
 
 var SeedData = struct {
-	Rooms   []room.Room
-	Users   []user.User
-	Songs   []room.Song
-	Devices []user.Device
+	Rooms                    []room.Room
+	Users                    []user.User
+	Songs                    []room.Song
+	Devices                  []user.Device
+	LoggedInUserRefreshToken credentials.RefreshToken
 }{
-	Rooms:   rooms,
-	Songs:   songs,
-	Users:   users,
-	Devices: devices,
+	Rooms:                    rooms,
+	Songs:                    songs,
+	Users:                    users,
+	Devices:                  devices,
+	LoggedInUserRefreshToken: refreshTokens[0],
 }
 
 type Seeder struct {
@@ -277,6 +297,11 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 			if err := s.SeedUserRoomData(ctx, room1.Id(), memberId, userRole); err != nil {
 				return err
 			}
+		}
+	}
+	for _, usersRefreshToken := range refreshTokens {
+		if err := s.SeedRefreshToken(ctx, usersRefreshToken); err != nil {
+			return err
 		}
 	}
 
@@ -345,6 +370,24 @@ func (s *Seeder) SeedUserRoomData(ctx context.Context, roomID shared.RoomId, use
 	`, roomID, userID, role.String())
 	if err != nil {
 		return fmt.Errorf("failed to seed user_room_data: %w", err)
+	}
+	return nil
+}
+
+func (s *Seeder) SeedRefreshToken(ctx context.Context, refreshToken credentials.RefreshToken) error {
+	configuration := othermocks.MockConfiguration{}
+	encrypter := authentication.NewEncrypter(&configuration)
+	hashedRefreshToken := encrypter.Hash(refreshToken.RefreshToken())
+	_, err := s.Queryer.ExecContext(ctx, `
+INSERT INTO users_refresh_tokens (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
+VALUES ($1, $2, $3, $4, $5)
+`, SeedData.LoggedInUserRefreshToken.Id(),
+		SeedData.LoggedInUserRefreshToken.DeviceId(),
+		hashedRefreshToken,
+		SeedData.LoggedInUserRefreshToken.ExpiresAtUtc(),
+		SeedData.LoggedInUserRefreshToken.IssuedAtUtc())
+	if err != nil {
+		return fmt.Errorf("failed to seed refresh token: %w", err)
 	}
 	return nil
 }

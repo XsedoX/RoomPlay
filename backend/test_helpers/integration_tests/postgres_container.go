@@ -15,7 +15,7 @@ import (
 
 type PostgresContainer struct {
 	Container *postgres.PostgresContainer
-	DB        *sqlx.DB
+	db        *sqlx.DB
 	ConnStr   string
 }
 
@@ -54,14 +54,14 @@ func SetupPostgres(ctx context.Context) (*PostgresContainer, error) {
 
 	return &PostgresContainer{
 		Container: pgContainer,
-		DB:        db,
+		db:        db,
 		ConnStr:   connStr,
 	}, nil
 }
 
 func (pc *PostgresContainer) Teardown(ctx context.Context) error {
-	if pc.DB != nil {
-		pc.DB.Close()
+	if pc.db != nil {
+		pc.db.Close()
 	}
 	if pc.Container != nil {
 		return pc.Container.Terminate(ctx)

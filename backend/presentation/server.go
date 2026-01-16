@@ -9,7 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/initialization"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
 	customMiddleware "github.com/XsedoX/RoomPlay/presentation/custom_middleware"
-	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -44,7 +44,7 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 	// Public routes
 	apiV1.Get("/auth/google/signin-oidc", dependencies.OidcController().HandleLoginWithGoogle)
 	apiV1.Get("/auth/google/callback", dependencies.OidcController().HandleGoogleCallback)
-	apiV1.Post("/auth/refresh-token", dependencies.AuthenticationController().RefreshToken)
+	apiV1.Post(constants.AuthBasePath+constants.RefreshTokenPath, dependencies.AuthenticationController().RefreshToken)
 
 	// Secured routes
 	apiV1.Group(func(r chi.Router) {
@@ -52,7 +52,7 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 			r.Use(jwtAuthMiddleware.Next)
 		}
 
-		r.Post("/auth/logout", dependencies.AuthenticationController().Logout)
+		r.Post(constants.AuthBasePath+constants.LogoutPath, dependencies.AuthenticationController().Logout)
 
 		r.Route(controllers.RoomBasePath, func(r chi.Router) {
 			r.Post("/", dependencies.RoomController().CreateRoom)
@@ -66,7 +66,7 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 		})
 	})
 
-	router.Mount(helpers.ApiBasePath, apiV1)
+	router.Mount(constants.ApiBasePath, apiV1)
 
 	return &Server{
 		router: router,

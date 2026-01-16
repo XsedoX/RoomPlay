@@ -20,14 +20,14 @@ import (
 var (
 	PgContainer  *PostgresContainer
 	TestServer   *presentation.Server
-	Ctx          context.Context
+	ctx          context.Context
 	InjectedUser = SeedData.Users[0]
 )
 
 func InitializeDatabaseContainer() {
-	Ctx = context.Background()
+	ctx = context.Background()
 	var err error
-	PgContainer, err = SetupPostgres(Ctx)
+	PgContainer, err = SetupPostgres(ctx)
 	if err != nil {
 		log.Fatalf("failed to setup postgres: %v", err)
 	}
@@ -38,36 +38,34 @@ func InitializeDatabaseContainer() {
 	}
 
 	schemaPath := filepath.Join(projectRoot, "infrastructure", "persistance", "RoomPlay2.sql")
-	if err := ApplySchema(Ctx, schemaPath, PgContainer.DB); err != nil {
+	if err := ApplySchema(ctx, schemaPath, PgContainer.db); err != nil {
 		log.Fatalf("failed to apply schema: %v", err)
 	}
 
 	// Seed database once
-	dbx := PgContainer.DB
+	dbx := PgContainer.db
 	seeder := NewSeeder(dbx)
-	if err := seeder.SeedAll(Ctx); err != nil {
+	if err := seeder.SeedAll(ctx); err != nil {
 		log.Fatalf("failed to seed database: %v", err)
 	}
 }
 
 func RunTestsWithDatabase(m *testing.M) {
 	code := m.Run()
-	if err := PgContainer.Teardown(Ctx); err != nil {
+	if err := PgContainer.Teardown(ctx); err != nil {
 		log.Printf("failed to teardown postgres: %v", err)
 	}
-
 	os.Exit(code)
 }
 
 func GetTxxAndCtx(t *testing.T) (*sqlx.Tx, context.Context) {
 	t.Helper()
 	require.NotNil(t, PgContainer, "pgContainer is nil; TestMain likely didn’t run")
-	ctx := context.Background()
-	dbx := PgContainer.DB
+	dbx := PgContainer.db
 	txx, err := dbx.BeginTxx(ctx, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = txx.Rollback() })
-	return txx, Ctx
+	return txx, ctx
 }
 
 func InitializeApiServer(m *testing.M) {
@@ -76,7 +74,7 @@ func InitializeApiServer(m *testing.M) {
 	InitializeDatabaseContainer()
 	configuration := othermocks.MockConfiguration{}
 
-	db := PgContainer.DB
+	db := PgContainer.db
 	InjectedUserId := InjectedUser.Id()
 	injectedUserClaim := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

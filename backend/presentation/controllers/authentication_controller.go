@@ -11,12 +11,8 @@ import (
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/XsedoX/RoomPlay/presentation/response"
-)
-
-const (
-	AuthBasePath   = "/auth"
-	LogoutBasePath = "/logout"
 )
 
 type AuthenticationController struct {
@@ -37,7 +33,7 @@ func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHa
 }
 
 func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req *http.Request) {
-	refreshToken, err := req.Cookie(helpers.RoomplayRefreshTokenCookieName)
+	refreshToken, err := req.Cookie(constants.RoomPlayRefreshTokenCookieName)
 	if err != nil || refreshToken == nil || refreshToken.Value == "" {
 		helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
 		helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
@@ -93,7 +89,7 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 	}
 	command.UserId = *userId
 
-	deviceId, err := req.Cookie(helpers.RoomPlayDeviceIdCookieName)
+	deviceId, err := req.Cookie(constants.RoomPlayDeviceIdCookieName)
 	if deviceId == nil || err != nil {
 		helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
 		helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)

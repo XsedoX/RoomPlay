@@ -7,7 +7,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/contracts"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/user"
-	"github.com/XsedoX/RoomPlay/presentation/helpers"
+	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
@@ -17,7 +17,8 @@ type CookieJwtAuthentication struct {
 }
 
 func NewCookieJwtAuthentication(configuration config.IConfiguration,
-	jwtProvider contracts.IJwtProvider) *CookieJwtAuthentication {
+	jwtProvider contracts.IJwtProvider,
+) *CookieJwtAuthentication {
 	return &CookieJwtAuthentication{
 		configuration: configuration,
 		jwtProvider:   jwtProvider,
@@ -26,7 +27,7 @@ func NewCookieJwtAuthentication(configuration config.IConfiguration,
 
 func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authCookie, err := r.Cookie(helpers.RoomplayAccessTokenCookieName)
+		authCookie, err := r.Cookie(constants.RoomPlayAccessTokenCookieName)
 		if err != nil {
 			response.WriteJsonFailure(w,
 				"JwtAuthentication.MissingAuthCookie",
