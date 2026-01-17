@@ -50,7 +50,7 @@ func InitializeDatabaseContainer() {
 	}
 }
 
-func RunTestsWithDatabase(m *testing.M) {
+func runTestsWithDatabase(m *testing.M) {
 	code := m.Run()
 	if err := PgContainer.Teardown(ctx); err != nil {
 		log.Printf("failed to teardown postgres: %v", err)
@@ -58,14 +58,33 @@ func RunTestsWithDatabase(m *testing.M) {
 	os.Exit(code)
 }
 
-func GetTxxAndCtx(t *testing.T) (*sqlx.Tx, context.Context) {
+func GetTxxAndCtx(t *testing.T, reinitDb bool) (*sqlx.Tx, context.Context) {
 	t.Helper()
 	require.NotNil(t, PgContainer, "pgContainer is nil; TestMain likely didn’t run")
 	dbx := PgContainer.db
 	txx, err := dbx.BeginTxx(ctx, nil)
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = txx.Rollback() })
+	if !reinitDb {
+		t.Cleanup(func() { _ = txx.Rollback() })
+	} else {
+		t.Cleanup(func() { reinitializeDatabase(t) })
+	}
 	return txx, ctx
+}
+
+func reinitializeDatabase(t *testing.T) {
+	db := PgContainer.db
+	_, err := db.Exec(`
+       DO $$
+       DECLARE
+           r RECORD;
+       BEGIN
+           FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+               EXECUTE 'TRUNCATE TABLE public.' || quote_ident(r.tablename) || ' CASCADE;';
+           END LOOP;
+       END $$;
+   `)
+	require.NoError(t, err)
 }
 
 func InitializeApiServer(m *testing.M) {
@@ -86,5 +105,5 @@ func InitializeApiServer(m *testing.M) {
 	dependencies := initialization.NewServerDependencies(db, &configuration)
 	server := presentation.NewServer(dependencies, injectedUserClaim)
 	TestServer = server
-	RunTestsWithDatabase(m)
+	runTestsWithDatabase(m)
 }

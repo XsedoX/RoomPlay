@@ -15,7 +15,7 @@ import (
 )
 
 func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
@@ -76,7 +76,7 @@ func TestRefreshTokenRepositoryAssignNewToken(t *testing.T) {
 }
 
 func TestRefreshTokenRepositoryGetTokenByValue(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
@@ -123,7 +123,7 @@ func TestRefreshTokenRepositoryGetTokenByValue(t *testing.T) {
 }
 
 func TestRefreshTokenRepositoryRetireTokenByUserIdAndDeviceId(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRefreshTokenRepository(mockEncrypter)
@@ -162,7 +162,7 @@ func TestRefreshTokenRepositoryRetireTokenByUserIdAndDeviceId(t *testing.T) {
 }
 
 func TestRefreshTokenRepositoryRetireAllTokensByUserId(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRefreshTokenRepository(mockEncrypter)

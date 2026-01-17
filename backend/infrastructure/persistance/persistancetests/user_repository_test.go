@@ -15,7 +15,7 @@ import (
 )
 
 func TestUserRepositoryAdd(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	repo := persistance.NewUserRepository()
 
@@ -67,7 +67,7 @@ func TestUserRepositoryAdd(t *testing.T) {
 }
 
 func TestUserRepositoryGetUserById(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	repo := persistance.NewUserRepository()
 
@@ -93,7 +93,7 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 }
 
 func TestUserRepositoryUpdate(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	repo := persistance.NewUserRepository()
 

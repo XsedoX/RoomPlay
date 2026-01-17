@@ -18,7 +18,7 @@ import (
 )
 
 func TestLogoutSuccess(t *testing.T) {
-	txx, _ := integration_tests.GetTxxAndCtx(t)
+	txx, _ := integration_tests.GetTxxAndCtx(t, true)
 	configuration := othermocks.MockConfiguration{}
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
@@ -48,7 +48,7 @@ func TestLogoutSuccess(t *testing.T) {
 }
 
 func TestRefreshTokenSuccess(t *testing.T) {
-	txx, _ := integration_tests.GetTxxAndCtx(t)
+	txx, _ := integration_tests.GetTxxAndCtx(t, true)
 	configuration := othermocks.MockConfiguration{}
 	testServer := integration_tests.TestServer
 	r := testServer.Router()

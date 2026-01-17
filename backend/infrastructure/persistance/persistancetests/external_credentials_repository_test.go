@@ -15,7 +15,7 @@ import (
 )
 
 func TestExternalCredentialsRepositoryGrant(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewExternalCredentialsRepository(mockEncrypter)

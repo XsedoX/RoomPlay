@@ -17,7 +17,7 @@ import (
 )
 
 func TestRoomRepositoryCreateRoom(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRoomRepository(mockEncrypter)
@@ -85,7 +85,7 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 }
 
 func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRoomRepository(mockEncrypter)
@@ -137,7 +137,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 }
 
 func TestRoomRepositoryCheckUserMembership(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRoomRepository(mockEncrypter)
@@ -166,7 +166,7 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 }
 
 func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRoomRepository(mockEncrypter)
 
@@ -181,7 +181,7 @@ func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 }
 
 func TestRoomRepositoryLeaveRoom(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)
 	repo := persistance.NewRoomRepository(mockEncrypter)
@@ -208,7 +208,7 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 }
 
 func TestRoomRepositoryJoinRoomById(t *testing.T) {
-	txx, ctx := integration_tests.GetTxxAndCtx(t)
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
 	var err error
 
 	mockEncrypter := new(authentication_mocks.MockEncrypter)

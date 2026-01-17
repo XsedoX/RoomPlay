@@ -52,7 +52,7 @@ func TestGetRoomSuccess(t *testing.T) {
 }
 
 func TestCreateRoomSuccess(t *testing.T) {
-	txx, _ := integration_tests.GetTxxAndCtx(t)
+	txx, _ := integration_tests.GetTxxAndCtx(t, true)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
@@ -78,7 +78,7 @@ func TestCreateRoomSuccess(t *testing.T) {
 }
 
 func TestCreateRoomValidationFailure(t *testing.T) {
-	txx, _ := integration_tests.GetTxxAndCtx(t)
+	txx, _ := integration_tests.GetTxxAndCtx(t, false)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
@@ -121,7 +121,7 @@ func TestCheckUserRoomMembershipSuccess(t *testing.T) {
 }
 
 func TestLeaveRoomSuccess(t *testing.T) {
-	txx, _ := integration_tests.GetTxxAndCtx(t)
+	txx, _ := integration_tests.GetTxxAndCtx(t, true)
 	testServer := integration_tests.TestServer
 	r := testServer.Router()
 
