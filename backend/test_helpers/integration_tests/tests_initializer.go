@@ -41,7 +41,6 @@ func InitializeDatabaseContainer() {
 	if err := ApplySchema(ctx, schemaPath, PgContainer.db); err != nil {
 		log.Fatalf("failed to apply schema: %v", err)
 	}
-
 	// Seed database once
 	dbx := PgContainer.db
 	seeder := NewSeeder(dbx)
@@ -50,7 +49,7 @@ func InitializeDatabaseContainer() {
 	}
 }
 
-func runTestsWithDatabase(m *testing.M) {
+func RunTestsWithDatabase(m *testing.M) {
 	code := m.Run()
 	if err := PgContainer.Teardown(ctx); err != nil {
 		log.Printf("failed to teardown postgres: %v", err)
@@ -67,24 +66,35 @@ func GetTxxAndCtx(t *testing.T, reinitDb bool) (*sqlx.Tx, context.Context) {
 	if !reinitDb {
 		t.Cleanup(func() { _ = txx.Rollback() })
 	} else {
-		t.Cleanup(func() { reinitializeDatabase(t) })
+		t.Cleanup(func() {
+			_ = txx.Rollback()
+			reseedDatabase(t)
+		})
 	}
 	return txx, ctx
 }
 
-func reinitializeDatabase(t *testing.T) {
+func reseedDatabase(t *testing.T) {
 	db := PgContainer.db
-	_, err := db.Exec(`
-       DO $$
-       DECLARE
-           r RECORD;
-       BEGIN
-           FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-               EXECUTE 'TRUNCATE TABLE public.' || quote_ident(r.tablename) || ' CASCADE;';
-           END LOOP;
-       END $$;
-   `)
+	_, err := db.Exec(`DO $$ 
+DECLARE 
+    r RECORD;
+BEGIN
+    -- Disable all triggers (including foreign key constraints)
+    SET CONSTRAINTS ALL DEFERRED;
+    
+    FOR r IN (SELECT tablename, schemaname FROM pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema')) LOOP
+        EXECUTE 'ALTER TABLE ' || quote_ident(r.schemaname) || '.' || quote_ident(r.tablename) || ' DISABLE TRIGGER ALL';
+        EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.schemaname) || '.' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE';
+        EXECUTE 'ALTER TABLE ' || quote_ident(r.schemaname) || '.' || quote_ident(r.tablename) || ' ENABLE TRIGGER ALL';
+    END LOOP;
+END $$;`)
 	require.NoError(t, err)
+	// Seed database once
+	seeder := NewSeeder(db)
+	if err := seeder.SeedAll(ctx); err != nil {
+		log.Fatalf("failed to seed database: %v", err)
+	}
 }
 
 func InitializeApiServer(m *testing.M) {
@@ -105,5 +115,5 @@ func InitializeApiServer(m *testing.M) {
 	dependencies := initialization.NewServerDependencies(db, &configuration)
 	server := presentation.NewServer(dependencies, injectedUserClaim)
 	TestServer = server
-	runTestsWithDatabase(m)
+	RunTestsWithDatabase(m)
 }
