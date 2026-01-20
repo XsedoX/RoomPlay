@@ -20,6 +20,7 @@ func NewRoomRepository(encrypter contracts.IEncrypter) *RoomRepository {
 		encrypter: encrypter,
 	}
 }
+
 func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error {
 	roomId := roomParam.Id()
 	userId := roomParam.Members()[0]
@@ -53,6 +54,7 @@ func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *roo
 	}
 	return nil
 }
+
 func (repository *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos2.GetRoomDao, error) {
 	var getRoomDaoInstance daos2.GetRoomDao
 	getRoomErr := queryer.GetContext(ctx,
@@ -104,6 +106,7 @@ WHERE users_room_data.user_id = $1;
 	getRoomDaoInstance.SongDaos = getRoomsSongDaoInstances
 	return &getRoomDaoInstance, nil
 }
+
 func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool {
 	var response bool
 	err := queryer.GetContext(ctx, &response, `
@@ -121,26 +124,29 @@ func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userI
 	}
 	return response
 }
+
 func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
 	_, err := queryer.ExecContext(ctx,
 		`DELETE FROM users_room_data WHERE user_id=$1`,
 		id.ToUuid())
 	return err
 }
+
 func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user.Id, roomId shared.RoomId, queryer contracts.IQueryer) error {
 	_, err := queryer.ExecContext(ctx,
 		`INSERT INTO users_room_data (user_id, room_id) VALUES ($1, $2)`, userId.ToUuid(), roomId.ToUuid())
 	return err
 }
+
 func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string, queryer contracts.IQueryer) (*shared.RoomId, error) {
 	type roomWithNamePasswordAndId struct {
-		roomId       shared.RoomId `db:"id"`
-		roomPassword []byte        `db:"password"`
+		RoomId       string `db:"id"`
+		RoomPassword []byte `db:"password"`
 	}
 	var rooms []roomWithNamePasswordAndId
 	getRoomsErr := queryer.SelectContext(ctx,
 		&rooms,
-		`SELECT id, password FROM rooms WHERE name=$1;`, roomName)
+		`SELECT id, password::bytea FROM rooms WHERE name=$1;`, roomName)
 	if getRoomsErr != nil {
 		return nil, getRoomsErr
 	}
@@ -148,8 +154,8 @@ func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context
 		return nil, sql.ErrNoRows
 	}
 	for _, roomDb := range rooms {
-		if repository.encrypter.Verify(roomPassword, roomDb.roomPassword) {
-			return &roomDb.roomId, nil
+		if repository.encrypter.Verify(roomPassword, roomDb.RoomPassword) {
+			return shared.ParseRoomId(roomDb.RoomId), nil
 		}
 	}
 	return nil, sql.ErrNoRows

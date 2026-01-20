@@ -7,6 +7,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/contracts"
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
+	"github.com/XsedoX/RoomPlay/application/room/join_room_password"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room"
 	"github.com/XsedoX/RoomPlay/infrastructure/validation"
 	"github.com/XsedoX/RoomPlay/presentation/response"
@@ -15,6 +16,7 @@ import (
 const (
 	RoomBasePath           = "/room"
 	RoomMembershipBasePath = "/membership"
+	JoinRoomPasswordPath   = "/join/password"
 )
 
 type RoomController struct {
@@ -22,18 +24,21 @@ type RoomController struct {
 	getRoomQueryHandler               contracts.IQueryHandler[*get_room.GetRoomQueryResponse]
 	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool]
 	leaveRoomCommandHandler           contracts.ICommandHandler[*leave_room.LeaveRoomCommand]
+	joinRoomCommandHandler            contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand]
 }
 
 func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*create_room.CreateRoomCommand],
 	getRoomQueryHandler contracts.IQueryHandler[*get_room.GetRoomQueryResponse],
 	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool],
 	leaveRoomCommandHandler contracts.ICommandHandler[*leave_room.LeaveRoomCommand],
+	joinRoomCommandHandler contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand],
 ) *RoomController {
 	return &RoomController{
 		createRoomCommandHandler:          createRoomCommandHandler,
 		getRoomQueryHandler:               getRoomQueryHandler,
 		getUserRoomMembershipQueryHandler: getUserRoomMembershipQueryHandler,
 		leaveRoomCommandHandler:           leaveRoomCommandHandler,
+		joinRoomCommandHandler:            joinRoomCommandHandler,
 	}
 }
 
@@ -148,4 +153,46 @@ func (rh *RoomController) LeaveRoom(w http.ResponseWriter, r *http.Request) {
 			r.URL.RequestURI())
 	}
 	response.WriteJsonSuccess(w, http.StatusOK)
+}
+
+// JoinRoomPassword handles the HTTP request to join a room.
+// @Summary Makes a user join a room
+// @Description Used to join a room
+// @Tags room
+// @Accept json
+// @Produce json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router /room/join [put]
+// @Security BearerAuth
+func (rh *RoomController) JoinRoomPassword(w http.ResponseWriter, r *http.Request) {
+	var command join_room_password.JoinRoomPasswordCommand
+	bodyDecodeErr := json.NewDecoder(r.Body).Decode(&command)
+	if bodyDecodeErr != nil {
+		response.WriteJsonFailure(w,
+			"JoinRoomController.Password.Decoding",
+			"Problem with decoding request body",
+			bodyDecodeErr.Error(),
+			r.URL.RequestURI(),
+			http.StatusBadRequest)
+		return
+	}
+	validationErr := validation.ValidatorInstance.Struct(command)
+	if validationErr != nil {
+		response.WriteJsonValidationFailure(w,
+			"JoinRoomPassword.Validation",
+			r.URL.RequestURI(),
+			validationErr)
+		return
+	}
+	joinRoomCommandHandlerErr := rh.joinRoomCommandHandler.Handle(r.Context(), &command)
+	if joinRoomCommandHandlerErr != nil {
+		response.WriteJsonApplicationFailure(w,
+			joinRoomCommandHandlerErr,
+			r.URL.RequestURI())
+		return
+	}
+	response.WriteJsonNoContent(w)
 }

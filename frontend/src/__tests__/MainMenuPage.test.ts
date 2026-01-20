@@ -1,5 +1,6 @@
 import { testLogoWithTitleText } from '@/__tests__/shared/shared_tests.ts';
 import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
+import { faker } from '@faker-js/faker';
 import { describe, expect, it, vi } from 'vitest';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 import { mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
@@ -19,7 +20,21 @@ const factory = (
   piniaStubs?: boolean | string[] | ((actionName: string, store: StoreGeneric) => boolean),
 ) => mountVuetify(MainMenuPage, options, piniaStubs);
 
-async function openRoomPopup(wrapper: ReturnType<typeof factory>) {
+async function openJoinRoomPopup(wrapper: ReturnType<typeof factory>) {
+  const joinRoomButton = wrapper.get('[data-testid="join-room-btn"]');
+  await joinRoomButton.trigger('click');
+  const joinRoomPopup = wrapper.getComponent(JoinRoomPopup);
+  expect(joinRoomPopup.isVisible()).toBe(true);
+  const nameField = joinRoomPopup.get('[data-testid="join-room-popup-name-input"] input');
+  const passwordField = joinRoomPopup.get('[data-testid="join-room-popup-password-input"] input');
+  return {
+    joinRoomPopup: joinRoomPopup,
+    nameField: nameField,
+    passwordField: passwordField,
+  };
+}
+
+async function openCreateRoomPopup(wrapper: ReturnType<typeof factory>) {
   const createRoomButton = wrapper.get('[data-testid="create-room-btn"]');
   await createRoomButton.trigger('click');
   const createRoomPopup = wrapper.getComponent(CreateRoomPopup);
@@ -44,6 +59,7 @@ vi.mock('@/infrastructure/utils/platform_discoverer.ts', () => ({
     getDeviceType: vi.fn(),
   },
 }));
+
 describe('Main Menu', () => {
   it('checks if a name of a user is visible', async () => {
     const wrapper = factory();
@@ -93,6 +109,7 @@ describe('Main Menu', () => {
     expect(logoutButton.isVisible()).toBe(true);
     expect(logoutButton.text()).toBe('Logout');
   });
+
   it('checks if create room popup renders correctly', async () => {
     const wrapper = factory({
       global: {
@@ -110,6 +127,34 @@ describe('Main Menu', () => {
     const fields = createRoomPopup.findAllComponents(VTextField);
     expect(fields.length).toBe(3);
   });
+
+  it('checks if the JoinRoomPopup calls the joinRoom method with the correct parameters', async () => {
+    vi.useFakeTimers();
+    const wrapper = factory({
+      global: {
+        stubs: {
+          VDialog: sharedStubs.vDialog,
+        },
+      },
+    });
+    const roomStore = useRoomStore();
+    vi.spyOn(roomStore, 'joinRoomPassword').mockResolvedValue(null);
+
+    const { joinRoomPopup, nameField, passwordField } = await openJoinRoomPopup(wrapper);
+    await nameField.setValue('Test Room');
+    await passwordField.setValue('TestPassword');
+    await joinRoomPopup.get('[data-testid="join-room-popup-btn"]').trigger('click');
+
+    vi.runAllTimers();
+    await flushPromises();
+
+    expect(roomStore.joinRoomPassword).toHaveBeenCalledExactlyOnceWith({
+      roomName: 'Test Room',
+      roomPassword: 'TestPassword',
+    });
+    vi.useRealTimers();
+  });
+
   it('checks if the CreateRoomPopup calls the createRoom method with the correct parameters', async () => {
     vi.useFakeTimers();
     const wrapper = factory({
@@ -123,7 +168,7 @@ describe('Main Menu', () => {
     vi.spyOn(roomStore, 'createRoom').mockResolvedValue(null);
 
     const { createRoomPopup, nameField, passwordField, repeatPasswordField } =
-      await openRoomPopup(wrapper);
+      await openCreateRoomPopup(wrapper);
     await nameField.setValue('Test Room');
     await passwordField.setValue('TestPassword');
     await repeatPasswordField.setValue('TestPassword');
@@ -139,7 +184,58 @@ describe('Main Menu', () => {
     });
     vi.useRealTimers();
   });
-  it('checks if the room creation validation works correctly', async () => {
+
+  it('checks if the join room validation works correctly for too short values', async () => {
+    vi.useFakeTimers();
+    const wrapper = factory({
+      global: {
+        stubs: {
+          VDialog: sharedStubs.vDialog,
+        },
+      },
+    });
+    const { joinRoomPopup, nameField, passwordField } = await openJoinRoomPopup(wrapper);
+    await nameField.setValue('T');
+    await nameField.trigger('blur');
+    await passwordField.setValue('P');
+
+    vi.runAllTimers();
+    await flushPromises();
+
+    const alerts = joinRoomPopup.findAll('div[role="alert"]');
+    expect(alerts.length).toBe(2);
+    expect(alerts[0]!.text()).toContain('Room name has to have at least 5 characters');
+    expect(alerts[1]!.text()).toContain('Password has to have at least 10 characters');
+
+    vi.useRealTimers();
+  });
+
+  it('checks if the join room validation works correctly for too long values', async () => {
+    vi.useFakeTimers();
+    const wrapper = factory({
+      global: {
+        stubs: {
+          VDialog: sharedStubs.vDialog,
+        },
+      },
+    });
+    const { joinRoomPopup, nameField, passwordField } = await openJoinRoomPopup(wrapper);
+    await nameField.setValue('tooLongNameForSureYeahOrNotBlahBlahBlah');
+    await nameField.trigger('blur');
+    await passwordField.setValue('tooLongNameForSureYeahOrNotBlahBlahBlah');
+
+    vi.runAllTimers();
+    await flushPromises();
+
+    const alerts = joinRoomPopup.findAll('div[role="alert"]');
+    expect(alerts.length).toBe(2);
+    expect(alerts[0]!.text()).toContain('Room name has to have at most 30 characters');
+    expect(alerts[1]!.text()).toContain('Password has to have at most 30 characters');
+
+    vi.useRealTimers();
+  });
+
+  it('checks if the room creation validation works correctly for too short values', async () => {
     vi.useFakeTimers();
     const wrapper = factory({
       global: {
@@ -149,7 +245,7 @@ describe('Main Menu', () => {
       },
     });
     const { createRoomPopup, nameField, passwordField, repeatPasswordField } =
-      await openRoomPopup(wrapper);
+      await openCreateRoomPopup(wrapper);
 
     await nameField.setValue('T');
     await nameField.trigger('blur');
@@ -173,6 +269,42 @@ describe('Main Menu', () => {
 
     vi.useRealTimers();
   });
+
+  it('checks if the room creation validation works correctly for too long values', async () => {
+    vi.useFakeTimers();
+    const wrapper = factory({
+      global: {
+        stubs: {
+          VDialog: sharedStubs.vDialog,
+        },
+      },
+    });
+    const { createRoomPopup, nameField, passwordField, repeatPasswordField } =
+      await openCreateRoomPopup(wrapper);
+
+    await nameField.setValue('tooLongNameForSureYeahOrNotBlahBlahBlah');
+    await nameField.trigger('blur');
+    await passwordField.setValue('tooLongNameForSureYeahOrNotBlahBlahBlah');
+    await repeatPasswordField.setValue('Test');
+
+    const defaultAlerts = createRoomPopup.findAll('div[role="alert"]');
+    expect(defaultAlerts.length).toBe(3);
+    expect(defaultAlerts[0]!.text()).toContain('This cannot be changed later');
+    expect(defaultAlerts[1]!.text()).toContain('This cannot be changed later');
+    expect(defaultAlerts[2]!.text()).toBe('');
+
+    vi.runAllTimers();
+    await flushPromises();
+
+    const alerts = createRoomPopup.findAll('div[role="alert"]');
+    expect(alerts.length).toBe(3);
+    expect(alerts[0]!.text()).toContain('Room name has to have at most 30 characters');
+    expect(alerts[1]!.text()).toContain('Password has to have at most 30 characters');
+    expect(alerts[2]!.text()).toContain(`Passwords don't match`);
+
+    vi.useRealTimers();
+  });
+
   it("checks if 'Join a Room' popup renders correctly on mobile", async () => {
     vi.mocked(PlatformDiscoverer.getDeviceType).mockReturnValue(THostDevice.Mobile);
     const wrapper = factory({
@@ -200,6 +332,7 @@ describe('Main Menu', () => {
       joinRoomPopup.get('[data-testid="join-room-popup-password-input"]').isVisible(),
     ).toBeTruthy();
   });
+
   it("checks if 'Join a Room' popup renders correctly on desktop", async () => {
     vi.mocked(PlatformDiscoverer.getDeviceType).mockReturnValue(THostDevice.Desktop);
     const wrapper = factory({

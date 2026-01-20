@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
+	"github.com/XsedoX/RoomPlay/application/room/join_room_password"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
 	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers"
@@ -136,4 +138,32 @@ func TestLeaveRoomSuccess(t *testing.T) {
 		"SELECT EXISTS (SELECT 1 FROM users_room_data WHERE user_id = $1)::text;",
 		integration_tests.InjectedUser.Id())
 	assert.Equal(t, false, isUserInRoom)
+}
+
+func TestJoinRoomSuccess(t *testing.T) {
+	txx, _ := integration_tests.GetTxxAndCtx(t, true)
+	testServer := integration_tests.TestServer
+	r := testServer.Router()
+	command := join_room_password.JoinRoomPasswordCommand{
+		RoomName:     integration_tests.SeedData.Rooms[0].Name(),
+		RoomPassword: integration_tests.SeedData.Rooms[0].Password(),
+	}
+	body, err := json.Marshal(command)
+	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodPut,
+		constants.ApiBasePath+controllers.RoomBasePath+controllers.JoinRoomPasswordPath,
+		bytes.NewBuffer(body))
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	result := w.Result()
+	bodyBytes, _ := io.ReadAll(result.Body)
+	print(string(bodyBytes))
+	require.Equal(t, http.StatusNoContent, w.Code)
+	var isUserInRoom bool
+	_ = txx.Get(&isUserInRoom,
+		"SELECT EXISTS (SELECT 1 FROM users_room_data WHERE user_id = $1)::text;",
+		integration_tests.InjectedUser.Id())
+	assert.Equal(t, true, isUserInRoom)
 }

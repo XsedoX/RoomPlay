@@ -3,12 +3,14 @@ import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts
 import type { IApiResponse } from '@/infrastructure/utils/IApiResponse.ts';
 import { type AxiosResponse } from 'axios';
 import type { IGetRoomResponse } from '@/infrastructure/room/IGetRoomResponse.ts';
+import type IJoinRoomPasswordRequest from './IJoinRoomPasswordRequest';
 
 const URLS = {
   createRoom: '/room',
   getRoom: '/room',
   leaveRoom: '/room',
   getUserRoomMembership: '/room/membership',
+  joinRoom: '/room/join/password',
 };
 
 export const RoomRepository = {
@@ -54,6 +56,18 @@ export const RoomRepository = {
   leaveRoom: async (): Promise<IApiResponse> => {
     return await api_client
       .delete<AxiosResponse>(URLS.leaveRoom)
+      .then((response) => ({
+        isSuccess: true,
+        data: response.data.data,
+      }))
+      .catch((error) => ({
+        isSuccess: false,
+        ...error.response.data,
+      }));
+  },
+  joinRoomPassword: async (roomData: IJoinRoomPasswordRequest): Promise<IApiResponse> => {
+    return await api_client
+      .put<AxiosResponse>(URLS.joinRoom, roomData)
       .then((response) => ({
         isSuccess: true,
         data: response.data.data,

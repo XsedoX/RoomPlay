@@ -1,11 +1,11 @@
 package initialization
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/XsedoX/RoomPlay/application/contracts"
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_user_room_membership"
+	"github.com/XsedoX/RoomPlay/application/room/join_room_password"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room"
 	"github.com/XsedoX/RoomPlay/application/services"
 	"github.com/XsedoX/RoomPlay/application/user/get_user"
@@ -17,6 +17,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
 	"github.com/XsedoX/RoomPlay/presentation/controllers"
+	"github.com/jmoiron/sqlx"
 )
 
 type ServerDependencies struct {
@@ -54,13 +55,14 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 		externalCredentialsRepository)
 	getUserDataQueryHandler := get_user.NewGetUserQueryHandler(unitOfWork,
 		userRepository)
-
 	loginRefreshTokenCommandHandler := login_user_refresh_token.NewLoginUserRefreshTokenCommandHandler(refreshTokenRepository,
 		unitOfWork,
 		encrypter,
 		jwtProvider,
 		userRepository)
 	logoutRefreshTokenCommandHandler := logout_user.NewLogoutUserCommandHandler(refreshTokenRepository, unitOfWork)
+	getUserRoomMembershipQueryHandler := get_user_room_membership.NewGetUserRoomMembershipQueryHandler(roomRepository,
+		unitOfWork)
 
 	createRoomCommandHandler := create_room.NewCreateRoomCommandHandler(roomRepository,
 		unitOfWork,
@@ -72,8 +74,7 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 	getRoomQueryHandler := get_room.NewGetRoomQueryHandler(unitOfWork,
 		roomRepository,
 	)
-	getUserRoomMembershipQueryHandler := get_user_room_membership.NewGetUserRoomMembershipQueryHandler(roomRepository,
-		unitOfWork)
+	joinRoomPasswordCommandHandler := join_room_password.NewJoinRoomPasswordCommandHandler(roomRepository, unitOfWork)
 
 	oidcAuthenticationService := services.NewOidcAuthenticationService(googleOidcService,
 		userRepository,
@@ -91,7 +92,8 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 	roomController := controllers.NewRoomController(createRoomCommandHandler,
 		getRoomQueryHandler,
 		getUserRoomMembershipQueryHandler,
-		leaveRoomCommandHandler)
+		leaveRoomCommandHandler,
+		joinRoomPasswordCommandHandler)
 
 	return &ServerDependencies{
 		oidcController:           oidcController,
@@ -102,21 +104,27 @@ func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *Se
 		jwtProvider:              jwtProvider,
 	}
 }
+
 func (sd ServerDependencies) RoomController() *controllers.RoomController {
 	return sd.roomController
 }
+
 func (sd ServerDependencies) OidcController() *controllers.OidcController {
 	return sd.oidcController
 }
+
 func (sd ServerDependencies) UserController() *controllers.UserController {
 	return sd.userController
 }
+
 func (sd ServerDependencies) AuthenticationController() *controllers.AuthenticationController {
 	return sd.authenticationController
 }
+
 func (sd ServerDependencies) Configuration() config.IConfiguration {
 	return sd.configuration
 }
+
 func (sd ServerDependencies) JwtProvider() contracts.IJwtProvider {
 	return sd.jwtProvider
 }

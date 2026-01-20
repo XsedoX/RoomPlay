@@ -103,10 +103,16 @@ var songs = []room.Song{
 	),
 }
 
+var (
+	roomId0 = shared.RoomId(uuid.New())
+	roomId1 = shared.RoomId(uuid.New())
+	roomId2 = shared.RoomId(uuid.New())
+)
+
 var rooms = []room.Room{
-	*room.HydrateRoom(shared.RoomId(uuid.New()),
+	*room.HydrateRoom(roomId0,
 		"room1",
-		"roompass1",
+		"roompasss1",
 		"qrCode1",
 		nil,
 		time.Date(2001, 11, 12, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -114,9 +120,9 @@ var rooms = []room.Room{
 		songs,
 		[]user.Id{userIds[3]},
 	),
-	*room.HydrateRoom(shared.RoomId(uuid.New()),
+	*room.HydrateRoom(roomId1,
 		"room2",
-		"roompass2",
+		"roompasss2",
 		"qrCode2",
 		nil,
 		time.Date(2001, 11, 10, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -124,9 +130,9 @@ var rooms = []room.Room{
 		songs,
 		[]user.Id{userIds[0]},
 	),
-	*room.HydrateRoom(shared.RoomId(uuid.New()),
+	*room.HydrateRoom(roomId2,
 		"room3",
-		"roompass3",
+		"roompasss3",
 		"qrCode3",
 		nil,
 		time.Date(2022, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -186,7 +192,7 @@ var (
 			"name1",
 			"surname1",
 			&user1Role,
-			nil,
+			&roomId1,
 			[]user.Device{devices[4]},
 			nil),
 		*user.HydrateUser(userIds[1],
@@ -194,7 +200,7 @@ var (
 			"name2",
 			"surname2",
 			&user2Role,
-			nil,
+			&roomId2,
 			[]user.Device{devices[1]},
 			nil),
 		*user.HydrateUser(userIds[2],
@@ -202,7 +208,7 @@ var (
 			"name3",
 			"surname3",
 			&user3Role,
-			nil,
+			&roomId2,
 			[]user.Device{devices[2]},
 			nil),
 		*user.HydrateUser(userIds[3],
@@ -210,7 +216,7 @@ var (
 			"name4",
 			"surname4",
 			&user4Role,
-			nil,
+			&roomId2,
 			[]user.Device{devices[3]},
 			nil),
 		*user.HydrateUser(userIds[4],
@@ -309,10 +315,13 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 }
 
 func (s *Seeder) SeedRoom(ctx context.Context, room *room.Room) error {
+	configuration := othermocks.MockConfiguration{}
+	encrypter := authentication.NewEncrypter(&configuration)
+	hashedPassword, _ := encrypter.HashAndSalt(room.Password())
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds)
 		VALUES ($1, $2, $3, $4, $5, $6)
-	`, room.Id(), room.Name(), []byte(room.Password()), []byte(room.QrCode()), room.CreatedAtUtc(), room.LifespanSeconds())
+	`, room.Id(), room.Name(), []byte(hashedPassword), []byte(room.QrCode()), room.CreatedAtUtc(), room.LifespanSeconds())
 	if err != nil {
 		return fmt.Errorf("failed to seed room: %w", err)
 	}

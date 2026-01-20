@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import type IRoomStoreModel from '@/infrastructure/room/IRoomStoreModel.ts';
+import type IJoinRoomPasswordRequest from '@/infrastructure/room/IJoinRoomPasswordRequest.ts';
 import { RoomService } from '@/infrastructure/room/room_service.ts';
 import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
 import ValidationError from '@/errors/validation_error.ts';
@@ -107,6 +108,20 @@ export const useRoomStore = defineStore(
           resetRoomStore();
         });
     }
+    async function joinRoomPassword(roomData: IJoinRoomPasswordRequest) {
+      return await RoomService.joinRoomPassword(roomData)
+        .then(async (_) => {
+          await router.replace({ name: 'RoomPage' });
+          return null;
+        })
+        .catch((err) => {
+          if (err instanceof ValidationError) {
+            return err.fieldErrors;
+          }
+          return null;
+        });
+    }
+
     const isHost = computed(() => room.value?.userRole === TUserRole.host);
 
     return {
@@ -121,6 +136,7 @@ export const useRoomStore = defineStore(
       getUserRoomMembership,
       leaveRoom,
       isBoostAvailable,
+      joinRoomPassword,
     };
   },
   {

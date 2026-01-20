@@ -59,6 +59,7 @@ func NewServer(dependencies *initialization.ServerDependencies, customMiddleware
 			r.Get("/", dependencies.RoomController().GetRoom)
 			r.Delete("/", dependencies.RoomController().LeaveRoom)
 			r.Get(controllers.RoomMembershipBasePath, dependencies.RoomController().CheckUserRoomMembership)
+			r.Put(controllers.JoinRoomPasswordPath, dependencies.RoomController().JoinRoomPassword)
 		})
 
 		r.Route(controllers.UserBasePath, func(r chi.Router) {

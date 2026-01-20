@@ -1,10 +1,51 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
 import { PlatformDiscoverer } from '@/infrastructure/utils/platform_discoverer.ts';
+import { useForm } from 'vee-validate';
 import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
+import { useRoomStore } from '@/stores/room_store.ts';
+import { toTypedSchema } from '@vee-validate/zod';
+import * as z from 'zod';
+import type IJoinRoomPasswordRequest from '@/infrastructure/room/IJoinRoomPasswordRequest';
 
 const dialog = shallowRef(false);
 const isPasswordVisible = shallowRef(false);
+const roomStore = useRoomStore();
+
+const validationSchema = toTypedSchema(
+  z.object({
+    roomName: z
+      .string()
+      .min(5, 'Room name has to have at least 5 characters')
+      .max(30, 'Room name has to have at most 30 characters'),
+    roomPassword: z
+      .string()
+      .min(10, 'Password has to have at least 10 characters')
+      .max(30, 'Password has to have at most 30 characters')
+      .regex(/^\S*$/, 'Password cannot contain whitespaces'),
+  }),
+);
+const { handleSubmit, defineField, setErrors, errors } = useForm({
+  validationSchema,
+  initialValues: {
+    roomName: '',
+    roomPassword: '',
+  },
+});
+const [roomName] = defineField('roomName');
+const [roomPassword] = defineField('roomPassword');
+
+const onSubmit = handleSubmit(async (values) => {
+  const request: IJoinRoomPasswordRequest = {
+    roomName: values.roomName,
+    roomPassword: values.roomPassword,
+  };
+  const validationErrors = await roomStore.joinRoomPassword(request);
+  if (validationErrors) {
+    setErrors(validationErrors);
+    return;
+  }
+});
 </script>
 
 <template>
@@ -32,10 +73,12 @@ const isPasswordVisible = shallowRef(false);
           </v-row>
         </v-container>
         <v-container class="pa-0">
-          <v-form>
+          <v-form @submit.prevent="onSubmit">
             <v-row justify="center" no-gutters>
               <v-col>
                 <v-text-field
+                  v-model="roomName"
+                  :error-messages="errors.roomName ?? []"
                   label="Room Name"
                   data-testid="join-room-popup-name-input"
                   required
@@ -47,6 +90,8 @@ const isPasswordVisible = shallowRef(false);
             <v-row justify="center" no-gutters>
               <v-col>
                 <v-text-field
+                  v-model="roomPassword"
+                  :error-messages="errors.roomPassword ?? []"
                   label="Password"
                   data-testid="join-room-popup-password-input"
                   required
@@ -80,7 +125,15 @@ const isPasswordVisible = shallowRef(false);
             </div>
             <v-row justify="center">
               <v-col>
-                <v-btn type="submit" color="primary" block rounded="xl"> Join </v-btn>
+                <v-btn
+                  data-testid="join-room-popup-btn"
+                  type="submit"
+                  color="primary"
+                  block
+                  rounded="xl"
+                >
+                  Join
+                </v-btn>
               </v-col>
             </v-row>
           </v-form>
