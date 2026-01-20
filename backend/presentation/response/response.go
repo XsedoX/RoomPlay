@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application/customerrors"
+	domainErrors "github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/infrastructure/validation"
 	"github.com/go-playground/validator/v10"
 )
@@ -58,8 +59,24 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 }
 
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	var applicationError *customerrors.CustomError
-	if !errors.As(appErr, &applicationError) {
+	switch parsedErr := appErr.(type) {
+	case *domainErrors.ValidationDomainError:
+		WriteJsonFailure(w,
+			parsedErr.Code,
+			parsedErr.Title,
+			parsedErr.Description,
+			instance,
+			http.StatusBadRequest)
+		return
+	case *customerrors.CustomError:
+		WriteJsonFailure(w,
+			parsedErr.Code,
+			parsedErr.Title,
+			parsedErr.Error(),
+			instance,
+			int(parsedErr.ErrorType))
+		return
+	default:
 		WriteJsonFailure(w,
 			"CustomError.CastingError",
 			"Error is not applicationError",
@@ -68,32 +85,26 @@ func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance s
 			http.StatusInternalServerError)
 		return
 	}
-	WriteJsonFailure(w,
-		applicationError.Code,
-		applicationError.Title,
-		applicationError.Error(),
-		instance,
-		int(applicationError.ErrorType))
 }
 
 func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) {
 	var validationErrs validator.ValidationErrors
-	if !errors.As(err, &validationErrs) {
+	if errors.As(err, &validationErrs) {
 		WriteJsonFailure(w,
-			"ValidationErrors.CastingError",
-			"Error is not ValidationErrors",
-			"Unexpected issue. Please try again.",
+			code,
+			"Validation error occurred.",
+			"One or more fields are not correctly filled.",
 			instance,
-			http.StatusInternalServerError)
+			http.StatusBadRequest,
+			validation.MapValidationErrors(validationErrs))
 		return
 	}
 	WriteJsonFailure(w,
-		code,
-		"Validation error occurred.",
-		"One or more fields are not correctly filled.",
+		"ValidationErrors.CastingError",
+		"Error is not ValidationErrors",
+		"Unexpected issue. Please try again.",
 		instance,
-		http.StatusBadRequest,
-		validation.MapValidationErrors(validationErrs))
+		http.StatusInternalServerError)
 }
 
 func WriteJsonNoContent(w http.ResponseWriter) {

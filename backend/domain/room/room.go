@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	domainErrors "github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/google/uuid"
 )
 
 const (
@@ -74,27 +74,27 @@ func (r Room) Members() []user.Id {
 func NewRoom(name string,
 	password string,
 	qrCode string,
-	roomHostId user.Id) *Room {
-
+	roomHostId user.Id,
+) (*Room, error) {
 	if len(name) > NameMaxLength {
-		panic(domainErrors.NewValidationDomainError("Room.TooLong.Name",
+		return nil, domainErrors.NewValidationDomainError("Room.TooLong.Name",
 			fmt.Sprintf("The room name exceeded %d characters.",
-				NameMaxLength)))
+				NameMaxLength))
 	}
 	if len(name) < NameMinLength {
-		panic(domainErrors.NewValidationDomainError("Room.TooShort.Name",
-			fmt.Sprintf("The room was shorter than %d characters.",
-				NameMinLength)))
+		return nil, domainErrors.NewValidationDomainError("Room.TooShort.Name",
+			fmt.Sprintf("The room name was shorter than %d characters.",
+				NameMinLength))
 	}
 	if len(password) > PasswordMaxLength {
-		panic(domainErrors.NewValidationDomainError("Room.TooLong.Password",
+		return nil, domainErrors.NewValidationDomainError("Room.TooLong.Password",
 			fmt.Sprintf("The room password exceeded %d characters.",
-				PasswordMaxLength)))
+				PasswordMaxLength))
 	}
 	if len(password) < PasswordMinLength {
-		panic(domainErrors.NewValidationDomainError("Room.TooShort.Password",
+		return nil, domainErrors.NewValidationDomainError("Room.TooShort.Password",
 			fmt.Sprintf("The room password was shorter than %d characters.",
-				PasswordMinLength)))
+				PasswordMinLength))
 	}
 	result := &Room{
 		name:                 name,
@@ -107,8 +107,9 @@ func NewRoom(name string,
 		members:              []user.Id{roomHostId},
 	}
 	result.SetId(shared.RoomId(uuid.New()))
-	return result
+	return result, nil
 }
+
 func HydrateRoom(
 	id shared.RoomId,
 	name string,
