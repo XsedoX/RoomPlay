@@ -114,11 +114,9 @@ func TestCheckUserRoomMembershipSuccess(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-
 	var responseWrapper test_helpers.TestResponseWrapper[bool]
 	err := json.NewDecoder(w.Body).Decode(&responseWrapper)
 	require.NoError(t, err)
-
 	assert.True(t, responseWrapper.Data)
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 )
 
 type UnitOfWork struct {
@@ -16,7 +16,7 @@ func NewUnitOfWork(db *sqlx.DB) *UnitOfWork {
 	return &UnitOfWork{db: db}
 }
 
-func (uow *UnitOfWork) GetQueryer() contracts.IQueryer {
+func (uow *UnitOfWork) GetQueryer() application_contracts.IQueryer {
 	if uow.tx != nil {
 		return uow.tx
 	}

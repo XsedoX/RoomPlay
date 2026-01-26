@@ -3,15 +3,14 @@ package user
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/google/uuid"
 )
 
 const IdClaimContextKeyName = "userIdClaimContextKey"
 
 type User struct {
 	shared.AggregateRoot[Id]
-	externalId     string
 	fullName       FullName
 	role           *UserRole
 	roomId         *shared.RoomId
@@ -19,10 +18,9 @@ type User struct {
 	boostUsedAtUtc *time.Time
 }
 
-func NewUser(externalId, name, surname string, deviceType DeviceType) *User {
+func NewUser(name, surname string, deviceType DeviceType) *User {
 	deviceEntity := NewDevice(deviceType)
 	user := &User{
-		externalId:     externalId,
 		fullName:       NewFullName(name, surname),
 		role:           nil,
 		roomId:         nil,
@@ -32,6 +30,7 @@ func NewUser(externalId, name, surname string, deviceType DeviceType) *User {
 	user.SetId(Id(uuid.New()))
 	return user
 }
+
 func (u *User) GetMostRecentDevice() *Device {
 	mostRecent := &u.devices[0]
 	for i := range u.devices {
@@ -41,35 +40,41 @@ func (u *User) GetMostRecentDevice() *Device {
 	}
 	return mostRecent
 }
+
 func (u *User) BoostUsedAtUtc() *time.Time {
 	return u.boostUsedAtUtc
 }
+
 func (u *User) ChangeFullName(newFullName FullName) {
 	u.fullName = newFullName
 }
+
 func (u *User) Devices() []Device {
 	return u.devices
 }
+
 func (u *User) RoomId() *shared.RoomId {
 	return u.roomId
 }
+
 func (u *User) FullName() FullName {
 	return u.fullName
 }
-func (u *User) ExternalId() string {
-	return u.externalId
-}
+
 func (u *User) Role() *UserRole {
 	return u.role
 }
+
 func (u *User) LoginWithNewDevice(deviceType DeviceType) DeviceId {
 	newDevice := NewDevice(deviceType)
 	u.devices = append(u.devices, *newDevice)
 	return newDevice.Id()
 }
+
 func (u *User) ReloginWithKnownDevice(deviceId DeviceId) {
 	u.getDeviceById(deviceId).RefreshDeviceState()
 }
+
 func (u *User) getDeviceById(deviceId DeviceId) *Device {
 	for i := range u.devices {
 		usersDeviceId := u.devices[i].Id()
@@ -79,9 +84,9 @@ func (u *User) getDeviceById(deviceId DeviceId) *Device {
 	}
 	return nil
 }
+
 func HydrateUser(
 	id Id,
-	externalId string,
 	name string,
 	surname string,
 	role *UserRole,
@@ -90,7 +95,6 @@ func HydrateUser(
 	boostUsedAtUtc *time.Time,
 ) *User {
 	user := &User{
-		externalId:     externalId,
 		fullName:       NewFullName(name, surname),
 		role:           role,
 		roomId:         roomId,

@@ -4,18 +4,18 @@ import (
 	"context"
 
 	"github.com/XsedoX/RoomPlay/application"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/user_contracts"
 )
 
 type GetUserQueryHandler struct {
-	unitOfWork     contracts.IUnitOfWork
-	userRepository contracts2.IUserRepository
+	unitOfWork     application_contracts.IUnitOfWork
+	userRepository user_contracts.IUserRepository
 }
 
-func NewGetUserQueryHandler(unitOfWork contracts.IUnitOfWork,
-	userRepository contracts2.IUserRepository,
+func NewGetUserQueryHandler(unitOfWork application_contracts.IUnitOfWork,
+	userRepository user_contracts.IUserRepository,
 ) *GetUserQueryHandler {
 	return &GetUserQueryHandler{
 		unitOfWork:     unitOfWork,

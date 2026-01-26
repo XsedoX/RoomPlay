@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/uuid"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
+	"github.com/google/uuid"
 )
 
 const getDevicesQuery = `SELECT * FROM devices WHERE user_id = $1`
 
-type UserRepository struct {
-}
+type UserRepository struct{}
 
 func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
-func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, queryer contracts.IQueryer) (*user.User, error) {
+
+func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, queryer application_contracts.IQueryer) (*user.User, error) {
 	var userDb daos.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
@@ -43,14 +43,15 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id user.Id, q
 
 	return parseUser(&userDb, &devicesDb), nil
 }
-func (repository *UserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) (*user.User, error) {
+
+func (repository *UserRepository) GetUserByExternalId(ctx context.Context, externalId string, queryer application_contracts.IQueryer) (*user.User, error) {
 	var userDb daos.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
-		`SELECT u.*, ur.role, b.used_at_utc FROM users u 
+		`SELECT u.*, ur.role, ur.boost_used_at_utc, ur.room_id FROM users u 
          	   LEFT JOIN users_room_data ur ON ur.user_id = u.id 
-			   LEFT JOIN boosts b ON b.user_id = u.id 
-         	   WHERE external_id = $1`,
+		LEFT JOIN users_external_credentials uec ON uec.user_id = u.id
+         	   WHERE uec.external_id = $1`,
 		externalId)
 	if err != nil {
 		return nil, err
@@ -66,7 +67,8 @@ func (repository *UserRepository) GetUserByExternalId(ctx context.Context, exter
 	}
 	return parseUser(&userDb, &devicesDb), nil
 }
-func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Context, externalId string, queryer contracts.IQueryer) bool {
+
+func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Context, externalId string, queryer application_contracts.IQueryer) bool {
 	var response bool
 	err := queryer.GetContext(ctx, &response, `
 		SELECT CASE 
@@ -83,7 +85,8 @@ func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Conte
 	}
 	return response
 }
-func (repository *UserRepository) Update(ctx context.Context, user *user.User, queryer contracts.IQueryer) error {
+
+func (repository *UserRepository) Update(ctx context.Context, user *user.User, queryer application_contracts.IQueryer) error {
 	userId := user.Id()
 	_, err := queryer.ExecContext(ctx, `
 		UPDATE users 
@@ -168,11 +171,11 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 
 	return err
 }
-func (repository *UserRepository) Add(ctx context.Context, user *user.User, queryer contracts.IQueryer) error {
+
+func (repository *UserRepository) Add(ctx context.Context, user *user.User, queryer application_contracts.IQueryer) error {
 	userId := user.Id()
 	params := []interface{}{
 		userId.ToUuid(),
-		user.ExternalId(),
 		user.FullName().Name(),
 		user.FullName().Surname(),
 	}
@@ -202,8 +205,8 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 	// Compose the CTE + INSERT ... SELECT ... FROM u, (VALUES ...) AS v(...)
 	query := `
 		WITH "user" AS (
-		  INSERT INTO users (id, external_id, name, surname)
-		  VALUES ($1, $2, $3, $4)
+		  INSERT INTO users (id, name, surname)
+		  VALUES ($1, $2, $3)
 		  RETURNING id
 		)
 		INSERT INTO devices (id, friendly_name, is_host, type, user_id, state)
@@ -212,6 +215,7 @@ func (repository *UserRepository) Add(ctx context.Context, user *user.User, quer
 	_, err := queryer.ExecContext(ctx, query, params...)
 	return err
 }
+
 func parseUser(userDb *daos.UserDao, devicesDb *[]daos.DeviceDao) *user.User {
 	var devices []user.Device
 	for _, deviceDb := range *devicesDb {
@@ -228,7 +232,6 @@ func parseUser(userDb *daos.UserDao, devicesDb *[]daos.DeviceDao) *user.User {
 	}
 
 	return user.HydrateUser(user.Id(userDb.Id),
-		userDb.ExternalId,
 		userDb.Name,
 		userDb.Surname,
 		user.ParseUserRole(userDb.Role),

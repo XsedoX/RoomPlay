@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password"
@@ -20,18 +20,18 @@ const (
 )
 
 type RoomController struct {
-	createRoomCommandHandler          contracts.ICommandHandler[*create_room.CreateRoomCommand]
-	getRoomQueryHandler               contracts.IQueryHandler[*get_room.GetRoomQueryResponse]
-	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool]
-	leaveRoomCommandHandler           contracts.ICommandHandler[*leave_room.LeaveRoomCommand]
-	joinRoomCommandHandler            contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand]
+	createRoomCommandHandler          application_contracts.ICommandHandler[*create_room.CreateRoomCommand]
+	getRoomQueryHandler               application_contracts.IQueryHandler[*get_room.GetRoomQueryResponse]
+	getUserRoomMembershipQueryHandler application_contracts.IQueryHandler[*bool]
+	leaveRoomCommandHandler           application_contracts.ICommandHandler[*leave_room.LeaveRoomCommand]
+	joinRoomCommandHandler            application_contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand]
 }
 
-func NewRoomController(createRoomCommandHandler contracts.ICommandHandler[*create_room.CreateRoomCommand],
-	getRoomQueryHandler contracts.IQueryHandler[*get_room.GetRoomQueryResponse],
-	getUserRoomMembershipQueryHandler contracts.IQueryHandler[*bool],
-	leaveRoomCommandHandler contracts.ICommandHandler[*leave_room.LeaveRoomCommand],
-	joinRoomCommandHandler contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand],
+func NewRoomController(createRoomCommandHandler application_contracts.ICommandHandler[*create_room.CreateRoomCommand],
+	getRoomQueryHandler application_contracts.IQueryHandler[*get_room.GetRoomQueryResponse],
+	getUserRoomMembershipQueryHandler application_contracts.IQueryHandler[*bool],
+	leaveRoomCommandHandler application_contracts.ICommandHandler[*leave_room.LeaveRoomCommand],
+	joinRoomCommandHandler application_contracts.ICommandHandler[*join_room_password.JoinRoomPasswordCommand],
 ) *RoomController {
 	return &RoomController{
 		createRoomCommandHandler:          createRoomCommandHandler,

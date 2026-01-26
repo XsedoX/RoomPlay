@@ -3,7 +3,6 @@ package register_user
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 	"time"
 
@@ -39,12 +38,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		command := RegisterUserCommand{
 			Name:       faker.FirstName(),
 			Surname:    faker.LastName(),
-			ExternalId: uuid.New().String(),
 			DeviceType: user.Mobile,
 			CredentialsDto: CredentialsDto{
+				ExternalId:               uuid.New().String(),
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "scope",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour),
 				RefreshTokenExpiresAtUtc: time.Now().Add(24 * time.Hour),
 				IssuedAt:                 time.Now(),
@@ -94,12 +93,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		command := RegisterUserCommand{
 			Name:       faker.FirstName(),
 			Surname:    faker.LastName(),
-			ExternalId: uuid.New().String(),
 			DeviceType: user.Mobile,
 			CredentialsDto: CredentialsDto{
+				ExternalId:               uuid.New().String(),
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "scope",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour),
 				RefreshTokenExpiresAtUtc: time.Now().Add(24 * time.Hour),
 				IssuedAt:                 time.Now(),
@@ -151,12 +150,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		command := RegisterUserCommand{
 			Name:       faker.FirstName(),
 			Surname:    faker.LastName(),
-			ExternalId: uuid.New().String(),
 			DeviceType: user.Mobile,
 			CredentialsDto: CredentialsDto{
+				ExternalId:               uuid.New().String(),
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "scope",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour),
 				RefreshTokenExpiresAtUtc: time.Now().Add(24 * time.Hour),
 				IssuedAt:                 time.Now(),
@@ -215,12 +214,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		command := RegisterUserCommand{
 			Name:       faker.FirstName(),
 			Surname:    faker.LastName(),
-			ExternalId: uuid.New().String(),
 			DeviceType: user.Mobile,
 			CredentialsDto: CredentialsDto{
+				ExternalId:               uuid.New().String(),
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "scope",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour),
 				RefreshTokenExpiresAtUtc: time.Now().Add(24 * time.Hour),
 				IssuedAt:                 time.Now(),
@@ -243,7 +242,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
 			Return(nil)
 
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.External"), mock.Anything).
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).
 			Return(errToBeReturned)
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
@@ -282,12 +281,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		command := RegisterUserCommand{
 			Name:       faker.FirstName(),
 			Surname:    faker.LastName(),
-			ExternalId: uuid.New().String(),
 			DeviceType: user.Mobile,
 			CredentialsDto: CredentialsDto{
+				ExternalId:               uuid.New().String(),
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "scope",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour),
 				RefreshTokenExpiresAtUtc: time.Now().Add(24 * time.Hour),
 				IssuedAt:                 time.Now(),
@@ -317,10 +316,10 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 			}).
 			Return(nil)
 
-		var capturedCreds *credentials.External
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.External"), mock.Anything).
+		var capturedCreds *credentials.ExternalCredentials
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).
 			Run(func(args mock.Arguments) {
-				capturedCreds = args.Get(1).(*credentials.External)
+				capturedCreds = args.Get(1).(*credentials.ExternalCredentials)
 			}).
 			Return(nil)
 
@@ -336,7 +335,6 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.NotNil(t, capturedUser)
 		assert.Equal(t, command.Name, capturedUser.FullName().Name())
 		assert.Equal(t, command.Surname, capturedUser.FullName().Surname())
-		assert.Equal(t, command.ExternalId, capturedUser.ExternalId())
 		assert.Equal(t, command.DeviceType, capturedUser.GetMostRecentDevice().DeviceType())
 		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), resp.DeviceId)
 
@@ -349,9 +347,10 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.Equal(t, capturedUser.Id(), capturedCreds.Id())
 		assert.Equal(t, command.CredentialsDto.AccessToken, capturedCreds.AccessToken())
 		assert.Equal(t, command.CredentialsDto.RefreshToken, capturedCreds.RefreshToken())
-		assert.Equal(t, strings.Split(command.CredentialsDto.Scopes, " "), capturedCreds.Scopes())
 		assert.Equal(t, command.CredentialsDto.AccessTokenExpiresAtUtc, capturedCreds.AccessTokenExpiresAtUtc())
 		assert.Equal(t, command.CredentialsDto.RefreshTokenExpiresAtUtc, capturedCreds.RefreshTokenExpiresAtUtc())
+		assert.Equal(t, command.CredentialsDto.ExternalId, capturedCreds.ExternalId())
+		assert.Equal(t, command.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
 
 		mockUoW.AssertExpectations(t)
 		mockUserRepository.AssertExpectations(t)

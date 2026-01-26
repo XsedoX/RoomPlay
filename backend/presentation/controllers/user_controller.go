@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/user/get_user"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )
@@ -13,10 +13,10 @@ const (
 )
 
 type UserController struct {
-	getUserDataQueryHandler contracts.IQueryHandler[*get_user.GetUserQueryResponse]
+	getUserDataQueryHandler application_contracts.IQueryHandler[*get_user.GetUserQueryResponse]
 }
 
-func NewUserController(getUserDataQueryHandler contracts.IQueryHandler[*get_user.GetUserQueryResponse]) *UserController {
+func NewUserController(getUserDataQueryHandler application_contracts.IQueryHandler[*get_user.GetUserQueryResponse]) *UserController {
 	return &UserController{
 		getUserDataQueryHandler: getUserDataQueryHandler,
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
+	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,12 +30,14 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	refreshToken := "refresh_token_123"
 	accessTokenExpiresAt := time.Now().Add(1 * time.Hour).UTC()
 	refreshTokenExpiresAt := time.Now().Add(24 * time.Hour).UTC()
+	externalId := faker.UUIDDigit()
 
 	creds := credentials.NewExternalCredentials(
 		user.Id(userID),
 		accessToken,
 		refreshToken,
-		"scope1 scope2",
+		externalId,
+		credentials.YouTube,
 		accessTokenExpiresAt,
 		refreshTokenExpiresAt,
 	)
@@ -52,19 +55,21 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 		UserID                   uuid.UUID `db:"user_id"`
 		AccessToken              []byte    `db:"access_token"`
 		RefreshToken             []byte    `db:"refresh_token"`
-		Scope                    string    `db:"scope"`
+		ExternalId               string    `db:"external_id"`
 		AccessTokenExpiresAtUtc  time.Time `db:"access_token_expires_at_utc"`
 		RefreshTokenExpiresAtUtc time.Time `db:"refresh_token_expires_at_utc"`
 		IssuedAtUtc              time.Time `db:"issued_at_utc"`
+		MusicProvider            string    `db:"music_provider"`
 	}
 
 	err = txx.GetContext(ctx, &storedCreds, "SELECT * FROM users_external_credentials WHERE user_id = $1", userID)
 	require.NoError(t, err)
 
 	assert.Equal(t, userID, storedCreds.UserID)
+	assert.Equal(t, externalId, storedCreds.ExternalId)
 	assert.Equal(t, []byte("encrypted_"+accessToken), storedCreds.AccessToken)
 	assert.Equal(t, []byte("encrypted_"+refreshToken), storedCreds.RefreshToken)
-	assert.Equal(t, "scope1 scope2", storedCreds.Scope)
+	assert.Equal(t, credentials.YouTube.String(), storedCreds.MusicProvider)
 	// Compare times with small delta to account for DB roundtrip precision
 	assert.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
 	assert.WithinDuration(t, refreshTokenExpiresAt, storedCreds.RefreshTokenExpiresAtUtc, time.Second)

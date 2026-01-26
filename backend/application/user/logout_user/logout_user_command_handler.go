@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
 )
 
 type LogoutUserCommandHandler struct {
-	refreshTokenRepository contracts.IRefreshTokenRepository
-	unitOfWork             contracts.IUnitOfWork
+	refreshTokenRepository application_contracts.IRefreshTokenRepository
+	unitOfWork             application_contracts.IUnitOfWork
 }
 
-func NewLogoutUserCommandHandler(refreshTokenRepository contracts.IRefreshTokenRepository,
-	unitOfWork contracts.IUnitOfWork,
+func NewLogoutUserCommandHandler(refreshTokenRepository application_contracts.IRefreshTokenRepository,
+	unitOfWork application_contracts.IUnitOfWork,
 ) *LogoutUserCommandHandler {
 	return &LogoutUserCommandHandler{
 		refreshTokenRepository: refreshTokenRepository,

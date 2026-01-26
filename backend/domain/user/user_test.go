@@ -35,7 +35,6 @@ func TestGetMostRecentDevice(t *testing.T) {
 	boostUsedAtUtc := time.Now().UTC()
 	roomId := shared.RoomId(uuid.New())
 	user := HydrateUser(Id(uuid.New()),
-		faker.UUIDDigit(),
 		faker.Name(),
 		faker.LastName(),
 		&role,
@@ -64,7 +63,6 @@ func TestLoginWithNewDevice(t *testing.T) {
 	boostUsedAtUtc := time.Now().UTC()
 	roomId := shared.RoomId(uuid.New())
 	user := HydrateUser(Id(uuid.New()),
-		faker.UUIDDigit(),
 		faker.Name(),
 		faker.LastName(),
 		&role,
@@ -77,13 +75,11 @@ func TestLoginWithNewDevice(t *testing.T) {
 	require.Equal(t, 2, len(user.Devices()), "User should have 2 devices after logging in with a new device")
 }
 
-func TestNewUSer(t *testing.T) {
-	externalID := faker.UUIDDigit()
+func TestNewUser(t *testing.T) {
 	name := faker.Name()
 	surname := faker.LastName()
 	deviceType := Mobile
-	newUser := NewUser(externalID, name, surname, deviceType)
-	require.Equal(t, externalID, newUser.ExternalId(), "External ID should match")
+	newUser := NewUser(name, surname, deviceType)
 	require.Equal(t, name+" "+surname, newUser.FullName().String(), "Full name should match")
 	require.Nil(t, newUser.Role(), "Role should be nil for new user")
 	require.Nil(t, newUser.RoomId(), "Room ID should be nil for new user")

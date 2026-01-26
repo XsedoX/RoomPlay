@@ -4,28 +4,29 @@ import (
 	"context"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
 	"github.com/XsedoX/RoomPlay/application/dtos"
-	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
 	"github.com/XsedoX/RoomPlay/application/user/login_user"
 	"github.com/XsedoX/RoomPlay/application/user/register_user"
+	"github.com/XsedoX/RoomPlay/application/user/user_contracts"
+	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type OidcAuthenticationService struct {
-	googleOidcService          contracts.IGoogleOidcService
-	userRepository             contracts2.IUserRepository
-	registerUserCommandHandler contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse]
-	loginUserCommandHandler    contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse]
-	unitOfWork                 contracts.IUnitOfWork
+	googleOidcService          application_contracts.IGoogleOidcService
+	userRepository             user_contracts.IUserRepository
+	registerUserCommandHandler application_contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse]
+	loginUserCommandHandler    application_contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse]
+	unitOfWork                 application_contracts.IUnitOfWork
 }
 
-func NewOidcAuthenticationService(googleOidcService contracts.IGoogleOidcService,
-	userRepository contracts2.IUserRepository,
-	unitOfWork contracts.IUnitOfWork,
-	registerUserHandler contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse],
-	loginUserHandler contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse],
+func NewOidcAuthenticationService(googleOidcService application_contracts.IGoogleOidcService,
+	userRepository user_contracts.IUserRepository,
+	unitOfWork application_contracts.IUnitOfWork,
+	registerUserHandler application_contracts.ICommandHandlerWithResponse[*register_user.RegisterUserCommand, *register_user.RegisterUserCommandResponse],
+	loginUserHandler application_contracts.ICommandHandlerWithResponse[*login_user.LoginUserCommand, *login_user.LoginUserCommandResponse],
 ) *OidcAuthenticationService {
 	return &OidcAuthenticationService{
 		googleOidcService:          googleOidcService,
@@ -62,18 +63,19 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 	}
 	var apiTokenResponse dtos.OidcAuthenticateUserServiceDto
 	if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer()) {
+		// NOTE: User Login
 		loginUserCommand := login_user.LoginUserCommand{
 			Name: claims.GivenName,
 			DeviceDto: login_user.DeviceDto{
 				DeviceId:   deviceId,
 				DeviceType: deviceTypeToPass,
 			},
-			ExternalId: claims.Subject,
-			Surname:    claims.FamilyName,
+			Surname: claims.FamilyName,
 			CredentialsDto: login_user.CredentialsDto{
+				ExternalId:               claims.Subject,
 				AccessToken:              tokenResp.AccessToken,
 				RefreshToken:             tokenResp.RefreshToken,
-				Scopes:                   tokenResp.Scope,
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
 			},
@@ -86,15 +88,16 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 		apiTokenResponse.RefreshToken = loginResponse.RefreshToken
 		apiTokenResponse.DeviceId = loginResponse.DeviceId
 	} else {
+		// NOTE: User Registration
 		registerUserCommand := register_user.RegisterUserCommand{
 			Name:       claims.GivenName,
 			DeviceType: deviceTypeToPass,
-			ExternalId: claims.Subject,
 			Surname:    claims.FamilyName,
 			CredentialsDto: register_user.CredentialsDto{
 				AccessToken:              tokenResp.AccessToken,
+				ExternalId:               claims.Subject,
 				RefreshToken:             tokenResp.RefreshToken,
-				Scopes:                   tokenResp.Scope,
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
 			},

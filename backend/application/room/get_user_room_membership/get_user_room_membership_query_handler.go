@@ -5,18 +5,18 @@ import (
 	"fmt"
 
 	"github.com/XsedoX/RoomPlay/application"
-	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	"github.com/XsedoX/RoomPlay/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/room_contracts"
 )
 
 type GetUserRoomMembershipQueryHandler struct {
-	roomRepository contracts.IRoomRepository
-	unitOfWork     contracts2.IUnitOfWork
+	roomRepository room_contracts.IRoomRepository
+	unitOfWork     application_contracts.IUnitOfWork
 }
 
-func NewGetUserRoomMembershipQueryHandler(roomRepository contracts.IRoomRepository,
-	unitOfWork contracts2.IUnitOfWork,
+func NewGetUserRoomMembershipQueryHandler(roomRepository room_contracts.IRoomRepository,
+	unitOfWork application_contracts.IUnitOfWork,
 ) *GetUserRoomMembershipQueryHandler {
 	return &GetUserRoomMembershipQueryHandler{
 		roomRepository: roomRepository,

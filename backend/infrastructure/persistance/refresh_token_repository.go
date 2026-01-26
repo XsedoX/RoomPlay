@@ -4,22 +4,22 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos"
 )
 
 type RefreshTokenRepository struct {
-	encrypter contracts.IEncrypter
+	encrypter application_contracts.IEncrypter
 }
 
-func NewRefreshTokenRepository(encrypter contracts.IEncrypter) *RefreshTokenRepository {
+func NewRefreshTokenRepository(encrypter application_contracts.IEncrypter) *RefreshTokenRepository {
 	return &RefreshTokenRepository{
 		encrypter: encrypter,
 	}
 }
-func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer contracts.IQueryer) (*credentials.RefreshToken, error) {
+func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer application_contracts.IQueryer) (*credentials.RefreshToken, error) {
 	encryptedRefreshToken := r.encrypter.Hash(value)
 	var tokenFromDb daos.RefreshTokenDao
 	err := queryer.GetContext(ctx, &tokenFromDb,
@@ -34,7 +34,7 @@ func (r RefreshTokenRepository) GetTokenByValue(ctx context.Context, value strin
 		tokenFromDb.ExpiresAtUtc,
 		tokenFromDb.IssuedAtUtc), nil
 }
-func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer contracts.IQueryer) error {
+func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer application_contracts.IQueryer) error {
 	encryptedRefreshToken := r.encrypter.Hash(refreshToken.RefreshToken())
 	userId := refreshToken.Id()
 	deviceId := refreshToken.DeviceId()
@@ -65,7 +65,7 @@ func (r RefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken
 	)
 	return err
 }
-func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer contracts.IQueryer) error {
+func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer application_contracts.IQueryer) error {
 	uId := uuid.UUID(*userId)
 	dId := uuid.UUID(*deviceId)
 	_, err := queryer.ExecContext(ctx,
@@ -74,7 +74,7 @@ func (r RefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Conte
 		dId)
 	return err
 }
-func (r RefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
+func (r RefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer application_contracts.IQueryer) error {
 	id := uuid.UUID(*userId)
 	_, err := queryer.ExecContext(ctx,
 		"DELETE FROM users_refresh_tokens WHERE user_id = $1;",

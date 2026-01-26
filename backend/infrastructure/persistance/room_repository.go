@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	daos2 "github.com/XsedoX/RoomPlay/application/room/get_room/daos"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/shared"
@@ -12,16 +12,16 @@ import (
 )
 
 type RoomRepository struct {
-	encrypter contracts.IEncrypter
+	encrypter application_contracts.IEncrypter
 }
 
-func NewRoomRepository(encrypter contracts.IEncrypter) *RoomRepository {
+func NewRoomRepository(encrypter application_contracts.IEncrypter) *RoomRepository {
 	return &RoomRepository{
 		encrypter: encrypter,
 	}
 }
 
-func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer contracts.IQueryer) error {
+func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer application_contracts.IQueryer) error {
 	roomId := roomParam.Id()
 	userId := roomParam.Members()[0]
 	hashedPassword, err := repository.encrypter.HashAndSalt(roomParam.Password())
@@ -55,7 +55,7 @@ func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *roo
 	return nil
 }
 
-func (repository *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer contracts.IQueryer) (*daos2.GetRoomDao, error) {
+func (repository *RoomRepository) GetRoomByUserId(ctx context.Context, userId user.Id, queryer application_contracts.IQueryer) (*daos2.GetRoomDao, error) {
 	var getRoomDaoInstance daos2.GetRoomDao
 	getRoomErr := queryer.GetContext(ctx,
 		&getRoomDaoInstance,
@@ -107,7 +107,7 @@ WHERE users_room_data.user_id = $1;
 	return &getRoomDaoInstance, nil
 }
 
-func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer contracts.IQueryer) bool {
+func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userId user.Id, queryer application_contracts.IQueryer) bool {
 	var response bool
 	err := queryer.GetContext(ctx, &response, `
 		SELECT CASE 
@@ -125,20 +125,20 @@ func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userI
 	return response
 }
 
-func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user.Id, queryer contracts.IQueryer) error {
+func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user.Id, queryer application_contracts.IQueryer) error {
 	_, err := queryer.ExecContext(ctx,
 		`DELETE FROM users_room_data WHERE user_id=$1`,
 		id.ToUuid())
 	return err
 }
 
-func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user.Id, roomId shared.RoomId, queryer contracts.IQueryer) error {
+func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user.Id, roomId shared.RoomId, queryer application_contracts.IQueryer) error {
 	_, err := queryer.ExecContext(ctx,
 		`INSERT INTO users_room_data (user_id, room_id) VALUES ($1, $2)`, userId.ToUuid(), roomId.ToUuid())
 	return err
 }
 
-func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string, queryer contracts.IQueryer) (*shared.RoomId, error) {
+func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string, queryer application_contracts.IQueryer) (*shared.RoomId, error) {
 	type roomWithNamePasswordAndId struct {
 		RoomId       string `db:"id"`
 		RoomPassword []byte `db:"password"`

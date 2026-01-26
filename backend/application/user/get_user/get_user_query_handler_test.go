@@ -42,7 +42,6 @@ func TestGetUserQueryHandler(t *testing.T) {
 				now.Add(-10*time.Minute)),
 		}
 		userToBeReturned := user.HydrateUser(userId,
-			uuid.New().String(),
 			faker.FirstName(),
 			faker.LastName(),
 			&userRole,

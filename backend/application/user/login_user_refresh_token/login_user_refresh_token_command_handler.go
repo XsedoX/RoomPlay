@@ -3,25 +3,25 @@ package login_user_refresh_token
 import (
 	"context"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/user_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 )
 
 type LoginUserRefreshTokenCommandHandler struct {
-	refreshTokenRepository contracts.IRefreshTokenRepository
-	unitOfWork             contracts.IUnitOfWork
-	encrypter              contracts.IEncrypter
-	userRepository         contracts2.IUserRepository
-	jwtProvider            contracts.IJwtProvider
+	refreshTokenRepository application_contracts.IRefreshTokenRepository
+	unitOfWork             application_contracts.IUnitOfWork
+	encrypter              application_contracts.IEncrypter
+	userRepository         user_contracts.IUserRepository
+	jwtProvider            application_contracts.IJwtProvider
 }
 
-func NewLoginUserRefreshTokenCommandHandler(refreshToken contracts.IRefreshTokenRepository,
-	unitOfWork contracts.IUnitOfWork,
-	encrypter contracts.IEncrypter,
-	jwtProvider contracts.IJwtProvider,
-	userRepository contracts2.IUserRepository,
+func NewLoginUserRefreshTokenCommandHandler(refreshToken application_contracts.IRefreshTokenRepository,
+	unitOfWork application_contracts.IUnitOfWork,
+	encrypter application_contracts.IEncrypter,
+	jwtProvider application_contracts.IJwtProvider,
+	userRepository user_contracts.IUserRepository,
 ) *LoginUserRefreshTokenCommandHandler {
 	return &LoginUserRefreshTokenCommandHandler{
 		refreshTokenRepository: refreshToken,

@@ -3,7 +3,6 @@ package login_user
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 	"time"
 
@@ -79,12 +78,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
+				ExternalId:               "SampleExternalId",
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -103,7 +102,6 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		}
 		mockedUserFromDb := user.HydrateUser(
 			userId,
-			loginUserCommand.ExternalId,
 			faker.FirstName(),
 			faker.LastName(),
 			nil,
@@ -112,7 +110,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			nil,
 		)
 		mockUserRepository.
-			On("GetUserByExternalId", mock.Anything, loginUserCommand.ExternalId, mock.Anything).
+			On("GetUserByExternalId", mock.Anything, loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(mockedUserFromDb, nil)
 		repoErr := errors.New("update error")
 		errorCode := "LoginUserCommandHandler.Update"
@@ -152,14 +150,14 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		)
 
 		loginUserCommand := &LoginUserCommand{
-			Name:       faker.FirstName(),
-			DeviceDto:  DeviceDto{DeviceId: nil, DeviceType: user.Mobile},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Name:      faker.FirstName(),
+			DeviceDto: DeviceDto{DeviceId: nil, DeviceType: user.Mobile},
+			Surname:   faker.LastName(),
 			CredentialsDto: CredentialsDto{
 				AccessToken:              uuid.New().String(),
+				ExternalId:               "SampleExternalId",
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -178,7 +176,6 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		}
 		mockUser := user.HydrateUser(
 			userId,
-			loginUserCommand.ExternalId,
 			loginUserCommand.Name,
 			loginUserCommand.Surname,
 			nil,
@@ -187,7 +184,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			nil,
 		)
 		mockUserRepository.
-			On("GetUserByExternalId", context.Background(), loginUserCommand.ExternalId, mock.Anything).
+			On("GetUserByExternalId", context.Background(), loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(mockUser, nil)
 		mockUserRepository.
 			On("Update", context.Background(), mock.Anything, mock.Anything).
@@ -239,12 +236,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
+				ExternalId:               "SampleExternalId",
 				AccessToken:              uuid.New().String(),
 				RefreshToken:             uuid.New().String(),
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -261,10 +258,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			),
 		}
 		mockUserRepository.
-			On("GetUserByExternalId", context.Background(), loginUserCommand.ExternalId, mock.Anything).
+			On("GetUserByExternalId", context.Background(), loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(user.HydrateUser(
 				userId,
-				loginUserCommand.ExternalId,
 				faker.FirstName(),
 				faker.LastName(),
 				nil,
@@ -316,12 +312,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
+				ExternalId:               "SampleExternalId",
 				AccessToken:              "access-token-xyz",
 				RefreshToken:             "refresh-token-xyz",
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -338,10 +334,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			),
 		}
 		mockUserRepository.
-			On("GetUserByExternalId", mock.Anything, loginUserCommand.ExternalId, mock.Anything).
+			On("GetUserByExternalId", mock.Anything, loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(user.HydrateUser(
 				userId,
-				loginUserCommand.ExternalId,
 				loginUserCommand.Name,
 				loginUserCommand.Surname,
 				nil,
@@ -356,9 +351,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 
-		var capturedCreds *credentials.External
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.External"), mock.Anything).Run(func(args mock.Arguments) {
-			capturedCreds = args.Get(1).(*credentials.External)
+		var capturedCreds *credentials.ExternalCredentials
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).Run(func(args mock.Arguments) {
+			capturedCreds = args.Get(1).(*credentials.ExternalCredentials)
 		}).Return(nil)
 
 		handler := NewLoginUserCommandHandler(mockUoW,
@@ -377,7 +372,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		assert.Equal(t, userId, capturedCreds.Id())
 		assert.Equal(t, loginUserCommand.CredentialsDto.AccessToken, capturedCreds.AccessToken())
 		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshToken, capturedCreds.RefreshToken())
-		assert.Equal(t, strings.Split(loginUserCommand.CredentialsDto.Scopes, " "), capturedCreds.Scopes())
+		assert.Equal(t, loginUserCommand.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
 		assert.Equal(t, loginUserCommand.CredentialsDto.AccessTokenExpiresAtUtc, capturedCreds.AccessTokenExpiresAtUtc())
 		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshTokenExpiresAtUtc, capturedCreds.RefreshTokenExpiresAtUtc())
 		mockUoW.AssertExpectations(t)
@@ -403,12 +398,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
+				ExternalId:               "SampleExternalId",
 				AccessToken:              "access-token-xyz",
 				RefreshToken:             "refresh-token-xyz",
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -424,10 +419,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				time.Now().UTC(),
 			),
 		}
-		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.ExternalId, mock.Anything).
+		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(user.HydrateUser(
 				userId,
-				loginUserCommand.ExternalId,
 				loginUserCommand.Name,
 				loginUserCommand.Surname,
 				nil,
@@ -477,12 +471,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
 				AccessToken:              "access-token-xyz",
+				ExternalId:               "SampleExternalId",
 				RefreshToken:             "refresh-token-xyz",
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -498,10 +492,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				time.Now().UTC(),
 			),
 		}
-		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.ExternalId, mock.Anything).
+		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(user.HydrateUser(
 				userId,
-				loginUserCommand.ExternalId,
 				loginUserCommand.Name,
 				loginUserCommand.Surname,
 				nil,
@@ -514,7 +507,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 		grantErr := errors.New("grant error")
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.External"), mock.Anything).Return(grantErr)
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).Return(grantErr)
 
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,
@@ -555,12 +548,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				DeviceId:   &deviceId,
 				DeviceType: user.Mobile,
 			},
-			ExternalId: "SampleExternalId",
-			Surname:    faker.LastName(),
+			Surname: faker.LastName(),
 			CredentialsDto: CredentialsDto{
+				ExternalId:               "SampleExternalId",
 				AccessToken:              "access-token-xyz",
 				RefreshToken:             "refresh-token-xyz",
-				Scopes:                   "openid offline_access",
+				MusicProvider:            credentials.YouTube,
 				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
 				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
 				IssuedAt:                 time.Now().UTC(),
@@ -576,10 +569,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				time.Now().UTC(),
 			),
 		}
-		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.ExternalId, mock.Anything).
+		mockUserRepository.On("GetUserByExternalId", mock.Anything, loginUserCommand.CredentialsDto.ExternalId, mock.Anything).
 			Return(user.HydrateUser(
 				userId,
-				loginUserCommand.ExternalId,
 				loginUserCommand.Name,
 				loginUserCommand.Surname,
 				nil,
@@ -592,7 +584,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		tokenErr := errors.New("token generation error")
 		mockJwtProvider.On("GenerateToken", userId).Return("", tokenErr)
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.External"), mock.Anything).Return(nil)
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).Return(nil)
 
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,

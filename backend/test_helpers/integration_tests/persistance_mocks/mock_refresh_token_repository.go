@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/stretchr/testify/mock"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/user"
 )
@@ -13,12 +13,12 @@ type MockRefreshTokenRepository struct {
 	mock.Mock
 }
 
-func (m *MockRefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer contracts.IQueryer) error {
+func (m *MockRefreshTokenRepository) AssignNewToken(ctx context.Context, refreshToken *credentials.RefreshToken, queryer application_contracts.IQueryer) error {
 	args := m.Called(ctx, refreshToken, queryer)
 	return args.Error(0)
 }
 
-func (m *MockRefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer contracts.IQueryer) (*credentials.RefreshToken, error) {
+func (m *MockRefreshTokenRepository) GetTokenByValue(ctx context.Context, value string, queryer application_contracts.IQueryer) (*credentials.RefreshToken, error) {
 	args := m.Called(ctx, value, queryer)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -26,12 +26,12 @@ func (m *MockRefreshTokenRepository) GetTokenByValue(ctx context.Context, value 
 	return args.Get(0).(*credentials.RefreshToken), args.Error(1)
 }
 
-func (m *MockRefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer contracts.IQueryer) error {
+func (m *MockRefreshTokenRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user.Id, deviceId *user.DeviceId, queryer application_contracts.IQueryer) error {
 	args := m.Called(ctx, userId, deviceId, queryer)
 	return args.Error(0)
 }
 
-func (m *MockRefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer contracts.IQueryer) error {
+func (m *MockRefreshTokenRepository) RetireAllTokensByUserId(ctx context.Context, userId *user.Id, queryer application_contracts.IQueryer) error {
 	args := m.Called(ctx, userId, queryer)
 	return args.Error(0)
 }

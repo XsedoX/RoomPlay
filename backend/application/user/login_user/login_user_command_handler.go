@@ -3,28 +3,28 @@ package login_user
 import (
 	"context"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/user_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type LoginUserCommandHandler struct {
-	unitOfWork                    contracts.IUnitOfWork
-	userRepository                contracts2.IUserRepository
-	externalCredentialsRepository contracts.IExternalCredentialsRepository
-	encrypter                     contracts.IEncrypter
-	jwtProvider                   contracts.IJwtProvider
-	refreshTokenRepository        contracts.IRefreshTokenRepository
+	unitOfWork                    application_contracts.IUnitOfWork
+	userRepository                user_contracts.IUserRepository
+	externalCredentialsRepository application_contracts.IExternalCredentialsRepository
+	encrypter                     application_contracts.IEncrypter
+	jwtProvider                   application_contracts.IJwtProvider
+	refreshTokenRepository        application_contracts.IRefreshTokenRepository
 }
 
-func NewLoginUserCommandHandler(unitOfWork contracts.IUnitOfWork,
-	userRepository contracts2.IUserRepository,
-	encrypter contracts.IEncrypter,
-	jwtProvider contracts.IJwtProvider,
-	refreshTokenRepository contracts.IRefreshTokenRepository,
-	externalCredentialsRepository contracts.IExternalCredentialsRepository,
+func NewLoginUserCommandHandler(unitOfWork application_contracts.IUnitOfWork,
+	userRepository user_contracts.IUserRepository,
+	encrypter application_contracts.IEncrypter,
+	jwtProvider application_contracts.IJwtProvider,
+	refreshTokenRepository application_contracts.IRefreshTokenRepository,
+	externalCredentialsRepository application_contracts.IExternalCredentialsRepository,
 ) *LoginUserCommandHandler {
 	return &LoginUserCommandHandler{
 		unitOfWork:                    unitOfWork,
@@ -39,7 +39,7 @@ func NewLoginUserCommandHandler(unitOfWork contracts.IUnitOfWork,
 func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *LoginUserCommand) (*LoginUserCommandResponse, error) {
 	var response LoginUserCommandResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.ExternalId, handler.unitOfWork.GetQueryer())
+		userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.CredentialsDto.ExternalId, handler.unitOfWork.GetQueryer())
 		if err != nil {
 			return customerrors.NewCustomError("LoginUserCommandHandler.GetUserByExternalId",
 				"Problem with getting user with external id",
@@ -85,7 +85,8 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *Log
 		creds := credentials.NewExternalCredentials(userFromDb.Id(),
 			command.CredentialsDto.AccessToken,
 			command.CredentialsDto.RefreshToken,
-			command.CredentialsDto.Scopes,
+			command.CredentialsDto.ExternalId,
+			command.CredentialsDto.MusicProvider,
 			command.CredentialsDto.AccessTokenExpiresAtUtc,
 			command.CredentialsDto.RefreshTokenExpiresAtUtc)
 		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())

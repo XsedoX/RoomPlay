@@ -13,23 +13,25 @@ import (
 func TestNewExternalCredentials(t *testing.T) {
 	userId := user.Id(uuid.New())
 	refreshToken := faker.Jwt()
-	scopes := "read offline"
 	accessTokenExpiration := time.Date(2030, 12, 31, 23, 59, 59, 0, time.UTC)
 	refreshTokenExpiration := time.Date(2040, 12, 31, 23, 59, 59, 0, time.UTC)
 	accessToken := faker.Jwt()
+	externalId := faker.UUIDDigit()
 
 	externalCred := NewExternalCredentials(userId,
 		accessToken,
 		refreshToken,
-		scopes,
+		externalId,
+		YouTube,
 		accessTokenExpiration,
 		refreshTokenExpiration,
 	)
 
 	require.Equal(t, userId, externalCred.Id())
+	require.Equal(t, externalId, externalCred.ExternalId())
+	require.Equal(t, YouTube, externalCred.MusicProvider())
 	require.Equal(t, accessToken, externalCred.AccessToken())
 	require.Equal(t, refreshToken, externalCred.RefreshToken())
-	require.Equal(t, []string{"read", "offline"}, externalCred.Scopes())
 	require.Equal(t, accessTokenExpiration, externalCred.AccessTokenExpiresAtUtc())
 	require.Equal(t, refreshTokenExpiration, externalCred.RefreshTokenExpiresAtUtc())
 	require.WithinDuration(t, time.Now().UTC(), externalCred.IssuedAtUtc(), time.Second)

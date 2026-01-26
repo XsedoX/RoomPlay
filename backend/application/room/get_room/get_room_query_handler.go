@@ -5,18 +5,18 @@ import (
 	"encoding/base64"
 
 	"github.com/XsedoX/RoomPlay/application"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts3 "github.com/XsedoX/RoomPlay/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/room_contracts"
 )
 
 type GetRoomQueryHandler struct {
-	unitOfWork     contracts.IUnitOfWork
-	roomRepository contracts3.IRoomRepository
+	unitOfWork     application_contracts.IUnitOfWork
+	roomRepository room_contracts.IRoomRepository
 }
 
-func NewGetRoomQueryHandler(unitOfWork contracts.IUnitOfWork,
-	roomRepository contracts3.IRoomRepository,
+func NewGetRoomQueryHandler(unitOfWork application_contracts.IUnitOfWork,
+	roomRepository room_contracts.IRoomRepository,
 ) *GetRoomQueryHandler {
 	return &GetRoomQueryHandler{
 		unitOfWork:     unitOfWork,

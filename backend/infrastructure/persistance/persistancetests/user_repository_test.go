@@ -37,7 +37,6 @@ func TestUserRepositoryAdd(t *testing.T) {
 
 	u := user.HydrateUser(
 		userID,
-		"ext-id-1",
 		"John",
 		"Doe",
 		nil, // Role
@@ -56,7 +55,6 @@ func TestUserRepositoryAdd(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "John", userDb.Name)
 	assert.Equal(t, "Doe", userDb.Surname)
-	assert.Equal(t, "ext-id-1", userDb.ExternalId)
 
 	// Assert Device
 	var deviceDb daos.DeviceDao
@@ -75,7 +73,7 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 	userID := uuid.New()
 	deviceID := uuid.New()
 
-	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-2', 'Jane', 'Doe')`, userID)
+	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Jane', 'Doe')`, userID)
 	require.NoError(t, err)
 
 	_, err = txx.ExecContext(ctx, `INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc) VALUES ($1, 'Device 2', false, 'mobile', $2, 'offline', $3)`, deviceID, userID, time.Now().UTC())
@@ -104,7 +102,7 @@ func TestUserRepositoryUpdate(t *testing.T) {
 	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-3', 'Bob', 'Smith')`, userID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Bob', 'Smith')`, userID)
 	require.NoError(t, err)
 
 	// Create domain object to update
@@ -124,7 +122,6 @@ func TestUserRepositoryUpdate(t *testing.T) {
 
 	u := user.HydrateUser(
 		user.Id(userID),
-		"ext-3",
 		"Bobby", // Changed name
 		"Smith",
 		&role, // Added role
@@ -163,4 +160,15 @@ func TestUserRepositoryUpdate(t *testing.T) {
 	assert.Equal(t, userID, deviceDb.UserId)
 	assert.Equal(t, deviceDb.Type, device.DeviceType().String())
 	assert.Equal(t, deviceDb.State, user.Online.String())
+}
+
+func TestGetUserByExternalIdSuccess(t *testing.T) {
+	txx, ctx := integration_tests.GetTxxAndCtx(t, false)
+	repo := persistance.NewUserRepository()
+	usersExternalId := integration_tests.SeedData.ExternalCredentials[0].ExternalId()
+
+	user, repoErr := repo.GetUserByExternalId(ctx, usersExternalId, txx)
+	require.NoError(t, repoErr)
+	require.Equal(t, integration_tests.SeedData.Users[0].Id(), user.Id())
+	require.Equal(t, integration_tests.SeedData.Users[0].FullName().Name(), user.FullName().Name())
 }

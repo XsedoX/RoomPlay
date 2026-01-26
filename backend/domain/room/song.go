@@ -9,7 +9,7 @@ import (
 
 type Song struct {
 	shared.Entity[SongId]
-	externalId    string
+	url           string
 	title         string
 	author        string
 	lengthSeconds uint16
@@ -39,8 +39,8 @@ func (s Song) WasPlayed() bool {
 	return s.State() == Played
 }
 
-func (s Song) ExternalId() string {
-	return s.externalId
+func (s Song) Url() string {
+	return s.url
 }
 
 func (s Song) Title() string {
@@ -75,9 +75,9 @@ func (s Song) Votes() uint8 {
 	return s.votes
 }
 
-func NewSong(externalId, title, author, albumCoverUrl string, lengthSeconds uint16, addedBy user.Id) *Song {
+func NewSong(url, title, author, albumCoverUrl string, lengthSeconds uint16, addedBy user.Id) *Song {
 	return &Song{
-		externalId:    externalId,
+		url:           url,
 		albumCoverUrl: albumCoverUrl,
 		title:         title,
 		author:        author,
@@ -91,9 +91,10 @@ func NewSong(externalId, title, author, albumCoverUrl string, lengthSeconds uint
 		wasDownVoted:  false,
 	}
 }
+
 func HydrateSong(
 	id SongId,
-	externalId string,
+	url string,
 	title string,
 	author string,
 	lengthSeconds uint16,
@@ -107,7 +108,7 @@ func HydrateSong(
 	albumCoverUrl string,
 ) *Song {
 	result := &Song{
-		externalId:    externalId,
+		url:           url,
 		title:         title,
 		author:        author,
 		lengthSeconds: lengthSeconds,

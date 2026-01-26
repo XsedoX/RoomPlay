@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/user/login_user_refresh_token"
 	"github.com/XsedoX/RoomPlay/application/user/logout_user"
 	"github.com/XsedoX/RoomPlay/config"
@@ -16,14 +16,14 @@ import (
 )
 
 type AuthenticationController struct {
-	loginRefreshTokenCommandHandler  contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse]
+	loginRefreshTokenCommandHandler  application_contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse]
 	configuration                    config.IConfiguration
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand]
+	logoutRefreshTokenCommandHandler application_contracts.ICommandHandler[*logout_user.LogoutUserCommand]
 }
 
-func NewAuthenticationController(refreshTokenCommandHandler contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse],
+func NewAuthenticationController(refreshTokenCommandHandler application_contracts.ICommandHandlerWithResponse[*string, *login_user_refresh_token.LoginUserRefreshTokenCommandResponse],
 	configuration config.IConfiguration,
-	logoutRefreshTokenCommandHandler contracts.ICommandHandler[*logout_user.LogoutUserCommand],
+	logoutRefreshTokenCommandHandler application_contracts.ICommandHandler[*logout_user.LogoutUserCommand],
 ) *AuthenticationController {
 	return &AuthenticationController{
 		loginRefreshTokenCommandHandler:  refreshTokenCommandHandler,

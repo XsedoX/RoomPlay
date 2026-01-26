@@ -3,28 +3,28 @@ package register_user
 import (
 	"context"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts2 "github.com/XsedoX/RoomPlay/application/user/contracts"
+	"github.com/XsedoX/RoomPlay/application/user/user_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
 type RegisterUserCommandHandler struct {
-	userRepository                contracts2.IUserRepository
-	externalCredentialsRepository contracts.IExternalCredentialsRepository
-	refreshTokenRepository        contracts.IRefreshTokenRepository
-	unitOfWork                    contracts.IUnitOfWork
-	jwtProvider                   contracts.IJwtProvider
-	encrypter                     contracts.IEncrypter
+	userRepository                user_contracts.IUserRepository
+	externalCredentialsRepository application_contracts.IExternalCredentialsRepository
+	refreshTokenRepository        application_contracts.IRefreshTokenRepository
+	unitOfWork                    application_contracts.IUnitOfWork
+	jwtProvider                   application_contracts.IJwtProvider
+	encrypter                     application_contracts.IEncrypter
 }
 
-func NewRegisterUserCommandHandler(userRepository contracts2.IUserRepository,
-	unitOfWork contracts.IUnitOfWork,
-	credsRepository contracts.IExternalCredentialsRepository,
-	jwtProvider contracts.IJwtProvider,
-	refreshTokenRepository contracts.IRefreshTokenRepository,
-	encrypter contracts.IEncrypter,
+func NewRegisterUserCommandHandler(userRepository user_contracts.IUserRepository,
+	unitOfWork application_contracts.IUnitOfWork,
+	credsRepository application_contracts.IExternalCredentialsRepository,
+	jwtProvider application_contracts.IJwtProvider,
+	refreshTokenRepository application_contracts.IRefreshTokenRepository,
+	encrypter application_contracts.IEncrypter,
 ) *RegisterUserCommandHandler {
 	return &RegisterUserCommandHandler{
 		userRepository:                userRepository,
@@ -39,7 +39,7 @@ func NewRegisterUserCommandHandler(userRepository contracts2.IUserRepository,
 func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *RegisterUserCommand) (*RegisterUserCommandResponse, error) {
 	var response RegisterUserCommandResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		userAgg := user.NewUser(command.ExternalId, command.Name, command.Surname, command.DeviceType)
+		userAgg := user.NewUser(command.Name, command.Surname, command.DeviceType)
 		deviceEnt := userAgg.GetMostRecentDevice()
 		err := handler.userRepository.Add(ctx, userAgg, handler.unitOfWork.GetQueryer())
 		if err != nil {
@@ -73,7 +73,8 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		creds := credentials.NewExternalCredentials(userAgg.Id(),
 			command.CredentialsDto.AccessToken,
 			command.CredentialsDto.RefreshToken,
-			command.CredentialsDto.Scopes,
+			command.CredentialsDto.ExternalId,
+			command.CredentialsDto.MusicProvider,
 			command.CredentialsDto.AccessTokenExpiresAtUtc,
 			command.CredentialsDto.RefreshTokenExpiresAtUtc)
 		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())

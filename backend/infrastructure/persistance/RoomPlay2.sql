@@ -1,3 +1,8 @@
+CREATE TYPE "music_provider" AS ENUM (
+  'youtube',
+  'spotify'
+);
+
 CREATE TYPE "vote_status" AS ENUM (
   'upvoted',
   'downvoted',
@@ -27,7 +32,7 @@ CREATE TYPE "device_state" AS ENUM (
 
 CREATE TABLE "songs" (
   "id" uuid PRIMARY KEY,
-  "external_id" varchar(256) UNIQUE NOT NULL,
+  "url" text UNIQUE NOT NULL,
   "title" varchar(256) NOT NULL,
   "author" varchar(256) NOT NULL,
   "length_seconds" smallint NOT NULL,
@@ -48,21 +53,21 @@ CREATE TABLE "users_votes" (
   "user_id" uuid,
   "enqueued_song_id" uuid,
   "vote_status" vote_status NOT NULL DEFAULT 'not_voted',
-  PRIMARY KEY ("enqueued_song_id", "user_id")
+  PRIMARY KEY ("user_id", "enqueued_song_id")
 );
 
 CREATE TABLE "users" (
   "id" uuid PRIMARY KEY,
-  "external_id" varchar(256) UNIQUE NOT NULL,
   "name" varchar(256) NOT NULL,
   "surname" varchar(256) NOT NULL
 );
 
 CREATE TABLE "users_external_credentials" (
   "user_id" uuid PRIMARY KEY,
+  "external_id" varchar(256) UNIQUE NOT NULL,
   "access_token" bytea NOT NULL,
   "refresh_token" bytea NOT NULL,
-  "scope" text NOT NULL,
+  "music_provider" music_provider NOT NULL,
   "access_token_expires_at_utc" timestamp NOT NULL,
   "refresh_token_expires_at_utc" timestamp NOT NULL,
   "issued_at_utc" timestamp NOT NULL
@@ -82,7 +87,7 @@ CREATE TABLE "users_room_data" (
   "user_id" uuid,
   "boost_used_at_utc" timestamp,
   "role" user_role NOT NULL DEFAULT 'member',
-  PRIMARY KEY ("room_id", "user_id")
+  PRIMARY KEY ("user_id", "room_id")
 );
 
 CREATE TABLE "enqueued_songs" (
@@ -128,7 +133,21 @@ CREATE TABLE "devices" (
   "last_logged_in_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE UNIQUE INDEX ON "devices" ("id", "user_id");
+CREATE INDEX "songs_url_ix" ON "songs" ("url");
+
+CREATE INDEX "rooms_name_room_spassword_ix" ON "rooms" ("name", "password");
+
+CREATE INDEX "rooms_qr_code_hash_ix" ON "rooms" ("qr_code_hash");
+
+CREATE INDEX "users_external_credentials_external_id_ix" ON "users_external_credentials" ("external_id");
+
+CREATE INDEX "users_refresh_tokens_refresh_token_ix" ON "users_refresh_tokens" ("refresh_token");
+
+CREATE INDEX "default_playlists_room_id_ix" ON "default_playlists" ("room_id");
+
+CREATE UNIQUE INDEX "devices_id_user_id_uq" ON "devices" ("id", "user_id");
+
+CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';
 

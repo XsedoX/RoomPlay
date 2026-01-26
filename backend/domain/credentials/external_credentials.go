@@ -1,18 +1,18 @@
 package credentials
 
 import (
-	"strings"
 	"time"
 
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user"
 )
 
-type External struct {
+type ExternalCredentials struct {
 	shared.AggregateRoot[user.Id]
+	externalId               string
 	accessToken              string
 	refreshToken             string
-	scopes                   []string
+	musicProvider            MusicProvider
 	accessTokenExpiresAtUtc  time.Time
 	refreshTokenExpiresAtUtc time.Time
 	issuedAtUtc              time.Time
@@ -21,13 +21,16 @@ type External struct {
 func NewExternalCredentials(userId user.Id,
 	accessToken,
 	refreshToken,
-	scopes string,
+	externalId string,
+	musicProvider MusicProvider,
 	accessTokenExpiration,
-	refreshTokenExpiration time.Time) *External {
-	creds := &External{
+	refreshTokenExpiration time.Time,
+) *ExternalCredentials {
+	creds := &ExternalCredentials{
 		accessToken:              accessToken,
 		refreshToken:             refreshToken,
-		scopes:                   strings.Split(scopes, " "),
+		externalId:               externalId,
+		musicProvider:            musicProvider,
 		accessTokenExpiresAtUtc:  accessTokenExpiration,
 		refreshTokenExpiresAtUtc: refreshTokenExpiration,
 		issuedAtUtc:              time.Now().UTC(),
@@ -35,21 +38,53 @@ func NewExternalCredentials(userId user.Id,
 	creds.SetId(userId)
 	return creds
 }
-func (cr *External) AccessToken() string {
+
+func (cr *ExternalCredentials) AccessToken() string {
 	return cr.accessToken
 }
-func (cr *External) RefreshToken() string {
+
+func (cr *ExternalCredentials) RefreshToken() string {
 	return cr.refreshToken
 }
-func (cr *External) Scopes() []string {
-	return cr.scopes
+
+func (cr *ExternalCredentials) MusicProvider() MusicProvider {
+	return cr.musicProvider
 }
-func (cr *External) AccessTokenExpiresAtUtc() time.Time {
+
+func (cr *ExternalCredentials) AccessTokenExpiresAtUtc() time.Time {
 	return cr.accessTokenExpiresAtUtc
 }
-func (cr *External) RefreshTokenExpiresAtUtc() time.Time {
+
+func (cr *ExternalCredentials) RefreshTokenExpiresAtUtc() time.Time {
 	return cr.refreshTokenExpiresAtUtc
 }
-func (cr *External) IssuedAtUtc() time.Time {
+
+func (cr *ExternalCredentials) IssuedAtUtc() time.Time {
 	return cr.issuedAtUtc
+}
+
+func (cr *ExternalCredentials) ExternalId() string {
+	return cr.externalId
+}
+
+func HydrateExternalCredentials(id user.Id,
+	accessToken,
+	refreshToken,
+	externalId string,
+	musicProvider MusicProvider,
+	accessTokenExpiresAtUtc,
+	refreshTokenExpiresAtUtc,
+	issuedAtUtc time.Time,
+) *ExternalCredentials {
+	creds := &ExternalCredentials{
+		accessToken:              accessToken,
+		refreshToken:             refreshToken,
+		externalId:               externalId,
+		musicProvider:            musicProvider,
+		accessTokenExpiresAtUtc:  accessTokenExpiresAtUtc,
+		refreshTokenExpiresAtUtc: refreshTokenExpiresAtUtc,
+		issuedAtUtc:              issuedAtUtc,
+	}
+	creds.SetId(id)
+	return creds
 }

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
-	contracts2 "github.com/XsedoX/RoomPlay/application/services/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
+	"github.com/XsedoX/RoomPlay/application/services/services_contracts"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/presentation/helpers"
@@ -21,13 +21,13 @@ import (
 // TODO: save where the user started logging and return to the same url
 type OidcController struct {
 	configuration             config.IConfiguration
-	oidcAuthenticationService contracts2.IOidcAuthenticationService
-	googleOidcService         contracts.IGoogleOidcService
+	oidcAuthenticationService services_contracts.IOidcAuthenticationService
+	googleOidcService         application_contracts.IGoogleOidcService
 }
 
 func NewOidcController(configuration config.IConfiguration,
-	oidcAuthenticationService contracts2.IOidcAuthenticationService,
-	googleOidcService contracts.IGoogleOidcService,
+	oidcAuthenticationService services_contracts.IOidcAuthenticationService,
+	googleOidcService application_contracts.IGoogleOidcService,
 ) *OidcController {
 	return &OidcController{
 		configuration:             configuration,

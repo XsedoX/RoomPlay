@@ -24,7 +24,7 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 
 	// Setup User
 	userID := user.Id(uuid.New())
-	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-host', 'Host', 'User')`, uuid.UUID(userID))
+	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Host', 'User')`, uuid.UUID(userID))
 	require.NoError(t, err)
 
 	// Create Room Domain Object
@@ -101,7 +101,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	require.NoError(t, err)
 
 	// Insert User
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-user', 'Test', 'User')`, userID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Test', 'User')`, userID)
 	require.NoError(t, err)
 
 	// Insert Role
@@ -109,7 +109,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	require.NoError(t, err)
 
 	// Insert Song
-	_, err = txx.ExecContext(ctx, `INSERT INTO songs (id, external_id, title, author, length_seconds, album_cover_url) VALUES ($1, 'ext-song', 'Song Title', 'Song Author', 180, 'url')`, songID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO songs (id, url, title, author, length_seconds, album_cover_url) VALUES ($1, 'ext-song', 'Song Title', 'Song Author', 180, 'url')`, songID)
 	require.NoError(t, err)
 
 	// Insert Enqueued Song
@@ -147,14 +147,14 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 	roomID := uuid.New()
 	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-1', 'User', 'One')`, userID1)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'User', 'One')`, userID1)
 	require.NoError(t, err)
 	_, err = txx.ExecContext(ctx, `INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, 'member')`, roomID, userID1)
 	require.NoError(t, err)
 
 	// Setup User without Room
 	userID2 := uuid.New()
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-2', 'User', 'Two')`, userID2)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'User', 'Two')`, userID2)
 	require.NoError(t, err)
 
 	// Act & Assert
@@ -193,7 +193,7 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())
 	require.NoError(t, err)
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-4', 'Alice', 'Wonder')`, userID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Alice', 'Wonder')`, userID)
 	require.NoError(t, err)
 
 	// Act
@@ -218,7 +218,7 @@ func TestRoomRepositoryJoinRoomById(t *testing.T) {
 	userID := uuid.New()
 	roomID := uuid.New()
 
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, external_id, name, surname) VALUES ($1, 'ext-join', 'Join', 'User')`, userID)
+	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Join', 'User')`, userID)
 	require.NoError(t, err)
 
 	_, err = txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds) VALUES ($1, 'Join Room', 'pass', 'qr', $2, 3600)`, roomID, time.Now().UTC())

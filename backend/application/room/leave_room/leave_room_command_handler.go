@@ -4,14 +4,14 @@ import (
 	"context"
 
 	"github.com/XsedoX/RoomPlay/application"
-	contracts2 "github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts3 "github.com/XsedoX/RoomPlay/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/room_contracts"
 )
 
 type LeaveRoomCommandHandler struct {
-	roomRepository contracts3.IRoomRepository
-	unitOfWork     contracts2.IUnitOfWork
+	roomRepository room_contracts.IRoomRepository
+	unitOfWork     application_contracts.IUnitOfWork
 }
 
 func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *LeaveRoomCommand) error {
@@ -32,6 +32,6 @@ func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *LeaveRoomCommand
 	return err
 }
 
-func NewLeaveRoomCommandHandler(roomRepository contracts3.IRoomRepository, unitOfWork contracts2.IUnitOfWork) *LeaveRoomCommandHandler {
+func NewLeaveRoomCommandHandler(roomRepository room_contracts.IRoomRepository, unitOfWork application_contracts.IUnitOfWork) *LeaveRoomCommandHandler {
 	return &LeaveRoomCommandHandler{roomRepository: roomRepository, unitOfWork: unitOfWork}
 }

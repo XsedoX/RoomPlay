@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/XsedoX/RoomPlay/application"
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
-	contracts2 "github.com/XsedoX/RoomPlay/application/room/contracts"
+	"github.com/XsedoX/RoomPlay/application/room/room_contracts"
 	"github.com/XsedoX/RoomPlay/domain/room"
 )
 
 type CreateRoomCommandHandler struct {
-	roomRepository contracts2.IRoomRepository
-	unitOfWork     contracts.IUnitOfWork
-	encrypter      contracts.IEncrypter
+	roomRepository room_contracts.IRoomRepository
+	unitOfWork     application_contracts.IUnitOfWork
+	encrypter      application_contracts.IEncrypter
 }
 
-func NewCreateRoomCommandHandler(roomRepository contracts2.IRoomRepository,
-	unitOfWork contracts.IUnitOfWork,
-	encrypter contracts.IEncrypter,
+func NewCreateRoomCommandHandler(roomRepository room_contracts.IRoomRepository,
+	unitOfWork application_contracts.IUnitOfWork,
+	encrypter application_contracts.IEncrypter,
 ) *CreateRoomCommandHandler {
 	return &CreateRoomCommandHandler{
 		roomRepository: roomRepository,

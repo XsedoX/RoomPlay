@@ -171,7 +171,6 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 				time.Now().UTC()),
 		}
 		userFromDb := user.HydrateUser(returnedRefreshToken.Id(),
-			uuid.New().String(),
 			faker.FirstName(),
 			faker.LastName(),
 			nil,
@@ -236,7 +235,6 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 				time.Now().UTC()),
 		}
 		userFromDb := user.HydrateUser(returnedRefreshToken.Id(),
-			uuid.New().String(),
 			faker.FirstName(),
 			faker.LastName(),
 			nil,
@@ -302,7 +300,6 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 				time.Now().UTC()),
 		}
 		userFromDb := user.HydrateUser(returnedRefreshToken.Id(),
-			uuid.New().String(),
 			faker.FirstName(),
 			faker.LastName(),
 			nil,

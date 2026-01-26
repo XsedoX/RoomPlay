@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/presentation/helpers/constants"
@@ -13,11 +13,11 @@ import (
 
 type CookieJwtAuthentication struct {
 	configuration config.IConfiguration
-	jwtProvider   contracts.IJwtProvider
+	jwtProvider   application_contracts.IJwtProvider
 }
 
 func NewCookieJwtAuthentication(configuration config.IConfiguration,
-	jwtProvider contracts.IJwtProvider,
+	jwtProvider application_contracts.IJwtProvider,
 ) *CookieJwtAuthentication {
 	return &CookieJwtAuthentication{
 		configuration: configuration,

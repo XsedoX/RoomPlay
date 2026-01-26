@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/domain/credentials"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/shared"
@@ -32,7 +32,7 @@ var songsStartedAt = []time.Time{
 
 var songs = []room.Song{
 	*room.HydrateSong(room.SongId(uuid.New()),
-		"songExternalId1",
+		faker.URL(),
 		"title1",
 		"author1",
 		349,
@@ -46,7 +46,7 @@ var songs = []room.Song{
 		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
-		"songExternalId2",
+		faker.URL(),
 		"title2",
 		"author2",
 		349,
@@ -60,7 +60,7 @@ var songs = []room.Song{
 		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
-		"songExternalId3",
+		faker.URL(),
 		"title3",
 		"author3",
 		349,
@@ -74,7 +74,7 @@ var songs = []room.Song{
 		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
-		"songExternalId4",
+		faker.URL(),
 		"title4",
 		"author4",
 		250,
@@ -88,7 +88,7 @@ var songs = []room.Song{
 		faker.URL(),
 	),
 	*room.HydrateSong(room.SongId(uuid.New()),
-		"songExternalId5",
+		faker.URL(),
 		"title5",
 		"author5",
 		180,
@@ -188,7 +188,6 @@ var (
 	user5Role = user.Member
 	users     = []user.User{
 		*user.HydrateUser(userIds[0],
-			"externalId1",
 			"name1",
 			"surname1",
 			&user1Role,
@@ -196,7 +195,6 @@ var (
 			[]user.Device{devices[4]},
 			nil),
 		*user.HydrateUser(userIds[1],
-			"externalId2",
 			"name2",
 			"surname2",
 			&user2Role,
@@ -204,7 +202,6 @@ var (
 			[]user.Device{devices[1]},
 			nil),
 		*user.HydrateUser(userIds[2],
-			"externalId3",
 			"name3",
 			"surname3",
 			&user3Role,
@@ -212,7 +209,6 @@ var (
 			[]user.Device{devices[2]},
 			nil),
 		*user.HydrateUser(userIds[3],
-			"externalId4",
 			"name4",
 			"surname4",
 			&user4Role,
@@ -220,7 +216,6 @@ var (
 			[]user.Device{devices[3]},
 			nil),
 		*user.HydrateUser(userIds[4],
-			"externalId5",
 			"name5",
 			"surname5",
 			&user5Role,
@@ -238,25 +233,88 @@ var refreshTokens = []credentials.RefreshToken{
 		time.Date(2023, 12, 1, 12, 0o0, 0o0, 0o0, time.UTC)),
 }
 
+var (
+	externalCredentialsExpiration1 = time.Now().Add(time.Hour * 1).UTC()
+	externalCredentialsExpiration2 = time.Now().Add(time.Hour * 2).UTC()
+	externalCredentialsExpiration3 = time.Now().Add(time.Hour * 2).UTC()
+	externalCredentialsExpiration4 = time.Now().Add(time.Hour * 3).UTC()
+	externalCredentialsExpiration5 = time.Now().Add(time.Hour * 4).UTC()
+	refreshCredentialsExpiration1  = time.Now().AddDate(0, 1, 0).UTC()
+	refreshCredentialsExpiration2  = time.Now().AddDate(0, 2, 0).UTC()
+	refreshCredentialsExpiration3  = time.Now().AddDate(0, 2, 0).UTC()
+	refreshCredentialsExpiration4  = time.Now().AddDate(0, 3, 0).UTC()
+	refreshCredentialsExpiration5  = time.Now().AddDate(0, 4, 0).UTC()
+)
+
+var externalCredentials = []credentials.ExternalCredentials{
+	*credentials.HydrateExternalCredentials(users[0].Id(),
+		faker.Jwt(),
+		faker.Jwt(),
+		faker.UUIDDigit(),
+		credentials.YouTube,
+		externalCredentialsExpiration1,
+		refreshCredentialsExpiration1,
+		time.Now().UTC(),
+	),
+	*credentials.HydrateExternalCredentials(users[1].Id(),
+		faker.Jwt(),
+		faker.Jwt(),
+		faker.UUIDDigit(),
+		credentials.Spotify,
+		externalCredentialsExpiration2,
+		refreshCredentialsExpiration2,
+		time.Now().UTC(),
+	),
+	*credentials.HydrateExternalCredentials(users[2].Id(),
+		faker.Jwt(),
+		faker.Jwt(),
+		faker.UUIDDigit(),
+		credentials.Spotify,
+		externalCredentialsExpiration3,
+		refreshCredentialsExpiration3,
+		time.Now().UTC(),
+	),
+	*credentials.HydrateExternalCredentials(users[3].Id(),
+		faker.Jwt(),
+		faker.Jwt(),
+		faker.UUIDDigit(),
+		credentials.YouTube,
+		externalCredentialsExpiration4,
+		refreshCredentialsExpiration4,
+		time.Now().UTC(),
+	),
+	*credentials.HydrateExternalCredentials(users[4].Id(),
+		faker.Jwt(),
+		faker.Jwt(),
+		faker.UUIDDigit(),
+		credentials.Spotify,
+		externalCredentialsExpiration5,
+		refreshCredentialsExpiration5,
+		time.Now().UTC(),
+	),
+}
+
 var SeedData = struct {
 	Rooms                    []room.Room
 	Users                    []user.User
 	Songs                    []room.Song
 	Devices                  []user.Device
 	LoggedInUserRefreshToken credentials.RefreshToken
+	ExternalCredentials      []credentials.ExternalCredentials
 }{
 	Rooms:                    rooms,
 	Songs:                    songs,
 	Users:                    users,
 	Devices:                  devices,
 	LoggedInUserRefreshToken: refreshTokens[0],
+	ExternalCredentials:      externalCredentials,
 }
 
 type Seeder struct {
-	Queryer contracts.IQueryer
+	Queryer application_contracts.IQueryer
 }
 
-func NewSeeder(queryer contracts.IQueryer) *Seeder {
+func NewSeeder(queryer application_contracts.IQueryer) *Seeder {
 	return &Seeder{
 		Queryer: queryer,
 	}
@@ -272,6 +330,12 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 			if err := s.SeedDevice(ctx, &devices1[i], user1.Id()); err != nil {
 				return err
 			}
+		}
+	}
+
+	for _, creds := range externalCredentials {
+		if err := s.SeedExternalCredentials(ctx, &creds); err != nil {
+			return err
 		}
 	}
 
@@ -328,11 +392,42 @@ func (s *Seeder) SeedRoom(ctx context.Context, room *room.Room) error {
 	return nil
 }
 
+func (s *Seeder) SeedExternalCredentials(ctx context.Context, creds *credentials.ExternalCredentials) error {
+	configuration := othermocks.MockConfiguration{}
+	encrypter := authentication.NewEncrypter(&configuration)
+
+	encryptedAccessToken, _ := encrypter.Encrypt(creds.AccessToken())
+	encryptedRefreshToken, _ := encrypter.Encrypt(creds.RefreshToken())
+	_, err := s.Queryer.ExecContext(ctx, `
+		INSERT INTO users_external_credentials (user_id, 
+		external_id,
+		access_token,
+		refresh_token,
+		music_provider,
+		access_token_expires_at_utc,
+		refresh_token_expires_at_utc,
+		issued_at_utc)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		creds.Id(),
+		creds.ExternalId(),
+		encryptedAccessToken,
+		encryptedRefreshToken,
+		creds.MusicProvider().String(),
+		creds.AccessTokenExpiresAtUtc(),
+		creds.RefreshTokenExpiresAtUtc(),
+		creds.IssuedAtUtc(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to seed external credentials: %w", err)
+	}
+	return nil
+}
+
 func (s *Seeder) SeedUser(ctx context.Context, user *user.User) error {
 	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO users (id, external_id, name, surname)
-		VALUES ($1, $2, $3, $4)
-	`, user.Id(), user.ExternalId(), user.FullName().Name(), user.FullName().Surname())
+		INSERT INTO users (id, name, surname)
+		VALUES ($1, $2, $3)
+	`, user.Id(), user.FullName().Name(), user.FullName().Surname())
 	if err != nil {
 		return fmt.Errorf("failed to seed user: %w", err)
 	}
@@ -341,9 +436,9 @@ func (s *Seeder) SeedUser(ctx context.Context, user *user.User) error {
 
 func (s *Seeder) SeedSong(ctx context.Context, song *room.Song) error {
 	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO songs (id, external_id, title, author, length_seconds, album_cover_url)
+		INSERT INTO songs (id, url, title, author, length_seconds, album_cover_url)
 		VALUES ($1, $2, $3, $4, $5, $6)
-	`, song.Id(), song.ExternalId(), song.Title(), song.Author(), song.LengthSeconds(), song.AlbumCoverUrl())
+	`, song.Id(), song.Url(), song.Title(), song.Author(), song.LengthSeconds(), song.AlbumCoverUrl())
 	if err != nil {
 		return fmt.Errorf("failed to seed song: %w", err)
 	}

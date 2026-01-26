@@ -8,7 +8,6 @@ import (
 
 type UserDao struct {
 	Id             uuid.UUID  `db:"id"`
-	ExternalId     string     `db:"external_id"`
 	Name           string     `db:"name"`
 	Surname        string     `db:"surname"`
 	RoomId         *uuid.UUID `db:"room_id"`

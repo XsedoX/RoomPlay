@@ -1,7 +1,7 @@
 package initialization
 
 import (
-	"github.com/XsedoX/RoomPlay/application/contracts"
+	"github.com/XsedoX/RoomPlay/application/application_contracts"
 	"github.com/XsedoX/RoomPlay/application/room/create_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_room"
 	"github.com/XsedoX/RoomPlay/application/room/get_user_room_membership"
@@ -26,7 +26,7 @@ type ServerDependencies struct {
 	userController           *controllers.UserController
 	authenticationController *controllers.AuthenticationController
 	configuration            config.IConfiguration
-	jwtProvider              contracts.IJwtProvider
+	jwtProvider              application_contracts.IJwtProvider
 }
 
 func NewServerDependencies(db *sqlx.DB, configuration config.IConfiguration) *ServerDependencies {
@@ -125,6 +125,6 @@ func (sd ServerDependencies) Configuration() config.IConfiguration {
 	return sd.configuration
 }
 
-func (sd ServerDependencies) JwtProvider() contracts.IJwtProvider {
+func (sd ServerDependencies) JwtProvider() application_contracts.IJwtProvider {
 	return sd.jwtProvider
 }
