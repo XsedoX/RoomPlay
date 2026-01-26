@@ -20,11 +20,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setUpMocks(t *testing.T) (*persistance_mocks.MockRoomRepository,
+	*persistance_mocks.MockUnitOfWork,
+	*user.Id,
+	context.Context,
+) {
+	mockRoomRepository := new(persistance_mocks.MockRoomRepository)
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+
+	defer func() {
+		mockRoomRepository.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
+	}()
+
+	return mockRoomRepository, mockUoW, &userId, ctx
+}
+
 func TestGetRoomQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnRoomSuccessWithPlayingSongNotNilAndBoostNil", func(t *testing.T) {
-		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Host
 		now := time.Now().UTC().Truncate(time.Second)
@@ -42,7 +57,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			SongDaos:                 []daos.GetRoomSongDao{},
 		}
 		mockRoomRepository.
-			On("GetRoomByUserId", ctx, userId, mock.Anything).
+			On("GetRoomByUserId", ctx, *userId, mock.Anything).
 			Return(roomToBeReturned, nil)
 
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
@@ -51,8 +66,6 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
-		mockRoomRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
@@ -75,9 +88,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccessWithBoostNotNil", func(t *testing.T) {
-		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Member
 		now := time.Now().UTC().Truncate(time.Second)
@@ -120,7 +131,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			},
 		}
 		mockRoomRepository.
-			On("GetRoomByUserId", ctx, userId, mock.Anything).
+			On("GetRoomByUserId", ctx, *userId, mock.Anything).
 			Return(roomToBeReturned, nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 
@@ -128,8 +139,6 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
-		mockRoomRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
@@ -172,9 +181,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccess", func(t *testing.T) {
-		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
+
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user.Host
 		roomToBeReturned := &daos.GetRoomDao{
@@ -189,14 +197,12 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			BoostCooldownSeconds:     nil,
 			SongDaos:                 []daos.GetRoomSongDao{},
 		}
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(roomToBeReturned, nil)
+		mockRoomRepository.On("GetRoomByUserId", ctx, *userId, mock.Anything).Return(roomToBeReturned, nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 
 		roomResponse, err := handler.Handle(ctx)
 
 		assert.NoError(t, err)
-		mockRoomRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 		assert.Equal(t, roomToBeReturned.Name, roomResponse.Name)
@@ -208,10 +214,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockRoomRepository, mockUoW, _, _ := setUpMocks(t)
 
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepo)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 
 		// Act
 		resp, err := handler.Handle(context.Background())
@@ -219,21 +224,19 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		mockRoomRepo.AssertExpectations(t)
+		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
-		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
+		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
-		mockRoomRepository := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
 		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
 		repoErr := errors.New("database error")
 		errorCode := "GetRoomQueryHandler.GetRoomByUserId"
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(nil, repoErr)
+		mockRoomRepository.On("GetRoomByUserId", ctx, *userId, mock.Anything).Return(nil, repoErr)
 
 		resp, err := handler.Handle(ctx)
 
@@ -243,8 +246,6 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
-		mockRoomRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 	})

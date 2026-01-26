@@ -17,14 +17,40 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setupMocks(t *testing.T) (*persistance_mocks.MockUserRepository,
+	*persistance_mocks.MockUnitOfWork,
+	*persistance_mocks.MockRefreshTokenRepository,
+	*authentication_mocks.MockJwtProvider,
+	*authentication_mocks.MockEncrypter,
+	*persistance_mocks.MockExternalCredentialsRepository,
+) {
+	mockUserRepository := new(persistance_mocks.MockUserRepository)
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+	mockEncrypter := new(authentication_mocks.MockEncrypter)
+	mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+	mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+
+	defer func() {
+		mockUserRepository.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
+		mockRefreshTokenRepository.AssertExpectations(t)
+		mockEncrypter.AssertExpectations(t)
+		mockJwtProvider.AssertExpectations(t)
+		mockExternalCredentialsRepository.AssertExpectations(t)
+	}()
+
+	return mockUserRepository, mockUoW, mockRefreshTokenRepository, mockJwtProvider, mockEncrypter, mockExternalCredentialsRepository
+}
+
 func TestRegisterUserCommandHandler(t *testing.T) {
 	t.Run("ShouldReturnErrorWhenAddingUserFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
-		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+		mockUserRepository,
+			mockUoW,
+			mockRefreshTokenRepository,
+			mockJwtProvider,
+			mockEncrypter,
+			mockExternalCredentialsRepository := setupMocks(t)
 
 		handler := NewRegisterUserCommandHandler(
 			mockUserRepository,
@@ -67,19 +93,17 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
 
-		mockUoW.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "Add", 1)
 	})
 
 	t.Run("ShouldReturnErrorWhenGenerateTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
-		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+		mockUserRepository,
+			mockUoW,
+			mockRefreshTokenRepository,
+			mockJwtProvider,
+			mockEncrypter,
+			mockExternalCredentialsRepository := setupMocks(t)
 
 		handler := NewRegisterUserCommandHandler(
 			mockUserRepository,
@@ -124,19 +148,15 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
-
-		mockUoW.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
-		mockJwtProvider.AssertExpectations(t)
 	})
 
 	t.Run("ShouldReturnErrorWhenAssigningNewTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
-		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+		mockUserRepository,
+			mockUoW,
+			mockRefreshTokenRepository,
+			mockJwtProvider,
+			mockEncrypter,
+			mockExternalCredentialsRepository := setupMocks(t)
 
 		handler := NewRegisterUserCommandHandler(
 			mockUserRepository,
@@ -186,21 +206,15 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
-		mockUoW.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
-		mockJwtProvider.AssertExpectations(t)
-		mockEncrypter.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockExternalCredentialsRepository.AssertExpectations(t)
 	})
 
 	t.Run("ShouldReturnErrorWhenGrantingExternalCredentialsFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
-		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+		mockUserRepository,
+			mockUoW,
+			mockRefreshTokenRepository,
+			mockJwtProvider,
+			mockEncrypter,
+			mockExternalCredentialsRepository := setupMocks(t)
 
 		handler := NewRegisterUserCommandHandler(
 			mockUserRepository,
@@ -253,21 +267,15 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
-		mockUoW.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
-		mockJwtProvider.AssertExpectations(t)
-		mockEncrypter.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockExternalCredentialsRepository.AssertExpectations(t)
 	})
 
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
-		mockExternalCredentialsRepository := new(persistance_mocks.MockExternalCredentialsRepository)
+		mockUserRepository,
+			mockUoW,
+			mockRefreshTokenRepository,
+			mockJwtProvider,
+			mockEncrypter,
+			mockExternalCredentialsRepository := setupMocks(t)
 
 		handler := NewRegisterUserCommandHandler(
 			mockUserRepository,
@@ -351,12 +359,5 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.Equal(t, command.CredentialsDto.RefreshTokenExpiresAtUtc, capturedCreds.RefreshTokenExpiresAtUtc())
 		assert.Equal(t, command.CredentialsDto.ExternalId, capturedCreds.ExternalId())
 		assert.Equal(t, command.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
-
-		mockUoW.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
-		mockJwtProvider.AssertExpectations(t)
-		mockEncrypter.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockExternalCredentialsRepository.AssertExpectations(t)
 	})
 }

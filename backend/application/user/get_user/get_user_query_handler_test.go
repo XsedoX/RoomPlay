@@ -17,12 +17,27 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setupMocks(t *testing.T) (*persistance_mocks.MockUserRepository,
+	*persistance_mocks.MockUnitOfWork,
+	user.Id,
+	context.Context,
+) {
+	mockUserRepository := new(persistance_mocks.MockUserRepository)
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+
+	defer func() {
+		mockUserRepository.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
+	}()
+
+	return mockUserRepository, mockUoW, userId, ctx
+}
+
 func TestGetUserQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnUserSuccess", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockUserRepository, mockUoW, userId, ctx := setupMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
-		userId, ctx := test_helpers.AddUserIdToContext(context.Background())
 		now := time.Now().UTC().Truncate(time.Second)
 		deviceID1 := user.DeviceId(uuid.New())
 		deviceID2 := user.DeviceId(uuid.New())
@@ -57,17 +72,14 @@ func TestGetUserQueryHandler(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
-		mockUserRepository.AssertExpectations(t)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
-		mockUoW.AssertExpectations(t)
 		assert.Equal(t, resp.Name, userToBeReturned.FullName().Name())
 		assert.Equal(t, resp.Surname, userToBeReturned.FullName().Surname())
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
+		mockUserRepository, mockUoW, _, _ := setupMocks(t)
 		handler := NewGetUserQueryHandler(mockUoW, mockUserRepository)
 		// Act
 		userObj, err := handler.Handle(context.Background())
@@ -75,16 +87,12 @@ func TestGetUserQueryHandler(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, userObj)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
-		mockUserRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
 	t.Run("ShouldReturnErrorWhenUserRepositoryFails", func(t *testing.T) {
 		// Arrange
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		userId, cont := test_helpers.AddUserIdToContext(context.Background())
+		mockUserRepository, mockUoW, userId, cont := setupMocks(t)
 		repoErr := errors.New("database error")
 		errorCode := "NewGetUserQueryHandler.GetUserById"
 		mockUoW.On("GetQueryer").Return(nil)
@@ -99,8 +107,6 @@ func TestGetUserQueryHandler(t *testing.T) {
 		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
-		mockUserRepository.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 	})

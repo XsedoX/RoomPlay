@@ -13,10 +13,24 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setupMocks(t *testing.T) (*persistance_mocks.MockRefreshTokenRepository,
+	*persistance_mocks.MockUnitOfWork,
+) {
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+
+	defer func() {
+		mockUoW.AssertExpectations(t)
+		mockRefreshTokenRepository.AssertExpectations(t)
+	}()
+
+	return mockRefreshTokenRepository, mockUoW
+}
+
 func TestLogoutUserCommandHandler(t *testing.T) {
 	t.Run("ShouldReturnErrorWhenRetireAllTokensByUserIdFails", func(t *testing.T) {
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockUnitOfWork := new(persistance_mocks.MockUnitOfWork)
+		mockRefreshTokenRepository, mockUnitOfWork := setupMocks(t)
+
 		mockUnitOfWork.On("GetQueryer").Return(nil)
 		command := &LogoutUserCommand{
 			DeviceId: nil,
@@ -35,14 +49,13 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.Code, errCode)
 		assert.Equal(t, parsedErr.Err, errOfRepository)
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUnitOfWork.AssertExpectations(t)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 1)
 	})
+
 	t.Run("ShouldReturnErrorWhenRetireTokenByUserIdAndDeviceIdFails", func(t *testing.T) {
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockUnitOfWork := new(persistance_mocks.MockUnitOfWork)
+		mockRefreshTokenRepository, mockUnitOfWork := setupMocks(t)
+
 		mockUnitOfWork.On("GetQueryer").Return(nil)
 		deviceId := user.DeviceId(uuid.New())
 		command := &LogoutUserCommand{
@@ -62,15 +75,13 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.Code, errCode)
 		assert.Equal(t, parsedErr.Err, errOfRepository)
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUnitOfWork.AssertExpectations(t)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 1)
 	})
 	t.Run("ShouldReturnSuccessWhenDeviceIdNil", func(t *testing.T) {
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockUnitOfWork := new(persistance_mocks.MockUnitOfWork)
+		mockRefreshTokenRepository, mockUnitOfWork := setupMocks(t)
+
 		mockUnitOfWork.On("GetQueryer").Return(nil)
 		command := &LogoutUserCommand{
 			DeviceId: nil,
@@ -82,15 +93,13 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		err := handler.Handle(context.Background(), command)
 
 		assert.NoError(t, err)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUnitOfWork.AssertExpectations(t)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 0)
 	})
 	t.Run("ShouldReturnSuccessWhenDeviceIdNotNil", func(t *testing.T) {
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockUnitOfWork := new(persistance_mocks.MockUnitOfWork)
+		mockRefreshTokenRepository, mockUnitOfWork := setupMocks(t)
+
 		mockUnitOfWork.On("GetQueryer").Return(nil)
 		deviceId := user.DeviceId(uuid.New())
 		command := &LogoutUserCommand{
@@ -103,8 +112,6 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		err := handler.Handle(context.Background(), command)
 
 		assert.NoError(t, err)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUnitOfWork.AssertExpectations(t)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 1)

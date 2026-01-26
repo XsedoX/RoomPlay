@@ -7,19 +7,37 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application"
 	"github.com/XsedoX/RoomPlay/application/customerrors"
+	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/test_helpers"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
+func setupMocks(t *testing.T) (*authentication_mocks.MockEncrypter,
+	*persistance_mocks.MockRoomRepository,
+	*persistance_mocks.MockUnitOfWork,
+	*user.Id,
+	context.Context,
+) {
+	mockRoomRepo := new(persistance_mocks.MockRoomRepository)
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	mockEncrypter := new(authentication_mocks.MockEncrypter)
+	userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+
+	defer func() {
+		mockRoomRepo.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
+		mockEncrypter.AssertExpectations(t)
+	}()
+	return mockEncrypter, mockRoomRepo, mockUoW, &userId, ctx
+}
+
 func TestCreateRoomCommandHandler(t *testing.T) {
 	t.Run("ShouldCreateRoomSuccessfullyWhenCommandIsValid", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		_, ctx := test_helpers.AddUserIdToContext(context.Background())
+		mockEncrypter, mockRoomRepo, mockUoW, _, ctx := setupMocks(t)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
@@ -34,18 +52,14 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		err := handler.Handle(ctx, command)
 
 		// Assert
-		assert.NoError(t, err)
-		mockRoomRepo.AssertExpectations(t)
-		mockEncrypter.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
+		assert.NoError(t, err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})
 
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockEncrypter, mockRoomRepo, mockUoW, _, _ := setupMocks(t)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
@@ -58,19 +72,14 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Equal(t, application.NewMissingUserIdInContextError, err)
-		mockRoomRepo.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
 
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
 		// Arrange
-		mockRoomRepo := new(persistance_mocks.MockRoomRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
+		mockEncrypter, mockRoomRepo, mockUoW, _, ctx := setupMocks(t)
 		handler := NewCreateRoomCommandHandler(mockRoomRepo, mockUoW, mockEncrypter)
-		_, ctx := test_helpers.AddUserIdToContext(context.Background())
 		command := &CreateRoomCommand{
 			RoomName:     "Test Room",
 			RoomPassword: "password123",
@@ -91,8 +100,6 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
-		mockRoomRepo.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})

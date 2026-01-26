@@ -17,13 +17,37 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setupMocks(t *testing.T) (*persistance_mocks.MockRefreshTokenRepository,
+	*persistance_mocks.MockUnitOfWork,
+	*persistance_mocks.MockUserRepository,
+	*authentication_mocks.MockEncrypter,
+	*authentication_mocks.MockJwtProvider,
+) {
+	mockUserRepository := new(persistance_mocks.MockUserRepository)
+	mockUoW := new(persistance_mocks.MockUnitOfWork)
+	mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
+	mockEncrypter := new(authentication_mocks.MockEncrypter)
+	mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+
+	defer func() {
+		mockUserRepository.AssertExpectations(t)
+		mockUoW.AssertExpectations(t)
+		mockRefreshTokenRepository.AssertExpectations(t)
+		mockEncrypter.AssertExpectations(t)
+		mockJwtProvider.AssertExpectations(t)
+	}()
+
+	return mockRefreshTokenRepository, mockUoW, mockUserRepository, mockEncrypter, mockJwtProvider
+}
+
 func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 	t.Run("ShouldReturnErrorWhenGetTokenByValueFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -46,17 +70,16 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
-		mockUoW.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 	})
 	t.Run("ShouldReturnErrorWhenTokenIsExpired", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -89,17 +112,16 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unauthorized)
 		assert.Equal(t, parsedErr.Title, errToBeReturned.Title)
 		assert.Equal(t, parsedErr.Code, errToBeReturned.Code)
-		mockUoW.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 	})
 	t.Run("ShouldReturnErrorWhenGettingUserFromDbFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -131,19 +153,17 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.Err, userRepositoryErr)
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
-		mockUoW.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 2)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 	})
 	t.Run("ShouldReturnErrorWhenAssigningNewTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -195,19 +215,17 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.Err, assignTokenErr)
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
-		mockUoW.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 	})
 	t.Run("ShouldReturnErrorWhenGenerateNewTokenFails", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -258,20 +276,18 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.Err, generateTokenErr)
 		assert.Equal(t, parsedErr.ErrorType, customerrors.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
-		mockUoW.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockUserRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockJwtProvider.AssertNumberOfCalls(t, "GenerateToken", 1)
 	})
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
-		mockUserRepository := new(persistance_mocks.MockUserRepository)
-		mockUoW := new(persistance_mocks.MockUnitOfWork)
-		mockRefreshTokenRepository := new(persistance_mocks.MockRefreshTokenRepository)
-		mockEncrypter := new(persistance_mocks.MockEncrypter)
-		mockJwtProvider := new(authentication_mocks.MockJwtProvider)
+		mockRefreshTokenRepository,
+			mockUoW,
+			mockUserRepository,
+			mockEncrypter,
+			mockJwtProvider := setupMocks(t)
+
 		handler := NewLoginUserRefreshTokenCommandHandler(mockRefreshTokenRepository,
 			mockUoW,
 			mockEncrypter,
@@ -334,10 +350,5 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		assert.Equal(t, passedRefreshToken.Id(), userFromDb.Id())
 		assert.Equal(t, passedRefreshToken.DeviceId(), devices[0].Id())
 		assert.Equal(t, passedRefreshToken.RefreshToken(), refreshTokenToReturn)
-		mockUserRepository.AssertExpectations(t)
-		mockRefreshTokenRepository.AssertExpectations(t)
-		mockEncrypter.AssertExpectations(t)
-		mockJwtProvider.AssertExpectations(t)
-		mockUoW.AssertExpectations(t)
 	})
 }
