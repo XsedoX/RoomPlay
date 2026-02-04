@@ -1,4 +1,4 @@
-package domainErrors
+package domain_errors
 
 import "fmt"
 

@@ -4,19 +4,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
+	"github.com/XsedoX/RoomPlay/domain/user/device"
+	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
+	"github.com/XsedoX/RoomPlay/domain/user/device/device_state"
+	"github.com/XsedoX/RoomPlay/domain/user/device/device_type"
+	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/domain/user/user_role"
 	"github.com/go-faker/faker/v4"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetMostRecentDevice(t *testing.T) {
-	offlineDeviceState := Offline
-	onlineDeviceState := Online
-	deviceTypeMobile := Mobile
-	deviceTypeDesktop := Desktop
+	offlineDeviceState := device_state.Offline
+	onlineDeviceState := device_state.Online
+	deviceTypeMobile := device_type.Mobile
+	deviceTypeDesktop := device_type.Desktop
 	time1 := time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)
-	device1 := HydrateDevice(DeviceId(uuid.New()),
+	device1 := device.HydrateDevice(device_id.NewDeviceId(),
 		faker.Name(),
 		deviceTypeDesktop,
 		false,
@@ -24,22 +29,22 @@ func TestGetMostRecentDevice(t *testing.T) {
 		time1)
 
 	time2 := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-	device2 := HydrateDevice(DeviceId(uuid.New()),
+	device2 := device.HydrateDevice(device_id.NewDeviceId(),
 		faker.Name(),
 		deviceTypeMobile,
 		true,
 		onlineDeviceState,
 		time2)
 
-	role := Host
+	role := user_role.Host
 	boostUsedAtUtc := time.Now().UTC()
-	roomId := shared.RoomId(uuid.New())
-	user := HydrateUser(Id(uuid.New()),
+	roomId := room_id.NewRoomId()
+	user := HydrateUser(user_id.NewUserId(),
 		faker.Name(),
 		faker.LastName(),
 		&role,
 		&roomId,
-		[]Device{*device1, *device2},
+		[]device.Device{*device1, *device2},
 		&boostUsedAtUtc)
 
 	mostRecentDevice := user.GetMostRecentDevice()
@@ -48,26 +53,26 @@ func TestGetMostRecentDevice(t *testing.T) {
 }
 
 func TestLoginWithNewDevice(t *testing.T) {
-	offlineDeviceState := Offline
-	deviceTypeMobile := Mobile
-	deviceTypeDesktop := Desktop
+	offlineDeviceState := device_state.Offline
+	deviceTypeMobile := device_type.Mobile
+	deviceTypeDesktop := device_type.Desktop
 	time1 := time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)
-	device1 := HydrateDevice(DeviceId(uuid.New()),
+	device1 := device.HydrateDevice(device_id.NewDeviceId(),
 		faker.Name(),
 		deviceTypeDesktop,
 		false,
 		offlineDeviceState,
 		time1)
 
-	role := Host
+	role := user_role.Host
 	boostUsedAtUtc := time.Now().UTC()
-	roomId := shared.RoomId(uuid.New())
-	user := HydrateUser(Id(uuid.New()),
+	roomId := room_id.NewRoomId()
+	user := HydrateUser(user_id.NewUserId(),
 		faker.Name(),
 		faker.LastName(),
 		&role,
 		&roomId,
-		[]Device{*device1},
+		[]device.Device{*device1},
 		&boostUsedAtUtc)
 
 	user.LoginWithNewDevice(deviceTypeMobile)
@@ -78,7 +83,7 @@ func TestLoginWithNewDevice(t *testing.T) {
 func TestNewUser(t *testing.T) {
 	name := faker.Name()
 	surname := faker.LastName()
-	deviceType := Mobile
+	deviceType := device_type.Mobile
 	newUser := NewUser(name, surname, deviceType)
 	require.Equal(t, name+" "+surname, newUser.FullName().String(), "Full name should match")
 	require.Nil(t, newUser.Role(), "Role should be nil for new user")

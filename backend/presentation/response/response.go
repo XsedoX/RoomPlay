@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XsedoX/RoomPlay/application/customerrors"
-	domainErrors "github.com/XsedoX/RoomPlay/domain/domain_errors"
-	"github.com/XsedoX/RoomPlay/infrastructure/validation"
+	"github.com/XsedoX/RoomPlay/application/custom_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -60,7 +60,7 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
 	switch parsedErr := appErr.(type) {
-	case *domainErrors.ValidationDomainError:
+	case *validation_domain_error.ValidationDomainError:
 		WriteJsonFailure(w,
 			parsedErr.Code,
 			parsedErr.Title,
@@ -68,7 +68,7 @@ func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance s
 			instance,
 			http.StatusBadRequest)
 		return
-	case *customerrors.CustomError:
+	case *custom_error.CustomError:
 		WriteJsonFailure(w,
 			parsedErr.Code,
 			parsedErr.Title,
@@ -96,7 +96,7 @@ func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, er
 			"One or more fields are not correctly filled.",
 			instance,
 			http.StatusBadRequest,
-			validation.MapValidationErrors(validationErrs))
+			setup_validation.MapValidationErrors(validationErrs))
 		return
 	}
 	WriteJsonFailure(w,
