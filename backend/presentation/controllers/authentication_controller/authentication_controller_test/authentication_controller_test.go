@@ -1,4 +1,4 @@
-package authentication_controller
+package authentication_controller_test
 
 import (
 	"database/sql"

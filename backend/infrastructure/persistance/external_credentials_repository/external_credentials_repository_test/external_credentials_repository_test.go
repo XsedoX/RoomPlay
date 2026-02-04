@@ -1,4 +1,4 @@
-package external_credentials_repository
+package external_credentials_repository_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/go-faker/faker/v4"
@@ -38,7 +39,7 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewExternalCredentialsRepository(mockEncrypter)
+	repo := external_credentials_repository.NewExternalCredentialsRepository(mockEncrypter)
 	// Get a user from the seeded database
 	var userID uuid.UUID
 	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)

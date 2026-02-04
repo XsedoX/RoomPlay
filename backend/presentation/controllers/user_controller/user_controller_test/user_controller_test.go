@@ -1,4 +1,4 @@
-package user_controller
+package user_controller_test
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_response"
+	"github.com/XsedoX/RoomPlay/presentation/controllers/user_controller"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
@@ -24,7 +25,7 @@ func TestGetUserData(t *testing.T) {
 	userName := tests_initializer.InjectedUser.FullName().Name()
 	userSurname := tests_initializer.InjectedUser.FullName().Surname()
 
-	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+UserBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+user_controller.UserBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)

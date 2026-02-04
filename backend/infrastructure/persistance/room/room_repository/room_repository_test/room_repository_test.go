@@ -1,4 +1,4 @@
-package room_repository
+package room_repository_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/room/room_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_dao"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
@@ -40,7 +41,7 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 		ctx,
 		mockEncrypter := setupMocks(t)
 
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 
 	// Setup User
 	userID := user_id.NewUserId()
@@ -106,7 +107,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 
 	// Setup Data
 	roomID := uuid.New()
@@ -159,7 +160,7 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 		ctx,
 		mockEncrypter := setupMocks(t)
 
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 
 	// Setup User with Room
 	userID1 := uuid.New()
@@ -188,7 +189,7 @@ func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 	userIdToLeaveRoomFrom := seeder.SeedData.Rooms[0].Members()[0]
 	err := repo.LeaveRoom(ctx, userIdToLeaveRoomFrom, txx)
 
@@ -203,7 +204,7 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 
 	// Setup Data
 	userID := uuid.New()
@@ -231,7 +232,7 @@ func TestRoomRepositoryJoinRoomById(t *testing.T) {
 		ctx,
 		mockEncrypter := setupMocks(t)
 
-	repo := NewRoomRepository(mockEncrypter)
+	repo := room_repository.NewRoomRepository(mockEncrypter)
 
 	// Setup: create a user and a room
 	userID := uuid.New()

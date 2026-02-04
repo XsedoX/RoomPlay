@@ -1,4 +1,4 @@
-package internal_credentials_repository
+package internal_credentials_repository_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/internal_credentials/internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/google/uuid"
@@ -38,7 +39,7 @@ func TestInternalCredentialsRepositoryAssignNewToken(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewInternalCredentialsRepository(mockEncrypter)
+	repo := internal_credentials_repository.NewInternalCredentialsRepository(mockEncrypter)
 	// Get a user from the seeded database
 	var userID uuid.UUID
 	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
@@ -99,7 +100,7 @@ func TestInternalCredentialsRepositoryGetTokenByValue(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewInternalCredentialsRepository(mockEncrypter)
+	repo := internal_credentials_repository.NewInternalCredentialsRepository(mockEncrypter)
 
 	// Get a user from the seeded database
 	var userID uuid.UUID
@@ -145,7 +146,7 @@ func TestInternalCredentialsRepositoryRetireTokenByUserIdAndDeviceId(t *testing.
 		ctx,
 		mockEncrypter := setupMocks(t)
 
-	repo := NewInternalCredentialsRepository(mockEncrypter)
+	repo := internal_credentials_repository.NewInternalCredentialsRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID
@@ -184,7 +185,7 @@ func TestInternalCredentialsRepositoryRetireAllTokensByUserId(t *testing.T) {
 	txx,
 		ctx,
 		mockEncrypter := setupMocks(t)
-	repo := NewInternalCredentialsRepository(mockEncrypter)
+	repo := internal_credentials_repository.NewInternalCredentialsRepository(mockEncrypter)
 
 	// Get a user
 	var userID uuid.UUID

@@ -1,4 +1,4 @@
-package room_controller
+package room_controller_test
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password/join_room_password_command"
+	"github.com/XsedoX/RoomPlay/presentation/controllers/room_controller"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
@@ -32,7 +33,7 @@ func TestGetRoomSuccess(t *testing.T) {
 	roomName := seeder.SeedData.Rooms[1].Name()
 
 	// Perform Request
-	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+RoomBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+room_controller.RoomBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -71,7 +72,7 @@ func TestCreateRoomSuccess(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+RoomBasePath, bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+room_controller.RoomBasePath, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -97,7 +98,7 @@ func TestCreateRoomValidationFailure(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+RoomBasePath, bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+room_controller.RoomBasePath, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -112,7 +113,7 @@ func TestCheckUserRoomMembershipSuccess(t *testing.T) {
 	testServer := tests_initializer.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+RoomBasePath+RoomMembershipBasePath, nil)
+	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+room_controller.RoomBasePath+room_controller.RoomMembershipBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -129,7 +130,7 @@ func TestLeaveRoomSuccess(t *testing.T) {
 	testServer := tests_initializer.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodDelete, constants.ApiBasePath+RoomBasePath, nil)
+	req := httptest.NewRequest(http.MethodDelete, constants.ApiBasePath+room_controller.RoomBasePath, nil)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -153,7 +154,7 @@ func TestJoinRoomSuccess(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 	req := httptest.NewRequest(http.MethodPut,
-		constants.ApiBasePath+RoomBasePath+JoinRoomPasswordPath,
+		constants.ApiBasePath+room_controller.RoomBasePath+room_controller.JoinRoomPasswordPath,
 		bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
 

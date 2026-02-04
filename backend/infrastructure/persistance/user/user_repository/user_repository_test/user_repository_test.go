@@ -1,4 +1,4 @@
-package user_repository
+package user_repository_test
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user/user_role"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/device_dao"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
@@ -46,7 +47,7 @@ func TestUserRepositoryAdd(t *testing.T) {
 		ctx,
 		_ := setupMocks(t)
 
-	repo := NewUserRepository()
+	repo := user_repository.NewUserRepository()
 
 	userID := user_id.NewUserId()
 	deviceID := device_id.NewDeviceId()
@@ -98,7 +99,7 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 		ctx,
 		_ := setupMocks(t)
 
-	repo := NewUserRepository()
+	repo := user_repository.NewUserRepository()
 
 	// Setup Data
 	userID := uuid.New()
@@ -125,7 +126,7 @@ func TestUserRepositoryUpdate(t *testing.T) {
 	txx,
 		ctx,
 		_ := setupMocks(t)
-	repo := NewUserRepository()
+	repo := user_repository.NewUserRepository()
 
 	// Setup Data
 	userID := uuid.New()
@@ -198,7 +199,7 @@ func TestGetUserByExternalIdSuccess(t *testing.T) {
 	txx,
 		ctx,
 		_ := setupMocks(t)
-	repo := NewUserRepository()
+	repo := user_repository.NewUserRepository()
 	usersExternalId := seeder.SeedData.ExternalCredentials[0].ExternalId()
 
 	user, repoErr := repo.GetUserByExternalId(ctx, usersExternalId, txx)
