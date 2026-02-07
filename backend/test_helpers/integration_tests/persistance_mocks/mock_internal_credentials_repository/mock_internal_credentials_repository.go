@@ -5,7 +5,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_queryer"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
-	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
+	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/stretchr/testify/mock"
 )
@@ -27,7 +27,9 @@ func (m *MockInternalCredentialsRepository) GetTokenByValue(ctx context.Context,
 	return args.Get(0).(*internal_credentials.InternalCredentials), args.Error(1)
 }
 
-func (m *MockInternalCredentialsRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user_id.UserId, deviceId *device_id.DeviceId, queryer i_queryer.IQueryer) error {
+func (m *MockInternalCredentialsRepository) RetireTokenByUserSession(ctx context.Context, userSession user_session.UserSession, queryer i_queryer.IQueryer) error {
+	userId := userSession.UserId()
+	deviceId := userSession.DeviceId()
 	args := m.Called(ctx, userId, deviceId, queryer)
 	return args.Error(0)
 }

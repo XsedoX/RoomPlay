@@ -24,20 +24,30 @@ var (
 	}
 )
 
-func (s *Seeder) seedInternalCredentials(ctx context.Context, internalCredentials internal_credentials.InternalCredentials) error {
+func (s *Seeder) seedInternalCredentials(ctx context.Context, internalCredentials *internal_credentials.InternalCredentials) error {
 	configuration := mock_configuration.MockConfiguration{}
 	encrypter := encryper.NewEncrypter(&configuration)
 	hashedRefreshToken := encrypter.Hash(internalCredentials.RefreshToken())
 	_, err := s.Queryer.ExecContext(ctx, `
-INSERT INTO users_refresh_tokens (user_id, device_id, refresh_token, expires_at_utc, issued_at_utc)
-VALUES ($1, $2, $3, $4, $5)
-`, SeedData.LoggedInUserRefreshToken.Id(),
-		SeedData.LoggedInUserRefreshToken.DeviceId(),
+		INSERT INTO users_internal_credentials 
+		(
+			user_id,
+			device_id,
+			refresh_token,
+			expires_at_utc,
+			issued_at_utc
+		)
+		VALUES 
+		(
+			$1::uuid, $2::uuid, $3::bytea, $4, $5
+		)
+		`, internalCredentials.UserId().ToUuid(),
+		internalCredentials.DeviceId().ToUuid(),
 		hashedRefreshToken,
-		SeedData.LoggedInUserRefreshToken.ExpiresAtUtc(),
-		SeedData.LoggedInUserRefreshToken.IssuedAtUtc())
+		internalCredentials.ExpiresAtUtc(),
+		internalCredentials.IssuedAtUtc())
 	if err != nil {
-		return fmt.Errorf("failed to seed refresh token: %w", err)
+		return fmt.Errorf("failed to seed internal credentials: %w", err)
 	}
 	return nil
 }

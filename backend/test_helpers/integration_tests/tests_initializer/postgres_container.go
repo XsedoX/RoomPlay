@@ -3,8 +3,6 @@ package tests_initializer
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -67,37 +65,4 @@ func (pc *PostgresContainer) Teardown(ctx context.Context) error {
 		return pc.container.Terminate(ctx)
 	}
 	return nil
-}
-
-func ApplySchema(ctx context.Context, schemaPath string, db *sqlx.DB) error {
-	schema, err := os.ReadFile(schemaPath)
-	if err != nil {
-		return fmt.Errorf("failed to read schema file: %w", err)
-	}
-
-	_, err = db.ExecContext(ctx, string(schema))
-	if err != nil {
-		return fmt.Errorf("failed to execute schema: %w", err)
-	}
-
-	return nil
-}
-
-// FindProjectRoot attempts to find the root of the project by looking for go.mod
-func FindProjectRoot() (string, error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir, nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", fmt.Errorf("go.mod not found")
-		}
-		dir = parent
-	}
 }

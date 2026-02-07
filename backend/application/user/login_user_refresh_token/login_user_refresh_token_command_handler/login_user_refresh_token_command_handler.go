@@ -12,7 +12,6 @@ import (
 	"github.com/XsedoX/RoomPlay/application/user/login_user_refresh_token/login_user_refresh_token_command_response"
 	"github.com/XsedoX/RoomPlay/application/user/user_contracts/i_user_repository"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
-	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 )
 
 type LoginUserRefreshTokenCommandHandler struct {
@@ -56,8 +55,7 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 				custom_error_type.Unauthorized,
 			)
 		}
-		sessionFromDb := tokenFromDb.Id()
-		userFromDb, err := handler.userRepository.GetUserById(ctx, sessionFromDb.UserId(), handler.unitOfWork.GetQueryer())
+		userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.UserId(), handler.unitOfWork.GetQueryer())
 		if err != nil {
 			return custom_error.NewCustomError("LoginRefreshTokenCommandHandler.GetUserById",
 				"Couldn't fetch user from the database.",
@@ -66,8 +64,7 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 			)
 		}
 		newRefreshTokenValue := handler.encrypter.NewEncryptionKey()
-		userSession := user_session.NewUserSession(userFromDb.Id(), tokenFromDb.DeviceId())
-		newRefreshToken, refreshTokenErr := internal_credentials.NewInternalCredentials(*userSession, string(newRefreshTokenValue))
+		newRefreshToken, refreshTokenErr := internal_credentials.NewInternalCredentials(tokenFromDb.UserSession(), string(newRefreshTokenValue))
 		if refreshTokenErr != nil {
 			return refreshTokenErr
 		}

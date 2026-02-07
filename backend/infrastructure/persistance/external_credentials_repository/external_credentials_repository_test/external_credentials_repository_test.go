@@ -7,7 +7,6 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
-	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
@@ -26,24 +25,22 @@ func TestMain(m *testing.M) {
 func setupMocks(t *testing.T) (*sqlx.Tx,
 	context.Context,
 	*mock_encrypter.MockEncrypter,
+	*external_credentials_repository.ExternalCredentialsRepository,
 ) {
 	txx, ctx := tests_initializer.GetTxxAndCtx(t, false)
 	mockEncrypter := new(mock_encrypter.MockEncrypter)
+	repo := external_credentials_repository.NewExternalCredentialsRepository(mockEncrypter)
 
 	defer mockEncrypter.AssertExpectations(t)
 
-	return txx, ctx, mockEncrypter
+	return txx, ctx, mockEncrypter, repo
 }
 
 func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	txx,
 		ctx,
-		mockEncrypter := setupMocks(t)
-	repo := external_credentials_repository.NewExternalCredentialsRepository(mockEncrypter)
-	// Get a user from the seeded database
-	var userID uuid.UUID
-	err := txx.QueryRowContext(ctx, "SELECT id FROM users LIMIT 1").Scan(&userID)
-	require.NoError(t, err, "failed to find a user in the database")
+		mockEncrypter,
+		repo := setupMocks(t)
 
 	accessToken := "access_token_123"
 	refreshToken := "refresh_token_123"
@@ -51,8 +48,9 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	refreshTokenExpiresAt := time.Now().Add(24 * time.Hour).UTC()
 	externalId := faker.UUIDDigit()
 
+	userId := tests_initializer.InjectedUser.Id()
 	creds, extCredsErr := external_credentials.NewExternalCredentials(
-		user_id.UserId(userID),
+		userId,
 		accessToken,
 		refreshToken,
 		externalId,
@@ -67,7 +65,7 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	mockEncrypter.On("Encrypt", refreshToken).Return([]byte("encrypted_"+refreshToken), nil)
 
 	// Act
-	err = repo.Grant(ctx, creds, txx)
+	err := repo.Grant(ctx, creds, txx)
 	require.NoError(t, err)
 
 	// Assert
@@ -82,10 +80,10 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 		MusicProvider            string    `db:"music_provider"`
 	}
 
-	err = txx.GetContext(ctx, &storedCreds, "SELECT * FROM users_external_credentials WHERE user_id = $1", userID)
+	err = txx.GetContext(ctx, &storedCreds, "SELECT * FROM users_external_credentials WHERE user_id = $1", userId)
 	require.NoError(t, err)
 
-	assert.Equal(t, userID, storedCreds.UserID)
+	assert.Equal(t, userId.ToUuid(), storedCreds.UserID)
 	assert.Equal(t, externalId, storedCreds.ExternalId)
 	assert.Equal(t, []byte("encrypted_"+accessToken), storedCreds.AccessToken)
 	assert.Equal(t, []byte("encrypted_"+refreshToken), storedCreds.RefreshToken)

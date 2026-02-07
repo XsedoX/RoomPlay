@@ -27,7 +27,12 @@ func (r InternalCredentialsRepository) GetTokenByValue(ctx context.Context, valu
 	encryptedRefreshToken := r.encrypter.Hash(value)
 	var tokenFromDb internal_credentials_dao.InternalCredentialsDao
 	err := queryer.GetContext(ctx, &tokenFromDb,
-		"SELECT * FROM users_refresh_tokens WHERE refresh_token = $1::bytea LIMIT 1;",
+		`
+		SELECT *
+		FROM users_internal_credentials
+		WHERE refresh_token = $1::bytea
+		LIMIT 1;
+		`,
 		encryptedRefreshToken)
 	if err != nil {
 		return nil, err
@@ -40,14 +45,13 @@ func (r InternalCredentialsRepository) GetTokenByValue(ctx context.Context, valu
 		tokenFromDb.IssuedAtUtc), nil
 }
 
-func (r InternalCredentialsRepository) AssignNewToken(ctx context.Context, internaCredentials *internal_credentials.InternalCredentials, queryer i_queryer.IQueryer) error {
-	encryptedRefreshToken := r.encrypter.Hash(internaCredentials.RefreshToken())
-	userSession := internaCredentials.Id()
-	userId := userSession.UserId()
-	deviceId := userSession.DeviceId()
+func (r InternalCredentialsRepository) AssignNewToken(ctx context.Context, internalCredentials *internal_credentials.InternalCredentials, queryer i_queryer.IQueryer) error {
+	encryptedRefreshToken := r.encrypter.Hash(internalCredentials.RefreshToken())
+	userId := internalCredentials.UserId()
+	deviceId := internalCredentials.DeviceId()
 	_, err := queryer.ExecContext(ctx,
 		`
-		INSERT INTO users_refresh_tokens 
+		INSERT INTO users_internal_credentials
 		(
 			 user_id,
 		 	 device_id,
@@ -63,21 +67,26 @@ func (r InternalCredentialsRepository) AssignNewToken(ctx context.Context, inter
 		SET 
 		    refresh_token = EXCLUDED.refresh_token,
 		    expires_at_utc = EXCLUDED.expires_at_utc,
-		    issued_at_utc = EXCLUDED.issued_at_utc;`,
+		    issued_at_utc = EXCLUDED.issued_at_utc;
+		`,
 		userId.ToUuid(),
 		deviceId.ToUuid(),
 		encryptedRefreshToken,
-		internaCredentials.ExpiresAtUtc(),
-		internaCredentials.IssuedAtUtc(),
+		internalCredentials.ExpiresAtUtc(),
+		internalCredentials.IssuedAtUtc(),
 	)
 	return err
 }
 
-func (r InternalCredentialsRepository) RetireTokenByUserIdAndDeviceId(ctx context.Context, userId *user_id.UserId, deviceId *device_id.DeviceId, queryer i_queryer.IQueryer) error {
-	uId := uuid.UUID(*userId)
-	dId := uuid.UUID(*deviceId)
+func (r InternalCredentialsRepository) RetireTokenByUserSession(ctx context.Context, userSession user_session.UserSession, queryer i_queryer.IQueryer) error {
+	uId := userSession.UserId().ToUuid()
+	dId := userSession.DeviceId().ToUuid()
 	_, err := queryer.ExecContext(ctx,
-		"DELETE FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2;",
+		`
+		DELETE FROM 
+		users_internal_credentials
+		WHERE user_id = $1 AND device_id = $2;
+		`,
 		uId,
 		dId)
 	return err
@@ -86,7 +95,11 @@ func (r InternalCredentialsRepository) RetireTokenByUserIdAndDeviceId(ctx contex
 func (r InternalCredentialsRepository) RetireAllTokensByUserId(ctx context.Context, userId *user_id.UserId, queryer i_queryer.IQueryer) error {
 	id := uuid.UUID(*userId)
 	_, err := queryer.ExecContext(ctx,
-		"DELETE FROM users_refresh_tokens WHERE user_id = $1;",
+		`
+		DELETE FROM
+		users_internal_credentials
+		WHERE user_id = $1;
+		`,
 		id)
 	return err
 }

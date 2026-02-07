@@ -25,7 +25,7 @@ func NewJwtProvider(configuration config.IConfiguration) *JwtProvider {
 
 func (jwtProvider *JwtProvider) GenerateToken(userId user_id.UserId) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
-		Subject:   uuid.UUID(userId).String(),
+		Subject:   userId.ToUuid().String(),
 		Audience:  strings.Split(jwtProvider.configuration.Authentication().AudienceField, " "),
 		Issuer:    jwtProvider.configuration.Authentication().Issuer,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessTokenExpirationTime).UTC()),

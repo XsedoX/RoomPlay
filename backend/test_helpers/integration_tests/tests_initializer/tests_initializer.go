@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/initialization/initialize_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
@@ -33,21 +33,19 @@ func InitializeDatabaseContainer() {
 		log.Fatalf("failed to setup postgres: %v", err)
 	}
 
-	projectRoot, err := FindProjectRoot()
-	if err != nil {
-		log.Fatalf("failed to find project root: %v", err)
-	}
-
-	schemaPath := filepath.Join(projectRoot, "infrastructure", "persistance", "RoomPlay2.sql")
-	if err := ApplySchema(ctx, schemaPath, PgContainer.db); err != nil {
-		log.Fatalf("failed to apply schema: %v", err)
-	}
+	init_database.InitializeDatabase(ctx, PgContainer.connStr)
 	// Seed database once
 	dbx := PgContainer.db
-	seeder := seeder.NewSeeder(dbx)
+	txx, err := dbx.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Fatalf("failed to begin transaction for seeding database: %v", err)
+	}
+	defer txx.Rollback()
+	seeder := seeder.NewSeeder(txx)
 	if err := seeder.SeedAll(ctx); err != nil {
 		log.Fatalf("failed to seed database: %v", err)
 	}
+	txx.Commit()
 }
 
 func RunTestsWithDatabase(m *testing.M) {
@@ -92,10 +90,16 @@ BEGIN
 END $$;`)
 	require.NoError(t, err)
 	// Seed database once
-	seeder := seeder.NewSeeder(db)
+	txx, err := db.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Fatalf("failed to begin transaction for reseeding database: %v", err)
+	}
+	defer txx.Rollback()
+	seeder := seeder.NewSeeder(txx)
 	if err := seeder.SeedAll(ctx); err != nil {
 		log.Fatalf("failed to seed database: %v", err)
 	}
+	txx.Commit()
 }
 
 func InitializeApiServer(m *testing.M) {

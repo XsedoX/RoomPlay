@@ -14,12 +14,9 @@ func (id *DeviceId) String() *string {
 	return &uuId
 }
 
-func (id *DeviceId) ToUuid() *uuid.UUID {
-	if id == nil {
-		return nil
-	}
-	concreteId := uuid.UUID(*id)
-	return &concreteId
+func (id DeviceId) ToUuid() uuid.UUID {
+	concreteId := uuid.UUID(id)
+	return concreteId
 }
 
 func ParseDeviceId(s string) *DeviceId {

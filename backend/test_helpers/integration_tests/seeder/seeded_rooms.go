@@ -9,7 +9,6 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/domain/user/user_role"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
 )
@@ -29,7 +28,7 @@ var (
 			nil,
 			time.Date(2001, 11, 12, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*30/time.Second),
-			songs,
+			enqueuedSongs,
 			[]user_id.UserId{userIds[3]},
 		),
 		*room.HydrateRoom(roomIds[1],
@@ -39,7 +38,7 @@ var (
 			nil,
 			time.Date(2001, 11, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*12/time.Second),
-			songs,
+			enqueuedSongs,
 			[]user_id.UserId{userIds[0]},
 		),
 		*room.HydrateRoom(roomIds[2],
@@ -49,33 +48,44 @@ var (
 			nil,
 			time.Date(2022, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*24/time.Second),
-			[]enqueued_song.EnqueuedSong{songs[2], songs[3]},
+			[]enqueued_song.EnqueuedSong{enqueuedSongs[2], enqueuedSongs[3]},
 			[]user_id.UserId{userIds[1], userIds[2]},
 		),
 	}
 )
 
-func (s *Seeder) seedRoom(ctx context.Context, room *room.Room) error {
+func (s *Seeder) seedRoom(ctx context.Context,
+	room *room.Room,
+) error {
 	configuration := mock_configuration.MockConfiguration{}
 	encrypter := encryper.NewEncrypter(&configuration)
 	hashedPassword, _ := encrypter.HashAndSalt(room.Password())
 	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds)
-		VALUES ($1, $2, $3, $4, $5, $6)
-	`, room.Id(), room.Name(), []byte(hashedPassword), []byte(room.QrCode()), room.CreatedAtUtc(), room.LifespanSeconds())
+		INSERT INTO rooms 
+		(
+			id, 
+			name,
+			password,
+			qr_code_hash,
+			boost_cooldown_seconds,
+			created_at_utc,
+			lifespan_seconds
+		)
+		VALUES
+		(
+			$1, $2, $3, $4, $5, $6, $7
+		)
+		`, room.Id().ToUuid(),
+		room.Name(),
+		[]byte(hashedPassword),
+		[]byte(room.QrCode()),
+		room.BoostCooldownSeconds(),
+		room.CreatedAtUtc(),
+		room.LifespanSeconds(),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to seed room: %w", err)
 	}
-	return nil
-}
 
-func (s *Seeder) seedUserRoomData(ctx context.Context, roomID room_id.RoomId, userID user_id.UserId, role *user_role.UserRole) error {
-	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO users_room_data (room_id, user_id, role)
-		VALUES ($1, $2, $3)
-	`, roomID, userID, role.String())
-	if err != nil {
-		return fmt.Errorf("failed to seed user_room_data: %w", err)
-	}
 	return nil
 }

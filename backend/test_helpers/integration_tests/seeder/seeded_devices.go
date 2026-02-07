@@ -51,10 +51,28 @@ var devices = []device.Device{
 }
 
 func (s *Seeder) seedDevice(ctx context.Context, device *device.Device, userID user_id.UserId) error {
-	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, device.Id(), device.FriendlyName(), device.IsHost(), device.DeviceType().String(), userID, device.State().String(), device.LastLoggedInUtc())
+	_, err := s.Queryer.ExecContext(ctx,
+		`
+		INSERT INTO devices (
+			id,
+			friendly_name,
+			is_host,
+			type,
+			user_id,
+			state,
+			last_logged_in_at_utc
+		)
+		VALUES (
+			$1, $2, $3, $4, $5, $6, $7
+		)
+	`, device.Id(),
+		device.FriendlyName(),
+		device.IsHost(),
+		device.DeviceType().String(),
+		userID,
+		device.State().String(),
+		device.LastLoggedInUtc(),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to seed device: %w", err)
 	}

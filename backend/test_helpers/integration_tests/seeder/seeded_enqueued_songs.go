@@ -2,6 +2,8 @@ package seeder
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,8 +11,17 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/vote_status"
+	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
 )
+
+type UsersVotesStruct struct {
+	UserId           user_id.UserId
+	EnqueuedSongsIds []enqueued_song_id.EnqueuedSongId
+	VoteStatus       vote_status.VoteStatus
+}
 
 var (
 	songsStartedAt = []time.Time{
@@ -18,7 +29,7 @@ var (
 		time.Date(2022, 12, 1, 15, 30, 0o0, 0o0, time.UTC),
 		time.Date(2023, 6, 15, 18, 45, 0o0, 0o0, time.UTC),
 	}
-	songs = []enqueued_song.EnqueuedSong{
+	enqueuedSongs = []enqueued_song.EnqueuedSong{
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
@@ -31,8 +42,9 @@ var (
 			time.Date(2001, 11, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[0],
 			enqueued_song_state.Played,
-			88,
+			3,
 			userIds[0],
+			*users[0].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -46,8 +58,9 @@ var (
 			time.Date(2001, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[1],
 			enqueued_song_state.Playing,
-			8,
+			-2,
 			userIds[1],
+			*users[1].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -63,6 +76,7 @@ var (
 			enqueued_song_state.Enqueued,
 			0,
 			userIds[0],
+			*users[0].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -76,8 +90,9 @@ var (
 			time.Date(2024, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 			nil,
 			enqueued_song_state.Enqueued,
-			5,
+			1,
 			userIds[2],
+			*users[2].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -91,19 +106,165 @@ var (
 			time.Date(2023, 5, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[2],
 			enqueued_song_state.Played,
-			15,
+			4,
 			userIds[3],
+			*users[3].RoomId(),
 		),
+	}
+	usersVotes = []UsersVotesStruct{
+		{
+			UserId: userIds[0],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[0].Id(),
+				enqueuedSongs[1].Id(),
+				enqueuedSongs[2].Id(),
+				enqueuedSongs[3].Id(),
+				enqueuedSongs[4].Id(),
+			},
+			VoteStatus: vote_status.Upvoted,
+		},
+		{
+			UserId:           userIds[0],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{},
+			VoteStatus:       vote_status.Downvoted,
+		},
+		{
+			UserId: userIds[1],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[2].Id(),
+				enqueuedSongs[4].Id(),
+			},
+			VoteStatus: vote_status.Upvoted,
+		},
+		{
+			UserId: userIds[1],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[1].Id(),
+				enqueuedSongs[3].Id(),
+			},
+			VoteStatus: vote_status.Downvoted,
+		},
+		{
+			UserId: userIds[2],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[0].Id(),
+				enqueuedSongs[4].Id(),
+			},
+			VoteStatus: vote_status.Upvoted,
+		},
+		{
+			UserId: userIds[2],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[1].Id(),
+				enqueuedSongs[2].Id(),
+			},
+			VoteStatus: vote_status.Downvoted,
+		},
+		{
+			UserId: userIds[3],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[0].Id(),
+				enqueuedSongs[3].Id(),
+				enqueuedSongs[4].Id(),
+			},
+			VoteStatus: vote_status.Upvoted,
+		},
+		{
+			UserId: userIds[3],
+			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
+				enqueuedSongs[1].Id(),
+				enqueuedSongs[2].Id(),
+			},
+			VoteStatus: vote_status.Downvoted,
+		},
 	}
 )
 
-func (s *Seeder) seedEnqueuedSong(ctx context.Context, song *enqueued_song.EnqueuedSong) error {
-	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO songs (id, url, title, author, length_seconds, album_cover_url)
-		VALUES ($1, $2, $3, $4, $5, $6)
-	`, song.Id(), song.SongData().Url(), song.SongData().Title(), song.SongData().Author(), song.SongData().LengthSeconds(), song.SongData().AlbumCoverUrl())
+func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_song.EnqueuedSong) error {
+	var songId uuid.UUID
+	errIfSongExists := s.Queryer.QueryRowxContext(ctx,
+		`
+		INSERT INTO songs (
+			id,
+			url,
+			title,
+			author,
+			length_seconds,
+			album_cover_url
+		)
+		VALUES
+		(
+			$1, $2, $3, $4, $5, $6
+		)
+		ON CONFLICT (url) DO NOTHING
+		RETURNING id::uuid
+		`, uuid.New(),
+		enqueuedSong.SongData().Url(),
+		enqueuedSong.SongData().Title(),
+		enqueuedSong.SongData().Author(),
+		enqueuedSong.SongData().LengthSeconds(),
+		enqueuedSong.SongData().AlbumCoverUrl(),
+	).Scan(&songId)
+
+	if errors.Is(errIfSongExists, sql.ErrNoRows) {
+		err := s.Queryer.QueryRowxContext(ctx,
+			`
+				SELECT id::uuid
+				FROM songs
+				WHERE url = $1
+			`, enqueuedSong.SongData().Url(),
+		).Scan(&songId)
+		if err != nil {
+			return fmt.Errorf("failed to retrieve existing song id: %w", err)
+		}
+	}
+
+	_, err := s.Queryer.ExecContext(ctx,
+		`
+		INSERT INTO enqueued_songs
+		(
+			id,
+			room_id,
+			song_id,
+			added_by,
+			added_at_utc,
+			started_at_utc,
+			state
+		)
+		VALUES
+		(
+			$1, $2, $3, $4, $5, $6, $7
+		)
+		`, enqueuedSong.Id(),
+		enqueuedSong.RoomId(),
+		songId,
+		enqueuedSong.AddedBy(),
+		enqueuedSong.AddedAtUtc(),
+		enqueuedSong.StartedAtUtc(),
+		enqueuedSong.State().String(),
+	)
 	if err != nil {
-		return fmt.Errorf("failed to seed song: %w", err)
+		return fmt.Errorf("failed to seed enqueued song: %w", err)
+	}
+	return nil
+}
+
+func (s *Seeder) seedUsersVotes(
+	ctx context.Context,
+	userId user_id.UserId,
+	enqueuedSongId enqueued_song_id.EnqueuedSongId,
+	voteStatus vote_status.VoteStatus,
+) error {
+	_, err := s.Queryer.ExecContext(ctx, `
+		UPDATE users_votes
+		SET vote_status = $1
+		WHERE user_id = $2::uuid AND enqueued_song_id = $3::uuid
+		`, voteStatus.String(),
+		userId.ToUuid(),
+		enqueuedSongId.ToUuid(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to seed user's vote: %w", err)
 	}
 	return nil
 }

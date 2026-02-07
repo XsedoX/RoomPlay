@@ -9,6 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/logout_user/logout_user_command"
+	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 )
 
 type LogoutUserCommandHandler struct {
@@ -39,7 +40,8 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *logout_us
 			return nil
 		}
 		deviceId := command.DeviceId
-		retireTokenWithDeviceId := c.internalCredentialsRepository.RetireTokenByUserIdAndDeviceId(ctx, &userId, deviceId, c.unitOfWork.GetQueryer())
+		userSession := user_session.NewUserSession(userId, *deviceId)
+		retireTokenWithDeviceId := c.internalCredentialsRepository.RetireTokenByUserSession(ctx, *userSession, c.unitOfWork.GetQueryer())
 		if retireTokenWithDeviceId != nil {
 			return custom_error.NewCustomError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
 				fmt.Sprintf("Couldn't retire users tokens for user id %s and device id %s.", *userId.String(), *deviceId.String()),

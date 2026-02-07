@@ -61,5 +61,5 @@ func TestScheduledSongScheduledBeforeNow(t *testing.T) {
 	castedErr, ok := err.(*time_before_now_domain_error.TimeBeforeNowDomainError)
 	require.True(t, ok)
 	require.Equal(t, "ScheduledSong.ScheduledAtUtc.TimeBeforeNow", castedErr.Code)
-	require.Equal(t, "The field 'scheduled at a time in the future.", castedErr.Description)
+	require.Equal(t, "The field 'scheduled at' must be a time in the future.", castedErr.Description)
 }

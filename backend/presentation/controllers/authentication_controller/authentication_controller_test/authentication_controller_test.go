@@ -62,7 +62,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	expiresAt := time.Now().UTC().Add(internal_credentials.RefreshTokenExpirationTime)
 	deviceId := tests_initializer.InjectedUser.Devices()[0].Id()
-	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(seeder.SeedData.LoggedInUserRefreshToken.RefreshToken()))
+	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(seeder.SeedData.InternalCredentials.RefreshToken()))
 	req.AddCookie(&http.Cookie{
 		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    encodedRefreshToken,

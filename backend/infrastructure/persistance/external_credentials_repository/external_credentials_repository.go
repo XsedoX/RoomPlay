@@ -7,7 +7,6 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_queryer"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/google/uuid"
 )
 
 type ExternalCredentialsRepository struct {
@@ -30,29 +29,32 @@ func (cr *ExternalCredentialsRepository) Grant(ctx context.Context, credentials 
 		return err
 	}
 	_, err = queryer.ExecContext(ctx,
-		`INSERT INTO users_external_credentials 
-    			(
-						user_id, 
-		external_id,
-						access_token, 
-						refresh_token, 
-		music_provider,
-						access_token_expires_at_utc, 
-						refresh_token_expires_at_utc,
-    			 		issued_at_utc
-				) 
-				VALUES (
-				        $1::uuid, $2, $3, $4, $5, $6, $7, $8
-				)
-				ON CONFLICT (user_id) DO UPDATE
-				SET external_id = EXCLUDED.external_id,
-		access_token = EXCLUDED.access_token,
-				    refresh_token = EXCLUDED.refresh_token,
-		music_provider = EXCLUDED.music_provider,
-				    access_token_expires_at_utc=EXCLUDED.access_token_expires_at_utc,
-				    refresh_token_expires_at_utc=EXCLUDED.refresh_token_expires_at_utc,
-				    issued_at_utc=EXCLUDED.issued_at_utc;`,
-		uuid.UUID(credentials.Id()),
+		`
+		INSERT INTO users_external_credentials 
+		(
+			user_id, 
+			external_id,
+			access_token, 
+			refresh_token, 
+			music_provider,
+			access_token_expires_at_utc, 
+			refresh_token_expires_at_utc,
+			issued_at_utc
+		) 
+		VALUES
+		(
+			$1::uuid, $2, $3, $4, $5, $6, $7, $8
+		)
+		ON CONFLICT (user_id) DO UPDATE
+		SET external_id = EXCLUDED.external_id,
+			  access_token = EXCLUDED.access_token,
+			  refresh_token = EXCLUDED.refresh_token,
+				music_provider = EXCLUDED.music_provider,
+				access_token_expires_at_utc=EXCLUDED.access_token_expires_at_utc,
+				refresh_token_expires_at_utc=EXCLUDED.refresh_token_expires_at_utc,
+				issued_at_utc=EXCLUDED.issued_at_utc;
+		`,
+		credentials.Id().ToUuid(),
 		credentials.ExternalId(),
 		encryptedAccessToken,
 		encryptedRefreshToken,

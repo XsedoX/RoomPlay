@@ -6,6 +6,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
@@ -19,10 +20,12 @@ func TestNewEnqueuedSongSuccess(t *testing.T) {
 		faker.URL(),
 		5,
 	)
+	roomId := room_id.NewRoomId()
 
 	enqueuedSong := NewEnqueuedSong(
 		*songData,
 		user_id.NewUserId(),
+		roomId,
 	)
 
 	assert.NoError(t, err)

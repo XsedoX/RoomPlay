@@ -7,6 +7,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
+	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 )
 
 type InternalCredentials struct {
-	shared.AggregateRoot[user_session.UserSession]
+	userSession  shared.AggregateRoot[user_session.UserSession]
 	refreshToken string
 	expiresAtUtc time.Time
 	issuedAtUtc  time.Time
@@ -35,7 +36,7 @@ func NewInternalCredentials(
 		expiresAtUtc: time.Now().Add(RefreshTokenExpirationTime).UTC(),
 		issuedAtUtc:  time.Now().UTC(),
 	}
-	rt.SetId(userSession)
+	rt.userSession.SetId(userSession)
 	return rt, nil
 }
 
@@ -51,13 +52,22 @@ func (r InternalCredentials) IssuedAtUtc() time.Time {
 	return r.issuedAtUtc
 }
 
+func (r InternalCredentials) UserId() user_id.UserId {
+	userSession := r.userSession.Id()
+	return userSession.UserId()
+}
+
 func (r InternalCredentials) DeviceId() device_id.DeviceId {
-	userSession := r.Id()
+	userSession := r.userSession.Id()
 	return userSession.DeviceId()
 }
 
 func (r InternalCredentials) IsExpired() bool {
 	return r.ExpiresAtUtc().Sub(time.Now().UTC()) <= 0
+}
+
+func (r InternalCredentials) UserSession() user_session.UserSession {
+	return r.userSession.Id()
 }
 
 func HydrateInternalCredentials(
@@ -71,6 +81,6 @@ func HydrateInternalCredentials(
 		expiresAtUtc: expiresAtUtc.UTC(),
 		issuedAtUtc:  issuedAtUtc.UTC(),
 	}
-	result.SetId(userSession)
+	result.userSession.SetId(userSession)
 	return result
 }

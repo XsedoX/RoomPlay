@@ -1,3 +1,7 @@
+DO $$
+BEGIN
+    -- Check if the 'users' table exists. If it does, we assume everything is initialized.
+    IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'users') THEN
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
   'spotify'
@@ -73,7 +77,7 @@ CREATE TABLE "users_external_credentials" (
   "issued_at_utc" timestamp NOT NULL
 );
 
-CREATE TABLE "users_refresh_tokens" (
+CREATE TABLE "users_internal_credentials" (
   "user_id" uuid,
   "device_id" uuid,
   "refresh_token" bytea UNIQUE NOT NULL,
@@ -97,11 +101,10 @@ CREATE TABLE "enqueued_songs" (
   "added_by" uuid,
   "added_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   "started_at_utc" timestamp,
-  "state" song_state NOT NULL DEFAULT 'enqueued',
-  "votes" smallint NOT NULL DEFAULT 0
+  "state" song_state NOT NULL DEFAULT 'enqueued'
 );
 
-CREATE TABLE "rapid_songs" (
+CREATE TABLE "scheduled_songs" (
   "room_id" uuid,
   "song_id" uuid,
   "scheduled_at_utc" timestamp NOT NULL,
@@ -115,12 +118,11 @@ CREATE TABLE "banned_users" (
 );
 
 CREATE TABLE "default_playlists" (
-  "id" uuid PRIMARY KEY,
   "external_id" varchar(256) UNIQUE NOT NULL,
   "user_id" uuid NOT NULL,
-  "song_amount" smallint NOT NULL,
+  "songs_amount" smallint NOT NULL,
   "playlist_title" varchar(256) NOT NULL,
-  "room_id" uuid NOT NULL
+  "room_id" uuid PRIMARY KEY
 );
 
 CREATE TABLE "devices" (
@@ -141,9 +143,7 @@ CREATE INDEX "rooms_qr_code_hash_ix" ON "rooms" ("qr_code_hash");
 
 CREATE INDEX "users_external_credentials_external_id_ix" ON "users_external_credentials" ("external_id");
 
-CREATE INDEX "users_refresh_tokens_refresh_token_ix" ON "users_refresh_tokens" ("refresh_token");
-
-CREATE INDEX "default_playlists_room_id_ix" ON "default_playlists" ("room_id");
+CREATE INDEX "users_internal_credentials_refresh_token_ix" ON "users_internal_credentials" ("refresh_token");
 
 CREATE UNIQUE INDEX "devices_id_user_id_uq" ON "devices" ("id", "user_id");
 
@@ -151,9 +151,9 @@ CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';
 
-ALTER TABLE "users_refresh_tokens" ADD CONSTRAINT "users__users_refresh_tokens" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "users__users_refresh_tokens" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "users_refresh_tokens" ADD CONSTRAINT "device__users_refresh_tokens" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "device__users_refresh_tokens" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "users_external_credentials" ADD CONSTRAINT "users__users_credentials" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
@@ -171,9 +171,9 @@ ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__song" FOREIGN KEY ("son
 
 ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__user" FOREIGN KEY ("added_by") REFERENCES "users" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "rapid_songs" ADD CONSTRAINT "rapid_song__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "rapid_songs" ADD CONSTRAINT "rapid_song__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE;
+ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "banned_users" ADD CONSTRAINT "banned_user__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
 
@@ -184,3 +184,7 @@ ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__room" FOREIGN 
 ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "devices" ADD CONSTRAINT "device__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+END IF;
+END
+$$;

@@ -14,12 +14,9 @@ func (id *RoomId) String() *string {
 	return &uuId
 }
 
-func (id *RoomId) ToUuid() *uuid.UUID {
-	if id == nil {
-		return nil
-	}
-	concreteId := uuid.UUID(*id)
-	return &concreteId
+func (id RoomId) ToUuid() uuid.UUID {
+	concreteId := uuid.UUID(id)
+	return concreteId
 }
 
 func ParseRoomId(s string) *RoomId {

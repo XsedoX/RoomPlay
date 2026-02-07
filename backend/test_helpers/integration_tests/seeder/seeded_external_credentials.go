@@ -79,15 +79,22 @@ func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_cr
 	encryptedAccessToken, _ := encrypter.Encrypt(creds.AccessToken())
 	encryptedRefreshToken, _ := encrypter.Encrypt(creds.RefreshToken())
 	_, err := s.Queryer.ExecContext(ctx, `
-		INSERT INTO users_external_credentials (user_id, 
-		external_id,
-		access_token,
-		refresh_token,
-		music_provider,
-		access_token_expires_at_utc,
-		refresh_token_expires_at_utc,
-		issued_at_utc)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		INSERT INTO users_external_credentials 
+		(
+			user_id, 
+			external_id,
+			access_token,
+			refresh_token,
+			music_provider,
+			access_token_expires_at_utc,
+			refresh_token_expires_at_utc,
+			issued_at_utc
+		)
+		VALUES
+		(
+			$1, $2, $3, $4, $5, $6, $7, $8
+		)
+		`,
 		creds.Id(),
 		creds.ExternalId(),
 		encryptedAccessToken,
