@@ -355,7 +355,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), resp.DeviceId)
 
 		assert.NotNil(t, capturedRefreshToken)
-		assert.Equal(t, capturedUser.Id(), capturedRefreshToken.Id())
+		assert.Equal(t, capturedUser.Id(), capturedRefreshToken.UserSession())
 		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), capturedRefreshToken.DeviceId())
 		assert.Equal(t, expectedRefreshTokenKey, capturedRefreshToken.RefreshToken())
 

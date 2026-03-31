@@ -92,4 +92,5 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	assert.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
 	assert.WithinDuration(t, refreshTokenExpiresAt, storedCreds.RefreshTokenExpiresAtUtc, time.Second)
 	assert.WithinDuration(t, time.Now().UTC(), storedCreds.IssuedAtUtc, 5*time.Second)
+	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 2)
 }

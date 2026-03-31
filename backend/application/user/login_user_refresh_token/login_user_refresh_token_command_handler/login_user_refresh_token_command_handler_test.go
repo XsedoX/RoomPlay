@@ -153,7 +153,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			Return(returnedRefreshToken, nil)
 		userRepositoryErr := errors.New("userRepository error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.GetUserById"
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.Id(), mock.Anything).
+		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
 			Return(nil, userRepositoryErr)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
@@ -210,7 +210,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.Id(), mock.Anything).
+		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
 			Return(userFromDb, nil)
 		assignTokenErr := errors.New("assignToken error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.AssignNewToken"
@@ -272,12 +272,12 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.Id(), mock.Anything).
+		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
 			Return(userFromDb, nil)
 		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).Return(nil)
 		generateTokenErr := errors.New("generateToken error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.GenerateToken"
-		mockJwtProvider.On("GenerateToken", returnedRefreshToken.Id()).Return("", generateTokenErr)
+		mockJwtProvider.On("GenerateToken", returnedRefreshToken.UserSession()).Return("", generateTokenErr)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
@@ -335,7 +335,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.Id(), mock.Anything).
+		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
 			Return(userFromDb, nil)
 		var passedRefreshToken *internal_credentials.InternalCredentials
 		mockInternalCredentialsRepository.
@@ -345,7 +345,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			}).
 			Return(nil)
 		accessTokenToReturn := uuid.New().String()
-		mockJwtProvider.On("GenerateToken", returnedRefreshToken.Id()).Return(accessTokenToReturn, nil)
+		mockJwtProvider.On("GenerateToken", returnedRefreshToken.UserSession()).Return(accessTokenToReturn, nil)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
@@ -359,7 +359,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		mockJwtProvider.AssertNumberOfCalls(t, "GenerateToken", 1)
 		mockEncrypter.AssertNumberOfCalls(t, "NewEncryptionKey", 1)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "AssignNewToken", 1)
-		assert.Equal(t, passedRefreshToken.Id(), userFromDb.Id())
+		assert.Equal(t, passedRefreshToken.UserSession(), userFromDb.Id())
 		assert.Equal(t, passedRefreshToken.DeviceId(), devices[0].Id())
 		assert.Equal(t, passedRefreshToken.RefreshToken(), refreshTokenToReturn)
 	})

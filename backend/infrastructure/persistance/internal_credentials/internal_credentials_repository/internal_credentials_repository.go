@@ -45,7 +45,11 @@ func (r InternalCredentialsRepository) GetTokenByValue(ctx context.Context, valu
 		tokenFromDb.IssuedAtUtc), nil
 }
 
-func (r InternalCredentialsRepository) AssignNewToken(ctx context.Context, internalCredentials *internal_credentials.InternalCredentials, queryer i_queryer.IQueryer) error {
+func (r InternalCredentialsRepository) AssignNewToken(
+	ctx context.Context,
+	internalCredentials *internal_credentials.InternalCredentials,
+	queryer i_queryer.IQueryer,
+) error {
 	encryptedRefreshToken := r.encrypter.Hash(internalCredentials.RefreshToken())
 	userId := internalCredentials.UserId()
 	deviceId := internalCredentials.DeviceId()
@@ -83,8 +87,7 @@ func (r InternalCredentialsRepository) RetireTokenByUserSession(ctx context.Cont
 	dId := userSession.DeviceId().ToUuid()
 	_, err := queryer.ExecContext(ctx,
 		`
-		DELETE FROM 
-		users_internal_credentials
+		DELETE FROM users_internal_credentials
 		WHERE user_id = $1 AND device_id = $2;
 		`,
 		uId,

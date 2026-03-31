@@ -32,7 +32,13 @@ func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *roo
 		return err
 	}
 	_, addRoomErr := queryer.ExecContext(ctx,
-		`INSERT INTO rooms VALUES ($1::uuid, $2, $3::bytea, $4::bytea, $5, $6, $7);`,
+		`
+		INSERT INTO rooms
+		VALUES 
+		(
+			$1::uuid, $2, $3::bytea, $4::bytea, $5, $6, $7
+		);
+		`,
 		roomId.ToUuid(),
 		roomParam.Name(),
 		hashedPassword,
@@ -47,7 +53,16 @@ func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *roo
 
 	role := user_role.Host
 	_, usersUpdateErr := queryer.ExecContext(ctx,
-		`INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, $3)`,
+		`
+		INSERT INTO users_room_data
+		(
+			room_id, user_id, role
+		) 
+		VALUES 
+		(
+			$1, $2, $3
+		)
+		`,
 		roomId.ToUuid(),
 		userId.ToUuid(),
 		role.String(),
@@ -96,11 +111,11 @@ SELECT enqueued_songs.id,
        enqueued_songs.votes,
        songs.album_cover_url
 FROM enqueued_songs
-         JOIN songs ON enqueued_songs.song_id = songs.id
-         JOIN rooms ON enqueued_songs.room_id = rooms.id
-         JOIN users_room_data ON users_room_data.room_id = rooms.id
-         JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
-         LEFT JOIN users_votes ON users_room_data.user_id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
+			JOIN songs ON enqueued_songs.song_id = songs.id
+			JOIN rooms ON enqueued_songs.room_id = rooms.id
+			JOIN users_room_data ON users_room_data.room_id = rooms.id
+			JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
+			LEFT JOIN users_votes ON users_room_data.user_id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
 WHERE users_room_data.user_id = $1;
 `, userId.ToUuid())
 	if getRoomSongsErr != nil {

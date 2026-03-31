@@ -80,6 +80,10 @@ func (r Room) Members() []user_id.UserId {
 	return r.members
 }
 
+func (r Room) BannedUsers() []user_id.UserId {
+	return r.bannedUsers
+}
+
 func NewRoom(name string,
 	password string,
 	qrCode string,
