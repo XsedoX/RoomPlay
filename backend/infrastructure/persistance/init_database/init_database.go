@@ -30,7 +30,7 @@ func InitializeDatabase(ctx context.Context, connectionString string) *sqlx.DB {
 		return entries[i].Name() < entries[j].Name()
 	})
 
-	txx, err := db.Begin()
+	txx, err := db.Beginx()
 	if err != nil {
 		log.Fatalf("Unable to begin transaction: %v\n", err)
 	}
@@ -58,6 +58,11 @@ func InitializeDatabase(ctx context.Context, connectionString string) *sqlx.DB {
 
 		log.Printf("Executed SQL script: %s\n", entry.Name())
 	}
+
+	// seeder := seeder.NewSeeder(txx)
+	// if err := seeder.SeedAll(ctx); err != nil {
+	// 	log.Fatalf("failed to seed database: %v", err)
+	// }
 
 	if err := txx.Commit(); err != nil {
 		log.Fatalf("Transaction commit failed: %v\n", err)

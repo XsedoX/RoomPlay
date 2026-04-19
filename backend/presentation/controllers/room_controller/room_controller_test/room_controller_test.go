@@ -30,7 +30,8 @@ func TestMain(m *testing.M) {
 func TestGetRoomSuccess(t *testing.T) {
 	testServer := tests_initializer.TestServer
 	r := testServer.Router()
-	roomName := seeder.SeedData.Rooms[1].Name()
+	roomToTest := seeder.SeedData.Rooms[1]
+	roomName := roomToTest.Name()
 
 	// Perform Request
 	req := httptest.NewRequest(http.MethodGet, constants.ApiBasePath+room_controller.RoomBasePath, nil)
@@ -50,12 +51,13 @@ func TestGetRoomSuccess(t *testing.T) {
 	assert.Equal(t, "host", responseWrapper.Data.UserRole)
 
 	require.NotNil(t, responseWrapper.Data.PlayingSong)
-	assert.Equal(t, "title2", responseWrapper.Data.PlayingSong.Title)
-	assert.Equal(t, "author2", responseWrapper.Data.PlayingSong.Author)
-	assert.Equal(t, uint16(349), responseWrapper.Data.PlayingSong.LengthSeconds)
+	playingSong := roomToTest.PlayingSong()
+	assert.Equal(t, playingSong.SongData().Title(), responseWrapper.Data.PlayingSong.Title)
+	assert.Equal(t, playingSong.SongData().Author(), responseWrapper.Data.PlayingSong.Author)
+	assert.Equal(t, playingSong.SongData().LengthSeconds(), responseWrapper.Data.PlayingSong.LengthSeconds)
 
 	assert.NotEmpty(t, responseWrapper.Data.Songs)
-	assert.Len(t, responseWrapper.Data.Songs, 5)
+	assert.Len(t, responseWrapper.Data.Songs, len(roomToTest.EnqueuedSongs()))
 }
 
 func TestCreateRoomSuccess(t *testing.T) {

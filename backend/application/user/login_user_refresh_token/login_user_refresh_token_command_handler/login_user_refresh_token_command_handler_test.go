@@ -153,7 +153,8 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			Return(returnedRefreshToken, nil)
 		userRepositoryErr := errors.New("userRepository error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.GetUserById"
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
+		userId := userSession.UserId()
+		mockUserRepository.On("GetUserById", mock.Anything, userId, mock.Anything).
 			Return(nil, userRepositoryErr)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
@@ -210,12 +211,13 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
+		userId := userSession.UserId()
+		mockUserRepository.On("GetUserById", mock.Anything, userId, mock.Anything).
 			Return(userFromDb, nil)
 		assignTokenErr := errors.New("assignToken error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.AssignNewToken"
 		mockInternalCredentialsRepository.
-			On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
+			On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Return(assignTokenErr)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
@@ -272,12 +274,13 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
+		userSessionFromToken := returnedRefreshToken.UserSession()
+		mockUserRepository.On("GetUserById", mock.Anything, userSessionFromToken.UserId(), mock.Anything).
 			Return(userFromDb, nil)
-		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).Return(nil)
+		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).Return(nil)
 		generateTokenErr := errors.New("generateToken error")
 		errCodeToReturn := "LoginRefreshTokenCommandHandler.GenerateToken"
-		mockJwtProvider.On("GenerateToken", returnedRefreshToken.UserSession()).Return("", generateTokenErr)
+		mockJwtProvider.On("GenerateToken", userSessionFromToken.UserId()).Return("", generateTokenErr)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
@@ -335,17 +338,18 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			devices,
 			nil,
 		)
-		mockUserRepository.On("GetUserById", mock.Anything, returnedRefreshToken.UserSession(), mock.Anything).
+		userSessionFromToken := returnedRefreshToken.UserSession()
+		mockUserRepository.On("GetUserById", mock.Anything, userSessionFromToken.UserId(), mock.Anything).
 			Return(userFromDb, nil)
 		var passedRefreshToken *internal_credentials.InternalCredentials
 		mockInternalCredentialsRepository.
-			On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
+			On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Run(func(args mock.Arguments) {
 				passedRefreshToken = args.Get(1).(*internal_credentials.InternalCredentials)
 			}).
 			Return(nil)
 		accessTokenToReturn := uuid.New().String()
-		mockJwtProvider.On("GenerateToken", returnedRefreshToken.UserSession()).Return(accessTokenToReturn, nil)
+		mockJwtProvider.On("GenerateToken", userSessionFromToken.UserId()).Return(accessTokenToReturn, nil)
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
@@ -359,8 +363,9 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		mockJwtProvider.AssertNumberOfCalls(t, "GenerateToken", 1)
 		mockEncrypter.AssertNumberOfCalls(t, "NewEncryptionKey", 1)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "AssignNewToken", 1)
-		assert.Equal(t, passedRefreshToken.UserSession(), userFromDb.Id())
-		assert.Equal(t, passedRefreshToken.DeviceId(), devices[0].Id())
+		passedUserSession := passedRefreshToken.UserSession()
+		assert.Equal(t, passedUserSession.UserId(), userFromDb.Id())
+		assert.Equal(t, passedUserSession.DeviceId(), devices[0].Id())
 		assert.Equal(t, passedRefreshToken.RefreshToken(), refreshTokenToReturn)
 	})
 }

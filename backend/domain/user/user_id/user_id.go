@@ -31,3 +31,16 @@ func ParseUserId(s string) *UserId {
 func NewUserId() UserId {
 	return UserId(uuid.New())
 }
+
+func IdsEqual(id1, id2 *UserId) bool {
+	if id1 == nil && id2 == nil {
+		return true
+	}
+	if id1 == nil || id2 == nil {
+		return false
+	}
+	if *id1 == *id2 {
+		return true
+	}
+	return false
+}

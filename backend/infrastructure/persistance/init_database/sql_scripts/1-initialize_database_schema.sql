@@ -1,7 +1,7 @@
 DO $$
 BEGIN
-    -- Check if the 'users' table exists. If it does, we assume everything is initialized.
-    IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'users') THEN
+  -- Check if the 'users' table exists. If it does, we assume everything is initialized.
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'users') THEN
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
   'spotify'
@@ -184,6 +184,7 @@ ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__room" FOREIGN 
 ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "devices" ADD CONSTRAINT "device__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
 
 END IF;
 END

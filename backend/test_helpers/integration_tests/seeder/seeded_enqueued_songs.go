@@ -12,6 +12,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/vote_status"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
@@ -44,7 +45,6 @@ var (
 			enqueued_song_state.Played,
 			3,
 			userIds[0],
-			*users[0].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -60,7 +60,6 @@ var (
 			enqueued_song_state.Playing,
 			-2,
 			userIds[1],
-			*users[1].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -76,7 +75,6 @@ var (
 			enqueued_song_state.Enqueued,
 			0,
 			userIds[0],
-			*users[0].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -92,7 +90,6 @@ var (
 			enqueued_song_state.Enqueued,
 			1,
 			userIds[2],
-			*users[2].RoomId(),
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -108,7 +105,6 @@ var (
 			enqueued_song_state.Played,
 			4,
 			userIds[3],
-			*users[3].RoomId(),
 		),
 	}
 	usersVotes = []UsersVotesStruct{
@@ -180,7 +176,7 @@ var (
 	}
 )
 
-func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_song.EnqueuedSong) error {
+func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_song.EnqueuedSong, roomId *room_id.RoomId) error {
 	var songId uuid.UUID
 	errIfSongExists := s.Queryer.QueryRowxContext(ctx,
 		`
@@ -196,7 +192,6 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		(
 			$1, $2, $3, $4, $5, $6
 		)
-		ON CONFLICT (url) DO NOTHING
 		RETURNING id::uuid
 		`, uuid.New(),
 		enqueuedSong.SongData().Url(),
@@ -236,7 +231,7 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 			$1, $2, $3, $4, $5, $6, $7
 		)
 		`, enqueuedSong.Id(),
-		enqueuedSong.RoomId(),
+		roomId.ToUuid(),
 		songId,
 		enqueuedSong.AddedBy(),
 		enqueuedSong.AddedAtUtc(),

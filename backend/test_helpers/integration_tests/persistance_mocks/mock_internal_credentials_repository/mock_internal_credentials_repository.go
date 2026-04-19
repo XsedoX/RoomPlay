@@ -28,9 +28,7 @@ func (m *MockInternalCredentialsRepository) GetTokenByValue(ctx context.Context,
 }
 
 func (m *MockInternalCredentialsRepository) RetireTokenByUserSession(ctx context.Context, userSession user_session.UserSession, queryer i_queryer.IQueryer) error {
-	userId := userSession.UserId()
-	deviceId := userSession.DeviceId()
-	args := m.Called(ctx, userId, deviceId, queryer)
+	args := m.Called(ctx, userSession, queryer)
 	return args.Error(0)
 }
 

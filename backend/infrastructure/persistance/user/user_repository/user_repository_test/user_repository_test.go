@@ -101,25 +101,19 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 
 	repo := user_repository.NewUserRepository()
 
-	// Setup Data
-	userID := uuid.New()
-	deviceID := uuid.New()
-
-	_, err := txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Jane', 'Doe')`, userID)
-	require.NoError(t, err)
-
-	_, err = txx.ExecContext(ctx, `INSERT INTO devices (id, friendly_name, is_host, type, user_id, state, last_logged_in_at_utc) VALUES ($1, 'Device 2', false, 'mobile', $2, 'offline', $3)`, deviceID, userID, time.Now().UTC())
-	require.NoError(t, err)
-
+	userToTest := seeder.SeedData.Users[1]
+	userID := userToTest.Id()
+	deviceID := userToTest.Devices()[0].Id()
 	// Act
-	u, err := repo.GetUserById(ctx, user_id.UserId(userID), txx)
+	u, err := repo.GetUserById(ctx, userID, txx)
 	require.NoError(t, err)
 
 	// Assert
-	assert.Equal(t, userID, uuid.UUID(u.Id()))
-	assert.Equal(t, "Jane", u.FullName().Name())
+	obtainedUserId := u.Id()
+	assert.Equal(t, userID.ToUuid(), obtainedUserId.ToUuid())
+	assert.Equal(t, userToTest.FullName().Name(), u.FullName().Name())
 	assert.Len(t, u.Devices(), 1)
-	assert.Equal(t, deviceID, uuid.UUID(u.Devices()[0].Id()))
+	assert.Equal(t, deviceID.ToUuid(), u.Devices()[0].Id().ToUuid())
 }
 
 func TestUserRepositoryUpdate(t *testing.T) {

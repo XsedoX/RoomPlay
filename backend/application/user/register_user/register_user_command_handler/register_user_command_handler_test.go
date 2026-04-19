@@ -203,7 +203,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh_token_key"))
 
-		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
+		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Return(errToBeReturned)
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
@@ -261,10 +261,10 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh_token_key"))
 
-		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
+		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Return(nil)
 
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*external_credentials.ExternalCredentials"), mock.Anything).
 			Return(errToBeReturned)
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
@@ -326,14 +326,14 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(expectedRefreshTokenKey))
 
 		var capturedRefreshToken *internal_credentials.InternalCredentials
-		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*credentials.RefreshToken"), mock.Anything).
+		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Run(func(args mock.Arguments) {
 				capturedRefreshToken = args.Get(1).(*internal_credentials.InternalCredentials)
 			}).
 			Return(nil)
 
 		var capturedCreds *external_credentials.ExternalCredentials
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*external_credentials.ExternalCredentials"), mock.Anything).
 			Run(func(args mock.Arguments) {
 				capturedCreds = args.Get(1).(*external_credentials.ExternalCredentials)
 			}).
@@ -355,7 +355,8 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), resp.DeviceId)
 
 		assert.NotNil(t, capturedRefreshToken)
-		assert.Equal(t, capturedUser.Id(), capturedRefreshToken.UserSession())
+		userSession := capturedRefreshToken.UserSession()
+		assert.Equal(t, capturedUser.Id(), userSession.UserId())
 		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), capturedRefreshToken.DeviceId())
 		assert.Equal(t, expectedRefreshTokenKey, capturedRefreshToken.RefreshToken())
 

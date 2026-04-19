@@ -8,6 +8,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/logout_user/logout_user_command"
+	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_internal_credentials_repository"
@@ -67,7 +68,8 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		}
 		errCode := "LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId"
 		errOfRepository := errors.New("retire all tokens by userId and deviceId failed")
-		mockRefreshTokenRepository.On("RetireTokenByUserIdAndDeviceId", mock.Anything, &command.UserId, &deviceId, mock.Anything).Return(errOfRepository)
+		userSession := user_session.NewUserSession(command.UserId, deviceId)
+		mockRefreshTokenRepository.On("RetireTokenByUserSession", mock.Anything, *userSession, mock.Anything).Return(errOfRepository)
 		handler := NewLogoutUserCommandHandler(mockRefreshTokenRepository, mockUnitOfWork)
 
 		err := handler.Handle(context.Background(), command)
@@ -80,7 +82,7 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
-		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 1)
+		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserSession", 1)
 	})
 	t.Run("ShouldReturnSuccessWhenDeviceIdNil", func(t *testing.T) {
 		mockRefreshTokenRepository, mockUnitOfWork := setupMocks(t)
@@ -109,7 +111,8 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 			DeviceId: &deviceId,
 			UserId:   user_id.NewUserId(),
 		}
-		mockRefreshTokenRepository.On("RetireTokenByUserIdAndDeviceId", mock.Anything, &command.UserId, &deviceId, mock.Anything).Return(nil)
+		userSession := user_session.NewUserSession(command.UserId, deviceId)
+		mockRefreshTokenRepository.On("RetireTokenByUserSession", mock.Anything, *userSession, mock.Anything).Return(nil)
 		handler := NewLogoutUserCommandHandler(mockRefreshTokenRepository, mockUnitOfWork)
 
 		err := handler.Handle(context.Background(), command)
@@ -117,6 +120,6 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		assert.NoError(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
-		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 1)
+		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserSession", 1)
 	})
 }

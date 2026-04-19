@@ -58,7 +58,7 @@ var (
 		*user.HydrateUser(userIds[4],
 			faker.Name(),
 			faker.LastName(),
-			&userRoles[4],
+			nil,
 			nil,
 			[]device.Device{devices[0]},
 			nil),

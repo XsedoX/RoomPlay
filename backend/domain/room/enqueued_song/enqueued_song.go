@@ -6,7 +6,6 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
-	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 )
@@ -19,11 +18,6 @@ type EnqueuedSong struct {
 	state        enqueued_song_state.EnqueuedSongState
 	votes        int8
 	addedBy      user_id.UserId
-	room_id      room_id.RoomId
-}
-
-func (s EnqueuedSong) RoomId() room_id.RoomId {
-	return s.room_id
 }
 
 func (s EnqueuedSong) AddedBy() user_id.UserId {
@@ -58,7 +52,6 @@ func HydrateEnqueuedSong(
 	state enqueued_song_state.EnqueuedSongState,
 	votes int8,
 	addedBy user_id.UserId,
-	roomId room_id.RoomId,
 ) *EnqueuedSong {
 	result := &EnqueuedSong{
 		songData:     songData,
@@ -67,7 +60,6 @@ func HydrateEnqueuedSong(
 		state:        state,
 		votes:        votes,
 		addedBy:      addedBy,
-		room_id:      roomId,
 	}
 	result.SetId(id)
 	return result
@@ -76,7 +68,6 @@ func HydrateEnqueuedSong(
 func NewEnqueuedSong(
 	songData song_data.SongData,
 	addedBy user_id.UserId,
-	roomId room_id.RoomId,
 ) *EnqueuedSong {
 	result := &EnqueuedSong{
 		addedAtUtc:   time.Now().UTC(),
@@ -85,7 +76,6 @@ func NewEnqueuedSong(
 		state:        enqueued_song_state.Enqueued,
 		votes:        0,
 		songData:     songData,
-		room_id:      roomId,
 	}
 	result.SetId(enqueued_song_id.NewEnqueuedSongId())
 	return result

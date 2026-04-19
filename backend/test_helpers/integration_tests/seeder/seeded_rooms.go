@@ -28,7 +28,7 @@ var (
 			nil,
 			time.Date(2001, 11, 12, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*30/time.Second),
-			enqueuedSongs,
+			[]enqueued_song.EnqueuedSong{enqueuedSongs[2], enqueuedSongs[0]},
 			[]user_id.UserId{userIds[3]},
 		),
 		*room.HydrateRoom(roomIds[1],
@@ -38,7 +38,7 @@ var (
 			nil,
 			time.Date(2001, 11, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*12/time.Second),
-			enqueuedSongs,
+			[]enqueued_song.EnqueuedSong{enqueuedSongs[1]},
 			[]user_id.UserId{userIds[0]},
 		),
 		*room.HydrateRoom(roomIds[2],
@@ -48,7 +48,7 @@ var (
 			nil,
 			time.Date(2022, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 			uint32(time.Hour*24/time.Second),
-			[]enqueued_song.EnqueuedSong{enqueuedSongs[2], enqueuedSongs[3]},
+			[]enqueued_song.EnqueuedSong{enqueuedSongs[3], enqueuedSongs[4]},
 			[]user_id.UserId{userIds[1], userIds[2]},
 		),
 	}
@@ -63,7 +63,7 @@ func (s *Seeder) seedRoom(ctx context.Context,
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO rooms 
 		(
-			id, 
+			id,
 			name,
 			password,
 			qr_code_hash,

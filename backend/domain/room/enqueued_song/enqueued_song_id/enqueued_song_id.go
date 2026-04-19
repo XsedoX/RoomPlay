@@ -33,3 +33,16 @@ func NewEnqueuedSongId() EnqueuedSongId {
 	result := EnqueuedSongId(uuid.New())
 	return result
 }
+
+func IdsEqual(id1, id2 *EnqueuedSongId) bool {
+	if id1 == nil && id2 == nil {
+		return true
+	}
+	if id1 == nil || id2 == nil {
+		return false
+	}
+	if *id1 == *id2 {
+		return true
+	}
+	return false
+}

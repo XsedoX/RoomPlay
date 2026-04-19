@@ -52,9 +52,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		roomToBeReturned := &get_room_dao.GetRoomDao{
 			Name:                     faker.Name(),
 			QrCode:                   []byte(faker.UUIDHyphenated()),
-			PlayingSongTitle:         test_helpers.PtrString(faker.Word()),
-			PlayingSongAuthor:        test_helpers.PtrString(faker.Name()),
-			PlayingSongStartedAtUtc:  test_helpers.PtrTime(now),
+			PlayingSongTitle:         new(faker.Word()),
+			PlayingSongAuthor:        new(faker.Name()),
+			PlayingSongStartedAtUtc:  new(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
 			BoostUsedAtUtc:           nil,
@@ -88,7 +88,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, *roomToBeReturned.PlayingSongLengthSeconds, resp.PlayingSong.LengthSeconds)
 
 		// No songs
-		assert.Equal(t, []get_room_song_dao.GetRoomSongDao{}, resp.Songs)
+		assert.Equal(t, []get_room_query_response.RoomSongListDto{}, resp.Songs)
 
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
@@ -105,9 +105,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		roomToBeReturned := &get_room_dao.GetRoomDao{
 			Name:                     faker.Name(),
 			QrCode:                   []byte(faker.UUIDHyphenated()),
-			PlayingSongTitle:         test_helpers.PtrString(faker.Word()),
-			PlayingSongAuthor:        test_helpers.PtrString(faker.Name()),
-			PlayingSongStartedAtUtc:  test_helpers.PtrTime(now),
+			PlayingSongTitle:         new(faker.Word()),
+			PlayingSongAuthor:        new(faker.Name()),
+			PlayingSongStartedAtUtc:  new(now),
 			PlayingSongLengthSeconds: &length,
 			UserRole:                 *userRole.String(),
 			BoostUsedAtUtc:           &boostUsed,

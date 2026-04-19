@@ -399,7 +399,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 
 		var capturedCreds *external_credentials.ExternalCredentials
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).Run(func(args mock.Arguments) {
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*external_credentials.ExternalCredentials"), mock.Anything).Run(func(args mock.Arguments) {
 			capturedCreds = args.Get(1).(*external_credentials.ExternalCredentials)
 		}).Return(nil)
 
@@ -550,7 +550,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 		grantErr := errors.New("grant error")
-		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*credentials.ExternalCredentials"), mock.Anything).Return(grantErr)
+		mockExternalCredentialsRepository.On("Grant", mock.Anything, mock.AnythingOfType("*external_credentials.ExternalCredentials"), mock.Anything).Return(grantErr)
 
 		handler := NewLoginUserCommandHandler(mockUoW,
 			mockUserRepository,

@@ -47,7 +47,7 @@ func TestLogoutSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	var tokenFromDb internal_credentials_dao.InternalCredentialsDao
 	err := txx.Get(&tokenFromDb,
-		"SELECT * FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2;",
+		"SELECT * FROM users_internal_credentials WHERE user_id = $1 AND device_id = $2;",
 		tests_initializer.InjectedUser.Id(), deviceId)
 	assert.Equal(t, sql.ErrNoRows, err)
 }
@@ -62,7 +62,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	expiresAt := time.Now().UTC().Add(internal_credentials.RefreshTokenExpirationTime)
 	deviceId := tests_initializer.InjectedUser.Devices()[0].Id()
-	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(seeder.SeedData.InternalCredentials.RefreshToken()))
+	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(seeder.SeedData.InternalCredentials[0].RefreshToken()))
 	req.AddCookie(&http.Cookie{
 		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    encodedRefreshToken,
@@ -78,7 +78,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	var tokenFromDb internal_credentials_dao.InternalCredentialsDao
 	err := txx.Get(&tokenFromDb,
-		"SELECT * FROM users_refresh_tokens WHERE user_id = $1 AND device_id = $2;",
+		"SELECT * FROM users_internal_credentials WHERE user_id = $1 AND device_id = $2;",
 		tests_initializer.InjectedUser.Id(), deviceId)
 	assert.NoError(t, err)
 	assert.Greater(t, tokenFromDb.ExpiresAtUtc, time.Now().UTC())

@@ -31,7 +31,7 @@ func (repository *UserRepository) GetUserById(ctx context.Context, id user_id.Us
 	var userDb user_dao.UserDao
 	err := queryer.GetContext(ctx,
 		&userDb,
-		`SELECT u.*, ur.role, ur.boost_used_at_utc FROM users u 
+		`SELECT u.*, ur.role, ur.boost_used_at_utc, ur.room_id FROM users u 
          	   LEFT JOIN users_room_data ur ON ur.user_id = u.id 
          	   WHERE id = $1`,
 		id.ToUuid())
@@ -227,7 +227,7 @@ func parseUser(userDb *user_dao.UserDao, devicesDb *[]device_dao.DeviceDao) *use
 	var devices []device.Device
 	for _, deviceDb := range *devicesDb {
 		deviceResult := device.HydrateDevice(
-			device_id.NewDeviceId(),
+			device_id.DeviceId(deviceDb.Id),
 			deviceDb.FriendlyName,
 			*device_type.ParseDeviceType(&deviceDb.Type),
 			deviceDb.IsHost,
@@ -238,8 +238,8 @@ func parseUser(userDb *user_dao.UserDao, devicesDb *[]device_dao.DeviceDao) *use
 			*deviceResult)
 	}
 
-	roomId := room_id.NewRoomId()
-	return user.HydrateUser(user_id.NewUserId(),
+	roomId := room_id.RoomId(*userDb.RoomId)
+	return user.HydrateUser(user_id.UserId(userDb.Id),
 		userDb.Name,
 		userDb.Surname,
 		user_role.ParseUserRole(userDb.Role),

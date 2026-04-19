@@ -55,6 +55,15 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 			return err
 		}
 	}
+	// NOTE: Insert songs and enqueued songs
+	for _, roomToInsert := range SeedData.Rooms {
+		roomId := roomToInsert.Id()
+		for _, enqueuedSongToInsert := range roomToInsert.EnqueuedSongs() {
+			if err := s.seedEnqueuedSong(ctx, &enqueuedSongToInsert, &roomId); err != nil {
+				return err
+			}
+		}
+	}
 	// NOTE: Insert external credentials
 	for _, externalCredentialsToInsert := range SeedData.ExternalCredentials {
 		err := s.seedExternalCredentials(ctx, &externalCredentialsToInsert)
@@ -74,12 +83,6 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 	// NOTE: Insert internal credentials
 	for _, internalCredentialsToInsert := range SeedData.InternalCredentials {
 		if err := s.seedInternalCredentials(ctx, &internalCredentialsToInsert); err != nil {
-			return err
-		}
-	}
-	// NOTE: Insert songs and enqueued songs
-	for _, enqueuedSongToInsert := range SeedData.Songs {
-		if err := s.seedEnqueuedSong(ctx, &enqueuedSongToInsert); err != nil {
 			return err
 		}
 	}

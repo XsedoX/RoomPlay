@@ -5,7 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/slice_extensions"
 	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/vote_status"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/room/room_repository"
@@ -109,50 +112,34 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 		mockEncrypter := setupMocks(t)
 	repo := room_repository.NewRoomRepository(mockEncrypter)
 
-	// Setup Data
-	roomID := uuid.New()
-	userID := uuid.New()
-	songID := uuid.New()
-	enqueuedSongID := uuid.New()
-
-	// Insert Room
-	_, err := txx.ExecContext(ctx, `INSERT INTO rooms (id, name, password, qr_code_hash, created_at_utc, lifespan_seconds, boost_cooldown_seconds) VALUES ($1, 'My Room', 'pass', 'qr', $2, 3600, 60)`, roomID, time.Now().UTC())
-	require.NoError(t, err)
-
-	// Insert User
-	_, err = txx.ExecContext(ctx, `INSERT INTO users (id, name, surname) VALUES ($1, 'Test', 'User')`, userID)
-	require.NoError(t, err)
-
-	// Insert Role
-	_, err = txx.ExecContext(ctx, `INSERT INTO users_room_data (room_id, user_id, role) VALUES ($1, $2, 'member')`, roomID, userID)
-	require.NoError(t, err)
-
-	// Insert Song
-	_, err = txx.ExecContext(ctx, `INSERT INTO songs (id, url, title, author, length_seconds, album_cover_url) VALUES ($1, 'ext-song', 'Song Title', 'Song Author', 180, 'url')`, songID)
-	require.NoError(t, err)
-
-	// Insert Enqueued Song
-	_, err = txx.ExecContext(ctx, `INSERT INTO enqueued_songs (id, room_id, song_id, added_by, added_at_utc, state, votes) VALUES ($1, $2, $3, $4, $5, 'enqueued', 0)`, enqueuedSongID, roomID, songID, userID, time.Now().UTC())
-	require.NoError(t, err)
-
-	// Insert Vote (to test join)
-	_, err = txx.ExecContext(ctx, `INSERT INTO users_votes (user_id, enqueued_song_id, vote_status) VALUES ($1, $2, 'upvoted')`, userID, enqueuedSongID)
-	require.NoError(t, err)
+	userToTest := seeder.SeedData.Users[0]
+	userID := userToTest.Id()
 
 	// Act
 	roomDao, err := repo.GetRoomByUserId(ctx, user_id.UserId(userID), txx)
 	require.NoError(t, err)
 
 	// Assert
-	assert.Equal(t, "My Room", roomDao.Name)
-	assert.Equal(t, "member", roomDao.UserRole)
-	assert.Len(t, roomDao.SongDaos, 1)
+	usersRoomId := userToTest.RoomId()
+	usersRoom, _ := slice_extensions.
+		GetRoomById(
+			seeder.SeedData.Rooms,
+			*usersRoomId,
+		)
+
+	assert.Equal(t, usersRoom.Name(), roomDao.Name)
+	usersRole := userToTest.Role().String()
+	assert.Equal(t, *usersRole, roomDao.UserRole)
+	songsInRoom := usersRoom.EnqueuedSongs()
+	assert.Len(t, songsInRoom, len(roomDao.SongDaos))
 
 	songDao := roomDao.SongDaos[0]
-	assert.Equal(t, "Song Title", songDao.Title)
-	assert.Equal(t, "Song Author", songDao.Author)
-	assert.Equal(t, "Test User", songDao.AddedBy) // Concat name + surname
-	assert.Equal(t, "upvoted", songDao.VoteStatus)
+	songFromDb, _ := slice_extensions.GetEnqueuedSongById(seeder.SeedData.Songs, enqueued_song_id.EnqueuedSongId(songDao.Id))
+	assert.Equal(t, songFromDb.SongData().Title(), songDao.Title)
+	assert.Equal(t, songFromDb.SongData().Author(), songDao.Author)
+	userThatAddedSong, _ := slice_extensions.GetUserById(seeder.SeedData.Users, songFromDb.AddedBy())
+	assert.Equal(t, userThatAddedSong.FullName().String(), songDao.AddedBy) // Concat name + surname
+	assert.Equal(t, vote_status.Upvoted.String(), songDao.VoteStatus)
 }
 
 func TestRoomRepositoryCheckUserMembership(t *testing.T) {
