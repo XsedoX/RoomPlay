@@ -27,11 +27,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.25 # Specify your Go version
+          go-version: 1.26 # Specify your Go version
 
       - name: Install dependencies
         # Use 'working-directory' to run commands in the backend folder
         run: go mod tidy # This downloads dependencies like testify
 
       - name: Run Go tests
-        run: go test ./... 
+        run: go test -p 1 -parallel 1 ./...
