@@ -10,6 +10,10 @@ type TimeBeforeNowDomainError struct {
 	validation_domain_error.ValidationDomainError
 }
 
+func (e *TimeBeforeNowDomainError) Unwrap() error {
+	return &e.ValidationDomainError
+}
+
 func (e *TimeBeforeNowDomainError) Error() string {
 	return fmt.Sprintf("TimeBeforeNowDomainError - Code: %s | Comment: %s", e.Code, e.Description)
 }

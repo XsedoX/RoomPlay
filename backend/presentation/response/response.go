@@ -59,37 +59,37 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 }
 
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	switch parsedErr := appErr.(type) {
-	case *validation_domain_error.ValidationDomainError:
+	if vErr, ok := errors.AsType[*validation_domain_error.ValidationDomainError](appErr); ok {
 		WriteJsonFailure(w,
-			parsedErr.Code,
-			parsedErr.Title,
-			parsedErr.Description,
+			vErr.Code,
+			vErr.Title,
+			vErr.Description,
 			instance,
-			http.StatusBadRequest)
-		return
-	case *custom_error.CustomError:
-		WriteJsonFailure(w,
-			parsedErr.Code,
-			parsedErr.Title,
-			parsedErr.Error(),
-			instance,
-			int(parsedErr.ErrorType))
-		return
-	default:
-		WriteJsonFailure(w,
-			"CustomError.CastingError",
-			"Error is not applicationError",
-			"Unexpected issue. Please try again.",
-			instance,
-			http.StatusInternalServerError)
+			http.StatusBadRequest,
+		)
 		return
 	}
+	if cErr, ok := errors.AsType[*custom_error.CustomError](appErr); ok {
+		WriteJsonFailure(w,
+			cErr.Code,
+			cErr.Title,
+			cErr.Error(),
+			instance,
+			int(cErr.ErrorType),
+		)
+		return
+	}
+	WriteJsonFailure(w,
+		"CustomError.CastingError",
+		"Error is not applicationError",
+		"Unexpected issue. Please try again.",
+		instance,
+		http.StatusInternalServerError,
+	)
 }
 
 func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) {
-	var validationErrs validator.ValidationErrors
-	if errors.As(err, &validationErrs) {
+	if validationErrs, ok := errors.AsType[validator.ValidationErrors](err); ok {
 		WriteJsonFailure(w,
 			code,
 			"Validation error occurred.",

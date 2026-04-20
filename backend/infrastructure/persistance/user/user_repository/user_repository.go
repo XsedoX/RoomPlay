@@ -81,7 +81,7 @@ func (repository *UserRepository) CheckIfUserExistByExternalId(ctx context.Conte
 		SELECT CASE 
 		    WHEN EXISTS (
 		        SELECT 1
-		        FROM users
+		        FROM users_external_credentials
 		        WHERE external_id=$1
 			)
 		    THEN true 
@@ -238,12 +238,18 @@ func parseUser(userDb *user_dao.UserDao, devicesDb *[]device_dao.DeviceDao) *use
 			*deviceResult)
 	}
 
-	roomId := room_id.RoomId(*userDb.RoomId)
+	var roomId *room_id.RoomId
+	if userDb.RoomId == nil {
+		roomId = (*room_id.RoomId)(nil)
+	} else {
+		roomIdConcrete := room_id.RoomId(*userDb.RoomId)
+		roomId = &roomIdConcrete
+	}
 	return user.HydrateUser(user_id.UserId(userDb.Id),
 		userDb.Name,
 		userDb.Surname,
 		user_role.ParseUserRole(userDb.Role),
-		&roomId,
+		roomId,
 		devices,
 		userDb.BoostUsedAtUtc)
 }

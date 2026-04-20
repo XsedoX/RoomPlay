@@ -10,6 +10,10 @@ type EmptyStringDomainError struct {
 	validation_domain_error.ValidationDomainError
 }
 
+func (e *EmptyStringDomainError) Unwrap() error {
+	return &e.ValidationDomainError
+}
+
 func (e *EmptyStringDomainError) Error() string {
 	return fmt.Sprintf("EmptyStringDomainError - Code: %s | Comment: %s", e.Code, e.Description)
 }

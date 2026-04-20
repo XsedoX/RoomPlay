@@ -15,6 +15,10 @@ type CustomError struct {
 	Title     string
 }
 
+func (e *CustomError) Unwrap() error {
+	return e.Err
+}
+
 func NewCustomError(code, title string, err error, errorType custom_error_type.Type) *CustomError {
 	if errors.Is(err, sql.ErrNoRows) {
 		return &CustomError{Code: code, ErrorType: custom_error_type.NotFound, Err: err, Title: title}

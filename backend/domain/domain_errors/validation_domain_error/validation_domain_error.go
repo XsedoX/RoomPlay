@@ -11,6 +11,10 @@ type ValidationDomainError struct {
 	Title string
 }
 
+func (e *ValidationDomainError) Unwrap() error {
+	return e.DomainError
+}
+
 func (e *ValidationDomainError) Error() string {
 	return fmt.Sprintf("ValidationDomainError - Code: %s | Comment: %s", e.Code, e.Description)
 }

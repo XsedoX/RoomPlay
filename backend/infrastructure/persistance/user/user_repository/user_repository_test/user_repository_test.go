@@ -201,3 +201,21 @@ func TestGetUserByExternalIdSuccess(t *testing.T) {
 	require.Equal(t, seeder.SeedData.Users[0].Id(), user.Id())
 	require.Equal(t, seeder.SeedData.Users[0].FullName().Name(), user.FullName().Name())
 }
+
+func TestCheckIfUserExistByExternalId(t *testing.T) {
+	txx,
+		ctx,
+		_ := setupMocks(t)
+
+	repo := user_repository.NewUserRepository()
+
+	// NOTE: User exists check
+	usersExternalId := seeder.SeedData.ExternalCredentials[0].ExternalId()
+	userExists := repo.CheckIfUserExistByExternalId(ctx, usersExternalId, txx)
+	require.True(t, userExists)
+
+	// NOTE: User does not exist check
+	usersExternalIdNonExistent := "this does not exist for sure"
+	userExistsNot := repo.CheckIfUserExistByExternalId(ctx, usersExternalIdNonExistent, txx)
+	require.False(t, userExistsNot)
+}

@@ -86,6 +86,7 @@ func (g GoogleOidcService) GenerateOidcUrl(state string) (string, error) {
 	parameters.Add("client_id", g.configuration.Authentication().ClientId)
 	parameters.Add("scope", g.configuration.Authentication().ScopesField)
 	parameters.Add("access_type", "offline")
+	parameters.Add("prompt", "consent")
 	parameters.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
 	parameters.Add("state", state)
 	googleGetUrl.RawQuery = parameters.Encode()
