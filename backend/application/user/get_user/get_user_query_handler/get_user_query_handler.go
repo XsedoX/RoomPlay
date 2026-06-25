@@ -11,22 +11,22 @@ import (
 	"github.com/XsedoX/RoomPlay/application/user/user_contracts/i_user_repository"
 )
 
-type GetUserQueryHandler struct {
+type GetUserDataQueryHandler struct {
 	unitOfWork     i_unit_of_work.IUnitOfWork
 	userRepository i_user_repository.IUserRepository
 }
 
 func NewGetUserQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 	userRepository i_user_repository.IUserRepository,
-) *GetUserQueryHandler {
-	return &GetUserQueryHandler{
+) *GetUserDataQueryHandler {
+	return &GetUserDataQueryHandler{
 		unitOfWork:     unitOfWork,
 		userRepository: userRepository,
 	}
 }
 
-func (handler GetUserQueryHandler) Handle(ctx context.Context) (*get_user_query_response.GetUserQueryResponse, error) {
-	var response get_user_query_response.GetUserQueryResponse
+func (handler GetUserDataQueryHandler) Handle(ctx context.Context) (*get_user_query_response.GetUserDataQueryResponse, error) {
+	var response get_user_query_response.GetUserDataQueryResponse
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, application_helpers.NewMissingUserIdInContextError

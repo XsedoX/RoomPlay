@@ -8,5 +8,6 @@ func NewYoutubeMusicDataProvider() *YoutubeMusicDataProvider {
 	return &YoutubeMusicDataProvider{}
 }
 
-func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(accessToken, query string) (*[]music_data_response_dto.MusicDataResponseDto, error) {
+func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(accessToken, query string, nextPageToken *string, pageSize uint8) (*[]music_data_response_dto.MusicDataResponseDto, error) {
+	return nil, nil
 }

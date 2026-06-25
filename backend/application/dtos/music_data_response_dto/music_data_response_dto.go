@@ -6,4 +6,5 @@ type MusicDataResponseDto struct {
 	Author         string
 	LengthSeconds  uint16
 	AlabumCoverUrl string
+	NextPageToken  string
 }

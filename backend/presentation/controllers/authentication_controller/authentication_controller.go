@@ -32,6 +32,18 @@ func NewAuthenticationController(refreshTokenCommandHandler i_command_handler.IC
 	}
 }
 
+// RefreshToken handles refreshing the user's access token using a refresh token stored in a cookie. It validates the refresh token, generates new tokens, and updates the cookies accordingly.
+// @Summary Refresh user access token
+// @Description Refreshes the user's access token using a refresh token stored in a cookie. Validates the refresh token, generates new tokens, and updates the cookies accordingly.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success      200   {object}  response.Success
+// @Failure      400   {object}  response.ProblemDetails
+// @Failure      401   {object}  response.ProblemDetails
+// @Failure      500   {object}  response.ProblemDetails
+// @Router /auth/refresh-token [post]
+// @Security BearerAuth
 func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req *http.Request) {
 	refreshToken, err := req.Cookie(constants.RoomPlayRefreshTokenCookieName)
 	if err != nil || refreshToken == nil || refreshToken.Value == "" {

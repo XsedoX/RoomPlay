@@ -29,7 +29,8 @@ type LoginUserCommandHandler struct {
 	internalCredentialsRepository i_internal_credentials_repository.IInternalCredentialsRepository
 }
 
-func NewLoginUserCommandHandler(unitOfWork i_unit_of_work.IUnitOfWork,
+func NewLoginUserCommandHandler(
+	unitOfWork i_unit_of_work.IUnitOfWork,
 	userRepository i_user_repository.IUserRepository,
 	encrypter i_encrypter.IEncrypter,
 	jwtProvider i_jwt_provider.IJwtProvider,

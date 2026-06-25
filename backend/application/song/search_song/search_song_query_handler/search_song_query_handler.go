@@ -44,7 +44,13 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 				accessTokenError,
 				custom_error_type.Unexpected)
 		}
-		songs, searchSongsErr := handler.musicService.SearchSongsByQuery(ctx, accessToken, query.Query)
+		songs, searchSongsErr := handler.musicService.SearchSongsByQuery(
+			ctx,
+			accessToken,
+			query.Query,
+			query.NextPageToken,
+			query.PageSize,
+		)
 		if searchSongsErr != nil {
 			return custom_error.NewCustomError("SearchSongQueryHandler.SearchSongsByQuery",
 				"Problem with searching songs from music service.",

@@ -13,10 +13,10 @@ const (
 )
 
 type UserController struct {
-	getUserDataQueryHandler i_query_handler.IQueryHandler[*get_user_query_response.GetUserQueryResponse]
+	getUserDataQueryHandler i_query_handler.IQueryHandler[*get_user_query_response.GetUserDataQueryResponse]
 }
 
-func NewUserController(getUserDataQueryHandler i_query_handler.IQueryHandler[*get_user_query_response.GetUserQueryResponse]) *UserController {
+func NewUserController(getUserDataQueryHandler i_query_handler.IQueryHandler[*get_user_query_response.GetUserDataQueryResponse]) *UserController {
 	return &UserController{
 		getUserDataQueryHandler: getUserDataQueryHandler,
 	}

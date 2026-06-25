@@ -1,6 +1,6 @@
 package get_user_query_response
 
-type GetUserQueryResponse struct {
+type GetUserDataQueryResponse struct {
 	Name    string `json:"name"`
 	Surname string `json:"surname"`
 }

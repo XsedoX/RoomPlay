@@ -32,7 +32,7 @@ func TestGetUserData(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var responseWrapper test_helpers.TestResponseWrapper[get_user_query_response.GetUserQueryResponse]
+	var responseWrapper test_helpers.TestResponseWrapper[get_user_query_response.GetUserDataQueryResponse]
 	err := json.NewDecoder(w.Body).Decode(&responseWrapper)
 	require.NoError(t, err)
 

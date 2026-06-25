@@ -16,6 +16,10 @@ type Cache[T any] struct {
 	db *sqlx.DB
 }
 
+func NewCache[T any](db *sqlx.DB) *Cache[T] {
+	return &Cache[T]{db: db}
+}
+
 func (c *Cache[T]) Get(key string, ctx context.Context) (*T, error) {
 	var value json.RawMessage
 	err := c.db.GetContext(ctx, &value, `SELECT value FROM cache WHERE key = $1;`,

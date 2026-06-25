@@ -9,8 +9,8 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
-	"github.com/XsedoX/RoomPlay/initialization/initialize_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
+	"github.com/XsedoX/RoomPlay/presentation/initialize_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
@@ -117,8 +117,8 @@ func InitializeApiServer(m *testing.M) {
 		})
 	}
 
-	dependencies := initialize_dependencies.NewServerDependencies(db, &configuration)
-	server := api_server.NewServer(dependencies, injectedUserClaim)
+	dependencies := initialize_dependencies.NewServerDependencies(ctx, db, &configuration)
+	server := api_server.NewServer(dependencies, &configuration, injectedUserClaim)
 	TestServer = server
 	RunTestsWithDatabase(m)
 }

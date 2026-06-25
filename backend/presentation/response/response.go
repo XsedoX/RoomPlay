@@ -17,6 +17,7 @@ const (
 
 type Success struct {
 	Data any `json:"data" swaggertype:"object" extensions:"x-nullable"`
+	Meta any `json: "meta" swaggertype:"object" extensions:"x-nullable"`
 }
 
 type ProblemDetails struct {
