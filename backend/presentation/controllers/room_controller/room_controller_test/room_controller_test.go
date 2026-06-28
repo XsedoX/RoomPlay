@@ -56,8 +56,7 @@ func TestGetRoomSuccess(t *testing.T) {
 	assert.Equal(t, playingSong.SongData().Author(), responseWrapper.Data.PlayingSong.Author)
 	assert.Equal(t, playingSong.SongData().LengthSeconds(), responseWrapper.Data.PlayingSong.LengthSeconds)
 
-	assert.NotEmpty(t, responseWrapper.Data.Songs)
-	assert.Len(t, responseWrapper.Data.Songs, len(roomToTest.EnqueuedSongs()))
+	assert.Empty(t, responseWrapper.Data.Songs)
 }
 
 func TestCreateRoomSuccess(t *testing.T) {

@@ -58,7 +58,7 @@ func (s *Seeder) SeedAll(ctx context.Context) error {
 	// NOTE: Insert songs and enqueued songs
 	for _, roomToInsert := range SeedData.Rooms {
 		roomId := roomToInsert.Id()
-		for _, enqueuedSongToInsert := range roomToInsert.EnqueuedSongs() {
+		for _, enqueuedSongToInsert := range roomToInsert.AllSongs() {
 			if err := s.seedEnqueuedSong(ctx, &enqueuedSongToInsert, &roomId); err != nil {
 				return err
 			}

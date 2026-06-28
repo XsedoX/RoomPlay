@@ -2,6 +2,7 @@ DO $$
 BEGIN
   -- Check if the 'users' table exists. If it does, we assume everything is initialized.
   IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'users') THEN
+
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
   'spotify'
@@ -34,13 +35,19 @@ CREATE TYPE "device_state" AS ENUM (
   'offline'
 );
 
+CREATE TABLE "songs_external_data" (
+  "song_id" uuid PRIMARY KEY,
+  "length_seconds" smallint NOT NULL,
+  "album_cover_url" text NOT NULL,
+  "url" text UNIQUE NOT NULL,
+  "music_provider" music_provider NOT NULL
+);
+
 CREATE TABLE "songs" (
   "id" uuid PRIMARY KEY,
-  "url" text UNIQUE NOT NULL,
   "title" varchar(256) NOT NULL,
   "author" varchar(256) NOT NULL,
-  "length_seconds" smallint NOT NULL,
-  "album_cover_url" text NOT NULL
+  "isrc" varchar(12) UNIQUE
 );
 
 CREATE TABLE "rooms" (
@@ -98,7 +105,7 @@ CREATE TABLE "enqueued_songs" (
   "id" uuid PRIMARY KEY,
   "room_id" uuid NOT NULL,
   "song_id" uuid NOT NULL,
-  "added_by" uuid,
+  "added_by" uuid NOT NULL,
   "added_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   "started_at_utc" timestamp,
   "state" song_state NOT NULL DEFAULT 'enqueued'
@@ -135,7 +142,9 @@ CREATE TABLE "devices" (
   "last_logged_in_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE INDEX "songs_url_ix" ON "songs" ("url");
+CREATE INDEX "songs_url_ix" ON "songs_external_data" ("url");
+
+CREATE INDEX "songs_isrc_ix" ON "songs" ("isrc");
 
 CREATE INDEX "rooms_name_room_spassword_ix" ON "rooms" ("name", "password");
 
@@ -151,41 +160,42 @@ CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';
 
-ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "users__users_refresh_tokens" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "users__users_refresh_tokens" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "device__users_refresh_tokens" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_internal_credentials" ADD CONSTRAINT "device__users_refresh_tokens" FOREIGN KEY ("device_id") REFERENCES "devices" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_external_credentials" ADD CONSTRAINT "users__users_credentials" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_external_credentials" ADD CONSTRAINT "users__users_credentials" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_room_data" ADD CONSTRAINT "users__users_room_data" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_room_data" ADD CONSTRAINT "users__users_room_data" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_room_data" ADD CONSTRAINT "rooms__users_room_data" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_room_data" ADD CONSTRAINT "rooms__users_room_data" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__song" FOREIGN KEY ("enqueued_song_id") REFERENCES "enqueued_songs" ("id") ON DELETE CASCADE;
+ALTER TABLE "users_votes" ADD CONSTRAINT "users_votes__song" FOREIGN KEY ("enqueued_song_id") REFERENCES "enqueued_songs" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE;
+ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__user" FOREIGN KEY ("added_by") REFERENCES "users" ("id") ON DELETE SET NULL;
+ALTER TABLE "enqueued_songs" ADD CONSTRAINT "song_queue__user" FOREIGN KEY ("added_by") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE;
+ALTER TABLE "scheduled_songs" ADD CONSTRAINT "scheduled_song__song" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "banned_users" ADD CONSTRAINT "banned_user__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "banned_users" ADD CONSTRAINT "banned_user__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "banned_users" ADD CONSTRAINT "banned_user__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "banned_users" ADD CONSTRAINT "banned_user__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE;
+ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-ALTER TABLE "devices" ADD CONSTRAINT "device__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "devices" ADD CONSTRAINT "device__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
+ALTER TABLE "songs_external_data" ADD CONSTRAINT "songs__songs_external_data" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
-END IF;
+  END IF;
 END
 $$;

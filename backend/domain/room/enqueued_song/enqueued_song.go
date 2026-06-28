@@ -44,6 +44,10 @@ func (s EnqueuedSong) SongData() song_data.SongData {
 	return s.songData
 }
 
+func (s *EnqueuedSong) IsPlaying() bool {
+	return s.state == enqueued_song_state.Playing
+}
+
 func HydrateEnqueuedSong(
 	id enqueued_song_id.EnqueuedSongId,
 	songData song_data.SongData,

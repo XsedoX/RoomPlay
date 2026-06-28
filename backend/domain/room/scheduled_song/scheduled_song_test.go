@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/domain/domain_errors/time_before_now_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
@@ -17,12 +18,16 @@ func TestScheduledSongSuccess(t *testing.T) {
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(300)
 	scheduledAtUtc := time.Now().UTC().Add(10 * time.Minute)
+	isrc := "USS1Z2500001"
+
 	createdSongData, err := song_data.NewSongData(
 		url,
 		title,
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		music_provider.YouTube,
+		&isrc,
 	)
 	require.NoError(t, err)
 
@@ -42,12 +47,16 @@ func TestScheduledSongScheduledBeforeNow(t *testing.T) {
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(300)
 	scheduledAtUtc := time.Now().UTC().Add(-10 * time.Minute)
+	musicProvider := music_provider.YouTube
+
 	createdSongData, err := song_data.NewSongData(
 		url,
 		title,
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		nil,
 	)
 	require.NoError(t, err)
 

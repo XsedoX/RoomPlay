@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
@@ -30,6 +31,12 @@ var (
 		time.Date(2022, 12, 1, 15, 30, 0o0, 0o0, time.UTC),
 		time.Date(2023, 6, 15, 18, 45, 0o0, 0o0, time.UTC),
 	}
+
+	isrc0 = "USS1Z2500001"
+	isrc1 = "USS1Z2500002"
+	isrc2 = "USS1Z2500003"
+	isrc3 = "USS1Z2500004"
+
 	enqueuedSongs = []enqueued_song.EnqueuedSong{
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -39,6 +46,8 @@ var (
 				faker.Name(),
 				faker.URL(),
 				349,
+				music_provider.YouTube,
+				&isrc0,
 			),
 			time.Date(2001, 11, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[0],
@@ -54,6 +63,8 @@ var (
 				faker.Name(),
 				faker.URL(),
 				349,
+				music_provider.YouTube,
+				&isrc1,
 			),
 			time.Date(2001, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[1],
@@ -69,12 +80,14 @@ var (
 				faker.Name(),
 				faker.URL(),
 				349,
+				music_provider.YouTube,
+				&isrc2,
 			),
 			time.Date(2003, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			nil,
 			enqueued_song_state.Enqueued,
 			0,
-			userIds[0],
+			userIds[4],
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
@@ -84,6 +97,8 @@ var (
 				faker.Name(),
 				faker.URL(),
 				250,
+				music_provider.YouTube,
+				&isrc3,
 			),
 			time.Date(2024, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 			nil,
@@ -99,6 +114,8 @@ var (
 				faker.Name(),
 				faker.URL(),
 				180,
+				music_provider.YouTube,
+				nil,
 			),
 			time.Date(2023, 5, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[2],
@@ -182,23 +199,19 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		`
 		INSERT INTO songs (
 			id,
-			url,
 			title,
 			author,
-			length_seconds,
-			album_cover_url
+		  isrc
 		)
 		VALUES
 		(
-			$1, $2, $3, $4, $5, $6
+			$1, $2, $3, $4
 		)
 		RETURNING id::uuid
 		`, uuid.New(),
-		enqueuedSong.SongData().Url(),
 		enqueuedSong.SongData().Title(),
 		enqueuedSong.SongData().Author(),
-		enqueuedSong.SongData().LengthSeconds(),
-		enqueuedSong.SongData().AlbumCoverUrl(),
+		enqueuedSong.SongData().Isrc(),
 	).Scan(&songId)
 
 	if errors.Is(errIfSongExists, sql.ErrNoRows) {
@@ -212,9 +225,36 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		if err != nil {
 			return fmt.Errorf("failed to retrieve existing song id: %w", err)
 		}
+	} else if errIfSongExists != nil {
+		return fmt.Errorf("failed to insert or retrieve song: %w", errIfSongExists)
 	}
 
 	_, err := s.Queryer.ExecContext(ctx,
+		`
+		INSERT INTO songs_external_data
+		(
+		  song_id,
+		  length_seconds,
+		  album_cover_url,
+			url,
+		  music_provider
+		)
+		VALUES
+		(
+		  $1, $2, $3, $4, $5
+		)
+		`,
+		songId,
+		enqueuedSong.SongData().LengthSeconds(),
+		enqueuedSong.SongData().AlbumCoverUrl(),
+		enqueuedSong.SongData().Url(),
+		enqueuedSong.SongData().MusicProvider().String(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to seed song external data: %w", err)
+	}
+
+	_, err = s.Queryer.ExecContext(ctx,
 		`
 		INSERT INTO enqueued_songs
 		(

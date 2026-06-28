@@ -14,5 +14,6 @@ func AddUserIdToContext(ctx context.Context) (user_id.UserId, context.Context) {
 }
 
 type TestResponseWrapper[T any] struct {
-	Data T `json:"data"`
+	Data T   `json:"data"`
+	Meta any `json:"meta"`
 }

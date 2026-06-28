@@ -5,6 +5,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
 	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 )
@@ -15,6 +16,8 @@ func TestNewSongDataSuccess(t *testing.T) {
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(300)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -22,6 +25,8 @@ func TestNewSongDataSuccess(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.NoError(t, err)
@@ -34,6 +39,8 @@ func TestNewSongDataLengthZero(t *testing.T) {
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(0)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -41,6 +48,8 @@ func TestNewSongDataLengthZero(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.Error(t, err)
@@ -57,6 +66,8 @@ func TestNewSongDataUrlEmpty(t *testing.T) {
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(5)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -64,6 +75,8 @@ func TestNewSongDataUrlEmpty(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.Error(t, err)
@@ -80,6 +93,8 @@ func TestNewSongDataTitleEmpty(t *testing.T) {
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(5)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -87,6 +102,8 @@ func TestNewSongDataTitleEmpty(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.Error(t, err)
@@ -103,6 +120,8 @@ func TestNewSongDataAuthorEmpty(t *testing.T) {
 	author := ""
 	albumCoverUrl := faker.URL()
 	lengthSeconds := uint16(5)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -110,6 +129,8 @@ func TestNewSongDataAuthorEmpty(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.Error(t, err)
@@ -126,6 +147,8 @@ func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
 	author := faker.Name()
 	albumCoverUrl := ""
 	lengthSeconds := uint16(5)
+	musicProvider := music_provider.YouTube
+	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
 		url,
@@ -133,6 +156,8 @@ func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
 		author,
 		albumCoverUrl,
 		lengthSeconds,
+		musicProvider,
+		&isrc,
 	)
 
 	require.Error(t, err)

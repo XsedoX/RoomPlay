@@ -46,6 +46,9 @@ func GetRoomById(rooms []room.Room, roomId room_id.RoomId) (*room.Room, bool) {
 
 func GetEnqueuedSongById(enqueuedSongs []enqueued_song.EnqueuedSong, enqueuedSongId enqueued_song_id.EnqueuedSongId) (*enqueued_song.EnqueuedSong, bool) {
 	for _, enqueuedSong := range enqueuedSongs {
+		if enqueuedSong.IsPlaying() {
+			continue
+		}
 		enqueuedSongId1 := enqueuedSong.Id()
 		enqueuedSongId2 := enqueuedSongId
 		if enqueued_song_id.IdsEqual(&enqueuedSongId1, &enqueuedSongId2) {

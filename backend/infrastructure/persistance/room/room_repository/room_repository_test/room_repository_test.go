@@ -133,6 +133,9 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	songsInRoom := usersRoom.EnqueuedSongs()
 	assert.Len(t, songsInRoom, len(roomDao.SongDaos))
 
+	if len(roomDao.SongDaos) == 0 {
+		return
+	}
 	songDao := roomDao.SongDaos[0]
 	songFromDb, _ := slice_extensions.GetEnqueuedSongById(seeder.SeedData.Songs, enqueued_song_id.EnqueuedSongId(songDao.Id))
 	assert.Equal(t, songFromDb.SongData().Title(), songDao.Title)

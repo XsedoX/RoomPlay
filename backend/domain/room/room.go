@@ -72,8 +72,18 @@ func (r Room) LifespanSeconds() uint32 {
 	return r.lifespanSeconds
 }
 
-func (r Room) EnqueuedSongs() []enqueued_song.EnqueuedSong {
+func (r Room) AllSongs() []enqueued_song.EnqueuedSong {
 	return r.enqueuedSongs
+}
+
+func (r Room) EnqueuedSongs() []enqueued_song.EnqueuedSong {
+	result := make([]enqueued_song.EnqueuedSong, 0, len(r.enqueuedSongs))
+	for _, song := range r.enqueuedSongs {
+		if song.State() != enqueued_song_state.Playing {
+			result = append(result, song)
+		}
+	}
+	return result
 }
 
 func (r Room) Members() []user_id.UserId {
