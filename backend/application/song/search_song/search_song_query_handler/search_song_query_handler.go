@@ -37,7 +37,7 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 	}
 	var response []search_song_query_response.SearchSongQueryResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		accessToken, accessTokenError := handler.externalCredentialsRepository.GetAccessTokenByUserId(ctx, *userId, handler.unitOfWork.GetQueryer())
+		accessToken, accessTokenError := handler.externalCredentialsRepository.AccessTokenByUserId(ctx, *userId, handler.unitOfWork.GetQueryer())
 		if accessTokenError != nil {
 			return custom_error.NewCustomError("SearchSongQueryHandler.GetAccessTokenByUserId",
 				"Problem with getting access token for music service.",

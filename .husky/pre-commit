@@ -1,5 +1,5 @@
 cd ./backend
-go test ./...
+go test -p 1 ./...
 
 cd ../frontend
 bun run format

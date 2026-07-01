@@ -7,8 +7,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
-	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
-	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/go-faker/faker/v4"
 )
 
@@ -73,11 +72,12 @@ var (
 )
 
 func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_credentials.ExternalCredentials) error {
-	configuration := mock_configuration.MockConfiguration{}
-	encrypter := encryper.NewEncrypter(&configuration)
+	mockEncrypter := mock_encrypter.MockEncrypter{}
+	mockEncrypter.On("Encrypt", creds.AccessToken()).Return([]byte(creds.AccessToken()), nil)
+	mockEncrypter.On("Encrypt", creds.RefreshToken()).Return([]byte(creds.RefreshToken()), nil)
 
-	encryptedAccessToken, _ := encrypter.Encrypt(creds.AccessToken())
-	encryptedRefreshToken, _ := encrypter.Encrypt(creds.RefreshToken())
+	encryptedAccessToken, _ := mockEncrypter.Encrypt(creds.AccessToken())
+	encryptedRefreshToken, _ := mockEncrypter.Encrypt(creds.RefreshToken())
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO users_external_credentials 
 		(

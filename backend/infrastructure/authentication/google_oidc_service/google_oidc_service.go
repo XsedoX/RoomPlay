@@ -12,6 +12,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/dtos/google_id_token_claims_dto"
 	"github.com/XsedoX/RoomPlay/application/dtos/google_token_response_dto"
+	"github.com/XsedoX/RoomPlay/application/dtos/refresh_access_token_response_dto"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -70,6 +71,38 @@ func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*go
 		return nil, err
 	}
 	var response google_token_response_dto.GoogleTokenResponseDto
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (g GoogleOidcService) RefreshAccessToken(ctx context.Context, refreshToken string) (*refresh_access_token_response_dto.RefreshAccessTokenResponseDto, error) {
+	tokenUrl := "https://oauth2.googleapis.com/token"
+	body := url.Values{}
+	body.Add("client_id", g.configuration.Authentication().ClientId)
+	body.Add("client_secret", g.configuration.Authentication().ClientSecret)
+	body.Add("grant_type", "refresh_token")
+	body.Add("refresh_token", refreshToken)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenUrl, strings.NewReader(body.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, err
+	}
+
+	var response refresh_access_token_response_dto.RefreshAccessTokenResponseDto
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}

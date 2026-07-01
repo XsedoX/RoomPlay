@@ -1,6 +1,7 @@
 package slice_extensions
 
 import (
+	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
@@ -53,6 +54,16 @@ func GetEnqueuedSongById(enqueuedSongs []enqueued_song.EnqueuedSong, enqueuedSon
 		enqueuedSongId2 := enqueuedSongId
 		if enqueued_song_id.IdsEqual(&enqueuedSongId1, &enqueuedSongId2) {
 			return &enqueuedSong, true
+		}
+	}
+	return nil, false
+}
+
+func GetExternalCredentialsByUserId(externalCredentials []external_credentials.ExternalCredentials, userId user_id.UserId) (*external_credentials.ExternalCredentials, bool) {
+	for _, externalCredential := range externalCredentials {
+		userIdLocal := externalCredential.Id()
+		if user_id.IdsEqual(&userIdLocal, &userId) {
+			return &externalCredential, true
 		}
 	}
 	return nil, false
