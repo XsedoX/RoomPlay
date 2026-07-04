@@ -38,7 +38,5 @@ jobs:
         run: bun install
 
       - name: Run ESLint
-        env:
-          SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: |
           bunx eslint . --config eslint.config.ts
