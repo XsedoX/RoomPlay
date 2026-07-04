@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XsedoX/RoomPlay/application/custom_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/go-playground/validator/v10"
-	"xsedox.com/main/application/custom_errors"
-	"xsedox.com/main/infrastructure/validation"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 
 type Success struct {
 	Data any `json:"data" swaggertype:"object" extensions:"x-nullable"`
+	Meta any `json: "meta" swaggertype:"object" extensions:"x-nullable"`
 }
 
 type ProblemDetails struct {
@@ -30,7 +32,6 @@ type ProblemDetails struct {
 func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance string, statusCode int, errors ...map[string]string) {
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.Header().Set("Content-Language", "en")
-	w.WriteHeader(statusCode)
 
 	var error1 map[string]string
 	if len(errors) > 0 {
@@ -39,73 +40,93 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 		error1 = nil
 	}
 
-	if err := json.NewEncoder(w).Encode(&ProblemDetails{
+	resp := &ProblemDetails{
 		Type:             type1,
 		ValidationErrors: error1,
 		Title:            title,
 		Description:      description,
 		Instance:         instance,
 		Status:           statusCode,
-	}); err != nil {
+	}
+
+	bytes, err := json.Marshal(resp)
+	if err != nil {
 		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+		return
 	}
+
+	w.WriteHeader(statusCode)
+	w.Write(bytes)
 }
+
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	var applicationError *custom_errors.CustomError
-	if !errors.As(appErr, &applicationError) {
+	if vErr, ok := errors.AsType[*validation_domain_error.ValidationDomainError](appErr); ok {
 		WriteJsonFailure(w,
-			"CustomError.CastingError",
-			"Error is not applicationError",
-			"Unexpected issue. Please try again.",
+			vErr.Code,
+			vErr.Title,
+			vErr.Description,
 			instance,
-			http.StatusInternalServerError)
+			http.StatusBadRequest,
+		)
+		return
+	}
+	if cErr, ok := errors.AsType[*custom_error.CustomError](appErr); ok {
+		WriteJsonFailure(w,
+			cErr.Code,
+			cErr.Title,
+			cErr.Error(),
+			instance,
+			int(cErr.ErrorType),
+		)
 		return
 	}
 	WriteJsonFailure(w,
-		applicationError.Code,
-		applicationError.Title,
-		applicationError.Error(),
+		"CustomError.CastingError",
+		"Error is not applicationError",
+		"Unexpected issue. Please try again.",
 		instance,
-		int(applicationError.ErrorType))
+		http.StatusInternalServerError,
+	)
 }
+
 func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, err error) {
-	var validationErrs validator.ValidationErrors
-	if !errors.As(err, &validationErrs) {
+	if validationErrs, ok := errors.AsType[validator.ValidationErrors](err); ok {
 		WriteJsonFailure(w,
-			"ValidationErrors.CastingError",
-			"Error is not ValidationErrors",
-			"Unexpected issue. Please try again.",
+			code,
+			"Validation error occurred.",
+			"One or more fields are not correctly filled.",
 			instance,
-			http.StatusInternalServerError)
+			http.StatusBadRequest,
+			setup_validation.MapValidationErrors(validationErrs))
 		return
 	}
 	WriteJsonFailure(w,
-		code,
-		"Validation error occurred.",
-		"One or more fields are not correctly filled.",
+		"ValidationErrors.CastingError",
+		"Error is not ValidationErrors",
+		"Unexpected issue. Please try again.",
 		instance,
-		http.StatusBadRequest,
-		validation.MapValidationErrors(validationErrs))
+		http.StatusInternalServerError)
 }
+
 func WriteJsonNoContent(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }
+
 func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
 
-	if len(data) == 0 {
-		if err := json.NewEncoder(w).Encode(&Success{
-			Data: nil,
-		}); err != nil {
-			http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
-		}
+	resp := &Success{Data: nil}
+	if len(data) > 0 {
+		resp.Data = data[0]
+	}
+
+	bytes, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(&Success{
-		Data: data[0],
-	}); err != nil {
-		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
-	}
+
+	w.WriteHeader(statusCode)
+	w.Write(bytes)
 }

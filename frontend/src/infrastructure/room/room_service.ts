@@ -6,6 +6,7 @@ import { HttpCodes } from '@/infrastructure/utils/status_codes.ts';
 import NotFoundError from '@/errors/not_found_error.ts';
 import { useNotificationStore } from '@/stores/notification_store.ts';
 import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor.ts';
+import type IJoinRoomPasswordRequest from './IJoinRoomPasswordRequest';
 
 export const RoomService = {
   createRoom: async (roomData: ICreateRoomRequest) => {
@@ -47,6 +48,17 @@ export const RoomService = {
   },
   leaveRoom: async () => {
     const response = await RoomRepository.leaveRoom();
+    if (!response.isSuccess) {
+      if (response.validationErrors) {
+        throw new ValidationError(response.title, response.validationErrors);
+      } else {
+        throw new Error(response.title);
+      }
+    }
+    return response;
+  },
+  joinRoomPassword: async (roomData: IJoinRoomPasswordRequest) => {
+    const response = await RoomRepository.joinRoomPassword(roomData);
     if (!response.isSuccess) {
       if (response.validationErrors) {
         throw new ValidationError(response.title, response.validationErrors);

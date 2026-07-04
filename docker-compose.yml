@@ -1,0 +1,13 @@
+services:
+  roomplay-api-db:
+    image: postgres:15
+    container_name: roomplay-api-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dupa1234
+      POSTGRES_DB: postgres
+    volumes:
+      - ./data/roomplay-api-db-data:/var/lib/postgresql/data:z
+    ports:
+      - "5432:5432"

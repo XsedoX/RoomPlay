@@ -22,6 +22,7 @@ const api = (axiosInstance: AxiosInstance) => {
     get: <T>(url: string, config = {}) => axiosInstance.get<T>(url, config),
     post: <T>(url: string, body?: unknown, config = {}) => axiosInstance.post<T>(url, body, config),
     delete: <T>(url: string, config = {}) => axiosInstance.delete<T>(url, config),
+    put: <T>(url: string, config = {}) => axiosInstance.put<T>(url, config),
   };
 };
 

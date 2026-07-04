@@ -13,7 +13,7 @@
     "clientSecret": "",
     "clientOrigin": "http://localhost:5173",
     "clientRedirectUri": "http://localhost:5173",
-    "scopes": "openid profile",
+    "scopes": "openid profile https://www.googleapis.com/auth/youtube.readonly",
     "audience": "placeholder",
     "issuer": "roomplayAPI",
     "encryptionKey": "super secret",

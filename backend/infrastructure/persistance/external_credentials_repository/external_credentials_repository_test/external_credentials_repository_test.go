@@ -1,0 +1,171 @@
+package external_credentials_repository_test
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/XsedoX/RoomPlay/application/dtos/refresh_access_token_dto"
+	"github.com/XsedoX/RoomPlay/application/slice_extensions"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/external_credentials_repository"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
+	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestMain(m *testing.M) {
+	tests_initializer.InitializeDatabaseContainer()
+	tests_initializer.RunTestsWithDatabase(m)
+}
+
+func setupMocks(t *testing.T) (*sqlx.Tx,
+	context.Context,
+	*mock_encrypter.MockEncrypter,
+	*external_credentials_repository.ExternalCredentialsRepository,
+) {
+	txx, ctx := tests_initializer.GetTxxAndCtx(t, false)
+	mockEncrypter := new(mock_encrypter.MockEncrypter)
+	repo := external_credentials_repository.NewExternalCredentialsRepository(mockEncrypter)
+
+	defer mockEncrypter.AssertExpectations(t)
+
+	return txx, ctx, mockEncrypter, repo
+}
+
+func TestExternalCredentialsRepositoryGrant(t *testing.T) {
+	txx,
+		ctx,
+		mockEncrypter,
+		repo := setupMocks(t)
+
+	accessToken := "access_token_123"
+	refreshToken := "refresh_token_123"
+	accessTokenExpiresAt := time.Now().Add(1 * time.Hour).UTC()
+	refreshTokenExpiresAt := time.Now().Add(24 * time.Hour).UTC()
+	externalId := faker.UUIDDigit()
+
+	userId := tests_initializer.InjectedUser.Id()
+	creds, extCredsErr := external_credentials.NewExternalCredentials(
+		userId,
+		accessToken,
+		refreshToken,
+		externalId,
+		music_provider.YouTube,
+		accessTokenExpiresAt,
+		refreshTokenExpiresAt,
+	)
+	require.NoError(t, extCredsErr, "failed to create ExternalCredentials domain object")
+
+	// Setup mock expectations
+	mockEncrypter.On("Encrypt", accessToken).Return([]byte("encrypted_"+accessToken), nil)
+	mockEncrypter.On("Encrypt", refreshToken).Return([]byte("encrypted_"+refreshToken), nil)
+
+	// Act
+	err := repo.Grant(ctx, creds, txx)
+	require.NoError(t, err)
+
+	// Assert
+	var storedCreds struct {
+		UserID                   uuid.UUID `db:"user_id"`
+		AccessToken              []byte    `db:"access_token"`
+		RefreshToken             []byte    `db:"refresh_token"`
+		ExternalId               string    `db:"external_id"`
+		AccessTokenExpiresAtUtc  time.Time `db:"access_token_expires_at_utc"`
+		RefreshTokenExpiresAtUtc time.Time `db:"refresh_token_expires_at_utc"`
+		IssuedAtUtc              time.Time `db:"issued_at_utc"`
+		MusicProvider            string    `db:"music_provider"`
+	}
+
+	err = txx.GetContext(
+		ctx,
+		&storedCreds,
+		"SELECT * FROM users_external_credentials WHERE user_id = $1",
+		userId,
+	)
+	require.NoError(t, err)
+
+	assert.Equal(t, userId.ToUuid(), storedCreds.UserID)
+	assert.Equal(t, externalId, storedCreds.ExternalId)
+	assert.Equal(t, []byte("encrypted_"+accessToken), storedCreds.AccessToken)
+	assert.Equal(t, []byte("encrypted_"+refreshToken), storedCreds.RefreshToken)
+	assert.Equal(t, music_provider.YouTube.String(), storedCreds.MusicProvider)
+	// Compare times with small delta to account for DB roundtrip precision
+	assert.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
+	assert.WithinDuration(t, refreshTokenExpiresAt, storedCreds.RefreshTokenExpiresAtUtc, time.Second)
+	assert.WithinDuration(t, time.Now().UTC(), storedCreds.IssuedAtUtc, 5*time.Second)
+	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 2)
+}
+
+func TestAccessTokenByUserId(t *testing.T) {
+	txx,
+		ctx,
+		mockEncrypter,
+		repo := setupMocks(t)
+
+	userId := tests_initializer.InjectedUser.Id()
+	externalCredentialsFromDb, ok := slice_extensions.GetExternalCredentialsByUserId(
+		seeder.SeedData.ExternalCredentials,
+		userId,
+	)
+	require.True(t, ok, "failed to get access token from seeded data")
+
+	userAccessTokenFromDb := externalCredentialsFromDb.AccessToken()
+	userAccessTokenFromDbBytes := []byte(userAccessTokenFromDb) // Simulate the encrypted access token stored in the database
+	decryptedAccessToken := "decrypted_access_token"
+
+	// Setup mock expectations
+	mockEncrypter.On("Decrypt", userAccessTokenFromDbBytes).Return(decryptedAccessToken, nil)
+
+	// Act
+	accessTokenFromRepo, err := repo.AccessTokenByUserId(ctx, userId, txx)
+
+	require.NoError(t, err)
+	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo)
+	mockEncrypter.AssertNumberOfCalls(t, "Decrypt", 1)
+}
+
+func TestRefreshAccessToken(t *testing.T) {
+	txx,
+		ctx,
+		mockEncrypter,
+		repo := setupMocks(t)
+
+	userId := tests_initializer.InjectedUser.Id()
+	dto := refresh_access_token_dto.RefreshAccessTokenDto{
+		UserId:                  userId,
+		AccessToken:             "new_access_token_123",
+		AccessTokenExpiresAtUtc: time.Now().Add(1 * time.Hour).UTC(),
+	}
+
+	// Setup mock expectations
+	mockEncrypter.On("Encrypt", dto.AccessToken).
+		Return([]byte("encrypted_"+dto.AccessToken), nil)
+
+	// Act
+	err := repo.RefreshAccessToken(ctx, dto, txx)
+	require.NoError(t, err)
+
+	var storedCredsAfter struct {
+		AccessToken             []byte    `db:"access_token"`
+		AccessTokenExpiresAtUtc time.Time `db:"access_token_expires_at_utc"`
+	}
+
+	err = txx.GetContext(
+		ctx,
+		&storedCredsAfter,
+		"SELECT access_token, access_token_expires_at_utc FROM users_external_credentials WHERE user_id = $1",
+		userId,
+	)
+	require.NoError(t, err)
+
+	assert.Equal(t, []byte("encrypted_"+dto.AccessToken), storedCredsAfter.AccessToken)
+	assert.WithinDuration(t, dto.AccessTokenExpiresAtUtc, storedCredsAfter.AccessTokenExpiresAtUtc, time.Second)
+	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 1)
+}

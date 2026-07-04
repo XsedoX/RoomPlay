@@ -1,0 +1,11 @@
+package i_event_publisher
+
+import (
+	"context"
+
+	"github.com/XsedoX/RoomPlay/domain/shared"
+)
+
+type IEventPublisher interface {
+	Publish(ctx context.Context, event shared.IDomainEvent)
+}

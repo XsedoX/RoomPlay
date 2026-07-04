@@ -1,0 +1,16 @@
+package user_dao
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type UserDao struct {
+	Id             uuid.UUID  `db:"id"`
+	Name           string     `db:"name"`
+	Surname        string     `db:"surname"`
+	RoomId         *uuid.UUID `db:"room_id"`
+	Role           *string    `db:"role"`
+	BoostUsedAtUtc *time.Time `db:"boost_used_at_utc"`
+}

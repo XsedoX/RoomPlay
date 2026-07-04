@@ -59,10 +59,16 @@ func (conf *Configuration) IsProduction() bool {
 	return conf.Environment == envProduction
 }
 
+func (conf *Configuration) IsTesting() bool {
+	return conf.Environment == "testing"
+}
 func Load() *Configuration {
 	var config Configuration
 	readFile(&config)
 	loadEnv(&config)
+	if config.Authentication().ClientSecret == "" {
+		processError(fmt.Errorf("client secret is required"))
+	}
 	return &config
 }
 func loadEnv(cfg *Configuration) {

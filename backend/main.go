@@ -1,20 +1,20 @@
 package main
 
 import (
-	"log"
-
-	"github.com/jmoiron/sqlx"
-	"xsedox.com/main/config"
-	"xsedox.com/main/infrastructure/persistance"
-	"xsedox.com/main/infrastructure/validation"
-	"xsedox.com/main/initialization"
-	"xsedox.com/main/presentation"
-)
-
-import (
 	"context"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
-	_ "xsedox.com/main/docs"
+	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
+	"github.com/XsedoX/RoomPlay/presentation/api_server"
+	"github.com/XsedoX/RoomPlay/presentation/initialize_dependencies"
+	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
+	"github.com/jmoiron/sqlx"
+
+	_ "github.com/XsedoX/RoomPlay/docs"
 )
 
 // @title RoomPlay API
@@ -29,14 +29,15 @@ import (
 // @name Authorization
 // @description Type "Bearer {token}"
 func main() {
-	validation.Initialize()
-	ctx := context.Background()
+	setup_validation.Initialize()
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	db := init_database.InitializeDatabase(ctx, config.Load().Database().ConnectionString)
 	configuration := config.Load()
 
-	db := persistance.InitializeDatabase(ctx, configuration)
-	
-	dependencies := initialization.NewServerDependencies(db, configuration)
+	dependencies := initialize_dependencies.NewServerDependencies(ctx, db, configuration)
 
 	log.Printf("Loaded config: port: %v, host: %v, environment: %v", configuration.Server().Port, configuration.Server().Host, configuration.Environment)
 
@@ -47,6 +48,6 @@ func main() {
 		}
 	}(db, context.Background())
 	// Start Server
-	server := presentation.NewServer(dependencies)
+	server := api_server.NewServer(dependencies, configuration)
 	server.Start(configuration)
 }
