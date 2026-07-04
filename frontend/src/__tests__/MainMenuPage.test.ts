@@ -1,6 +1,5 @@
 import { testLogoWithTitleText } from '@/__tests__/shared/shared_tests.ts';
 import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
-import { faker } from '@faker-js/faker';
 import { describe, expect, it, vi } from 'vitest';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
 import { mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
