@@ -1,7 +1,7 @@
 DO $$
 BEGIN
   -- Check if the 'users' table exists. If it does, we assume everything is initialized.
-  IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'users') THEN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users') THEN
 
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
