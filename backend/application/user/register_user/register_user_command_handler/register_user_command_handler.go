@@ -8,8 +8,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_jwt_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command"
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_response"
 	"github.com/XsedoX/RoomPlay/application/user/user_contracts/i_user_repository"
@@ -52,20 +52,20 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		deviceEnt := userAgg.GetMostRecentDevice()
 		err := handler.userRepository.Add(ctx, userAgg, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_error.NewCustomError("RegisterUserCommandHandler.UserRepository.Add",
+			return application_error.NewApplicationError("RegisterUserCommandHandler.UserRepository.Add",
 				"Adding user problem",
 				err,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		response.DeviceId = deviceEnt.Id()
 
 		var tokenErr error
 		response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userAgg.Id())
 		if tokenErr != nil {
-			return custom_error.NewCustomError("RegisterUserCommandHandler.GenerateToken",
+			return application_error.NewApplicationError("RegisterUserCommandHandler.GenerateToken",
 				"Access token generation problem",
 				tokenErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 
 		refreshTokenValue := handler.encrypter.NewEncryptionKey()
@@ -76,10 +76,10 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		}
 		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer())
 		if newTokenErr != nil {
-			return custom_error.NewCustomError("RegisterUserCommandHandler.AssignNewToken",
+			return application_error.NewApplicationError("RegisterUserCommandHandler.AssignNewToken",
 				"Access token generation problem",
 				newTokenErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		response.RefreshToken = string(refreshTokenValue)
 
@@ -95,10 +95,10 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		}
 		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())
 		if grantErr != nil {
-			return custom_error.NewCustomError("RegisterUserCommandHandler.Grant",
+			return application_error.NewApplicationError("RegisterUserCommandHandler.Grant",
 				"Problem with granting external credentials.",
 				grantErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		return nil
 	})

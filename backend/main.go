@@ -10,7 +10,10 @@ import (
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
+	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
+	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/initialize_dependencies"
+	"github.com/XsedoX/RoomPlay/presentation/presentation_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/jmoiron/sqlx"
 
@@ -37,7 +40,24 @@ func main() {
 	db := init_database.InitializeDatabase(ctx, config.Load().Database().ConnectionString)
 	configuration := config.Load()
 
-	dependencies := initialize_dependencies.NewServerDependencies(ctx, db, configuration)
+	infrastructureDependendies := infrastructure_dependencies.ConstructInfrastructureDependencies(
+		ctx,
+		db,
+		configuration,
+	)
+	applicationDependencies := application_dependencies.ConstructApplicationDependencies(
+		infrastructureDependendies,
+		configuration,
+	)
+	presentationDependencies := presentation_dependencies.ConstructPresentationDependencies(
+		configuration,
+		applicationDependencies,
+		infrastructureDependendies,
+	)
+	dependencies := initialize_dependencies.NewServerDependencies(
+		infrastructureDependendies,
+		presentationDependencies,
+	)
 
 	log.Printf("Loaded config: port: %v, host: %v, environment: %v", configuration.Server().Port, configuration.Server().Host, configuration.Environment)
 

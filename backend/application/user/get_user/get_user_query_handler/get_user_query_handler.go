@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_response"
 	"github.com/XsedoX/RoomPlay/application/user/user_contracts/i_user_repository"
 )
@@ -34,10 +34,10 @@ func (handler GetUserDataQueryHandler) Handle(ctx context.Context) (*get_user_qu
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer())
 		if er != nil {
-			return custom_error.NewCustomError("NewGetUserQueryHandler.GetUserById",
+			return application_error.NewApplicationError("NewGetUserQueryHandler.GetUserById",
 				"Problem with creating a room.",
 				er,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		response.Name = user.FullName().Name()
 		response.Surname = user.FullName().Surname()

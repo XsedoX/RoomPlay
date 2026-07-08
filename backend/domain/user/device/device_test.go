@@ -66,6 +66,7 @@ func TestChangeDeviceFriendlyName(t *testing.T) {
 	shortName := ""
 	err = newDevice.ChangeDeviceFriendlyName(shortName)
 	require.Error(t, err, "expected error for too short name, got nil")
+
 	// Too long
 	longName := faker.Password(options.WithRandomStringLength(31))
 	err = newDevice.ChangeDeviceFriendlyName(longName)

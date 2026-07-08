@@ -3,8 +3,7 @@ package song_data
 import (
 	"regexp"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 )
 
@@ -78,48 +77,27 @@ func NewSongData(
 	isrc *string,
 ) (*SongData, error) {
 	if lengthSeconds == 0 {
-		return nil, validation_domain_error.NewValidationDomainError(
-			"SongData.LengthSeconds.Zero",
-			"Song length in seconds cannot be zero",
-		)
+		return nil, domain_errors.NewSongDataSongLengthZeroError()
 	}
 	if url == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"SongData.URL",
-			"url",
-		)
+		return nil, domain_errors.NewSongDataUrlEmptyError()
 	}
 	if title == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"SongData.Title",
-			"title",
-		)
+		return nil, domain_errors.NewSongDataTitleEmptyError()
 	}
 	if author == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"SongData.Author",
-			"author",
-		)
+		return nil, domain_errors.NewSongDataAuthorEmptyError()
 	}
 	if albumCoverUrl == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"SongData.AlbumCoverURL",
-			"album cover url",
-		)
+		return nil, domain_errors.NewSongDataAlbumCoverUrlEmptyError()
 	}
 	if isrc != nil {
 		isrcConcrete := *isrc
 		if len(isrcConcrete) > 12 || len(isrcConcrete) < 12 {
-			return nil, validation_domain_error.NewValidationDomainError(
-				"SongData.ISRC.Length",
-				"ISRC must be exactly 12 characters long",
-			)
+			return nil, domain_errors.NewSongDataIsrcIncorrectFormatError()
 		}
 		if !validIsrc.MatchString(isrcConcrete) {
-			return nil, validation_domain_error.NewValidationDomainError(
-				"SongData.ISRC.Format",
-				"ISRC must match the format: CC-XXX-YY-NNNNN",
-			)
+			return nil, domain_errors.NewSongDataIsrcIncorrectFormatError()
 		}
 	}
 

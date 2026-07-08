@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
@@ -103,7 +103,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 
 		// Assert
 		assert.Error(t, err)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)

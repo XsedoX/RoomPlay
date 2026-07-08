@@ -1,11 +1,9 @@
 package room
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/room/default_playlist"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
@@ -99,31 +97,22 @@ func NewRoom(name string,
 	qrCode string,
 	roomHostId user_id.UserId,
 ) (*Room, error) {
-	if len(name) > NameMaxLength {
-		return nil, validation_domain_error.NewValidationDomainError("Room.TooLong.Name",
-			fmt.Sprintf("The room name exceeded %d characters.",
-				NameMaxLength))
+	if (len(name) > NameMaxLength) ||
+		(len(name) < NameMinLength) {
+		return nil, domain_errors.NewRoomNameIncorrectError(
+			NameMaxLength,
+			NameMinLength,
+		)
 	}
-	if len(name) < NameMinLength {
-		return nil, validation_domain_error.NewValidationDomainError("Room.TooShort.Name",
-			fmt.Sprintf("The room name was shorter than %d characters.",
-				NameMinLength))
-	}
-	if len(password) > PasswordMaxLength {
-		return nil, validation_domain_error.NewValidationDomainError("Room.TooLong.Password",
-			fmt.Sprintf("The room password exceeded %d characters.",
-				PasswordMaxLength))
-	}
-	if len(password) < PasswordMinLength {
-		return nil, validation_domain_error.NewValidationDomainError("Room.TooShort.Password",
-			fmt.Sprintf("The room password was shorter than %d characters.",
-				PasswordMinLength))
+	if (len(password) > PasswordMaxLength) ||
+		(len(password) < PasswordMinLength) {
+		return nil, domain_errors.NewRoomPasswordIncorrectError(
+			PasswordMaxLength,
+			PasswordMinLength,
+		)
 	}
 	if qrCode == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"Room.QrCode",
-			"qr code",
-		)
+		return nil, domain_errors.NewRoomQrCodeEmptyError()
 	}
 	result := &Room{
 		name:                 name,

@@ -54,7 +54,12 @@ func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*go
 	form.Add("client_secret", g.configuration.Authentication().ClientSecret)
 	form.Add("redirect_uri", getGoogleCallbackRedirectUri(g.configuration.Authentication().ClientRedirectUri))
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		tokenURL,
+		strings.NewReader(form.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}

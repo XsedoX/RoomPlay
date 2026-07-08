@@ -7,5 +7,5 @@ import (
 )
 
 type IMusicDataProviderService interface {
-	SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*[]music_data_response_dto.MusicDataResponseDto, error)
+	SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) ([]music_data_response_dto.MusicDataResponseDto, error)
 }

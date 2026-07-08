@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
@@ -36,7 +36,7 @@ func TestNewInternalCredentialsRefreshTokenEmpty(t *testing.T) {
 
 	require.Error(t, error)
 	require.Nil(t, internalCredentialsObj)
-	castedError, ok := error.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "InternalCredentials.RefreshToken.EmptyString", castedError.Code)
 	require.Equal(t, "The field 'refresh token' cannot be an empty string.", castedError.Description)

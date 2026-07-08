@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_dao"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_song_dao"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
@@ -247,7 +247,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)

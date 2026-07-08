@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
@@ -74,7 +74,7 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 		err := handler.Handle(ctx, command)
 
 		assert.Error(t, err)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		mockUoW.AssertExpectations(t)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)

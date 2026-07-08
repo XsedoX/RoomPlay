@@ -14,4 +14,5 @@ func (m *MockConfiguration) Database() config.Database { return config.Database{
 func (m *MockConfiguration) Authentication() config.Authentication {
 	return config.Authentication{EncryptionKey: "12345678901234567890123456789012"}
 }
-func (m *MockConfiguration) Scopes() string { return "" }
+func (m *MockConfiguration) Scopes() string                    { return "" }
+func (m *MockConfiguration) CacheSimilarityThreshold() float32 { return 0.5 }

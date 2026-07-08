@@ -2,12 +2,13 @@ package cache_cleanup_worker
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func StartCacheCleanupWorker(ctx context.Context, db *sql.DB, interval time.Duration, ttl time.Duration) {
+func StartCacheCleanupWorker(ctx context.Context, db *sqlx.DB, interval time.Duration, ttl time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/custom_error"
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
@@ -96,7 +96,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -152,7 +152,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -210,7 +210,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -271,7 +271,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)

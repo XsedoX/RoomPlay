@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/go-playground/validator/v10"
 )
@@ -60,17 +60,17 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 }
 
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
-	if vErr, ok := errors.AsType[*validation_domain_error.ValidationDomainError](appErr); ok {
+	if vErr, ok := errors.AsType[domain_errors.DomainError](appErr); ok {
 		WriteJsonFailure(w,
 			vErr.Code,
-			vErr.Title,
+			"Some error occurred.",
 			vErr.Description,
 			instance,
 			http.StatusBadRequest,
 		)
 		return
 	}
-	if cErr, ok := errors.AsType[*custom_error.CustomError](appErr); ok {
+	if cErr, ok := errors.AsType[*application_error.ApplicationError](appErr); ok {
 		WriteJsonFailure(w,
 			cErr.Code,
 			cErr.Title,

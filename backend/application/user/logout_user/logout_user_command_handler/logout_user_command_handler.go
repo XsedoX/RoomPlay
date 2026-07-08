@@ -6,8 +6,8 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/logout_user/logout_user_command"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 )
@@ -32,10 +32,10 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *logout_us
 		if command.DeviceId == nil {
 			retireAllTokensErr := c.internalCredentialsRepository.RetireAllTokensByUserId(ctx, &userId, c.unitOfWork.GetQueryer())
 			if retireAllTokensErr != nil {
-				return custom_error.NewCustomError("LogoutUserCommandHandler.RetireAllTokensByUserId",
+				return application_error.NewApplicationError("LogoutUserCommandHandler.RetireAllTokensByUserId",
 					fmt.Sprintf("Couldn't retire users tokens for user id %s.", *userId.String()),
 					retireAllTokensErr,
-					custom_error_type.Unexpected)
+					application_error_type.Unexpected)
 			}
 			return nil
 		}
@@ -43,10 +43,10 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *logout_us
 		userSession := user_session.NewUserSession(userId, *deviceId)
 		retireTokenWithDeviceId := c.internalCredentialsRepository.RetireTokenByUserSession(ctx, *userSession, c.unitOfWork.GetQueryer())
 		if retireTokenWithDeviceId != nil {
-			return custom_error.NewCustomError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
+			return application_error.NewApplicationError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
 				fmt.Sprintf("Couldn't retire users tokens for user id %s and device id %s.", *userId.String(), *deviceId.String()),
 				retireTokenWithDeviceId,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		return nil
 	})

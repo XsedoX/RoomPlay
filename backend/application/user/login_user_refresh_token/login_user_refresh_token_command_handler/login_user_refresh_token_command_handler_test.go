@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user"
@@ -76,7 +76,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &customErr))
 		assert.Equal(t, errCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, errToBeReturned)
@@ -98,10 +98,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		)
 		tokenCommand := uuid.New().String()
 		mockUoW.On("GetQueryer").Return(nil)
-		errToBeReturned := custom_error.NewCustomError("LoginRefreshTokenCommandHandler.ExpiredToken",
+		errToBeReturned := application_error.NewApplicationError("LoginRefreshTokenCommandHandler.ExpiredToken",
 			"Refresh token expired",
 			nil,
-			custom_error_type.Unauthorized,
+			application_error_type.Unauthorized,
 		)
 
 		userSession := user_session.NewUserSession(user_id.NewUserId(), device_id.NewDeviceId())
@@ -118,10 +118,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, errToBeReturned.Err)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unauthorized)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unauthorized)
 		assert.Equal(t, parsedErr.Title, errToBeReturned.Title)
 		assert.Equal(t, parsedErr.Code, errToBeReturned.Code)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
@@ -161,10 +161,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, userRepositoryErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 2)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
@@ -224,10 +224,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Nil(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, assignTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
@@ -286,10 +286,10 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		assert.Empty(t, resp)
 		assert.Error(t, handlerErr)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(handlerErr, &parsedErr))
 		assert.Equal(t, parsedErr.Err, generateTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		assert.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)

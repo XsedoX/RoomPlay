@@ -6,6 +6,7 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/google_oidc_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/room_controller"
+	"github.com/XsedoX/RoomPlay/presentation/controllers/song_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/user_controller"
 	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
 )
@@ -15,6 +16,7 @@ type PresentationDependencies struct {
 	oidcController           *google_oidc_controller.GoogleOidcController
 	userController           *user_controller.UserController
 	authenticationController *authentication_controller.AuthenticationController
+	songController           *song_controller.SongController
 }
 
 func ConstructPresentationDependencies(
@@ -22,30 +24,29 @@ func ConstructPresentationDependencies(
 	applicationDependencies *application_dependencies.ApplicationDependencies,
 	infrastructureDependencies *infrastructure_dependencies.InfrastructureDependencies,
 ) *PresentationDependencies {
-	oidcAuthenticationService := applicationDependencies.OidcAuthenticationService
 	googleOidcService := infrastructureDependencies.GoogleOidcService
-	getUserDataQueryHandler := applicationDependencies.GetUserDataQueryHandler
-	loginRefreshTokenCommandHandler := applicationDependencies.LoginRefreshTokenCommandHandler
-	logoutRefreshTokenCommandHandler := applicationDependencies.LogoutRefreshTokenCommandHandler
-
-	createRoomCommandHandler := applicationDependencies.CreateRoomCommandHandler
-	getRoomQueryHandler := applicationDependencies.GetRoomQueryHandler
-	getUserRoomMembershipQueryHandler := applicationDependencies.GetUserRoomMembershipQueryHandler
-	leaveRoomCommandHandler := applicationDependencies.LeaveRoomCommandHandler
-	joinRoomPasswordCommandHandler := applicationDependencies.JoinRoomPasswordCommandHandler
-
+	oidcAuthenticationService := applicationDependencies.OidcAuthenticationService
 	oidcController := google_oidc_controller.NewOidcController(
 		configuration,
 		oidcAuthenticationService,
 		googleOidcService,
 	)
+
+	getUserDataQueryHandler := applicationDependencies.GetUserDataQueryHandler
 	userController := user_controller.NewUserController(getUserDataQueryHandler)
 
+	loginRefreshTokenCommandHandler := applicationDependencies.LoginRefreshTokenCommandHandler
+	logoutRefreshTokenCommandHandler := applicationDependencies.LogoutRefreshTokenCommandHandler
 	authenticationController := authentication_controller.NewAuthenticationController(
 		loginRefreshTokenCommandHandler,
 		configuration,
 		logoutRefreshTokenCommandHandler)
 
+	joinRoomPasswordCommandHandler := applicationDependencies.JoinRoomPasswordCommandHandler
+	leaveRoomCommandHandler := applicationDependencies.LeaveRoomCommandHandler
+	getRoomQueryHandler := applicationDependencies.GetRoomQueryHandler
+	createRoomCommandHandler := applicationDependencies.CreateRoomCommandHandler
+	getUserRoomMembershipQueryHandler := applicationDependencies.GetUserRoomMembershipQueryHandler
 	roomController := room_controller.NewRoomController(
 		createRoomCommandHandler,
 		getRoomQueryHandler,
@@ -53,12 +54,22 @@ func ConstructPresentationDependencies(
 		leaveRoomCommandHandler,
 		joinRoomPasswordCommandHandler)
 
+	searchSongQueryHandler := applicationDependencies.SearchSongQueryHandler
+	songController := song_controller.NewSongController(
+		searchSongQueryHandler,
+	)
+
 	return &PresentationDependencies{
 		oidcController:           oidcController,
 		userController:           userController,
 		authenticationController: authenticationController,
+		songController:           songController,
 		roomController:           roomController,
 	}
+}
+
+func (pd *PresentationDependencies) SongController() *song_controller.SongController {
+	return pd.songController
 }
 
 func (pd *PresentationDependencies) RoomController() *room_controller.RoomController {

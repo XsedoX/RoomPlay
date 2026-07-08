@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/time_before_now_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/go-faker/faker/v4"
@@ -67,8 +67,8 @@ func TestScheduledSongScheduledBeforeNow(t *testing.T) {
 
 	require.Nil(t, scheduledSong)
 	require.Error(t, err)
-	castedErr, ok := err.(*time_before_now_domain_error.TimeBeforeNowDomainError)
+	castedErr, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "ScheduledSong.ScheduledAtUtc.TimeBeforeNow", castedErr.Code)
-	require.Equal(t, "The field 'scheduled at' must be a time in the future.", castedErr.Description)
+	require.Equal(t, "Song cannot be scheduled in the past", castedErr.Description)
 }

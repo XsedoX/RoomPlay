@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 )
@@ -35,10 +35,10 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*get_room_query_respon
 	err := r.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer())
 		if getRoomDataErr != nil {
-			return custom_error.NewCustomError("GetRoomQueryHandler.GetRoomByUserId",
+			return application_error.NewApplicationError("GetRoomQueryHandler.GetRoomByUserId",
 				"Couldn't get user's room.",
 				getRoomDataErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		response.Name = roomData.Name
 		response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
