@@ -1,8 +1,7 @@
 package default_playlist
 
 import (
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 )
 
@@ -36,22 +35,13 @@ func NewDefaultPlaylist(
 	title string,
 ) (*DefaultPlaylist, error) {
 	if externalId == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"DefaultPlaylist.ExternalId",
-			"external id",
-		)
+		return nil, domain_errors.NewDefaultPlaylistExternalIdEmptyError()
 	}
 	if songsAmount == 0 {
-		return nil, validation_domain_error.NewValidationDomainError(
-			"DefaultPlaylist.SongsAmount.Zero",
-			"Songs amount cannot be zero",
-		)
+		return nil, domain_errors.NewDefaultPlaylistSongsAmountZeroError()
 	}
 	if title == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"DefaultPlaylist.Title",
-			"title",
-		)
+		return nil, domain_errors.NewDefaultPlaylistTitleEmptyError()
 	}
 	return &DefaultPlaylist{
 		title:       title,

@@ -1,3 +1,0 @@
-package youtube_music_search_response_dto
-
-type YoutubeMusicSearchResponseDto struct{}

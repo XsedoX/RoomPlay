@@ -8,8 +8,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_jwt_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command_response"
 	"github.com/XsedoX/RoomPlay/application/user/user_contracts/i_user_repository"
@@ -52,10 +52,10 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.CredentialsDto.ExternalId, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_error.NewCustomError("LoginUserCommandHandler.GetUserByExternalId",
+			return application_error.NewApplicationError("LoginUserCommandHandler.GetUserByExternalId",
 				"Problem with getting user with external id",
 				err,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 
 		userFromDb.ChangeFullName(full_name.NewFullName(command.Name, command.Surname))
@@ -70,10 +70,10 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 		response.DeviceId = deviceId
 		err = handler.userRepository.Update(ctx, userFromDb, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_error.NewCustomError("LoginUserCommandHandler.Update",
+			return application_error.NewApplicationError("LoginUserCommandHandler.Update",
 				"Problem with updating user in the database",
 				err,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 
 		refreshTokenValue := handler.encrypter.NewEncryptionKey()
@@ -85,10 +85,10 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 
 		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer())
 		if newTokenErr != nil {
-			return custom_error.NewCustomError("LoginUserCommandHandler.AssignNewToken",
+			return application_error.NewApplicationError("LoginUserCommandHandler.AssignNewToken",
 				"Problem with assigning new token to user",
 				newTokenErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		response.RefreshToken = string(refreshTokenValue)
 
@@ -111,10 +111,10 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 
 		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())
 		if grantErr != nil {
-			return custom_error.NewCustomError("LoginUserCommandHandler.Grant",
+			return application_error.NewApplicationError("LoginUserCommandHandler.Grant",
 				"Problem with assigning external credentials to user",
 				grantErr,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		return nil
 	})

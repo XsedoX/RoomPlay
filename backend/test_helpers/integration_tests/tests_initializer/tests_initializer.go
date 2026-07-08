@@ -10,11 +10,16 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
+	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
+	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/initialize_dependencies"
+	"github.com/XsedoX/RoomPlay/presentation/presentation_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -107,6 +112,15 @@ func InitializeApiServer(m *testing.M) {
 
 	InitializeDatabaseContainer()
 	configuration := mock_configuration.MockConfiguration{}
+	mockMusicDataService := mock_music_data_provider_service.MockMusicDataProviderService{}
+	mockMusicDataService.On(
+		"SearchSongsByQuery",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("*string"),
+		mock.AnythingOfType("uint8"),
+	).Return(seeder.ExternalSongData, nil)
 
 	db := PgContainer.db
 	InjectedUserId := InjectedUser.Id()
@@ -117,7 +131,26 @@ func InitializeApiServer(m *testing.M) {
 		})
 	}
 
-	dependencies := initialize_dependencies.NewServerDependencies(ctx, db, &configuration)
+	infrastructureDependencies := infrastructure_dependencies.ConstructInfrastructureDependencies(
+		ctx,
+		db,
+		&configuration,
+	)
+	infrastructureDependencies.CachingSongDecorator = &mockMusicDataService
+	applicationDependencies := application_dependencies.ConstructApplicationDependencies(
+		infrastructureDependencies,
+		&configuration,
+	)
+	presentationDependencies := presentation_dependencies.ConstructPresentationDependencies(
+		&configuration,
+		applicationDependencies,
+		infrastructureDependencies,
+	)
+	dependencies := initialize_dependencies.NewServerDependencies(
+		infrastructureDependencies,
+		presentationDependencies,
+	)
+
 	server := api_server.NewServer(dependencies, &configuration, injectedUserClaim)
 	TestServer = server
 	RunTestsWithDatabase(m)

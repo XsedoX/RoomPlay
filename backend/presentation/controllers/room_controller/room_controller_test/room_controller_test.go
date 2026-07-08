@@ -99,7 +99,11 @@ func TestCreateRoomValidationFailure(t *testing.T) {
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+room_controller.RoomBasePath, bytes.NewReader(body))
+	req := httptest.NewRequest(
+		http.MethodPost,
+		constants.ApiBasePath+room_controller.RoomBasePath,
+		bytes.NewReader(body),
+	)
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)

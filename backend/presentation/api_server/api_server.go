@@ -7,6 +7,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/room_controller"
+	"github.com/XsedoX/RoomPlay/presentation/controllers/song_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/user_controller"
 	"github.com/XsedoX/RoomPlay/presentation/custom_middleware/cookie_jwt_authentication_middleware"
 	"github.com/XsedoX/RoomPlay/presentation/custom_middleware/cors_middleware"
@@ -57,6 +58,10 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 			r.Delete("/", dependencies.PresentationDependencies.RoomController().LeaveRoom)
 			r.Get(room_controller.RoomMembershipBasePath, dependencies.PresentationDependencies.RoomController().CheckUserRoomMembership)
 			r.Put(room_controller.JoinRoomPasswordPath, dependencies.PresentationDependencies.RoomController().JoinRoomPassword)
+		})
+
+		r.Route(song_controller.SongBasePath, func(r chi.Router) {
+			r.Get(song_controller.SearchSongPath, dependencies.PresentationDependencies.SongController().SearchSongsByQuery)
 		})
 
 		r.Route(user_controller.UserBasePath, func(r chi.Router) {

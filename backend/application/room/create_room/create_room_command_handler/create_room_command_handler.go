@@ -5,9 +5,9 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 	"github.com/XsedoX/RoomPlay/domain/room"
@@ -43,10 +43,10 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *cre
 		}
 		err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer())
 		if err != nil {
-			return custom_error.NewCustomError("CreateRoomCommandHandler.CreateRoom",
+			return application_error.NewApplicationError("CreateRoomCommandHandler.CreateRoom",
 				"Problem with creating a room.",
 				err,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		return nil
 	})

@@ -3,8 +3,7 @@ package song_data
 import (
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
@@ -54,7 +53,7 @@ func TestNewSongDataLengthZero(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, createdSongData)
-	castedError, ok := err.(*validation_domain_error.ValidationDomainError)
+	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "SongData.LengthSeconds.Zero", castedError.Code)
 	require.Equal(t, "Song length in seconds cannot be zero", castedError.Description)
@@ -81,10 +80,10 @@ func TestNewSongDataUrlEmpty(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, createdSongData)
-	castedError, ok := err.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "SongData.URL.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'url' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "SongData.Url.Empty", castedError.Code)
+	require.Equal(t, "Song url cannot be empty", castedError.Description)
 }
 
 func TestNewSongDataTitleEmpty(t *testing.T) {
@@ -108,10 +107,10 @@ func TestNewSongDataTitleEmpty(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, createdSongData)
-	castedError, ok := err.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "SongData.Title.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'title' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "SongData.Title.Empty", castedError.Code)
+	require.Equal(t, "Song title cannot be empty", castedError.Description)
 }
 
 func TestNewSongDataAuthorEmpty(t *testing.T) {
@@ -135,10 +134,10 @@ func TestNewSongDataAuthorEmpty(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, createdSongData)
-	castedError, ok := err.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "SongData.Author.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'author' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "SongData.Author.Empty", castedError.Code)
+	require.Equal(t, "Song author cannot be empty", castedError.Description)
 }
 
 func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
@@ -162,8 +161,8 @@ func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, createdSongData)
-	castedError, ok := err.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "SongData.AlbumCoverURL.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'album cover url' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "SongData.AlbumCoverUrl.Empty", castedError.Code)
+	require.Equal(t, "Song album cover url cannot be empty", castedError.Description)
 }

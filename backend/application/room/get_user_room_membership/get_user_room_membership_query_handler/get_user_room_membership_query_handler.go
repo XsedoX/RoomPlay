@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 )
 
@@ -36,10 +36,10 @@ func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, e
 		if err != nil {
 			tempResult := false
 			result = &tempResult
-			return custom_error.NewCustomError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
+			return application_error.NewApplicationError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
 				fmt.Sprintf("Something went wrong with getting room by userId: %s", *userId.String()),
 				err,
-				custom_error_type.Unexpected)
+				application_error_type.Unexpected)
 		}
 		tempResult := true
 		result = &tempResult

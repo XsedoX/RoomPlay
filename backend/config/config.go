@@ -34,27 +34,37 @@ type Authentication struct {
 	Issuer            string `json:"issuer" envconfig:"CLIENT_ISSUER"`
 }
 type Configuration struct {
-	ServerField   Server         `json:"server" envconfig:"SERVER"`
-	DatabaseField Database       `json:"database" envconfig:"DATABASE"`
-	Environment   string         `json:"environment" envconfig:"ENVIRONMENT"`
-	AuthField     Authentication `json:"authentication" envconfig:"AUTHENTICATION"`
+	ServerField                   Server         `json:"server" envconfig:"SERVER"`
+	DatabaseField                 Database       `json:"database" envconfig:"DATABASE"`
+	Environment                   string         `json:"environment" envconfig:"ENVIRONMENT"`
+	AuthField                     Authentication `json:"authentication" envconfig:"AUTHENTICATION"`
+	CacheSimilarityThresholdField float32        `json:"cacheSimilarityThreshold" envconfig:"CACHE_SIMILARITY_THRESHOLD"`
+}
+
+func (conf *Configuration) CacheSimilarityThreshold() float32 {
+	return conf.CacheSimilarityThresholdField
 }
 
 func (conf *Configuration) Server() Server {
 	return conf.ServerField
 }
+
 func (conf *Configuration) Database() Database {
 	return conf.DatabaseField
 }
+
 func (conf *Configuration) Authentication() Authentication {
 	return conf.AuthField
 }
+
 func (conf *Configuration) Scopes() string {
 	return conf.AuthField.ScopesField
 }
+
 func (conf *Configuration) IsDevelopment() bool {
 	return conf.Environment == envDevelopment
 }
+
 func (conf *Configuration) IsProduction() bool {
 	return conf.Environment == envProduction
 }
@@ -62,6 +72,7 @@ func (conf *Configuration) IsProduction() bool {
 func (conf *Configuration) IsTesting() bool {
 	return conf.Environment == "testing"
 }
+
 func Load() *Configuration {
 	var config Configuration
 	readFile(&config)
@@ -71,12 +82,14 @@ func Load() *Configuration {
 	}
 	return &config
 }
+
 func loadEnv(cfg *Configuration) {
 	err := envconfig.Process(envPrefix, cfg)
 	if err != nil {
 		processError(err)
 	}
 }
+
 func readFile(cfg *Configuration) {
 	f, err := os.Open("./config/config.json")
 	if err != nil {
@@ -89,6 +102,7 @@ func readFile(cfg *Configuration) {
 		processError(err)
 	}
 }
+
 func processError(err error) {
 	fmt.Println(err)
 	os.Exit(2)

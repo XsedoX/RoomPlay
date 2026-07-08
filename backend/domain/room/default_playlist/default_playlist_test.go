@@ -3,8 +3,7 @@ package default_playlist
 import (
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
@@ -48,10 +47,10 @@ func TestNewDefaultPlaylistEmptyString(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, playlist)
-	castErr, ok := err.(*empty_string_domain_error.EmptyStringDomainError)
+	castErr, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "DefaultPlaylist.ExternalId.EmptyString", castErr.Code)
-	require.Equal(t, "The field 'external id' cannot be an empty string.", castErr.Description)
+	require.Equal(t, "The field 'external id' cannot be an empty.", castErr.Description)
 
 	// titile empty string
 	externalId = faker.UUIDDigit()
@@ -65,10 +64,10 @@ func TestNewDefaultPlaylistEmptyString(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, playlist)
-	castErr, ok = err.(*empty_string_domain_error.EmptyStringDomainError)
+	titleError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "DefaultPlaylist.Title.EmptyString", castErr.Code)
-	require.Equal(t, "The field 'title' cannot be an empty string.", castErr.Description)
+	require.Equal(t, "DefaultPlaylist.Title.EmptyString", titleError.Code)
+	require.Equal(t, "The field 'title' cannot be an empty.", titleError.Description)
 }
 
 func TestNewDefaultPlaylistSongsAmountZero(t *testing.T) {
@@ -86,8 +85,8 @@ func TestNewDefaultPlaylistSongsAmountZero(t *testing.T) {
 
 	require.Error(t, err)
 	require.Nil(t, playlist)
-	castErr, ok := err.(*validation_domain_error.ValidationDomainError)
+	castErr, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "DefaultPlaylist.SongsAmount.Zero", castErr.Code)
-	require.Equal(t, "Songs amount cannot be zero", castErr.Description)
+	require.Equal(t, "Playlist has to have at least one song.", castErr.Description)
 }

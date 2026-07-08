@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/custom_error"
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
@@ -90,7 +90,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
@@ -167,7 +167,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		assert.ErrorIs(t, customErr.Err, repoErr)
@@ -490,7 +490,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, "LoginUserCommandHandler.AssignNewToken", customErr.Code)
 		assert.ErrorIs(t, customErr.Err, assignErr)
@@ -564,7 +564,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, "LoginUserCommandHandler.Grant", customErr.Code)
 		assert.ErrorIs(t, customErr.Err, grantErr)

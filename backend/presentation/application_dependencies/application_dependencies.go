@@ -14,6 +14,9 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command_handler"
 	"github.com/XsedoX/RoomPlay/application/services/oidc_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_handler"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_response"
 	get_user_data_query_handler "github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_handler"
 	get_user_data_query_response "github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_response"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command"
@@ -28,7 +31,6 @@ import (
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_response"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
-	"github.com/XsedoX/RoomPlay/presentation/persistance_dependencies"
 )
 
 type ApplicationDependencies struct {
@@ -46,20 +48,21 @@ type ApplicationDependencies struct {
 
 	GetRoomQueryHandler i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse]
 
+	SearchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, []search_song_query_response.SearchSongQueryResponse]
+
 	OidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService
 }
 
 func ConstructApplicationDependencies(
-	persistanceDependencies *persistance_dependencies.PersistanceDependencies,
 	infrastructureDependencies *infrastructure_dependencies.InfrastructureDependencies,
 	configuration config.IConfiguration,
 ) *ApplicationDependencies {
 	googleOidcService := infrastructureDependencies.GoogleOidcService
-	roomRepository := persistanceDependencies.RoomRepository
-	userRepository := persistanceDependencies.UserRepository
-	unitOfWork := persistanceDependencies.UnitOfWork
-	externalCredentialsRepository := persistanceDependencies.ExternalCredentialsRepository
-	internalCredentialsRepository := persistanceDependencies.InternalCredentialsRepository
+	roomRepository := infrastructureDependencies.RoomRepository
+	userRepository := infrastructureDependencies.UserRepository
+	unitOfWork := infrastructureDependencies.UnitOfWork
+	externalCredentialsRepository := infrastructureDependencies.ExternalCredentialsRepository
+	internalCredentialsRepository := infrastructureDependencies.InternalCredentialsRepository
 	encrypter := infrastructureDependencies.Encrypter
 	jwtProvider := infrastructureDependencies.JwtProvider
 
@@ -124,6 +127,12 @@ func ConstructApplicationDependencies(
 		unitOfWork,
 	)
 
+	searchSongQueryHandler := search_song_query_handler.NewSearchSongQueryHandler(
+		unitOfWork,
+		infrastructureDependencies.CachingSongDecorator,
+		externalCredentialsRepository,
+	)
+
 	oidcAuthenticationService := oidc_authentication_service.NewOidcAuthenticationService(
 		googleOidcService,
 		userRepository,
@@ -144,5 +153,6 @@ func ConstructApplicationDependencies(
 		GetRoomQueryHandler:               getRoomQueryHandler,
 		JoinRoomPasswordCommandHandler:    joinRoomPasswordCommandHandler,
 		OidcAuthenticationService:         oidcAuthenticationService,
+		SearchSongQueryHandler:            searchSongQueryHandler,
 	}
 }

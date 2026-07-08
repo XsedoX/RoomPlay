@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
@@ -79,7 +79,7 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		var customErr *custom_error.CustomError
+		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr))
 		assert.Equal(t, errorCode, customErr.Code)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)

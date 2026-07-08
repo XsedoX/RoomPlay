@@ -3,7 +3,7 @@ package internal_credentials
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
@@ -26,10 +26,7 @@ func NewInternalCredentials(
 	refreshToken string,
 ) (*InternalCredentials, error) {
 	if refreshToken == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"InternalCredentials.RefreshToken",
-			"refresh token",
-		)
+		return nil, domain_errors.NewInternalCredentialsRefreshTokenEmptyError()
 	}
 	rt := &InternalCredentials{
 		refreshToken: refreshToken,

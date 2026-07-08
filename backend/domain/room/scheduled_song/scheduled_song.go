@@ -3,7 +3,7 @@ package scheduled_song
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/time_before_now_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 )
 
@@ -24,10 +24,7 @@ func NewScheduledSong(songData song_data.SongData,
 	scheduledAt time.Time,
 ) (*ScheduledSong, error) {
 	if scheduledAt.Before(time.Now().UTC()) {
-		return nil, time_before_now_domain_error.NewTimeBeforeNowDomainError(
-			"ScheduledSong.ScheduledAtUtc",
-			"scheduled at",
-		)
+		return nil, domain_errors.NewScheduledSongScheduledInPastError()
 	}
 	return &ScheduledSong{
 		songData:       songData,

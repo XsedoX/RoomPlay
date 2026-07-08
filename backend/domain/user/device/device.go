@@ -1,10 +1,9 @@
 package device
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_state"
@@ -70,11 +69,9 @@ func (d *Device) RefreshDeviceState() {
 }
 
 func (d *Device) ChangeDeviceFriendlyName(friendlyName string) error {
-	if len(friendlyName) > DeviceNameMaxLength {
-		return validation_domain_error.NewValidationDomainError("Device.TooLong.FriendlyName", fmt.Sprintf("The device friendly name exceeded %d characters.", DeviceNameMaxLength))
-	}
-	if len(friendlyName) < DeviceNameMinLength {
-		return validation_domain_error.NewValidationDomainError("Device.TooShort.FriendlyName", fmt.Sprintf("The device friendly name was shorter than %d characters.", DeviceNameMinLength))
+	if (len(friendlyName) > DeviceNameMaxLength) ||
+		(len(friendlyName) < DeviceNameMinLength) {
+		return domain_errors.NewDeviceFriendlyNameWrongLengthError(DeviceNameMaxLength)
 	}
 	d.friendlyName = friendlyName
 	return nil

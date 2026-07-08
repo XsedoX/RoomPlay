@@ -1,11 +1,11 @@
 package room
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
@@ -45,21 +45,25 @@ func TestNewRoomNameIncorrectLength(t *testing.T) {
 
 	_, err := NewRoom(name, password, qrCode, hostID)
 	assert.Error(t, err)
-	assert.IsType(t, &validation_domain_error.ValidationDomainError{}, err)
-	domainError := err.(*validation_domain_error.ValidationDomainError)
-	assert.Equal(t, domainError.Code, "Room.TooShort.Name")
-	assert.Contains(t, domainError.Description, "The room name was shorter than")
-	assert.Equal(t, domainError.Title, "Validation error occurred.")
+	assert.IsType(t, &domain_errors.DomainError{}, err)
+	domainError := err.(*domain_errors.DomainError)
+	assert.Equal(t, domainError.Code, "Room.Name.WrongLength")
+	assert.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
+		NameMinLength,
+		NameMaxLength,
+	))
 
 	// Too long name
 	_ = faker.FakeData(&name, options.WithRandomStringLength(NameMaxLength+1))
 	_, err = NewRoom(name, password, qrCode, hostID)
 	assert.Error(t, err)
-	assert.IsType(t, &validation_domain_error.ValidationDomainError{}, err)
-	domainError = err.(*validation_domain_error.ValidationDomainError)
-	assert.Equal(t, domainError.Code, "Room.TooLong.Name")
-	assert.Contains(t, domainError.Description, "The room name exceeded")
-	assert.Equal(t, domainError.Title, "Validation error occurred.")
+	assert.IsType(t, &domain_errors.DomainError{}, err)
+	domainError = err.(*domain_errors.DomainError)
+	assert.Equal(t, domainError.Code, "Room.Name.WrongLength")
+	assert.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
+		NameMinLength,
+		NameMaxLength,
+	))
 }
 
 func TestNewRoomPasswordIncorrectLength(t *testing.T) {
@@ -73,21 +77,25 @@ func TestNewRoomPasswordIncorrectLength(t *testing.T) {
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMinLength-1))
 	_, err := NewRoom(name, password, qrCode, hostID)
 	assert.Error(t, err)
-	assert.IsType(t, &validation_domain_error.ValidationDomainError{}, err)
-	domainError := err.(*validation_domain_error.ValidationDomainError)
-	assert.Equal(t, domainError.Code, "Room.TooShort.Password")
-	assert.Equal(t, domainError.Title, "Validation error occurred.")
-	assert.Contains(t, domainError.Description, "The room password was shorter than")
+	assert.IsType(t, &domain_errors.DomainError{}, err)
+	domainError := err.(*domain_errors.DomainError)
+	assert.Equal(t, domainError.Code, "Room.Password.WrongLength")
+	assert.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
+		PasswordMinLength,
+		PasswordMaxLength,
+	))
 
 	// Too long password
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMaxLength+1))
 	_, err = NewRoom(name, password, qrCode, hostID)
 	assert.Error(t, err)
-	assert.IsType(t, &validation_domain_error.ValidationDomainError{}, err)
-	domainError = err.(*validation_domain_error.ValidationDomainError)
-	assert.Equal(t, domainError.Code, "Room.TooLong.Password")
-	assert.Contains(t, domainError.Description, "The room password exceeded")
-	assert.Equal(t, domainError.Title, "Validation error occurred.")
+	assert.IsType(t, &domain_errors.DomainError{}, err)
+	domainError = err.(*domain_errors.DomainError)
+	assert.Equal(t, domainError.Code, "Room.Password.WrongLength")
+	assert.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
+		PasswordMinLength,
+		PasswordMaxLength,
+	))
 }
 
 func TestNewRoomQrCodeEmpty(t *testing.T) {
@@ -100,8 +108,8 @@ func TestNewRoomQrCodeEmpty(t *testing.T) {
 	_, err := NewRoom(name, password, qrCode, hostID)
 
 	assert.Error(t, err)
-	assert.IsType(t, &empty_string_domain_error.EmptyStringDomainError{}, err)
-	domainError := err.(*empty_string_domain_error.EmptyStringDomainError)
-	assert.Equal(t, domainError.Code, "Room.QrCode.EmptyString")
-	assert.Equal(t, domainError.Description, "The field 'qr code' cannot be an empty string.")
+	assert.IsType(t, &domain_errors.DomainError{}, err)
+	domainError := err.(*domain_errors.DomainError)
+	assert.Equal(t, domainError.Code, "Room.QrCode.Empty")
+	assert.Equal(t, domainError.Description, "The room QR code cannot be empty.")
 }

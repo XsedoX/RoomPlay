@@ -3,8 +3,7 @@ package external_credentials
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
@@ -31,31 +30,19 @@ func NewExternalCredentials(
 	refreshTokenExpiration time.Time,
 ) (*ExternalCredentials, error) {
 	if accessTokenExpiration.Before(time.Now().UTC()) {
-		return nil, validation_domain_error.NewValidationDomainError(
-			"ExternalCredentials.AccessToken.Expired",
-			"Access token expiration time must be in the future",
-		)
+		return nil, domain_errors.NewExternalCredentialsAccessTokenExpiredError()
 	}
 	if refreshTokenExpiration.Before(time.Now().UTC()) {
-		return nil, validation_domain_error.NewValidationDomainError(
-			"ExternalCredentials.RefreshToken.Expired",
-			"Refresh token expiration time must be in the future",
-		)
+		return nil, domain_errors.NewExternalCredentialsRefreshTokenExpiredError()
 	}
 	if accessToken == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"ExternalCredentials.AccessToken",
-			"access token")
+		return nil, domain_errors.NewExternalCredentialsAccessTokenEmptyError()
 	}
 	if refreshToken == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"ExternalCredentials.RefreshToken",
-			"refresh token")
+		return nil, domain_errors.NewExternalCredentialsRefreshTokenEmptyError()
 	}
 	if externalId == "" {
-		return nil, empty_string_domain_error.NewEmptyStringDomainError(
-			"ExternalCredentials.ExternalId",
-			"external id")
+		return nil, domain_errors.NewExternalCredentialsExternalIdEmptyError()
 	}
 	creds := &ExternalCredentials{
 		accessToken:              accessToken,

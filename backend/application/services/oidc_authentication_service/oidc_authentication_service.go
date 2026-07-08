@@ -7,8 +7,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/dtos/oidc_authenticate_user_service_dto"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command_response"
@@ -48,18 +48,18 @@ func (oidcAuthentication *OidcAuthenticationService) AuthenticateWithGoogle(ctx 
 ) {
 	tokenResp, err := oidcAuthentication.googleOidcService.GetAccessToken(ctx, code)
 	if err != nil {
-		return nil, custom_error.NewCustomError("OidcAuthenticationService.GetAccessToken",
+		return nil, application_error.NewApplicationError("OidcAuthenticationService.GetAccessToken",
 			"Couldn't get access token",
 			err,
-			custom_error_type.Unexpected)
+			application_error_type.Unexpected)
 	}
 
 	claims, err := oidcAuthentication.googleOidcService.ParseIdToken(tokenResp.IdToken)
 	if err != nil {
-		return nil, custom_error.NewCustomError("OidcAuthenticationService.ParseIdToken",
+		return nil, application_error.NewApplicationError("OidcAuthenticationService.ParseIdToken",
 			"Couldn't parse id token",
 			err,
-			custom_error_type.Unexpected)
+			application_error_type.Unexpected)
 	}
 	var deviceTypeToPass device_type.DeviceType
 	if deviceType == nil {

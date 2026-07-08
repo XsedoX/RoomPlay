@@ -4,8 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/empty_string_domain_error"
-	"github.com/XsedoX/RoomPlay/domain/domain_errors/validation_domain_error"
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
@@ -59,7 +58,7 @@ func TestNewExternalCredentialsAccessTokenExpired(t *testing.T) {
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
-	castedError, ok := error.(*validation_domain_error.ValidationDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "ExternalCredentials.AccessToken.Expired", castedError.Code)
 	require.Equal(t, "Access token expiration time must be in the future", castedError.Description)
@@ -84,7 +83,7 @@ func TestNewExternalCredentialsRefreshTokenExpired(t *testing.T) {
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
-	castedError, ok := error.(*validation_domain_error.ValidationDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
 	require.Equal(t, "ExternalCredentials.RefreshToken.Expired", castedError.Code)
 	require.Equal(t, "Refresh token expiration time must be in the future", castedError.Description)
@@ -109,10 +108,10 @@ func TestNewExternalCredentialsAccessTokenEmpty(t *testing.T) {
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
-	castedError, ok := error.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.AccessToken.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'access token' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "ExternalCredentials.AccessToken.Empty", castedError.Code)
+	require.Equal(t, "Access token cannot be empty", castedError.Description)
 }
 
 func TestNewExternalCredentialsRefreshTokenEmpty(t *testing.T) {
@@ -134,10 +133,10 @@ func TestNewExternalCredentialsRefreshTokenEmpty(t *testing.T) {
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
-	castedError, ok := error.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.RefreshToken.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'refresh token' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "ExternalCredentials.RefreshToken.Empty", castedError.Code)
+	require.Equal(t, "Refresh token cannot be empty", castedError.Description)
 }
 
 func TestNewExternalCredentialsExternalIdEmpty(t *testing.T) {
@@ -159,8 +158,8 @@ func TestNewExternalCredentialsExternalIdEmpty(t *testing.T) {
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
-	castedError, ok := error.(*empty_string_domain_error.EmptyStringDomainError)
+	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.ExternalId.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'external id' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "ExternalCredentials.ExternalId.Empty", castedError.Code)
+	require.Equal(t, "External id cannot be empty", castedError.Description)
 }

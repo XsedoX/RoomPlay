@@ -8,4 +8,5 @@ type IConfiguration interface {
 	Authentication() Authentication
 	Scopes() string
 	IsTesting() bool
+	CacheSimilarityThreshold() float32
 }

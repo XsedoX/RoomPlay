@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/application/custom_error"
-	"github.com/XsedoX/RoomPlay/application/custom_error/custom_error_type"
+	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/user/logout_user/logout_user_command"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
@@ -48,11 +48,11 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		err := handler.Handle(context.Background(), command)
 
 		assert.Error(t, err)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &parsedErr))
 		assert.Equal(t, parsedErr.Code, errCode)
 		assert.Equal(t, parsedErr.Err, errOfRepository)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 1)
 	})
@@ -75,11 +75,11 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 		err := handler.Handle(context.Background(), command)
 
 		assert.Error(t, err)
-		var parsedErr *custom_error.CustomError
+		var parsedErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &parsedErr))
 		assert.Equal(t, parsedErr.Code, errCode)
 		assert.Equal(t, parsedErr.Err, errOfRepository)
-		assert.Equal(t, parsedErr.ErrorType, custom_error_type.Unexpected)
+		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserSession", 1)
