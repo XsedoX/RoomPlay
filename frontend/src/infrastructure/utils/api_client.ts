@@ -1,8 +1,8 @@
 import axios, { type AxiosInstance } from 'axios';
-import { AuthenticationService } from '@/infrastructure/authentication/authentication_service.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import { PlatformDiscoverer } from '@/infrastructure/utils/platform_discoverer.ts';
 import router from '@/router';
+import { AuthenticationRepository } from '../authentication/authentication_repository';
 
 const axiosParams = {
   baseURL: import.meta.env['VITE_API_BASE_URL'],
@@ -38,8 +38,8 @@ function createRefreshTokenInterceptor() {
       api_client.interceptors.response.eject(interceptor);
 
       try {
-        const success = await AuthenticationService.refreshToken();
-        if (!success) {
+        const response = await AuthenticationRepository.refreshToken();
+        if (!response.isSuccess) {
           const userStore = useUserStore();
           await userStore.logout();
           await router.replace({ name: 'LoginPage' });
