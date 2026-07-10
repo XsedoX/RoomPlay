@@ -61,11 +61,11 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 		userFromDb.ChangeFullName(full_name.NewFullName(command.Name, command.Surname))
 
 		var deviceId device_id.DeviceId
-		if command.DeviceDto.DeviceId == nil {
-			deviceId = userFromDb.LoginWithNewDevice(command.DeviceDto.DeviceType)
-		} else {
-			userFromDb.ReloginWithKnownDevice(*command.DeviceDto.DeviceId)
+		if command.DeviceDto.DeviceId != nil && userFromDb.CheckDeviceOwnership(*command.DeviceDto.DeviceId) {
+			_ = userFromDb.ReloginWithKnownDevice(*command.DeviceDto.DeviceId)
 			deviceId = *command.DeviceDto.DeviceId
+		} else {
+			deviceId = userFromDb.LoginWithNewDevice(command.DeviceDto.DeviceType)
 		}
 		response.DeviceId = deviceId
 		err = handler.userRepository.Update(ctx, userFromDb, handler.unitOfWork.GetQueryer())
