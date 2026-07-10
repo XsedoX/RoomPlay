@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 	"github.com/XsedoX/RoomPlay/domain/user/device"
@@ -77,8 +78,18 @@ func (u *User) LoginWithNewDevice(deviceType device_type.DeviceType) device_id.D
 	return newDevice.Id()
 }
 
-func (u *User) ReloginWithKnownDevice(deviceId device_id.DeviceId) {
-	u.getDeviceById(deviceId).RefreshDeviceState()
+func (u *User) CheckDeviceOwnership(deviceId device_id.DeviceId) bool {
+	usersDevice := u.getDeviceById(deviceId)
+	return usersDevice != nil
+}
+
+func (u *User) ReloginWithKnownDevice(deviceId device_id.DeviceId) error {
+	usersDevice := u.getDeviceById(deviceId)
+	if usersDevice == nil {
+		return domain_errors.NewUserDeviceNotFoundError(u.Id(), deviceId)
+	}
+	usersDevice.RefreshDeviceState()
+	return nil
 }
 
 func (u *User) getDeviceById(deviceId device_id.DeviceId) *device.Device {

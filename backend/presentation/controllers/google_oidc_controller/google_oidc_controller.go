@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
 	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
@@ -16,7 +15,6 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/cookie_helpers"
 	"github.com/XsedoX/RoomPlay/presentation/response"
-	"github.com/google/uuid"
 )
 
 // TODO: save where the user started logging and return to the same url
@@ -48,7 +46,7 @@ func NewOidcController(configuration config.IConfiguration,
 //	@Failure		403	{object}	response.Error	"Invalid redirect URL"
 //	@Router			/auth/google/login [post]
 func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) {
-	state := setStateCookie(w, handler.configuration.Server().BasePath)
+	state := cookie_helpers.SetStateCookie(w, handler.configuration.Server().BasePath)
 	deviceType := r.Header.Get("X-Device-Type")
 	parsedDeviceType := device_type.ParseDeviceType(&deviceType)
 	if parsedDeviceType == nil {
@@ -60,7 +58,7 @@ func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter
 			http.StatusBadRequest)
 		return
 	}
-	setDeviceTypeCookie(w, parsedDeviceType.String(), handler.configuration.Server().BasePath)
+	cookie_helpers.SetDeviceTypeCookie(w, parsedDeviceType.String(), handler.configuration.Server().BasePath)
 
 	googleUrl, err := handler.googleOidcService.GenerateOidcUrl(state)
 	if err != nil {
@@ -87,7 +85,7 @@ func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter,
 			http.StatusInternalServerError)
 		return
 	}
-	if !verifyStateCookie(r, params.Get("state")) {
+	if !cookie_helpers.VerifyStateCookie(r, params.Get("state")) {
 		response.WriteJsonFailure(w,
 			"OidcController.VerifyStateCookie",
 			"Invalid state",
@@ -136,61 +134,7 @@ func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter,
 	cookie_helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
 	cookie_helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath)
 	cookie_helpers.SetDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
-	clearStateCookie(w, handler.configuration.Server().BasePath)
+	cookie_helpers.ClearStateCookie(w, handler.configuration.Server().BasePath)
 
 	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)
-}
-
-func setDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) {
-	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.RoomPlayDeviceTypeCookieName,
-		Value:    deviceType,
-		Expires:  expiresAt,
-		Path:     basePath,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	})
-}
-
-func setStateCookie(w http.ResponseWriter, basePath string) string {
-	expiresAt := time.Now().Add(constants.RoomPlayStateCookieExpirationTime).UTC()
-	state := uuid.NewString()
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.RoomPlayStateCookieName,
-		Value:    state,
-		Expires:  expiresAt,
-		MaxAge:   int(constants.RoomPlayStateCookieExpirationTime.Seconds()),
-		Path:     basePath,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	})
-	return state
-}
-
-func clearStateCookie(w http.ResponseWriter, basePath string) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.RoomPlayStateCookieName,
-		Value:    "",
-		MaxAge:   -1,
-		Path:     basePath,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	})
-}
-
-func verifyStateCookie(r *http.Request, stateFromUrl string) bool {
-	state, err := r.Cookie(constants.RoomPlayStateCookieName)
-	if err != nil {
-		return false
-	}
-	stateString := state.Value
-
-	if stateFromUrl != stateString {
-		return false
-	}
-	return true
 }

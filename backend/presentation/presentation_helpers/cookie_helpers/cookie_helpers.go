@@ -7,6 +7,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/jwt_provider"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
+	"github.com/google/uuid"
 )
 
 func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {
@@ -70,4 +71,55 @@ func SetDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) 
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
+}
+
+func SetDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) {
+	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
+	http.SetCookie(w, &http.Cookie{
+		Name:     constants.RoomPlayDeviceTypeCookieName,
+		Value:    deviceType,
+		Expires:  expiresAt,
+		Path:     basePath,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func SetStateCookie(w http.ResponseWriter, basePath string) string {
+	expiresAt := time.Now().Add(constants.RoomPlayStateCookieExpirationTime).UTC()
+	state := uuid.NewString()
+	http.SetCookie(w, &http.Cookie{
+		Name:     constants.RoomPlayStateCookieName,
+		Value:    state,
+		Expires:  expiresAt,
+		MaxAge:   int(constants.RoomPlayStateCookieExpirationTime.Seconds()),
+		Path:     basePath,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+	return state
+}
+
+func ClearStateCookie(w http.ResponseWriter, basePath string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     constants.RoomPlayStateCookieName,
+		Value:    "",
+		MaxAge:   -1,
+		Path:     basePath,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func VerifyStateCookie(r *http.Request, stateFromUrl string) bool {
+	state, err := r.Cookie(constants.RoomPlayStateCookieName)
+	if err != nil {
+		return false
+	}
+	stateString := state.Value
+
+	return stateString == stateFromUrl
 }
