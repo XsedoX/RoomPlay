@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import LogoWithTitleText from '@/shared/LogoWithTitleText.vue';
-import { AuthenticationService } from '@/infrastructure/authentication/authentication_service.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import { useRouter } from 'vue-router';
 import { shallowRef } from 'vue';
+import { AuthenticationRepository } from '@/infrastructure/authentication/authentication_repository';
 const userStore = useUserStore();
 const router = useRouter();
 
@@ -12,10 +12,10 @@ const isLoading = shallowRef(false);
 async function login() {
   if (!userStore.user) {
     isLoading.value = true;
-    const redirectUri = await AuthenticationService.loginWithGoogle();
+    const response = await AuthenticationRepository.loginWithGoogle();
     isLoading.value = false;
-    if (redirectUri) {
-      globalThis.location.assign(redirectUri);
+    if (response.isSuccess && response.data) {
+      globalThis.location.assign(response.data);
     }
   } else {
     await router.replace({ name: 'MainMenuPage' });

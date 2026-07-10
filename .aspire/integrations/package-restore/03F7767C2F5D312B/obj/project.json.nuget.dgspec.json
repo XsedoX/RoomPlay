@@ -1,0 +1,70 @@
+{
+  "format": 1,
+  "restore": {
+    "AspireRestore": {}
+  },
+  "projects": {
+    "AspireRestore": {
+      "restore": {
+        "projectUniqueName": "AspireRestore",
+        "projectName": "AspireRestore",
+        "projectPath": "/home/xsedox/RoomPlay/.aspire/integrations/package-restore/03F7767C2F5D312B/obj/project.json",
+        "packagesPath": "/home/xsedox/.nuget/packages/",
+        "outputPath": "/home/xsedox/RoomPlay/.aspire/integrations/package-restore/03F7767C2F5D312B/obj",
+        "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
+        "configFilePaths": [
+          "/home/xsedox/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net10.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net10.0": {
+            "framework": "net10.0",
+            "targetAlias": "net10.0",
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net10.0": {
+          "framework": "net10.0",
+          "targetAlias": "net10.0",
+          "dependencies": {
+            "Aspire.Hosting": {
+              "target": "Package",
+              "version": "[13.4.6, )"
+            },
+            "Aspire.Hosting.CodeGeneration.TypeScript": {
+              "target": "Package",
+              "version": "[13.4.6, )"
+            },
+            "Aspire.Hosting.Go": {
+              "target": "Package",
+              "version": "[13.4.6-preview.1.26319.6, )"
+            },
+            "Aspire.Hosting.JavaScript": {
+              "target": "Package",
+              "version": "[13.4.6, )"
+            },
+            "Aspire.Hosting.PostgreSQL": {
+              "target": "Package",
+              "version": "[13.4.6, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/xsedox/RoomPlay/.aspire/integrations/package-restore/03F7767C2F5D312B/obj/RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "linux-x64": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

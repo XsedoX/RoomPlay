@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "aspire:start": "bun --cwd aspire-apphost run aspire:start",
+    "aspire:build": "bun --cwd aspire-apphost run aspire:build",
+    "aspire:dev": "bun --cwd aspire-apphost run aspire:dev"
   },
   "devDependencies": {
     "husky": "^9.1.7"
