@@ -8,10 +8,10 @@ import { faker } from '@faker-js/faker/locale/ar';
 import { TUserRole } from '@/infrastructure/user/TUserRole.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import { useRouter } from 'vue-router';
-import { Guid } from '@/shared/Guid';
 import { TSongState } from '@/infrastructure/room/TSongState';
 import { TVoteStatus } from '@/infrastructure/room/TVoteStatus';
 import { sharedStubs } from '@/__tests__/shared/stubs.ts';
+import { Guid } from '@/shared/guid/Guid';
 
 const factory = (
   options?: Parameters<typeof mount>[1],
