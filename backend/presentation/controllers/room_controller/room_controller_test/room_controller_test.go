@@ -108,7 +108,7 @@ func TestCreateRoomValidationFailure(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	var roomExists bool
 	err = txx.Get(&roomExists, "SELECT EXISTS (SELECT * FROM rooms WHERE name = $1)::text;", command.RoomName)
 	assert.Error(t, sql.ErrNoRows, err)

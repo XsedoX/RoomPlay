@@ -56,9 +56,10 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(nil)
 
 		// Act
-		err := handler.Handle(ctx, command)
+		roomId, err := handler.Handle(ctx, command)
 
 		// Assert
+		assert.NotNil(t, roomId)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		assert.NoError(t, err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
@@ -74,10 +75,11 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		}
 
 		// Act
-		err := handler.Handle(context.Background(), command)
+		roomId, err := handler.Handle(context.Background(), command)
 
 		// Assert
 		assert.Error(t, err)
+		assert.Nil(t, roomId)
 		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
@@ -99,10 +101,11 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(repoErr)
 
 		// Act
-		err := handler.Handle(ctx, command)
+		roomId, err := handler.Handle(ctx, command)
 
 		// Assert
 		assert.Error(t, err)
+		assert.Nil(t, roomId)
 		var customErr *application_error.ApplicationError
 		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
 		assert.Equal(t, errorCode, customErr.Code)

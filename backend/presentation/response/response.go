@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application/application_error"
+	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 const (
@@ -16,8 +18,8 @@ const (
 )
 
 type Success struct {
-	Data any `json:"data" swaggertype:"object" extensions:"x-nullable"`
-	Meta any `json: "meta" swaggertype:"object" extensions:"x-nullable"`
+	Data any                        `json:"data" swaggertype:"object" extensions:"x-nullable"`
+	Meta *page_meta_dto.PageMetaDto `json:"meta" swaggertype:"object" extensions:"x-nullable"`
 }
 
 type ProblemDetails struct {
@@ -59,6 +61,16 @@ func WriteJsonFailure(w http.ResponseWriter, type1, title, description, instance
 	w.Write(bytes)
 }
 
+func WriteJsonDecodingFailure(w http.ResponseWriter, code string, bodyDecodeErr error, instance string) {
+	WriteJsonFailure(w,
+		code,
+		"Unexpected issue occurred while decoding the request body.",
+		"Something went wrong internally. Errror code: "+code,
+		instance,
+		http.StatusBadRequest,
+	)
+}
+
 func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance string) {
 	if vErr, ok := errors.AsType[domain_errors.DomainError](appErr); ok {
 		WriteJsonFailure(w,
@@ -74,7 +86,7 @@ func WriteJsonApplicationFailure(w http.ResponseWriter, appErr error, instance s
 		WriteJsonFailure(w,
 			cErr.Code,
 			cErr.Title,
-			cErr.Error(),
+			cErr.Title,
 			instance,
 			int(cErr.ErrorType),
 		)
@@ -94,9 +106,9 @@ func WriteJsonValidationFailure(w http.ResponseWriter, code, instance string, er
 		WriteJsonFailure(w,
 			code,
 			"Validation error occurred.",
-			"One or more fields are not correctly filled.",
+			"One or more fields are not correctly filled",
 			instance,
-			http.StatusBadRequest,
+			http.StatusUnprocessableEntity,
 			setup_validation.MapValidationErrors(validationErrs))
 		return
 	}
@@ -113,12 +125,27 @@ func WriteJsonNoContent(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
+func WriteJsonCreated(w http.ResponseWriter, id uuid.UUID) {
 	w.Header().Set("Content-Type", "application/json")
 
-	resp := &Success{Data: nil}
-	if len(data) > 0 {
-		resp.Data = data[0]
+	resp := &Success{Data: id}
+
+	bytes, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, encodingErrorMessage, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+func WriteJsonSuccess(w http.ResponseWriter, data any, meta ...page_meta_dto.PageMetaDto) {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := &Success{Data: data}
+	if len(meta) > 0 {
+		resp.Meta = &meta[0]
 	}
 
 	bytes, err := json.Marshal(resp)
@@ -127,6 +154,6 @@ func WriteJsonSuccess(w http.ResponseWriter, statusCode int, data ...any) {
 		return
 	}
 
-	w.WriteHeader(statusCode)
+	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
 }

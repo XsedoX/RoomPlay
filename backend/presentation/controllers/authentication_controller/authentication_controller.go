@@ -52,7 +52,7 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 		response.WriteJsonFailure(w,
 			"AuthenticationController.MissingRefreshTokenCookie",
 			"Missing refresh token cookie",
-			"Cookie with refresh token had issues.",
+			"Something went wrong while trying to reauthenticate you. Please log in again.",
 			req.URL.RequestURI(),
 			http.StatusUnauthorized)
 		return

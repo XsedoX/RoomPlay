@@ -8,7 +8,7 @@ const router = createRouter({
   routes: routes,
 });
 
-router.beforeEach((to, _, next) => {
+router.beforeEach((to, _) => {
   const userStore = useUserStore();
   const roomStore = useRoomStore();
   const forbiddenRoutesForAuthUser = ['LoginPage', 'SignInOidcPage'];
@@ -16,23 +16,23 @@ router.beforeEach((to, _, next) => {
 
   // Redirect to the main menu if the user is authenticated and tries to access the login page
   if (to.meta['requiresAuth'] && !userStore.user) {
-    next({ name: 'LoginPage' });
+    return { name: 'LoginPage' };
   } else if (
     userStore.user &&
     to.name &&
     forbiddenRoutesForAuthenticatedUserInRoom.includes(to.name.toString()) &&
     roomStore.room !== null
   ) {
-    next({ name: 'RoomPage' });
+    return { name: 'RoomPage' };
   } else if (
     userStore.user &&
     to.name &&
     forbiddenRoutesForAuthUser.includes(to.name.toString()) &&
     roomStore.room === null
   ) {
-    next({ name: 'MainMenuPage' });
+    return { name: 'MainMenuPage' };
   } else {
-    next();
+    return true;
   }
 });
 

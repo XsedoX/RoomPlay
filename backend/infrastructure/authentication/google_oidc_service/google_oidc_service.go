@@ -115,7 +115,7 @@ func (g GoogleOidcService) RefreshAccessToken(ctx context.Context, refreshToken 
 }
 
 func (g GoogleOidcService) GenerateOidcUrl(state string) (string, error) {
-	googleGetUrl, err := url.Parse("https://accounts.google.com/o/oauth2/v2/auth")
+	googleGetUrl, err := url.ParseRequestURI("https://accounts.google.com/o/oauth2/v2/auth")
 	if err != nil {
 		return "", err
 	}

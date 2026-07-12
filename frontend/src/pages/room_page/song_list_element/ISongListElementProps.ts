@@ -1,5 +1,5 @@
 import type { ISongListRoomStoreModel } from '@/infrastructure/room/ISongListRoomStoreModel.ts';
-import type IGuidEvent from '@/shared/IGuidEvent.ts';
+import type IGuidEvent from '@/shared/guid/IGuidEvent';
 
 export interface ISongListElementProps {
   songListDto: ISongListRoomStoreModel;

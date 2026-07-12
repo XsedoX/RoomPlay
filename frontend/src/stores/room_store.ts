@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { useNotificationStore } from '@/stores/notification_store.ts';
 import { computed, ref } from 'vue';
 import type IRoomStoreModel from '@/infrastructure/room/IRoomStoreModel.ts';
 import type IJoinRoomPasswordRequest from '@/infrastructure/room/IJoinRoomPasswordRequest.ts';
@@ -7,14 +6,12 @@ import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts
 import { TUserRole } from '@/infrastructure/user/TUserRole.ts';
 import type { ISongListRoomStoreModel } from '@/infrastructure/room/ISongListRoomStoreModel.ts';
 import type { TSongState } from '@/infrastructure/room/TSongState.ts';
-import { Guid, type IGuid } from '@/shared/Guid.ts';
 import { useRouter } from 'vue-router';
 import type IPlayingSongModel from '@/infrastructure/room/IPlayingSongModel.ts';
 import { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
 import 'pinia-plugin-persistedstate';
 import { RoomRepository } from '@/infrastructure/room/room_repository';
-import { HttpCodes } from '@/infrastructure/utils/status_codes';
-import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor';
+import { Guid, type IGuid } from '@/shared/guid/Guid';
 
 export const useRoomStore = defineStore(
   'room',
@@ -72,7 +69,6 @@ export const useRoomStore = defineStore(
       let isError = false;
 
       const response = await RoomRepository.getRoom();
-      const notificationStore = useNotificationStore();
       if (response.isSuccess) {
         room.value = {
           name: response.data.name,
@@ -88,12 +84,6 @@ export const useRoomStore = defineStore(
         }));
         playingSong.value = response.data.playingSong;
         return isError;
-      }
-      if (response.status === HttpCodes.notFound) {
-        notificationStore.showSnackbar(
-          'The room you were a member of has either expired or you got kicked or banned from it.',
-          TSnackbarColor.INFO,
-        );
       }
       isError = true;
       resetRoomStore();

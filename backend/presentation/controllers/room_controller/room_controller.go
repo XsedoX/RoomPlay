@@ -10,6 +10,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password/join_room_password_command"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 )
@@ -21,14 +22,14 @@ const (
 )
 
 type RoomController struct {
-	createRoomCommandHandler          i_command_handler.ICommandHandler[*create_room_command.CreateRoomCommand]
+	createRoomCommandHandler          i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId]
 	getRoomQueryHandler               i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse]
 	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool]
 	leaveRoomCommandHandler           i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand]
 	joinRoomCommandHandler            i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand]
 }
 
-func NewRoomController(createRoomCommandHandler i_command_handler.ICommandHandler[*create_room_command.CreateRoomCommand],
+func NewRoomController(createRoomCommandHandler i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId],
 	getRoomQueryHandler i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse],
 	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool],
 	leaveRoomCommandHandler i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand],
@@ -60,12 +61,12 @@ func (rh *RoomController) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	var command create_room_command.CreateRoomCommand
 	bodyDecodeErr := json.NewDecoder(r.Body).Decode(&command)
 	if bodyDecodeErr != nil {
-		response.WriteJsonFailure(w,
+		response.WriteJsonDecodingFailure(
+			w,
 			"CreateRoomController.Decoding",
-			"Problem with decoding request body",
-			bodyDecodeErr.Error(),
+			bodyDecodeErr,
 			r.URL.RequestURI(),
-			http.StatusBadRequest)
+		)
 		return
 	}
 	validationErr := setup_validation.ValidatorInstance.Struct(command)
@@ -76,14 +77,14 @@ func (rh *RoomController) CreateRoom(w http.ResponseWriter, r *http.Request) {
 			validationErr)
 		return
 	}
-	createRoomHandlerErr := rh.createRoomCommandHandler.Handle(r.Context(), &command)
+	roomId, createRoomHandlerErr := rh.createRoomCommandHandler.Handle(r.Context(), &command)
 	if createRoomHandlerErr != nil {
 		response.WriteJsonApplicationFailure(w,
 			createRoomHandlerErr,
 			r.URL.RequestURI())
 		return
 	}
-	response.WriteJsonSuccess(w, http.StatusCreated)
+	response.WriteJsonCreated(w, roomId.ToUuid())
 }
 
 // GetRoom godoc
@@ -107,7 +108,7 @@ func (rh *RoomController) GetRoom(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	response.WriteJsonSuccess(w, http.StatusOK, getRoomQueryResponse)
+	response.WriteJsonSuccess(w, getRoomQueryResponse)
 }
 
 // CheckUserRoomMembership godoc
@@ -131,7 +132,7 @@ func (rh *RoomController) CheckUserRoomMembership(w http.ResponseWriter, r *http
 		)
 		return
 	}
-	response.WriteJsonSuccess(w, http.StatusOK, handlerResponse)
+	response.WriteJsonSuccess(w, handlerResponse)
 }
 
 // LeaveRoom handles the HTTP request to leave a room.
@@ -172,12 +173,12 @@ func (rh *RoomController) JoinRoomPassword(w http.ResponseWriter, r *http.Reques
 	var command join_room_password_command.JoinRoomPasswordCommand
 	bodyDecodeErr := json.NewDecoder(r.Body).Decode(&command)
 	if bodyDecodeErr != nil {
-		response.WriteJsonFailure(w,
+		response.WriteJsonDecodingFailure(
+			w,
 			"JoinRoomController.Password.Decoding",
-			"Problem with decoding request body",
-			bodyDecodeErr.Error(),
+			bodyDecodeErr,
 			r.URL.RequestURI(),
-			http.StatusBadRequest)
+		)
 		return
 	}
 	validationErr := setup_validation.ValidatorInstance.Struct(command)

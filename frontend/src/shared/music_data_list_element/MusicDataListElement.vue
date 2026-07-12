@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { TMusicDataListElementEmits } from '@/shared/music_data_list_element/TMusicDataListElementEmits.ts';
-import type IGuidEvent from '@/shared/IGuidEvent.ts';
 import type IMusicDataListElementProps from '@/shared/music_data_list_element/IMusicDataListElementProps.ts';
+import type IStringEvent from '../IStringEvent';
 
 const props = defineProps<IMusicDataListElementProps>();
 const emit = defineEmits<TMusicDataListElementEmits>();
-function chooseMusic(event: IGuidEvent) {
+function chooseMusic(event: IStringEvent) {
   emit('on-music-choice', event);
 }
 </script>

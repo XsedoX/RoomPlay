@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type IHostDeviceDto from '@/pages/settings_page/choose_host_device_list/IHostDeviceDto.ts';
 import { THostDeviceState } from '@/pages/settings_page/choose_host_device_list/THostDeviceState.ts';
 import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
-import { Guid } from '@/shared/Guid.ts';
+import { Guid } from '@/shared/guid/Guid';
 
 const devices = ref<IHostDeviceDto[]>([
   {

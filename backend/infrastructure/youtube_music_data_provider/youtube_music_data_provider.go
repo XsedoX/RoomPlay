@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
+	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 )
 
 type YoutubeMusicDataProvider struct{}
@@ -17,23 +18,25 @@ func NewYoutubeMusicDataProvider() *YoutubeMusicDataProvider {
 	return &YoutubeMusicDataProvider{}
 }
 
-func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) ([]music_data_response_dto.MusicDataResponseDto, error) {
-	youtubeUrl := "https://www.googleapis.com/youtube/v3/search"
-	form := url.Values{}
-	form.Add("part", "snippet")
-	form.Add("maxResults", string(pageSize))
-	form.Add("q", query)
-	form.Add("type", "video")
+func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*music_data_response_dto.MusicDataResponseDto, error) {
+	youtubeUrl, _ := url.ParseRequestURI("https://www.googleapis.com/youtube/v3/search")
+	params := url.Values{}
+	params.Add("part", "snippet")
+	params.Add("maxResults", strconv.Itoa(int(pageSize)))
+	params.Add("q", query)
+	params.Add("videoCategoryId", "10") // Music category
+	params.Add("type", "video")
 	if nextPageToken != nil {
 		nextPageTokenString := *nextPageToken
-		form.Add("pageToken", nextPageTokenString)
+		params.Add("pageToken", nextPageTokenString)
 	}
+	youtubeUrl.RawQuery = params.Encode()
 
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		youtubeUrl,
-		strings.NewReader(form.Encode()),
+		youtubeUrl.String(),
+		nil,
 	)
 	if err != nil {
 		return nil, err
@@ -92,16 +95,22 @@ func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(ctx contex
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}
-	result := make([]music_data_response_dto.MusicDataResponseDto, len(response.Items))
+	result := &music_data_response_dto.MusicDataResponseDto{}
+	result.Songs = make([]music_data_response_dto.SongDataResponseDto, 0, len(response.Items))
 
 	for _, item := range response.Items {
-		result = append(result, music_data_response_dto.MusicDataResponseDto{
+		result.Songs = append(result.Songs, music_data_response_dto.SongDataResponseDto{
 			VideoId:       item.Id.VideoId,
 			Title:         item.Snippet.Title,
 			Author:        item.Snippet.ChannelTitle,
 			AlbumCoverUrl: item.Snippet.Thumbnails["default"].Url,
-			NextPageToken: response.NextPageToken,
 		})
+	}
+	result.PageMetaDto = page_meta_dto.PageMetaDto{
+		NextPageToken:     &response.NextPageToken,
+		PreviousPageToken: &response.PrevPageToken,
+		HasNextPage:       response.NextPageToken != "",
+		PageSize:          uint8(len(response.Items)),
 	}
 	return result, nil
 }

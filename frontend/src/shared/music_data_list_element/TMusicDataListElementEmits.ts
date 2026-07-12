@@ -1,5 +1,5 @@
-import type IGuidEvent from '@/shared/IGuidEvent.ts';
+import type IStringEvent from '../IStringEvent';
 
 export type TMusicDataListElementEmits = {
-  'on-music-choice': [event: IGuidEvent];
+  'on-music-choice': [event: IStringEvent];
 };

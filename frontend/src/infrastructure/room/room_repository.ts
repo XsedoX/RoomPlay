@@ -1,9 +1,12 @@
 import api_client from '@/infrastructure/utils/api_client.ts';
 import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
-import type { IApiResponse } from '@/infrastructure/utils/IApiResponse.ts';
-import { type AxiosResponse } from 'axios';
 import type { IGetRoomResponse } from '@/infrastructure/room/IGetRoomResponse.ts';
 import type IJoinRoomPasswordRequest from './IJoinRoomPasswordRequest';
+import type { IRepositoryResponse } from '../utils/IRepositoryResponse';
+import { HttpCodes } from '../utils/status_codes';
+import { useNotificationStore } from '@/stores/notification_store';
+import { TSnackbarColor } from '../utils/TSnackbarColor';
+import type { IApiProblemDetailsResponse, IApiSuccessResponse } from '../utils/IApiResponse';
 
 const URLS = {
   createRoom: '/room',
@@ -14,67 +17,106 @@ const URLS = {
 };
 
 export const RoomRepository = {
-  createRoom: async (roomData: ICreateRoomRequest): Promise<IApiResponse> => {
+  createRoom: async (roomData: ICreateRoomRequest): Promise<IRepositoryResponse> => {
     return await api_client
-      .post<AxiosResponse>(URLS.createRoom, roomData)
-      .then((response) => ({
+      .post<IApiSuccessResponse>(URLS.createRoom, roomData)
+      .then(() => {
+        return {
+          isSuccess: true,
+          data: undefined,
+        };
+      })
+      .catch((error) => {
+        const notificationStore = useNotificationStore();
+        const problemDetails = error.response.data as IApiProblemDetailsResponse;
+        if (problemDetails.status === HttpCodes.badRequest) {
+          notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+          return {
+            isSuccess: false,
+          };
+        }
+        if (problemDetails.status === HttpCodes.unprocessableEntity) {
+          return {
+            isSuccess: false,
+            validationErrors: problemDetails.validationErrors,
+          };
+        }
+        notificationStore.showSnackbar(problemDetails.title, TSnackbarColor.ERROR);
+        return {
+          isSuccess: false,
+        };
+      });
+  },
+  getRoom: async (): Promise<IRepositoryResponse<IGetRoomResponse>> => {
+    return await api_client
+      .get<IApiSuccessResponse<IGetRoomResponse>>(URLS.getRoom)
+      .then((response) => {
+        return {
+          isSuccess: true,
+          data: response.data.data,
+        };
+      })
+      .catch((error) => {
+        const notificationStore = useNotificationStore();
+        const problemDetails = error.response.data as IApiProblemDetailsResponse;
+        if (problemDetails.status === HttpCodes.notFound) {
+          notificationStore.showSnackbar(
+            'The room you were a member of has either expired or you got kicked or banned from it.',
+            TSnackbarColor.INFO,
+          );
+          return {
+            isSuccess: false,
+          };
+        }
+        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+        return {
+          isSuccess: false,
+        };
+      });
+  },
+  getUserRoomMembership: async (): Promise<IRepositoryResponse<boolean>> => {
+    return await api_client
+      .get<IApiSuccessResponse<boolean>>(URLS.getUserRoomMembership)
+      .then((response) => {
+        return {
+          isSuccess: true,
+          data: response.data.data,
+        };
+      })
+      .catch((error) => {
+        const notificationStore = useNotificationStore();
+        const problemDetails = error.response.data as IApiProblemDetailsResponse;
+        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+        return {
+          isSuccess: false,
+        };
+      });
+  },
+  leaveRoom: async (): Promise<IRepositoryResponse> => {
+    return await api_client
+      .delete<IApiSuccessResponse>(URLS.leaveRoom)
+      .then(() => ({
         isSuccess: true,
-        data: response.data.data,
+        data: undefined,
       }))
-      .catch((error) => ({
+      .catch((_) => ({
         isSuccess: false,
-        ...error.response.data,
       }));
   },
-  getRoom: async (): Promise<IApiResponse<IGetRoomResponse>> => {
+  joinRoomPassword: async (roomData: IJoinRoomPasswordRequest): Promise<IRepositoryResponse> => {
     return await api_client
-      .get<AxiosResponse<IGetRoomResponse>>(URLS.getRoom)
+      .put<IApiSuccessResponse>(URLS.joinRoom, roomData)
       .then((response) => ({
         isSuccess: true,
         data: response.data.data,
       }))
       .catch((error) => {
-        console.log(error);
+        const notificationStore = useNotificationStore();
+        const problemDetails = error.response.data as IApiProblemDetailsResponse;
+        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
         return {
           isSuccess: false,
-          ...error.response.data,
         };
       });
-  },
-  getUserRoomMembership: async (): Promise<IApiResponse<boolean>> => {
-    return await api_client
-      .get<AxiosResponse<boolean>>(URLS.getUserRoomMembership)
-      .then((response) => ({
-        isSuccess: true,
-        data: response.data.data,
-      }))
-      .catch((error) => ({
-        isSuccess: false,
-        ...error.response.data,
-      }));
-  },
-  leaveRoom: async (): Promise<IApiResponse> => {
-    return await api_client
-      .delete<AxiosResponse>(URLS.leaveRoom)
-      .then((response) => ({
-        isSuccess: true,
-        data: response.data.data,
-      }))
-      .catch((error) => ({
-        isSuccess: false,
-        ...error.response.data,
-      }));
-  },
-  joinRoomPassword: async (roomData: IJoinRoomPasswordRequest): Promise<IApiResponse> => {
-    return await api_client
-      .put<AxiosResponse>(URLS.joinRoom, roomData)
-      .then((response) => ({
-        isSuccess: true,
-        data: response.data.data,
-      }))
-      .catch((error) => ({
-        isSuccess: false,
-        ...error.response.data,
-      }));
   },
 };

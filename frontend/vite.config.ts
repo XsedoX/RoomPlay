@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
           'script-src': isDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
           'style-src': ["'self'", 'https://fonts.googleapis.com'],
           'style-src-elem': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-          'img-src': ["'self'", 'data:'],
+          'img-src': ["'self'", 'data:', 'https://i.ytimg.com'],
           'font-src': ["'self'", 'https://fonts.gstatic.com'],
           'connect-src': ["'self'", 'http://localhost:7654'],
           'base-uri': ["'self'"],

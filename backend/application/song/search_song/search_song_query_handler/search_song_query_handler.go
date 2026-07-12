@@ -9,8 +9,10 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
+	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
-	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_response"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_song_data_dto"
 )
 
 type SearchSongQueryHandler struct {
@@ -30,12 +32,12 @@ func NewSearchSongQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 	}
 }
 
-func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search_song_query.SearchSongQuery) ([]search_song_query_response.SearchSongQueryResponse, error) {
+func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search_song_query.SearchSongQuery) (*search_song_query_dto.SearchSongQueryDto, error) {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, application_helpers.NewMissingUserIdInContextError
 	}
-	var response []search_song_query_response.SearchSongQueryResponse
+	response := &search_song_query_dto.SearchSongQueryDto{}
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		accessToken, accessTokenError := handler.externalCredentialsRepository.AccessTokenByUserId(
 			ctx,
@@ -48,12 +50,12 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 				accessTokenError,
 				application_error_type.Unexpected)
 		}
-		songs, searchSongsErr := handler.musicService.SearchSongsByQuery(
+		songsFromMusicService, searchSongsErr := handler.musicService.SearchSongsByQuery(
 			ctx,
 			accessToken,
 			query.Query,
 			query.NextPageToken,
-			query.PageSize,
+			uint8(query.PageSize),
 		)
 		if searchSongsErr != nil {
 			return application_error.NewApplicationError("SearchSongQueryHandler.SearchSongsByQuery",
@@ -61,14 +63,20 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 				searchSongsErr,
 				application_error_type.Unexpected)
 		}
-		for _, song := range songs {
-			response = append(response, search_song_query_response.SearchSongQueryResponse{
+		response.Songs = make([]search_song_query_song_data_dto.SearchSongQuerySongDataDto, 0, len(songsFromMusicService.Songs))
+		for _, song := range songsFromMusicService.Songs {
+			response.Songs = append(response.Songs, search_song_query_song_data_dto.SearchSongQuerySongDataDto{
 				VideoId:       song.VideoId,
 				Author:        song.Author,
 				AlbumCoverUrl: song.AlbumCoverUrl,
 				Title:         song.Title,
-				NextPageToken: song.NextPageToken,
 			})
+		}
+		response.PageMetaDto = page_meta_dto.PageMetaDto{
+			NextPageToken:     songsFromMusicService.PageMetaDto.NextPageToken,
+			PreviousPageToken: songsFromMusicService.PageMetaDto.PreviousPageToken,
+			HasNextPage:       songsFromMusicService.PageMetaDto.HasNextPage,
+			PageSize:          songsFromMusicService.PageMetaDto.PageSize,
 		}
 		return nil
 	})

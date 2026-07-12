@@ -1,76 +1,96 @@
 <script setup lang="ts">
-import { Guid } from '@/shared/Guid.ts';
-import SearchMusicPopupBase from '@/shared/search_popup_base/SearchMusicPopupBase.vue';
-import type IGuidEvent from '@/shared/IGuidEvent.ts';
 import type { TSearchSongPopupEmits } from '@/shared/search_song_popup/TSearchSongPopupEmits.ts';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
+import { shallowRef } from 'vue';
+import MusicDataListElement from '@/shared/music_data_list_element/MusicDataListElement.vue';
+import type IStringEvent from '../IStringEvent';
+import { useDebounceFn } from '@vueuse/core';
+import { SongRepository } from '@/infrastructure/songs/song_repository';
+import type ISearchSongRequest from '@/infrastructure/songs/ISearchSongRequest';
+import * as z from 'zod';
 
+const popup = shallowRef(false);
 const emit = defineEmits<TSearchSongPopupEmits>();
-const songList: IMusicDataListElementDto[] = [
-  {
-    id: Guid.generate(),
-    title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Hotel California',
-    subtitle: 'Eagles',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Hotel Californiadwwwwwwwwwwwwwwwwwwwwwwwww',
-    subtitle: 'Eaglesdwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: Guid.generate(),
-    title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
-    imageUrl: 'https://picsum.photos/200',
-  },
-  {
-    id: new Guid('9593de37-416c-4bc8-9eee-8a98b7db66c7'),
-    title: 'Hotel California',
-    subtitle: 'Eagles',
-    imageUrl: 'https://picsum.photos/200',
-  },
-];
-function sendChosenSong(event: IGuidEvent) {
+const songList = shallowRef<IMusicDataListElementDto[]>([]);
+const nextPageToken = shallowRef<string | undefined>(undefined);
+const isSearching = shallowRef(false);
+
+const querySchema = z
+  .string()
+  .min(2, 'Search query must be at least 2 characters long')
+  .max(50, 'Search query must be at most 50 characters long');
+
+const searchForSong = useDebounceFn(async (value: string) => {
+  const validationResult = querySchema.safeParse(value);
+  if (!validationResult.success) {
+    songList.value = [];
+    return;
+  }
+  const searchQuery: ISearchSongRequest = {
+    query: value,
+    nextPageToken: nextPageToken.value,
+    pageSize: 10,
+  };
+  isSearching.value = true;
+  const response = await SongRepository.searchSongs(searchQuery);
+  if (response.isSuccess) {
+    songList.value = [
+      ...response.data.map((song) => {
+        return {
+          id: song.videoId,
+          author: song.author,
+          title: song.title,
+          imageUrl: song.albumCoverUrl,
+        };
+      }),
+    ];
+    nextPageToken.value = response.meta!.nextPageToken;
+  }
+  isSearching.value = false;
+}, 500);
+
+function sendChosenSong(event: IStringEvent) {
   emit('on-song-choice', event.id);
 }
 </script>
 
 <template>
-  <search-music-popup-base
-    search-box-placeholder="Search for a Song"
-    :music-list="songList"
-    @on-music-choice="sendChosenSong"
-  ></search-music-popup-base>
+  <v-dialog activator="parent" v-model="popup" @update:modelValue="songList = []">
+    <template v-slot:default>
+      <v-row no-gutters justify="center">
+        <v-col cols="12" sm="10" md="8" lg="6" xl="4">
+          <v-card rounded="xl" color="surface">
+            <v-text-field
+              label="Search for song to add"
+              prepend-inner-icon="search"
+              append-inner-icon="close"
+              hide-details
+              :loading="isSearching"
+              clearable
+              @update:modelValue="searchForSong"
+              @click:append-inner="popup = false"
+              single-line
+              counter
+            >
+            </v-text-field>
+            <v-sheet
+              color="surface-container"
+              class="music-list-popup-height overflow-y-auto hide-scrollbar"
+            >
+              <MusicDataListElement
+                v-for="(song, index) in songList"
+                :key="song.id"
+                :class="{
+                  'rounded-b-xl': index === songList.length - 1,
+                }"
+                :musicDataListDto="song"
+                @on-music-choice="sendChosenSong"
+              >
+              </MusicDataListElement>
+            </v-sheet>
+          </v-card>
+        </v-col>
+      </v-row>
+    </template>
+  </v-dialog>
 </template>

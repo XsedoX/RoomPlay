@@ -11,6 +11,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 )
 
 type CreateRoomCommandHandler struct {
@@ -30,11 +31,12 @@ func NewCreateRoomCommandHandler(roomRepository i_room_repository.IRoomRepositor
 	}
 }
 
-func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *create_room_command.CreateRoomCommand) error {
+func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *create_room_command.CreateRoomCommand) (*room_id.RoomId, error) {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError
 	}
+	var response *room_id.RoomId
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		qrCode := handler.encrypter.NewEncryptionKey()
 		roomInstance, domainErr := room.NewRoom(command.RoomName, command.RoomPassword, string(qrCode), *userId)
@@ -48,7 +50,9 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *cre
 				err,
 				application_error_type.Unexpected)
 		}
+		roomId := roomInstance.Id()
+		response = &roomId
 		return nil
 	})
-	return err
+	return response, err
 }

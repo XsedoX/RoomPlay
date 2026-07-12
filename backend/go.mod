@@ -3,6 +3,7 @@ module github.com/XsedoX/RoomPlay
 go 1.26.5
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.15.0
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-faker/faker/v4 v4.9.0
 	github.com/go-playground/locales v0.14.1
@@ -10,6 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.30.3
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/schema v1.4.1
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -26,7 +28,6 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/brianvoe/gofakeit/v7 v7.15.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect

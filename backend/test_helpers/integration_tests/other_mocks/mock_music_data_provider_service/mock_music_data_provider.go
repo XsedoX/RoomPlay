@@ -18,9 +18,9 @@ func (m *MockMusicDataProviderService) SearchSongsByQuery(
 	nextPageToken *string,
 	pageSize uint8,
 ) (
-	[]music_data_response_dto.MusicDataResponseDto,
+	*music_data_response_dto.MusicDataResponseDto,
 	error,
 ) {
 	args := m.Called(ctx, accessToken, query, nextPageToken, pageSize)
-	return args.Get(0).([]music_data_response_dto.MusicDataResponseDto), args.Error(1)
+	return args.Get(0).(*music_data_response_dto.MusicDataResponseDto), args.Error(1)
 }

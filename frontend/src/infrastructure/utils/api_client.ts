@@ -43,7 +43,7 @@ function createRefreshTokenInterceptor() {
           const userStore = useUserStore();
           await userStore.logout();
           await router.replace({ name: 'LoginPage' });
-          return Promise.reject('unable to refresh token');
+          return Promise.reject(error);
         }
         return api_client(originalRequest);
       } catch (error) {
