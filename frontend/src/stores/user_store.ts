@@ -2,8 +2,6 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import type { ILoggedInUserStoreModel } from '@/infrastructure/user/ILoggedInUserStoreModel.ts';
 import { UserRepository } from '@/infrastructure/user/user_repository';
-import { useNotificationStore } from './notification_store';
-import { TSnackbarColor } from '@/infrastructure/utils/TSnackbarColor';
 import { AuthenticationRepository } from '@/infrastructure/authentication/authentication_repository';
 
 export const useUserStore = defineStore(
@@ -20,8 +18,6 @@ export const useUserStore = defineStore(
         };
         return null;
       }
-      const notificationStore = useNotificationStore();
-      notificationStore.showSnackbar(userDataResponse.title, TSnackbarColor.ERROR);
       return null;
     }
 

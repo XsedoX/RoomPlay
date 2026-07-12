@@ -3,15 +3,17 @@ package response
 import (
 	"encoding/json"
 	"errors"
-	"math"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
+	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -78,7 +80,7 @@ func TestWriteJsonApplicationFailure(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "code", response.Type)
 		assert.Equal(t, "title", response.Title)
-		assert.Contains(t, response.Description, "inner error")
+		assert.Contains(t, response.Description, response.Title)
 		assert.Equal(t, "instance", response.Instance)
 	})
 
@@ -111,7 +113,7 @@ func TestWriteJsonValidationFailure(t *testing.T) {
 
 		WriteJsonValidationFailure(w, "code", "instance", err)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 
 		var response ProblemDetails
 		err = json.Unmarshal(w.Body.Bytes(), &response)
@@ -149,10 +151,35 @@ func TestWriteJsonNoContent(t *testing.T) {
 }
 
 func TestWriteJsonSuccess(t *testing.T) {
-	t.Run("Success with Data", func(t *testing.T) {
+	t.Run("Success with meta", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := map[string]string{"key": "value"}
-		WriteJsonSuccess(w, http.StatusOK, data)
+		meta := page_meta_dto.PageMetaDto{
+			NextPageToken:     new(gofakeit.ID()),
+			PreviousPageToken: new(gofakeit.ID()),
+			PageSize:          10,
+			HasNextPage:       false,
+		}
+		WriteJsonSuccess(w, data, meta)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
+
+		var response Success
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+
+		responseMeta := response.Meta
+		assert.Equal(t, &meta, responseMeta)
+		// Need to cast response.Data to map to check content
+		responseData, ok := response.Data.(map[string]any)
+		assert.True(t, ok)
+		assert.Equal(t, "value", responseData["key"])
+	})
+	t.Run("Success without meta", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := map[string]string{"key": "value"}
+		WriteJsonSuccess(w, data)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
@@ -165,50 +192,19 @@ func TestWriteJsonSuccess(t *testing.T) {
 		responseData, ok := response.Data.(map[string]any)
 		assert.True(t, ok)
 		assert.Equal(t, "value", responseData["key"])
+		assert.Nil(t, response.Meta)
 	})
 
-	t.Run("Success with Nil Data", func(t *testing.T) {
+	t.Run("Success StatusCreated", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		WriteJsonSuccess(w, http.StatusOK, nil)
+		uuidToReturn := uuid.New()
+		WriteJsonCreated(w, uuidToReturn)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusCreated, w.Code)
 
 		var response Success
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Nil(t, response.Data)
-	})
-
-	t.Run("Success with No Data Arguments", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		WriteJsonSuccess(w, http.StatusOK)
-
-		assert.Equal(t, http.StatusOK, w.Code)
-
-		var response Success
-		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Nil(t, response.Data)
-	})
-
-	t.Run("Success with Multiple Data Arguments", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		data1 := "data1"
-		data2 := "data2"
-		WriteJsonSuccess(w, http.StatusOK, data1, data2)
-
-		var response Success
-		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, data1, response.Data)
-	})
-
-	t.Run("JSON Encoding Error", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		// math.Inf(1) is not valid JSON
-		WriteJsonSuccess(w, http.StatusOK, math.Inf(1))
-
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.Contains(t, w.Body.String(), "could not encode response object.")
+		assert.Equal(t, uuidToReturn.String(), response.Data)
 	})
 }

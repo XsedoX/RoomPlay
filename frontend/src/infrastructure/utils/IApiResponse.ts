@@ -1,9 +1,14 @@
-interface IApiSuccessResponse<T> {
-  data: T;
-  isSuccess: true;
+export interface IPageMetaDto {
+  nextPageToken?: string;
+  prevPageToken?: string;
+  pageSize: number;
+  hasNextPage: boolean;
 }
-interface IApiFailureResponse {
-  isSuccess: false;
+export interface IApiSuccessResponse<T = void> {
+  meta?: IPageMetaDto;
+  data: T;
+}
+export interface IApiProblemDetailsResponse {
   type: string;
   title: string;
   description: string;
@@ -11,4 +16,3 @@ interface IApiFailureResponse {
   status: number;
   validationErrors?: Record<string, string>;
 }
-export type IApiResponse<T = void> = IApiSuccessResponse<T> | IApiFailureResponse;

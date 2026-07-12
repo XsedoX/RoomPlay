@@ -1,14 +1,14 @@
 package song_controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_query_handler"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
-	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_response"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
+	"github.com/gorilla/schema"
 )
 
 const (
@@ -17,11 +17,11 @@ const (
 )
 
 type SongController struct {
-	searchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, []search_song_query_response.SearchSongQueryResponse]
+	searchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto]
 }
 
 func NewSongController(
-	searchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, []search_song_query_response.SearchSongQueryResponse],
+	searchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto],
 ) *SongController {
 	return &SongController{
 		searchSongQueryHandler: searchSongQueryHandler,
@@ -30,15 +30,16 @@ func NewSongController(
 
 func (sc *SongController) SearchSongsByQuery(w http.ResponseWriter, r *http.Request) {
 	var query search_song_query.SearchSongQuery
-	bodyDecodeErr := json.NewDecoder(r.Body).Decode(&query)
-	if bodyDecodeErr != nil {
-		response.WriteJsonFailure(w,
+	decoder := schema.NewDecoder()
+	paramsDecodeErr := decoder.Decode(&query, r.URL.Query())
+	if paramsDecodeErr != nil {
+		response.WriteJsonDecodingFailure(
+			w,
 			"SearchSongsByQuery.Decoding",
-			"Problem with decoding request body",
-			bodyDecodeErr.Error(),
+			paramsDecodeErr,
 			r.URL.RequestURI(),
-			http.StatusBadRequest,
 		)
+		return
 	}
 
 	validationErr := setup_validation.ValidatorInstance.Struct(query)
@@ -48,6 +49,7 @@ func (sc *SongController) SearchSongsByQuery(w http.ResponseWriter, r *http.Requ
 			r.URL.RequestURI(),
 			validationErr,
 		)
+		return
 	}
 
 	searchSongResponse, searchSongResponseErr := sc.searchSongQueryHandler.Handle(
@@ -59,10 +61,11 @@ func (sc *SongController) SearchSongsByQuery(w http.ResponseWriter, r *http.Requ
 			searchSongResponseErr,
 			r.URL.RequestURI(),
 		)
+		return
 	}
 
 	response.WriteJsonSuccess(w,
-		http.StatusOK,
-		searchSongResponse,
+		searchSongResponse.Songs,
+		searchSongResponse.PageMetaDto,
 	)
 }

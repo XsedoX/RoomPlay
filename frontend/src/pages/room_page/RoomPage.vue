@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import SongListElement from '@/pages/room_page/song_list_element/SongListElement.vue';
-import { type IGuid } from '@/shared/Guid.ts';
 import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
 import TouchscreenTooltip from '@/shared/touchscreen_tooltip/TouchscreenTooltip.vue';
-import type IGuidEvent from '@/shared/IGuidEvent.ts';
+import type IGuidEvent from '@/shared/guid/IGuidEvent';
 import SettingsMenu from '@/pages/room_page/settings_menu/SettingsMenu.vue';
 import PageTitle from '@/shared/page_title/PageTitle.vue';
 import { useUserStore } from '@/stores/user_store.ts';
@@ -55,7 +54,7 @@ function onSongDownvoted(event: IGuidEvent) {
 function onSongBoosted(event: IGuidEvent) {
   console.log('Song boosted:', event.id);
 }
-function chooseSong(id: IGuid) {
+function chooseSong(id: string) {
   console.log('Song chosen:', id);
 }
 async function leaveRoom() {

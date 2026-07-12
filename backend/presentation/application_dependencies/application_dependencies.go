@@ -15,8 +15,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/services/oidc_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
+	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_handler"
-	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_response"
 	get_user_data_query_handler "github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_handler"
 	get_user_data_query_response "github.com/XsedoX/RoomPlay/application/user/get_user/get_user_query_response"
 	"github.com/XsedoX/RoomPlay/application/user/login_user/login_user_command"
@@ -30,6 +30,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_handler"
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_response"
 	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
 )
 
@@ -42,13 +43,13 @@ type ApplicationDependencies struct {
 	GetUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool]
 	GetUserDataQueryHandler           i_query_handler.IQueryHandler[*get_user_data_query_response.GetUserDataQueryResponse]
 
-	CreateRoomCommandHandler       i_command_handler.ICommandHandler[*create_room_command.CreateRoomCommand]
+	CreateRoomCommandHandler       i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId]
 	LeaveRoomCommandHandler        i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand]
 	JoinRoomPasswordCommandHandler i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand]
 
 	GetRoomQueryHandler i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse]
 
-	SearchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, []search_song_query_response.SearchSongQueryResponse]
+	SearchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto]
 
 	OidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService
 }

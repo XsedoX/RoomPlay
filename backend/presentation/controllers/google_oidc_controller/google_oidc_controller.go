@@ -71,7 +71,7 @@ func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter
 		return
 	}
 
-	response.WriteJsonSuccess(w, http.StatusOK, googleUrl)
+	response.WriteJsonSuccess(w, googleUrl)
 }
 
 func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +132,7 @@ func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter,
 	}
 	base64RefreshToken := base64.RawURLEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
 	cookie_helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
-	cookie_helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath)
+	cookie_helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath+constants.AuthBasePath)
 	cookie_helpers.SetDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
 	cookie_helpers.ClearStateCookie(w, handler.configuration.Server().BasePath)
 

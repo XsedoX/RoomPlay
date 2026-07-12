@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type IUserListElementDto from '@/pages/settings_page/users_list/IUserListElementDto.ts';
-import { Guid, type IGuid } from '@/shared/Guid.ts';
+import { Guid, type IGuid } from '@/shared/guid/Guid';
 import { ref } from 'vue';
 
 const users = ref<IUserListElementDto[]>([

@@ -41,5 +41,5 @@ func (userController *UserController) GetUserData(w http.ResponseWriter, r *http
 			err,
 			r.URL.RequestURI())
 	}
-	response.WriteJsonSuccess(w, http.StatusOK, userData)
+	response.WriteJsonSuccess(w, userData)
 }

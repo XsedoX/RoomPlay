@@ -120,7 +120,7 @@ func InitializeApiServer(m *testing.M) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("*string"),
 		mock.AnythingOfType("uint8"),
-	).Return(seeder.ExternalSongData, nil)
+	).Return(&seeder.ExternalSongData, nil)
 
 	db := PgContainer.db
 	InjectedUserId := InjectedUser.Id()

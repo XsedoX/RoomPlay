@@ -11,13 +11,13 @@ import (
 
 type CachingSongDecorator struct {
 	decorated  i_music_data_provider_service.IMusicDataProviderService
-	cache      cache.ICache[[]music_data_response_dto.MusicDataResponseDto]
+	cache      cache.ICache[*music_data_response_dto.MusicDataResponseDto]
 	unitOfWork i_unit_of_work.IUnitOfWork
 }
 
 func NewCachingSongDecorator(
 	decorated i_music_data_provider_service.IMusicDataProviderService,
-	cache cache.ICache[[]music_data_response_dto.MusicDataResponseDto],
+	cache cache.ICache[*music_data_response_dto.MusicDataResponseDto],
 	unitOfWork i_unit_of_work.IUnitOfWork,
 ) *CachingSongDecorator {
 	return &CachingSongDecorator{
@@ -27,7 +27,7 @@ func NewCachingSongDecorator(
 	}
 }
 
-func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) ([]music_data_response_dto.MusicDataResponseDto, error) {
+func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*music_data_response_dto.MusicDataResponseDto, error) {
 	result, cacheErr := c.cache.Get(query, ctx, c.unitOfWork.GetQueryer())
 	if cacheErr == nil {
 		return result, nil

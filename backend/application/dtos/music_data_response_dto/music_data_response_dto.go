@@ -1,9 +1,14 @@
 package music_data_response_dto
 
-type MusicDataResponseDto struct {
+import "github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
+
+type SongDataResponseDto struct {
 	VideoId       string
 	Title         string
 	Author        string
 	AlbumCoverUrl string
-	NextPageToken string
+}
+type MusicDataResponseDto struct {
+	Songs       []SongDataResponseDto
+	PageMetaDto page_meta_dto.PageMetaDto
 }

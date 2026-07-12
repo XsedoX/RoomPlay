@@ -53,7 +53,7 @@ func ConstructInfrastructureDependencies(
 	jwtProvider := jwt_provider.NewJwtProvider(config)
 	unitOfWork := unit_of_work.NewUnitOfWork(db)
 
-	searchSongCache := cache.NewCache[[]music_data_response_dto.MusicDataResponseDto](
+	searchSongCache := cache.NewCache[*music_data_response_dto.MusicDataResponseDto](
 		config.CacheSimilarityThreshold(),
 	)
 	youtubeMusicDataProvider := youtube_music_data_provider.NewYoutubeMusicDataProvider()

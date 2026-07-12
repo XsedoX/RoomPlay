@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
+	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
@@ -46,37 +47,44 @@ func TestSearchSongQueryHandler(t *testing.T) {
 
 		accessToken := "access_token"
 		queryString := "test query"
-		musicProviderResponse := []music_data_response_dto.MusicDataResponseDto{
-			{
-				VideoId:       gofakeit.ID(),
-				Title:         gofakeit.SongName(),
-				Author:        gofakeit.SongArtist(),
-				AlbumCoverUrl: gofakeit.URL(),
-				NextPageToken: gofakeit.ID(),
+		musicProviderResponse := &music_data_response_dto.MusicDataResponseDto{
+			Songs: []music_data_response_dto.SongDataResponseDto{
+				{
+					VideoId:       gofakeit.ID(),
+					Title:         gofakeit.SongName(),
+					Author:        gofakeit.SongArtist(),
+					AlbumCoverUrl: gofakeit.URL(),
+				},
+				{
+					VideoId:       gofakeit.ID(),
+					Title:         gofakeit.SongName(),
+					Author:        gofakeit.SongArtist(),
+					AlbumCoverUrl: gofakeit.URL(),
+				},
+				{
+					VideoId:       gofakeit.ID(),
+					Title:         gofakeit.SongName(),
+					Author:        gofakeit.SongArtist(),
+					AlbumCoverUrl: gofakeit.URL(),
+				},
 			},
-			{
-				VideoId:       gofakeit.ID(),
-				Title:         gofakeit.SongName(),
-				Author:        gofakeit.SongArtist(),
-				AlbumCoverUrl: gofakeit.URL(),
-				NextPageToken: gofakeit.ID(),
-			},
-			{
-				VideoId:       gofakeit.ID(),
-				Title:         gofakeit.SongName(),
-				Author:        gofakeit.SongArtist(),
-				AlbumCoverUrl: gofakeit.URL(),
-				NextPageToken: gofakeit.ID(),
+			PageMetaDto: page_meta_dto.PageMetaDto{
+				NextPageToken:     new(gofakeit.ID()),
+				PreviousPageToken: new(gofakeit.ID()),
+				HasNextPage:       true,
+				PageSize:          uint8(gofakeit.Number(1, 10)),
 			},
 		}
 
 		mockUoW.On("GetQueryer").Return(nil)
+
 		mockExternalCredentialsRepository.On(
 			"AccessTokenByUserId",
 			ctx,
 			userId,
 			mockUoW.GetQueryer(),
 		).Return(accessToken, nil)
+
 		mockMusicDataProvider.On(
 			"SearchSongsByQuery",
 			ctx,
@@ -99,24 +107,25 @@ func TestSearchSongQueryHandler(t *testing.T) {
 		response, err := handler.Handle(ctx, &query)
 		require.NoError(t, err)
 
-		require.Equal(t, response[0].VideoId, musicProviderResponse[0].VideoId)
-		require.Equal(t, response[1].VideoId, musicProviderResponse[1].VideoId)
-		require.Equal(t, response[2].VideoId, musicProviderResponse[2].VideoId)
+		require.Equal(t, response.Songs[0].VideoId, musicProviderResponse.Songs[0].VideoId)
+		require.Equal(t, response.Songs[1].VideoId, musicProviderResponse.Songs[1].VideoId)
+		require.Equal(t, response.Songs[2].VideoId, musicProviderResponse.Songs[2].VideoId)
 
-		require.Equal(t, response[0].Title, musicProviderResponse[0].Title)
-		require.Equal(t, response[1].Title, musicProviderResponse[1].Title)
-		require.Equal(t, response[2].Title, musicProviderResponse[2].Title)
+		require.Equal(t, response.Songs[0].Title, musicProviderResponse.Songs[0].Title)
+		require.Equal(t, response.Songs[1].Title, musicProviderResponse.Songs[1].Title)
+		require.Equal(t, response.Songs[2].Title, musicProviderResponse.Songs[2].Title)
 
-		require.Equal(t, response[0].Author, musicProviderResponse[0].Author)
-		require.Equal(t, response[1].Author, musicProviderResponse[1].Author)
-		require.Equal(t, response[2].Author, musicProviderResponse[2].Author)
+		require.Equal(t, response.Songs[0].Author, musicProviderResponse.Songs[0].Author)
+		require.Equal(t, response.Songs[1].Author, musicProviderResponse.Songs[1].Author)
+		require.Equal(t, response.Songs[2].Author, musicProviderResponse.Songs[2].Author)
 
-		require.Equal(t, response[0].AlbumCoverUrl, musicProviderResponse[0].AlbumCoverUrl)
-		require.Equal(t, response[1].AlbumCoverUrl, musicProviderResponse[1].AlbumCoverUrl)
-		require.Equal(t, response[2].AlbumCoverUrl, musicProviderResponse[2].AlbumCoverUrl)
+		require.Equal(t, response.Songs[0].AlbumCoverUrl, musicProviderResponse.Songs[0].AlbumCoverUrl)
+		require.Equal(t, response.Songs[1].AlbumCoverUrl, musicProviderResponse.Songs[1].AlbumCoverUrl)
+		require.Equal(t, response.Songs[2].AlbumCoverUrl, musicProviderResponse.Songs[2].AlbumCoverUrl)
 
-		require.Equal(t, response[0].NextPageToken, musicProviderResponse[0].NextPageToken)
-		require.Equal(t, response[1].NextPageToken, musicProviderResponse[1].NextPageToken)
-		require.Equal(t, response[2].NextPageToken, musicProviderResponse[2].NextPageToken)
+		require.Equal(t, response.PageMetaDto.NextPageToken, musicProviderResponse.PageMetaDto.NextPageToken)
+		require.Equal(t, response.PageMetaDto.PageSize, musicProviderResponse.PageMetaDto.PageSize)
+		require.Equal(t, response.PageMetaDto.PreviousPageToken, musicProviderResponse.PageMetaDto.PreviousPageToken)
+		require.Equal(t, response.PageMetaDto.HasNextPage, musicProviderResponse.PageMetaDto.HasNextPage)
 	})
 }

@@ -3,67 +3,67 @@ import SettingsListElement from '@/pages/settings_page/settings_list_element/Set
 import { ref, shallowRef } from 'vue';
 import type IMusicDataListElementDto from '@/shared/music_data_list_element/IMusicDataListElementDto.ts';
 import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
-import { Guid, type IGuid } from '@/shared/Guid.ts';
 import { type ITime, Time } from '@/shared/Time.ts';
+import { Guid } from '@/shared/guid/Guid';
 
 const songList: IMusicDataListElementDto[] = [
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
     subtitle: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
     subtitle: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Hotel California',
     subtitle: 'Eagles',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
     subtitle: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
     subtitle: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Hotel Californiadwwwwwwwwwwwwwwwwwwwwwwwww',
     subtitle: 'Eaglesdwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
     subtitle: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: Guid.generate(),
+    id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
     subtitle: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
-    id: new Guid('9593de37-416c-4bc8-9eee-8a98b7db66c7'),
+    id: new Guid('9593de37-416c-4bc8-9eee-8a98b7db66c7').toString(),
     title: 'Hotel California',
     subtitle: 'Eagles',
     imageUrl: 'https://picsum.photos/200',
   },
 ];
 const chosenSong = ref<IMusicDataListElementDto | null>(null);
-function chooseSong(id: IGuid) {
+function chooseSong(id: string) {
   chosenSong.value = songList.find((song) => song.id.toString() === id.toString())!;
 }
 const rapidSongPlayTime = ref<ITime>(new Time());
