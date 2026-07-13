@@ -82,7 +82,7 @@ function choosePlaylist(payload: IMusicDataListElementDto) {
           </settings-list-element>
           <settings-list-element
             header="DEFAULT PLAYLIST"
-            :hint="chosenPlaylist?.subtitle"
+            :hint="chosenPlaylist?.author"
             :sub-header="chosenPlaylist?.title ?? 'Choose a playlist.'"
           >
             <template v-slot:image>

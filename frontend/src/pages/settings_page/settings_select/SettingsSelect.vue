@@ -19,7 +19,7 @@ defineEmits<TSettingsSelectEmits>();
     bg-color="transparent"
   >
     <template v-slot:selection="{ item }">
-      <span class="text-primary">{{ item.value }}</span>
+      <span class="text-primary">{{ item }}</span>
     </template>
     <template v-slot:append-inner>
       <slot></slot>
