@@ -47,8 +47,8 @@ func NewAuthenticationController(refreshTokenCommandHandler i_command_handler.IC
 func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req *http.Request) {
 	refreshToken, err := req.Cookie(constants.RoomPlayRefreshTokenCookieName)
 	if err != nil || refreshToken == nil || refreshToken.Value == "" {
-		cookie_helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
-		cookie_helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+		cookie_helpers.ClearRefreshTokenCookie(w)
+		cookie_helpers.ClearAccessTokenCookie(w)
 		response.WriteJsonFailure(w,
 			"AuthenticationController.MissingRefreshTokenCookie",
 			"Missing refresh token cookie",
@@ -73,8 +73,8 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 
 	result, err := handler.loginRefreshTokenCommandHandler.Handle(req.Context(), &decodedTokenString)
 	if err != nil {
-		cookie_helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
-		cookie_helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+		cookie_helpers.ClearRefreshTokenCookie(w)
+		cookie_helpers.ClearAccessTokenCookie(w)
 		response.WriteJsonApplicationFailure(w,
 			err,
 			req.URL.RequestURI(),
@@ -82,8 +82,8 @@ func (handler *AuthenticationController) RefreshToken(w http.ResponseWriter, req
 		return
 	}
 	encodedRefreshToken := base64.RawURLEncoding.EncodeToString([]byte(result.RefreshToken))
-	cookie_helpers.SetRefreshTokenCookie(w, encodedRefreshToken, handler.configuration.Server().BasePath)
-	cookie_helpers.SetAccessTokenCookie(w, result.AccessToken, handler.configuration.Server().BasePath)
+	cookie_helpers.SetRefreshTokenCookie(w, encodedRefreshToken)
+	cookie_helpers.SetAccessTokenCookie(w, result.AccessToken)
 	response.WriteJsonNoContent(w)
 }
 
@@ -95,16 +95,16 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 			application_helpers.NewMissingUserIdInContextError,
 			req.URL.RequestURI(),
 		)
-		cookie_helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
-		cookie_helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+		cookie_helpers.ClearRefreshTokenCookie(w)
+		cookie_helpers.ClearAccessTokenCookie(w)
 		return
 	}
 	command.UserId = *userId
 
 	deviceId, err := req.Cookie(constants.RoomPlayDeviceIdCookieName)
 	if deviceId == nil || err != nil {
-		cookie_helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
-		cookie_helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+		cookie_helpers.ClearRefreshTokenCookie(w)
+		cookie_helpers.ClearAccessTokenCookie(w)
 		response.WriteJsonFailure(w,
 			"AuthenticationController.RoomPlayDeviceIdCookie",
 			"Missing device id cookie",
@@ -119,8 +119,8 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 	}
 	err = handler.logoutRefreshTokenCommandHandler.Handle(req.Context(), &command)
 	if err != nil {
-		cookie_helpers.ClearRefreshTokenCookie(w, handler.configuration.Server().BasePath)
-		cookie_helpers.ClearAccessTokenCookie(w, handler.configuration.Server().BasePath)
+		cookie_helpers.ClearRefreshTokenCookie(w)
+		cookie_helpers.ClearAccessTokenCookie(w)
 		response.WriteJsonApplicationFailure(w,
 			err,
 			req.URL.RequestURI(),

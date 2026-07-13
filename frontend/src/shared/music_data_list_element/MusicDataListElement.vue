@@ -14,7 +14,7 @@ function chooseMusic(event: IStringEvent) {
   <v-sheet
     @click="(event: Event) => chooseMusic({ event: event, id: props.musicDataListDto.id })"
     rounded="lg"
-    color="surface-container justify-start pa-2 d-flex flex-nowrap align-center"
+    color="surface-container justify-start pa-2 ma-1 d-flex flex-nowrap align-center"
   >
     <div class="d-flex align-center ga-2 justify-start w-100">
       <div class="overflow-hidden">

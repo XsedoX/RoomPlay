@@ -46,7 +46,7 @@ func NewOidcController(configuration config.IConfiguration,
 //	@Failure		403	{object}	response.Error	"Invalid redirect URL"
 //	@Router			/auth/google/login [post]
 func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) {
-	state := cookie_helpers.SetStateCookie(w, handler.configuration.Server().BasePath)
+	state := cookie_helpers.SetStateCookie(w)
 	deviceType := r.Header.Get("X-Device-Type")
 	parsedDeviceType := device_type.ParseDeviceType(&deviceType)
 	if parsedDeviceType == nil {
@@ -58,7 +58,7 @@ func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter
 			http.StatusBadRequest)
 		return
 	}
-	cookie_helpers.SetDeviceTypeCookie(w, parsedDeviceType.String(), handler.configuration.Server().BasePath)
+	cookie_helpers.SetDeviceTypeCookie(w, parsedDeviceType.String())
 
 	googleUrl, err := handler.googleOidcService.GenerateOidcUrl(state)
 	if err != nil {
@@ -131,10 +131,10 @@ func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter,
 		return
 	}
 	base64RefreshToken := base64.RawURLEncoding.EncodeToString([]byte(apiTokenResponse.RefreshToken))
-	cookie_helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken, handler.configuration.Server().BasePath)
-	cookie_helpers.SetRefreshTokenCookie(w, base64RefreshToken, handler.configuration.Server().BasePath+constants.AuthBasePath)
-	cookie_helpers.SetDeviceIdCookie(w, *apiTokenResponse.DeviceId.String(), handler.configuration.Server().BasePath)
-	cookie_helpers.ClearStateCookie(w, handler.configuration.Server().BasePath)
+	cookie_helpers.SetAccessTokenCookie(w, apiTokenResponse.AccessToken)
+	cookie_helpers.SetRefreshTokenCookie(w, base64RefreshToken)
+	cookie_helpers.SetDeviceIdCookie(w, *apiTokenResponse.DeviceId.String())
+	cookie_helpers.ClearStateCookie(w)
 
 	http.Redirect(w, r, handler.configuration.Authentication().ClientOrigin+"/signin-oidc", http.StatusSeeOther)
 }

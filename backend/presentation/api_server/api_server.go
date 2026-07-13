@@ -42,7 +42,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 	// Public routes
 	apiV1.Get("/auth/google/signin-oidc", dependencies.PresentationDependencies.OidcController().HandleLoginWithGoogle)
 	apiV1.Get("/auth/google/callback", dependencies.PresentationDependencies.OidcController().HandleGoogleCallback)
-	apiV1.Post(constants.AuthBasePath+constants.RefreshTokenPath, dependencies.PresentationDependencies.AuthenticationController().RefreshToken)
+	apiV1.Post(constants.RefreshTokenPath, dependencies.PresentationDependencies.AuthenticationController().RefreshToken)
 
 	// Secured routes
 	apiV1.Group(func(r chi.Router) {
@@ -50,7 +50,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 			r.Use(jwtAuthMiddleware.Next)
 		}
 
-		r.Post(constants.AuthBasePath+constants.LogoutPath, dependencies.PresentationDependencies.AuthenticationController().Logout)
+		r.Post(constants.LogoutPath, dependencies.PresentationDependencies.AuthenticationController().Logout)
 
 		r.Route(room_controller.RoomBasePath, func(r chi.Router) {
 			r.Post("/", dependencies.PresentationDependencies.RoomController().CreateRoom)

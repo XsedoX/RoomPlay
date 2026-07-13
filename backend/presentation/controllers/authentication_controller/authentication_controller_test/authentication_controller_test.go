@@ -24,11 +24,10 @@ func TestMain(m *testing.M) {
 
 func TestLogoutSuccess(t *testing.T) {
 	txx, _ := tests_initializer.GetTxxAndCtx(t, true)
-	configuration := mock_configuration.MockConfiguration{}
 	testServer := tests_initializer.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+constants.AuthBasePath+constants.LogoutPath, nil)
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+constants.LogoutPath, nil)
 	w := httptest.NewRecorder()
 	deviceId := tests_initializer.InjectedUser.Devices()[0].Id()
 	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
@@ -36,7 +35,7 @@ func TestLogoutSuccess(t *testing.T) {
 		Name:     constants.RoomPlayDeviceIdCookieName,
 		Value:    *deviceId.String(),
 		Expires:  expiresAt,
-		Path:     configuration.Server().BasePath,
+		Path:     constants.ApiBasePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -58,7 +57,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 	testServer := tests_initializer.TestServer
 	r := testServer.Router()
 
-	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+constants.AuthBasePath+constants.RefreshTokenPath, nil)
+	req := httptest.NewRequest(http.MethodPost, constants.ApiBasePath+constants.RefreshTokenPath, nil)
 	w := httptest.NewRecorder()
 	expiresAt := time.Now().UTC().Add(internal_credentials.RefreshTokenExpirationTime)
 	deviceId := tests_initializer.InjectedUser.Devices()[0].Id()
@@ -67,7 +66,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    encodedRefreshToken,
 		Expires:  expiresAt,
-		Path:     configuration.Server().BasePath + constants.RefreshTokenPath,
+		Path:     constants.RefreshTokenCookiePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
