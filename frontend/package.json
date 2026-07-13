@@ -16,7 +16,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build",
+    "type-check": "vue-tsc --noEmit",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint:eslint:ci": "eslint . --fix",
