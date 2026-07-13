@@ -11,7 +11,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "test:unit:ci": "vitest --run",
+    "test:unit:ci": "vitest --run --coverage --coverage.all",
     "test:unit:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
