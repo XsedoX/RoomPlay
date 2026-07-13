@@ -75,6 +75,7 @@
     "vite-plugin-csp-guard": "^4.0.1",
     "vite-plugin-vue-devtools": "^8.1.5",
     "vitest": "^4.1.9",
-    "vue-tsc": "^3.3.6"
+    "vue-tsc": "^3.3.6",
+    "@vitest/coverage-v8": "^4.1.10"
   }
 }
