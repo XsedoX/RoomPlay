@@ -28,7 +28,13 @@ func NewCachingSongDecorator(
 }
 
 func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*music_data_response_dto.MusicDataResponseDto, error) {
-	result, cacheErr := c.cache.Get(query, ctx, c.unitOfWork.GetQueryer())
+	token := "none"
+	if nextPageToken != nil {
+		token = *nextPageToken
+	}
+	cacheKey := query + "::" + token
+
+	result, cacheErr := c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer())
 	if cacheErr == nil {
 		return result, nil
 	}
