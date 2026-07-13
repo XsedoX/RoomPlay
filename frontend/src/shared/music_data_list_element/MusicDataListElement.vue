@@ -33,7 +33,7 @@ function chooseMusic(event: IStringEvent) {
           {{ props.musicDataListDto.title }}
         </div>
         <div :class="['text-medium-emphasis', 'text-caption']">
-          {{ props.musicDataListDto.subtitle }}
+          {{ props.musicDataListDto.author }}
         </div>
       </div>
       <v-icon color="outline" icon="chevron_right"></v-icon>

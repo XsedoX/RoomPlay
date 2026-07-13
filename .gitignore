@@ -29,41 +29,63 @@ go.work
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff
-{frontend,backend}/.idea/**/workspace.xml
-{frontend,backend}/.idea/**/tasks.xml
-{frontend,backend}/.idea/**/usage.statistics.xml
-{frontend,backend}/.idea/**/dictionaries
-{frontend,backend}/.idea/**/shelf
+frontend/.idea/**/workspace.xml
+backend/.idea/**/workspace.xml
+frontend/.idea/**/tasks.xml
+backend/.idea/**/tasks.xml
+frontend/.idea/**/usage.statistics.xml
+backend/.idea/**/usage.statistics.xml
+frontend/.idea/**/dictionaries
+backend/.idea/**/dictionaries
+frontend/.idea/**/shelf
+backend/.idea/**/shelf
 
 # AWS User-specific
-{frontend,backend}/.idea/**/aws.xml
+frontend/.idea/**/aws.xml
+backend/.idea/**/aws.xml
 
 # Generated files
-{frontend,backend}/.idea/**/contentModel.xml
+frontend/.idea/**/contentModel.xml
+backend/.idea/**/contentModel.xml
 
 # Sensitive or high-churn files
-{frontend,backend}/.idea/**/dataSources/
-{frontend,backend}/.idea/**/dataSources.ids
-{frontend,backend}/.idea/**/dataSources.local.xml
-{frontend,backend}/.idea/**/sqlDataSources.xml
-{frontend,backend}/.idea/**/dynamic.xml
-{frontend,backend}/.idea/**/uiDesigner.xml
-{frontend,backend}/.idea/**/dbnavigator.xml
+frontend/.idea/**/dataSources/
+backend/.idea/**/dataSources/
+frontend/.idea/**/dataSources.ids
+backend/.idea/**/dataSources.ids
+frontend/.idea/**/dataSources.local.xml
+backend/.idea/**/dataSources.local.xml
+frontend/.idea/**/sqlDataSources.xml
+backend/.idea/**/sqlDataSources.xml
+frontend/.idea/**/dynamic.xml
+backend/.idea/**/dynamic.xml
+frontend/.idea/**/uiDesigner.xml
+backend/.idea/**/uiDesigner.xml
+frontend/.idea/**/dbnavigator.xml
+backend/.idea/**/dbnavigator.xml
 
 # Gradle
-{frontend,backend}/.idea/**/gradle.xml
-{frontend,backend}/.idea/**/libraries
+frontend/.idea/**/gradle.xml
+backend/.idea/**/gradle.xml
+frontend/.idea/**/libraries
+backend/.idea/**/libraries
 
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# {frontend,backend}/.idea/artifacts
-# {frontend,backend}/.idea/compiler.xml
-# {frontend,backend}/.idea/jarRepositories.xml
-# {frontend,backend}/.idea/modules.xml
-# {frontend,backend}/.idea/*.iml
-# {frontend,backend}/.idea/modules
+#frontend/.idea/artifacts
+#backend/.idea/artifacts
+#frontend/.idea/compiler.xml
+#backend/.idea/compiler.xml
+#frontend/.idea/jarRepositories.xml
+#backend/.idea/jarRepositories.xml
+#frontend/.idea/modules.xml
+#backend/.idea/modules.xml
+#frontend/.idea/*.iml
+#backend/.idea/*.iml
+#frontend/.idea/modules
+#backend/.idea/modules
 # *.iml
 # *.ipr
 
@@ -71,57 +93,85 @@ go.work
 cmake-build-*/
 
 # Mongo Explorer plugin
-{frontend,backend}/.idea/**/mongoSettings.xml
+frontend/.idea/**/mongoSettings.xml
+backend/.idea/**/mongoSettings.xml
 
 # File-based project format
-{frontend,backend}/*.iws
+frontend/*.iws
+backend/*.iws
 
 # IntelliJ
-{frontend,backend}/out/
+frontend/out/
+backend/out/
 
 # mpeltonen/sbt-idea plugin
-{frontend,backend}/.idea_modules/
+frontend/.idea_modules/
+backend/.idea_modules/
 
 # JIRA plugin
-{frontend,backend}/atlassian-ide-plugin.xml
+frontend/atlassian-ide-plugin.xml
+backend/atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
-{frontend,backend}/.idea/replstate.xml
+frontend/.idea/replstate.xml
+backend/.idea/replstate.xml
 
 # SonarLint plugin
-{frontend,backend}/.idea/sonarlint/
+frontend/.idea/sonarlint/
+backend/.idea/sonarlint/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
-{frontend,backend}/com_crashlytics_export_strings.xml
-{frontend,backend}/crashlytics.properties
-{frontend,backend}/crashlytics-build.properties
-{frontend,backend}/fabric.properties
+frontend/com_crashlytics_export_strings.xml
+backend/com_crashlytics_export_strings.xml
+frontend/crashlytics.properties
+backend/crashlytics.properties
+frontend/crashlytics-build.properties
+backend/crashlytics-build.properties
+frontend/fabric.properties
+backend/fabric.properties
 
 # Editor-based Rest Client
-{frontend,backend}/.idea/httpRequests
+frontend/.idea/httpRequests
+backend/.idea/httpRequests
 
 # Android studio 3.1+ serialized cache file
-{frontend,backend}/.idea/caches/build_file_checksums.ser
+frontend/.idea/caches/build_file_checksums.ser
+backend/.idea/caches/build_file_checksums.ser
 
 ### Intellij+all Patch ###
 # Ignore everything but code style settings and run configurations
 # that are supposed to be shared within teams.
 
-{frontend,backend}/.idea/*
+frontend/.idea/*
+backend/.idea/*
 
-!{frontend,backend}/.idea/codeStyles
-!{frontend,backend}/.idea/runConfigurations
+frontend/.idea/codeStyles
+backend/.idea/codeStyles
+frontend/.idea/runConfigurations
+backend/.idea/runConfigurations
 
 ### Vuejs ###
 # Recommended template: Node.gitignore
 
-{frontend,backend}/node_modules/
-{frontend,backend}/dist/
-{frontend,backend}/npm-debug.log
-{frontend,backend}/yarn-error.log
+frontend/node_modules/
+backend/node_modules/
+frontend/dist/
+backend/dist/
+frontend/npm-debug.log
+backend/npm-debug.log
+frontend/yarn-error.log
+backend/yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,go,vuejs
 
 .scannerwork/*
 /data/*
 node_modules/*
+
+# aspire
+bin/
+obj/
+*.user
+*.userprefs
+appsettings.development.json
+.aspire/

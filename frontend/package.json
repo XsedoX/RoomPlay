@@ -10,7 +10,7 @@
     "dev": "vite --host",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "test:unit": "vitest",
+    "test:unit": "vitest --coverage --coverage.all --run && vue-tsc --noEmit -p tsconfig.app.json",
     "test:unit:ci": "vitest --run --coverage --coverage.all",
     "test:unit:ui": "vitest --ui",
     "test:e2e": "playwright test",
@@ -53,6 +53,7 @@
     "@types/node": "^26.1.0",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitejs/plugin-vue-jsx": "^5.1.6",
+    "@vitest/coverage-v8": "4.1.9",
     "@vitest/eslint-plugin": "^1.6.20",
     "@vitest/ui": "^4.1.9",
     "@vue/eslint-config-prettier": "^10.2.0",
@@ -75,7 +76,6 @@
     "vite-plugin-csp-guard": "^4.0.1",
     "vite-plugin-vue-devtools": "^8.1.5",
     "vitest": "^4.1.9",
-    "vue-tsc": "^3.3.6",
-    "@vitest/coverage-v8": "^4.1.9"
+    "vue-tsc": "^3.3.6"
   }
 }

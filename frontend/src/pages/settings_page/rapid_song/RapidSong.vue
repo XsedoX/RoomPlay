@@ -10,55 +10,55 @@ const songList: IMusicDataListElementDto[] = [
   {
     id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
+    author: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
+    author: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Hotel California',
-    subtitle: 'Eagles',
+    author: 'Eagles',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
+    author: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
+    author: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Hotel Californiadwwwwwwwwwwwwwwwwwwwwwwwww',
-    subtitle: 'Eaglesdwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
+    author: 'Eaglesdwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Bohemian Rhapsody',
-    subtitle: 'Queen',
+    author: 'Queen',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: Guid.generate().toString(),
     title: 'Stairway to Heaven',
-    subtitle: 'Led Zeppelin',
+    author: 'Led Zeppelin',
     imageUrl: 'https://picsum.photos/200',
   },
   {
     id: new Guid('9593de37-416c-4bc8-9eee-8a98b7db66c7').toString(),
     title: 'Hotel California',
-    subtitle: 'Eagles',
+    author: 'Eagles',
     imageUrl: 'https://picsum.photos/200',
   },
 ];
@@ -74,7 +74,7 @@ const showTimePicker = shallowRef(false);
   <v-list bg-color="transparent" density="compact" width="100%">
     <settings-list-element
       header="CHOOSE A SONG"
-      :hint="chosenSong?.subtitle"
+      :hint="chosenSong?.author"
       :sub-header="chosenSong?.title ?? 'Choose a song.'"
     >
       <template v-slot:image>

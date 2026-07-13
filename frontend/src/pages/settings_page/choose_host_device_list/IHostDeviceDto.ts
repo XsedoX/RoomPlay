@@ -1,6 +1,6 @@
 import type { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
 import type { THostDeviceState } from '@/pages/settings_page/choose_host_device_list/THostDeviceState.ts';
-import type { IGuid } from '@/shared/Guid.ts';
+import type { IGuid } from '@/shared/guid/Guid';
 
 export default interface IHostDeviceDto {
   isHost: boolean;
