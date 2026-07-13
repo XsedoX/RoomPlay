@@ -1,8 +1,7 @@
 {
   "server": {
     "port": "7654",
-    "host": "http://localhost",
-    "basePath": "/api/v1"
+    "host": "http://localhost"
   },
   "database": {
     "connectionString": "postgres://postgres:dupa1234@localhost:5432/postgres"

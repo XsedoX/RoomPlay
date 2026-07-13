@@ -37,51 +37,53 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 	if !ok {
 		return nil, application_helpers.NewMissingUserIdInContextError
 	}
-	response := &search_song_query_dto.SearchSongQueryDto{}
-	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		accessToken, accessTokenError := handler.externalCredentialsRepository.AccessTokenByUserId(
+	var accessToken string
+	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
+		var accessTokenErr error
+		accessToken, accessTokenErr = handler.externalCredentialsRepository.AccessTokenByUserId(
 			ctx,
 			*userId,
 			handler.unitOfWork.GetQueryer(),
 		)
-		if accessTokenError != nil {
+		if accessTokenErr != nil {
 			return application_error.NewApplicationError("SearchSongQueryHandler.GetAccessTokenByUserId",
 				"Problem with getting access token for music service.",
-				accessTokenError,
+				accessTokenErr,
 				application_error_type.Unexpected)
-		}
-		songsFromMusicService, searchSongsErr := handler.musicService.SearchSongsByQuery(
-			ctx,
-			accessToken,
-			query.Query,
-			query.NextPageToken,
-			uint8(query.PageSize),
-		)
-		if searchSongsErr != nil {
-			return application_error.NewApplicationError("SearchSongQueryHandler.SearchSongsByQuery",
-				"Problem with searching songs from music service.",
-				searchSongsErr,
-				application_error_type.Unexpected)
-		}
-		response.Songs = make([]search_song_query_song_data_dto.SearchSongQuerySongDataDto, 0, len(songsFromMusicService.Songs))
-		for _, song := range songsFromMusicService.Songs {
-			response.Songs = append(response.Songs, search_song_query_song_data_dto.SearchSongQuerySongDataDto{
-				VideoId:       song.VideoId,
-				Author:        song.Author,
-				AlbumCoverUrl: song.AlbumCoverUrl,
-				Title:         song.Title,
-			})
-		}
-		response.PageMetaDto = page_meta_dto.PageMetaDto{
-			NextPageToken:     songsFromMusicService.PageMetaDto.NextPageToken,
-			PreviousPageToken: songsFromMusicService.PageMetaDto.PreviousPageToken,
-			HasNextPage:       songsFromMusicService.PageMetaDto.HasNextPage,
-			PageSize:          songsFromMusicService.PageMetaDto.PageSize,
 		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
+	}
+	response := &search_song_query_dto.SearchSongQueryDto{}
+	songsFromMusicService, searchSongsErr := handler.musicService.SearchSongsByQuery(
+		ctx,
+		accessToken,
+		query.Query,
+		query.NextPageToken,
+		uint8(query.PageSize),
+	)
+	if searchSongsErr != nil {
+		return nil, application_error.NewApplicationError("SearchSongQueryHandler.SearchSongsByQuery",
+			"Problem with searching songs from music service.",
+			searchSongsErr,
+			application_error_type.Unexpected)
+	}
+	response.Songs = make([]search_song_query_song_data_dto.SearchSongQuerySongDataDto, 0, len(songsFromMusicService.Songs))
+	for _, song := range songsFromMusicService.Songs {
+		response.Songs = append(response.Songs, search_song_query_song_data_dto.SearchSongQuerySongDataDto{
+			VideoId:       song.VideoId,
+			Author:        song.Author,
+			AlbumCoverUrl: song.AlbumCoverUrl,
+			Title:         song.Title,
+		})
+	}
+	response.PageMetaDto = page_meta_dto.PageMetaDto{
+		NextPageToken:     songsFromMusicService.PageMetaDto.NextPageToken,
+		PreviousPageToken: songsFromMusicService.PageMetaDto.PreviousPageToken,
+		HasNextPage:       songsFromMusicService.PageMetaDto.HasNextPage,
+		PageSize:          songsFromMusicService.PageMetaDto.PageSize,
 	}
 	return response, nil
 }

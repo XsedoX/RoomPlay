@@ -10,83 +10,85 @@ import (
 	"github.com/google/uuid"
 )
 
-func ClearAccessTokenCookie(w http.ResponseWriter, basePath string) {
+const accessTokenCookiePath = constants.ApiBasePath
+
+func ClearAccessTokenCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayAccessTokenCookieName,
 		Value:    "",
 		MaxAge:   -1,
-		Path:     basePath,
+		Path:     accessTokenCookiePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
 
-func ClearRefreshTokenCookie(w http.ResponseWriter, basePath string) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.RoomPlayRefreshTokenCookieName,
-		Value:    "",
-		MaxAge:   -1,
-		Path:     basePath + constants.RefreshTokenPath,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	})
-}
-
-func SetAccessTokenCookie(w http.ResponseWriter, accessToken, basePath string) {
+func SetAccessTokenCookie(w http.ResponseWriter, accessToken string) {
 	expiresAt := time.Now().Add(jwt_provider.AccessTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayAccessTokenCookieName,
 		Value:    accessToken,
 		Expires:  expiresAt,
-		Path:     basePath,
+		Path:     accessTokenCookiePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
 
-func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken, basePath string) {
+func ClearRefreshTokenCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     constants.RoomPlayRefreshTokenCookieName,
+		Value:    "",
+		MaxAge:   -1,
+		Path:     constants.RefreshTokenCookiePath,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func SetRefreshTokenCookie(w http.ResponseWriter, refreshToken string) {
 	expiresAt := time.Now().Add(internal_credentials.RefreshTokenExpirationTime).UTC()
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayRefreshTokenCookieName,
 		Value:    refreshToken,
 		Expires:  expiresAt,
-		Path:     basePath + constants.RefreshTokenPath,
+		Path:     constants.RefreshTokenCookiePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
 
-func SetDeviceIdCookie(w http.ResponseWriter, deviceId string, basePath string) {
+func SetDeviceIdCookie(w http.ResponseWriter, deviceId string) {
 	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayDeviceIdCookieName,
 		Value:    deviceId,
 		Expires:  expiresAt,
-		Path:     basePath,
+		Path:     constants.ApiBasePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
 
-func SetDeviceTypeCookie(w http.ResponseWriter, deviceType string, basePath string) {
+func SetDeviceTypeCookie(w http.ResponseWriter, deviceType string) {
 	expiresAt := time.Now().UTC().Add(constants.RoomPlayDeviceIdCookieExpirationTime)
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayDeviceTypeCookieName,
 		Value:    deviceType,
 		Expires:  expiresAt,
-		Path:     basePath,
+		Path:     constants.ApiBasePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 }
 
-func SetStateCookie(w http.ResponseWriter, basePath string) string {
+func SetStateCookie(w http.ResponseWriter) string {
 	expiresAt := time.Now().Add(constants.RoomPlayStateCookieExpirationTime).UTC()
 	state := uuid.NewString()
 	http.SetCookie(w, &http.Cookie{
@@ -94,7 +96,7 @@ func SetStateCookie(w http.ResponseWriter, basePath string) string {
 		Value:    state,
 		Expires:  expiresAt,
 		MaxAge:   int(constants.RoomPlayStateCookieExpirationTime.Seconds()),
-		Path:     basePath,
+		Path:     constants.ApiBasePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -102,12 +104,12 @@ func SetStateCookie(w http.ResponseWriter, basePath string) string {
 	return state
 }
 
-func ClearStateCookie(w http.ResponseWriter, basePath string) {
+func ClearStateCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.RoomPlayStateCookieName,
 		Value:    "",
 		MaxAge:   -1,
-		Path:     basePath,
+		Path:     constants.ApiBasePath,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,

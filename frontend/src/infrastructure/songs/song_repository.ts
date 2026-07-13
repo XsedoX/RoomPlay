@@ -14,7 +14,7 @@ export const SongRepository = {
   searchSongs: async (
     searchQuery: ISearchSongRequest,
   ): Promise<IRepositoryResponse<ISearchSongResponse[]>> => {
-    console.log('searchSongs', searchQuery);
+    setTimeout(() => {}, 10000);
     const params = new URLSearchParams();
     params.set('query', searchQuery.query);
     params.set('pageSize', searchQuery.pageSize.toString());

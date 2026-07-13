@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import csp from 'vite-plugin-csp-guard';
+import { getCspConfig } from './csp.config';
+import { securityHeaders } from './security_headers.config';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -20,33 +22,7 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    plugins: [
-      vue(),
-      vueJsx(),
-      vueDevTools(),
-      csp({
-        dev: {
-          run: true,
-          outlierSupport: ['vue'],
-        },
-        policy: {
-          'default-src': ["'self'"],
-          'script-src': isDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
-          'style-src': ["'self'", 'https://fonts.googleapis.com'],
-          'style-src-elem': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-          'img-src': ["'self'", 'data:', 'https://i.ytimg.com'],
-          'font-src': ["'self'", 'https://fonts.gstatic.com'],
-          'connect-src': ["'self'", 'http://localhost:7654'],
-          'base-uri': ["'self'"],
-          'form-action': ["'self'"],
-          'frame-ancestors': ["'none'"],
-          ...(isDev ? {} : { 'upgrade-insecure-requests': [] }),
-        },
-        build: {
-          sri: true,
-        },
-      }),
-    ],
+    plugins: [vue(), vueJsx(), vueDevTools(), csp(getCspConfig(isDev))],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -58,19 +34,7 @@ export default defineConfig(({ mode }) => {
           target: 'http://localhost:7654',
         },
       },
-      headers: {
-        'X-XSS-Protection': '0',
-        'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp',
-        'Cross-Origin-Resource-Policy': 'same-site',
-        Server: 'ThisIsASecret',
-        'X-Powered-By': 'Nope',
-        'Permissions-Policy':
-          'accelerometer=(), ambient-light-sensor=(), bluetooth=(), camera=(), capture-surface-control=(), compute-pressure=(), display-capture=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), on-device-speech-recognition=(), payment=(), serial=(), speaker-selection=(), storage-access=(), usb=(), xr-spatial-tracking=()',
-      },
+      headers: securityHeaders,
       host: env.VITE_APP_HOST,
       port: parseInt(env.VITE_APP_PORT),
     },

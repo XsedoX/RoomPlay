@@ -15,9 +15,8 @@ const (
 )
 
 type Server struct {
-	Port     string `json:"port" envconfig:"PORT"`
-	Host     string `json:"host" envconfig:"SERVER_HOST"`
-	BasePath string `json:"BasePath" envconfig:"BASE_PATH"`
+	Port string `json:"port" envconfig:"PORT"`
+	Host string `json:"host" envconfig:"SERVER_HOST"`
 }
 type Database struct {
 	ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
