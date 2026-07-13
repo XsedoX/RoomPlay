@@ -76,6 +76,6 @@
     "vite-plugin-vue-devtools": "^8.1.5",
     "vitest": "^4.1.9",
     "vue-tsc": "^3.3.6",
-    "@vitest/coverage-v8": "^4.1.10"
+    "@vitest/coverage-v8": "^3.2.7"
   }
 }
