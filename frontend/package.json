@@ -11,12 +11,12 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "test:unit:ci": "vitest --run",
+    "test:unit:ci": "vitest --run --coverage --coverage.all",
     "test:unit:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build",
+    "type-check": "vue-tsc --noEmit && vue-tsc --noEmit -p tsconfig.app.json",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint:eslint:ci": "eslint . --fix",
@@ -75,6 +75,7 @@
     "vite-plugin-csp-guard": "^4.0.1",
     "vite-plugin-vue-devtools": "^8.1.5",
     "vitest": "^4.1.9",
-    "vue-tsc": "^3.3.6"
+    "vue-tsc": "^3.3.6",
+    "@vitest/coverage-v8": "^4.1.9"
   }
 }
