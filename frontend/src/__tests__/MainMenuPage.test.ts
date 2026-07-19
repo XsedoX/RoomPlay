@@ -2,24 +2,18 @@ import { testLogoWithTitleText } from '@/__tests__/shared/shared_tests.ts';
 import MainMenuPage from '@/pages/main_menu_page/MainMenuPage.vue';
 import { describe, expect, it, vi } from 'vitest';
 import AvatarWithFullName from '@/pages/main_menu_page/AvatarWithFullName.vue';
-import { mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
+import { createFactory, mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
 import { useUserStore } from '@/stores/user_store.ts';
 import CreateRoomPopup from '@/pages/main_menu_page/CreateRoomPopup.vue';
 import { VTextField } from 'vuetify/components';
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises } from '@vue/test-utils';
 import { sharedStubs } from '@/__tests__/shared/stubs.ts';
-import type { StoreGeneric } from 'pinia';
 import { useRoomStore } from '@/stores/room_store.ts';
 import JoinRoomPopup from '@/pages/main_menu_page/JoinRoomPopup.vue';
 import { PlatformDiscoverer } from '@/infrastructure/utils/platform_discoverer.ts';
 import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THostDevice.ts';
 
-const factory = (
-  options?: Parameters<typeof mount>[1],
-  piniaStubs?: boolean | string[] | ((actionName: string, store: StoreGeneric) => boolean),
-) => mountVuetify(MainMenuPage, options, piniaStubs);
-
-async function openJoinRoomPopup(wrapper: ReturnType<typeof factory>) {
+async function openJoinRoomPopup(wrapper: ReturnType<typeof createFactory>) {
   const joinRoomButton = wrapper.get('[data-testid="join-room-btn"]');
   await joinRoomButton.trigger('click');
   const joinRoomPopup = wrapper.getComponent(JoinRoomPopup);
@@ -33,7 +27,7 @@ async function openJoinRoomPopup(wrapper: ReturnType<typeof factory>) {
   };
 }
 
-async function openCreateRoomPopup(wrapper: ReturnType<typeof factory>) {
+async function openCreateRoomPopup(wrapper: ReturnType<typeof createFactory>) {
   const createRoomButton = wrapper.get('[data-testid="create-room-btn"]');
   await createRoomButton.trigger('click');
   const createRoomPopup = wrapper.getComponent(CreateRoomPopup);
@@ -61,7 +55,7 @@ vi.mock('@/infrastructure/utils/platform_discoverer.ts', () => ({
 
 describe('Main Menu', () => {
   it('checks if a name of a user is visible', async () => {
-    const wrapper = factory();
+    const wrapper = createFactory(MainMenuPage);
     const userStore = useUserStore();
     userStore.user = { name: 'Full', surname: 'Name' };
     expect(userStore.user!.name).toBe('Full');
@@ -82,7 +76,7 @@ describe('Main Menu', () => {
   });
 
   it("checks if the 'Join a Room' button is visible", async () => {
-    const wrapper = factory();
+    const wrapper = createFactory(MainMenuPage);
     const joinRoomButton = wrapper.get('[data-testid="join-room-btn"]');
 
     expect(joinRoomButton.isVisible()).toBe(true);
@@ -92,7 +86,7 @@ describe('Main Menu', () => {
   });
 
   it("checks if the 'Create a Room' button is visible", async () => {
-    const wrapper = factory();
+    const wrapper = createFactory(MainMenuPage);
     const createRoomButton = wrapper.get('[data-testid="create-room-btn"]');
 
     expect(createRoomButton.isVisible()).toBe(true);
@@ -102,7 +96,7 @@ describe('Main Menu', () => {
   });
 
   it("checks if the 'Logout' button is visible", async () => {
-    const wrapper = factory();
+    const wrapper = createFactory(MainMenuPage);
     const logoutButton = wrapper.get('[data-testid="logout-btn"]');
 
     expect(logoutButton.isVisible()).toBe(true);
@@ -110,7 +104,7 @@ describe('Main Menu', () => {
   });
 
   it('checks if create room popup renders correctly', async () => {
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -129,7 +123,7 @@ describe('Main Menu', () => {
 
   it('checks if the JoinRoomPopup calls the joinRoom method with the correct parameters', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -156,7 +150,7 @@ describe('Main Menu', () => {
 
   it('checks if the CreateRoomPopup calls the createRoom method with the correct parameters', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -186,7 +180,7 @@ describe('Main Menu', () => {
 
   it('checks if the join room validation works correctly for too short values', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -211,7 +205,7 @@ describe('Main Menu', () => {
 
   it('checks if the join room validation works correctly for too long values', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -236,7 +230,7 @@ describe('Main Menu', () => {
 
   it('checks if the room creation validation works correctly for too short values', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -271,7 +265,7 @@ describe('Main Menu', () => {
 
   it('checks if the room creation validation works correctly for too long values', async () => {
     vi.useFakeTimers();
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -306,7 +300,7 @@ describe('Main Menu', () => {
 
   it("checks if 'Join a Room' popup renders correctly on mobile", async () => {
     vi.mocked(PlatformDiscoverer.getDeviceType).mockReturnValue(THostDevice.Mobile);
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,
@@ -334,7 +328,7 @@ describe('Main Menu', () => {
 
   it("checks if 'Join a Room' popup renders correctly on desktop", async () => {
     vi.mocked(PlatformDiscoverer.getDeviceType).mockReturnValue(THostDevice.Desktop);
-    const wrapper = factory({
+    const wrapper = createFactory(MainMenuPage, {
       global: {
         stubs: {
           VDialog: sharedStubs.vDialog,

@@ -6,13 +6,21 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_query_handler"
+	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password/join_room_password_command"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/i_hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/main_hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/room_hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket_requests/client_room_request"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
+	"github.com/google/uuid"
+	"github.com/gorilla/schema"
 )
 
 const (
@@ -27,6 +35,8 @@ type RoomController struct {
 	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool]
 	leaveRoomCommandHandler           i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand]
 	joinRoomCommandHandler            i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand]
+	mainHub                           i_hub.IHub
+	clientMessagePublisher            client_message_publisher.IClientMessagePublisher
 }
 
 func NewRoomController(createRoomCommandHandler i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId],
@@ -34,13 +44,17 @@ func NewRoomController(createRoomCommandHandler i_command_handler.ICommandHandle
 	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool],
 	leaveRoomCommandHandler i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand],
 	joinRoomCommandHandler i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand],
+	mainHub i_hub.IHub,
+	clientMessagePublisher client_message_publisher.IClientMessagePublisher,
 ) *RoomController {
 	return &RoomController{
 		createRoomCommandHandler:          createRoomCommandHandler,
+		clientMessagePublisher:            clientMessagePublisher,
 		getRoomQueryHandler:               getRoomQueryHandler,
 		getUserRoomMembershipQueryHandler: getUserRoomMembershipQueryHandler,
 		leaveRoomCommandHandler:           leaveRoomCommandHandler,
 		joinRoomCommandHandler:            joinRoomCommandHandler,
+		mainHub:                           mainHub,
 	}
 }
 
@@ -197,4 +211,47 @@ func (rh *RoomController) JoinRoomPassword(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	response.WriteJsonNoContent(w)
+}
+
+func (rh *RoomController) UpgradeToWebSockets(w http.ResponseWriter, r *http.Request) {
+	userId, ok := application_helpers.GetUserIdFromContext(r.Context())
+	if !ok {
+		response.WriteJsonApplicationFailure(w, application_helpers.NewMissingUserIdInContextError, r.URL.RequestURI())
+	}
+
+	type roomIdParam struct {
+		RoomId uuid.UUID `schema:"roomId" validate:"required,uuid"`
+	}
+	var roomIdParamValue roomIdParam
+	decoder := schema.NewDecoder()
+	paramsDecodeErr := decoder.Decode(&roomIdParamValue, r.URL.Query())
+	if paramsDecodeErr != nil {
+		response.WriteJsonDecodingFailure(
+			w,
+			"UpgradeToWebSockets.Decoding",
+			paramsDecodeErr,
+			r.URL.RequestURI(),
+		)
+		return
+	}
+
+	upgrader := main_hub.NewWebSocketUpgrader()
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		response.WriteJsonApplicationFailure(w,
+			err,
+			r.URL.RequestURI())
+		return
+	}
+	client := room_hub.NewClient(
+		conn,
+		*userId,
+		rh.clientMessagePublisher,
+	)
+	go client.WritePump()
+	go client.ReadPump()
+	rh.mainHub.RegisterClientToRoom(&client_room_request.ClientRoomRequest{
+		RoomId: room_id.RoomId(roomIdParamValue.RoomId),
+		Client: client,
+	})
 }

@@ -2,8 +2,8 @@ package get_room_query_handler
 
 import (
 	"context"
-	"encoding/base64"
 
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
 	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
@@ -15,14 +15,17 @@ import (
 type GetRoomQueryHandler struct {
 	unitOfWork     i_unit_of_work.IUnitOfWork
 	roomRepository i_room_repository.IRoomRepository
+	encrypter      i_encrypter.IEncrypter
 }
 
 func NewGetRoomQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 	roomRepository i_room_repository.IRoomRepository,
+	encrypter i_encrypter.IEncrypter,
 ) *GetRoomQueryHandler {
 	return &GetRoomQueryHandler{
 		unitOfWork:     unitOfWork,
 		roomRepository: roomRepository,
+		encrypter:      encrypter,
 	}
 }
 
@@ -41,7 +44,14 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*get_room_query_respon
 				application_error_type.Unexpected)
 		}
 		response.Name = roomData.Name
-		response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
+		decryptedQrCode, decryptErr := r.encrypter.Decrypt(roomData.QrCode)
+		if decryptErr != nil {
+			return application_error.NewApplicationError("GetRoomQueryHandler.Decrypt",
+				"Couldn't decrypt room's QR code.",
+				decryptErr,
+				application_error_type.Unexpected)
+		}
+		response.QrCode = decryptedQrCode
 		response.UserRole = roomData.UserRole
 		if roomData.BoostUsedAtUtc != nil && roomData.BoostCooldownSeconds != nil {
 			response.BoostData = &get_room_query_response.BoostDataDto{

@@ -23,7 +23,7 @@ var (
 	rooms = []room.Room{
 		*room.HydrateRoom(roomIds[0],
 			"room1",
-			"roompasss1",
+			[]byte("roompasss1"),
 			"qrCode1",
 			nil,
 			time.Date(2001, 11, 12, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -33,7 +33,7 @@ var (
 		),
 		*room.HydrateRoom(roomIds[1],
 			"room2",
-			"roompasss2",
+			[]byte("roompasss2"),
 			"qrCode2",
 			nil,
 			time.Date(2001, 11, 10, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -43,7 +43,7 @@ var (
 		),
 		*room.HydrateRoom(roomIds[2],
 			"room3",
-			"roompasss3",
+			[]byte("roompasss3"),
 			"qrCode3",
 			nil,
 			time.Date(2022, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
@@ -57,10 +57,18 @@ var (
 func (s *Seeder) seedRoom(ctx context.Context,
 	room *room.Room,
 ) error {
-	configuration := mock_configuration.MockConfiguration{}
-	encrypter := encryper.NewEncrypter(&configuration)
-	hashedPassword, _ := encrypter.HashAndSalt(room.Password())
-	_, err := s.Queryer.ExecContext(ctx, `
+	mockConfig := mock_configuration.MockConfiguration{}
+	encrypter1 := encryper.NewEncrypter(mockConfig.Authentication().EncryptionKey)
+	hashedSaltedPassword, err := encrypter1.HashAndSalt(string(room.Password()))
+	if err != nil {
+		return fmt.Errorf("failed to hash and salt password: %w", err)
+	}
+	encryptedQrCode, err := encrypter1.Encrypt(room.QrCode())
+	if err != nil {
+		return fmt.Errorf("failed to encrypt qr code: %w", err)
+	}
+
+	_, err = s.Queryer.ExecContext(ctx, `
 		INSERT INTO rooms 
 		(
 			id,
@@ -77,8 +85,8 @@ func (s *Seeder) seedRoom(ctx context.Context,
 		)
 		`, room.Id().ToUuid(),
 		room.Name(),
-		[]byte(hashedPassword),
-		[]byte(room.QrCode()),
+		hashedSaltedPassword,
+		encryptedQrCode,
 		room.BoostCooldownSeconds(),
 		room.CreatedAtUtc(),
 		room.LifespanSeconds(),

@@ -86,7 +86,7 @@ func TestRefreshTokenSuccess(t *testing.T) {
 	decodedToken, err := base64.RawURLEncoding.DecodeString(refreshToken.Value)
 	assert.NoError(t, err)
 	decodedTokenString := string(decodedToken)
-	encrypter := encryper.NewEncrypter(&configuration)
+	encrypter := encryper.NewEncrypter(configuration.Authentication().EncryptionKey)
 	hashedDecodedToken := encrypter.Hash(decodedTokenString)
 	assert.Equal(t, tokenFromDb.RefreshToken, hashedDecodedToken)
 }

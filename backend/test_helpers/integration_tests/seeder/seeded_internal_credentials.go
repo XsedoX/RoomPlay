@@ -26,7 +26,7 @@ var (
 
 func (s *Seeder) seedInternalCredentials(ctx context.Context, internalCredentials *internal_credentials.InternalCredentials) error {
 	configuration := mock_configuration.MockConfiguration{}
-	encrypter := encryper.NewEncrypter(&configuration)
+	encrypter := encryper.NewEncrypter(configuration.Authentication().EncryptionKey)
 	hashedRefreshToken := encrypter.Hash(internalCredentials.RefreshToken())
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO users_internal_credentials 

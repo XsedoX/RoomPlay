@@ -84,3 +84,33 @@ func NewEnqueuedSong(
 	result.SetId(enqueued_song_id.NewEnqueuedSongId())
 	return result
 }
+
+func (s EnqueuedSong) Equal(o EnqueuedSong) bool {
+	if s.Id() != o.Id() {
+		return false
+	}
+	if !s.songData.Equal(o.songData) {
+		return false
+	}
+	if !nearlyEqual(s.addedAtUtc, o.addedAtUtc, time.Second) {
+		return false
+	}
+	if (s.startedAtUtc == nil) != (o.startedAtUtc == nil) {
+		return false
+	}
+	if s.startedAtUtc != nil && !nearlyEqual(*s.startedAtUtc, *o.startedAtUtc, time.Second) {
+		return false
+	}
+	if s.state != o.state || s.votes != o.votes || s.addedBy != o.addedBy {
+		return false
+	}
+	return true
+}
+
+func nearlyEqual(a, b time.Time, d time.Duration) bool {
+	diff := a.Sub(b)
+	if diff < 0 {
+		diff = -diff
+	}
+	return diff <= d
+}

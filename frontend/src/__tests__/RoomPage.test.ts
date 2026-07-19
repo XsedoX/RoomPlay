@@ -1,7 +1,7 @@
 import { expect, describe, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import type { StoreGeneric } from 'pinia';
-import { mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
+import { createFactory, mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
 import RoomPage from '@/pages/room_page/RoomPage.vue';
 import { useRoomStore } from '@/stores/room_store.ts';
 import { faker } from '@faker-js/faker/locale/ar';
@@ -12,11 +12,7 @@ import { TSongState } from '@/infrastructure/room/TSongState';
 import { TVoteStatus } from '@/infrastructure/room/TVoteStatus';
 import { sharedStubs } from '@/__tests__/shared/stubs.ts';
 import { Guid } from '@/shared/guid/Guid';
-
-const factory = (
-  options?: Parameters<typeof mount>[1],
-  piniaStubs?: boolean | string[] | ((actionName: string, store: StoreGeneric) => boolean),
-) => mountVuetify(RoomPage, options, piniaStubs);
+import SearchSongPopup from '@/shared/search_song_popup/SearchSongPopup.vue';
 
 vi.mock('vue-router', async (importOriginal) => {
   const actual = await importOriginal();
@@ -56,9 +52,16 @@ const prepareStores = () => {
   return { roomStore: roomStore, userStore: userStore };
 };
 
+async function openSearchSongPopup(wrapper: ReturnType<typeof createFactory>) {
+  const searchSongButton = wrapper.get('[data-testid="search-song-text-field"');
+  await searchSongButton.trigger('click');
+  const searchSongPopup = wrapper.getComponent(SearchSongPopup);
+  expect(searchSongPopup.isVisible()).toBeTruthy();
+}
+
 describe('Room Page', () => {
   it('checks if the room renders correctly', async () => {
-    const wrapper = factory();
+    const wrapper = createFactory(RoomPage);
     const { roomStore, userStore } = prepareStores();
     roomStore.playingSong = {
       title: faker.word.sample({ length: { min: 5, max: 30 } }),
@@ -125,7 +128,7 @@ describe('Room Page', () => {
   });
   it("checks if the 'Leave Room' button calls leave function", async () => {
     const router = useRouter();
-    const wrapper = factory();
+    const wrapper = createFactory(RoomPage);
     const { roomStore } = prepareStores();
     await flushPromises();
     const leaveRoomButton = wrapper.get('[data-testid="leave-room-btn"');
@@ -138,7 +141,7 @@ describe('Room Page', () => {
     expect(router.replace).not.toHaveBeenCalled();
   });
   it("checks if 'logout' menu item calls logout function", async () => {
-    const wrapper = factory({
+    const wrapper = createFactory(RoomPage, {
       global: {
         stubs: {
           VMenu: sharedStubs.vMenu,
@@ -158,7 +161,7 @@ describe('Room Page', () => {
     expect(logoutSpy).toHaveBeenCalledOnce();
   });
   it("checks if 'qr code' menu item makes qr code popup visible", async () => {
-    const wrapper = factory({
+    const wrapper = createFactory(RoomPage, {
       global: {
         stubs: {
           VMenu: sharedStubs.vMenu,

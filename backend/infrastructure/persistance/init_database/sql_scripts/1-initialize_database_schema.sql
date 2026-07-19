@@ -156,6 +156,8 @@ CREATE INDEX "users_internal_credentials_refresh_token_ix" ON "users_internal_cr
 
 CREATE UNIQUE INDEX "devices_id_user_id_uq" ON "devices" ("id", "user_id");
 
+CREATE UNIQUE INDEX "songs_title_author_isrc_uq" ON "songs" ("title", "author", "isrc");
+
 CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 
 COMMENT ON COLUMN "rooms"."lifespan_seconds" IS 'default&max: 48h';

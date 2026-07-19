@@ -3,9 +3,7 @@ package room_controller_test
 import (
 	"bytes"
 	"database/sql"
-	"encoding/base64"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -47,7 +45,7 @@ func TestGetRoomSuccess(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, roomName, responseWrapper.Data.Name)
-	assert.Equal(t, base64.RawURLEncoding.EncodeToString([]byte("qrCode2")), responseWrapper.Data.QrCode)
+	assert.Equal(t, roomToTest.QrCode(), responseWrapper.Data.QrCode)
 	assert.Equal(t, "host", responseWrapper.Data.UserRole)
 
 	require.NotNil(t, responseWrapper.Data.PlayingSong)
@@ -154,7 +152,7 @@ func TestJoinRoomSuccess(t *testing.T) {
 	r := testServer.Router()
 	command := join_room_password_command.JoinRoomPasswordCommand{
 		RoomName:     seeder.SeedData.Rooms[0].Name(),
-		RoomPassword: seeder.SeedData.Rooms[0].Password(),
+		RoomPassword: string(seeder.SeedData.Rooms[0].Password()),
 	}
 	body, err := json.Marshal(command)
 	require.NoError(t, err)
@@ -165,9 +163,6 @@ func TestJoinRoomSuccess(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	result := w.Result()
-	bodyBytes, _ := io.ReadAll(result.Body)
-	print(string(bodyBytes))
 	require.Equal(t, http.StatusNoContent, w.Code)
 	var isUserInRoom bool
 	_ = txx.Get(&isUserInRoom,

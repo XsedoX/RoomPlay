@@ -2,6 +2,10 @@ package presentation_dependencies
 
 import (
 	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/room/events"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_added_client_message_handler"
+	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/main_hub"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/google_oidc_controller"
@@ -32,6 +36,27 @@ func ConstructPresentationDependencies(
 		googleOidcService,
 	)
 
+	mainHub := main_hub.NewHub(infrastructureDependencies.ApplicationContext)
+
+	songEnqueuedWebsocketEventHandler := song_enqueued_websocket_event.NewSongEnqueuedWebsocketEventHandler(
+		mainHub,
+		infrastructureDependencies.RoomRepository,
+		infrastructureDependencies.UnitOfWork,
+		infrastructureDependencies.ApplicationContext,
+	)
+	infrastructureDependencies.DomainEventPublisher.Register(
+		events.SongEnqueuedEventName,
+		songEnqueuedWebsocketEventHandler,
+	)
+	enqueueSongCommandHandler := applicationDependencies.EnqueueSongCommandHandler
+	clientMessageHandler := song_added_client_message_handler.NewSongAddedClientMessageHandler(
+		enqueueSongCommandHandler,
+	)
+	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
+		song_added_client_message_handler.SongAddedClientMessageName,
+		clientMessageHandler,
+	)
+
 	getUserDataQueryHandler := applicationDependencies.GetUserDataQueryHandler
 	userController := user_controller.NewUserController(getUserDataQueryHandler)
 
@@ -52,7 +77,10 @@ func ConstructPresentationDependencies(
 		getRoomQueryHandler,
 		getUserRoomMembershipQueryHandler,
 		leaveRoomCommandHandler,
-		joinRoomPasswordCommandHandler)
+		joinRoomPasswordCommandHandler,
+		mainHub,
+		infrastructureDependencies.ClientMessagePublisher,
+	)
 
 	searchSongQueryHandler := applicationDependencies.SearchSongQueryHandler
 	songController := song_controller.NewSongController(

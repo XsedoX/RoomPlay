@@ -32,3 +32,10 @@ func NewRoomQrCodeEmptyError() error {
 		Description: "The room QR code cannot be empty.",
 	}
 }
+
+func NewRoomHashSaltError() error {
+	return &DomainError{
+		Code:        "Room.HashSalt.Error",
+		Description: "An error occurred while hashing and salting the room password.",
+	}
+}

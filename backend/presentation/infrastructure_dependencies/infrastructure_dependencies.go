@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_event_publisher"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
@@ -18,6 +19,8 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/google_oidc_service"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/jwt_provider"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/domain_event_publisher"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/cache_cleanup_worker"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
@@ -40,6 +43,9 @@ type InfrastructureDependencies struct {
 	RoomRepository                i_room_repository.IRoomRepository
 	UnitOfWork                    i_unit_of_work.IUnitOfWork
 	CachingSongDecorator          i_music_data_provider_service.IMusicDataProviderService
+	ApplicationContext            context.Context
+	DomainEventPublisher          i_event_publisher.IEventPublisher
+	ClientMessagePublisher        client_message_publisher.IClientMessagePublisher
 }
 
 func ConstructInfrastructureDependencies(
@@ -48,7 +54,14 @@ func ConstructInfrastructureDependencies(
 	config config.IConfiguration,
 ) *InfrastructureDependencies {
 	go cache_cleanup_worker.StartCacheCleanupWorker(ctx, db, time.Hour, time.Minute*15)
-	encrypter := encryper.NewEncrypter(config)
+	domainEventPublisher := domain_event_publisher.NewDomainEventPublisher(ctx)
+	go domainEventPublisher.Start()
+	clientMessagePublisher := client_message_publisher.NewClientMessagePublisher(
+		ctx,
+	)
+	go clientMessagePublisher.Run()
+
+	encrypter := encryper.NewEncrypter(config.Authentication().EncryptionKey)
 	googleOidcService := google_oidc_service.NewGoogleOidcService(config)
 	jwtProvider := jwt_provider.NewJwtProvider(config)
 	unitOfWork := unit_of_work.NewUnitOfWork(db)
@@ -69,6 +82,7 @@ func ConstructInfrastructureDependencies(
 	roomRepository := room_repository.NewRoomRepository(encrypter)
 
 	return &InfrastructureDependencies{
+		ClientMessagePublisher:        clientMessagePublisher,
 		Encrypter:                     encrypter,
 		GoogleOidcService:             googleOidcService,
 		ExternalCredentialsRepository: externalCredentialsRepository,
@@ -78,5 +92,7 @@ func ConstructInfrastructureDependencies(
 		UnitOfWork:                    unitOfWork,
 		CachingSongDecorator:          cachingSongDecorator,
 		JwtProvider:                   jwtProvider,
+		ApplicationContext:            ctx,
+		DomainEventPublisher:          domainEventPublisher,
 	}
 }

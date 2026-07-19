@@ -86,7 +86,7 @@ func TestInternalCredentialsRepositoryGetTokenByValue(t *testing.T) {
 		repo := setupMocks(t)
 
 	configuration := mock_configuration.MockConfiguration{}
-	realEncrypter := encryper.NewEncrypter(&configuration)
+	realEncrypter := encryper.NewEncrypter(configuration.Authentication().EncryptionKey)
 	existingToken := seeder.SeedData.InternalCredentials[0].RefreshToken()
 	encryptedExistingToken := realEncrypter.Hash(existingToken)
 	mockEncrypter.On("Hash", existingToken).Return(encryptedExistingToken)

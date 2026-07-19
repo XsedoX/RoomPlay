@@ -2,12 +2,17 @@ package room_repository_test
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/slice_extensions"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/vote_status"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
@@ -16,9 +21,11 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,11 +39,61 @@ func setupMocks(t *testing.T) (*sqlx.Tx,
 	*mock_encrypter.MockEncrypter,
 ) {
 	txx, ctx := tests_initializer.GetTxxAndCtx(t, false)
-	mockEncrypter := new(mock_encrypter.MockEncrypter)
+	mockEncrypter := mock_encrypter.MockEncrypter{}
 
 	defer mockEncrypter.AssertExpectations(t)
 
-	return txx, ctx, mockEncrypter
+	return txx, ctx, &mockEncrypter
+}
+
+func TestRoomRepositoryUpdateRoom(t *testing.T) {
+	txx,
+		ctx,
+		mockEncrypter := setupMocks(t)
+
+	repo := room_repository.NewRoomRepository(mockEncrypter)
+
+	roomToUpdateId := seeder.SeedData.Rooms[0].Id()
+	roomToUpdate := buildFakeRoomForUpdate(roomToUpdateId)
+	mockEncrypter.On("Encrypt", roomToUpdate.QrCode()).Return([]byte(roomToUpdate.QrCode()), nil)
+	mockEncrypter.On("Decrypt", mock.AnythingOfType("[]uint8")).Return(roomToUpdate.QrCode(), nil)
+
+	// Act
+	err := repo.UpdateRoom(ctx, roomToUpdate, txx)
+	require.NoError(t, err)
+
+	// Assert
+	updatedRoom, err := repo.GetRoomById(ctx, roomToUpdateId, txx)
+	require.NoError(t, err)
+
+	require.True(t, updatedRoom.Equal(*roomToUpdate), "Updated room does not match the expected room")
+}
+
+func TestRoomRepositoryGetRoomById(t *testing.T) {
+	txx,
+		ctx,
+		mockEncrypter := setupMocks(t)
+
+	repo := room_repository.NewRoomRepository(mockEncrypter)
+
+	roomToTest := seeder.SeedData.Rooms[0]
+	roomIdToTest := roomToTest.Id()
+	_, err := txx.ExecContext(ctx, `
+		update rooms set password = $1::bytea where id = $2;
+		`,
+		roomToTest.Password(),
+		roomIdToTest.ToUuid(),
+	)
+	require.NoError(t, err)
+
+	mockEncrypter.On("Decrypt", mock.AnythingOfType("[]uint8")).Return(roomToTest.QrCode(), nil)
+	// Act
+	roomDao, err := repo.GetRoomById(ctx, room_id.RoomId(roomIdToTest), txx)
+	require.NoError(t, err)
+
+	// Assert
+	areEqual := roomDao.Equal(roomToTest)
+	require.True(t, areEqual)
 }
 
 func TestRoomRepositoryCreateRoom(t *testing.T) {
@@ -62,7 +119,7 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 	r := room.HydrateRoom(
 		roomID,
 		roomName,
-		password,
+		[]byte(password),
 		qrCode,
 		nil, // BoostCooldown
 		now,
@@ -72,8 +129,9 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 	)
 
 	// Mock Expectations
-	hashedPassword := []byte("hashed_password")
+	hashedPassword := []byte(password)
 	mockEncrypter.On("HashAndSalt", password).Return(hashedPassword, nil)
+	mockEncrypter.On("Encrypt", qrCode).Return([]byte(qrCode), nil)
 
 	// Act
 	err = repo.CreateRoom(ctx, r, txx)
@@ -243,4 +301,72 @@ func TestRoomRepositoryJoinRoomById(t *testing.T) {
 	err = txx.QueryRowContext(ctx, `SELECT role FROM users_room_data WHERE user_id = $1 AND room_id = $2`, userID, roomID).Scan(&role)
 	require.NoError(t, err)
 	assert.Equal(t, "member", role)
+}
+
+func buildFakeSongData(provider music_provider.MusicProvider) song_data.SongData {
+	isrc := new(string)
+	*isrc = gofakeit.CountryAbr() + gofakeit.LetterN(3) + strconv.Itoa(gofakeit.Number(1000000, 9999999)) // 2 letters + 3 alnum + 7 digits -> matches song_data regex
+	return *song_data.HydrateSongData(
+		gofakeit.URL(),
+		gofakeit.Word(),
+		gofakeit.Name(),
+		gofakeit.URL(),
+		uint16(gofakeit.Number(30, 600)),
+		provider,
+		isrc,
+	)
+}
+
+func buildFakeEnqueuedSong(addedBy user_id.UserId, isPlaying bool) enqueued_song.EnqueuedSong {
+	provider := music_provider.YouTube
+	if gofakeit.Bool() {
+		provider = music_provider.Spotify
+	}
+
+	state := enqueued_song_state.Enqueued
+	var startedAtUtc *time.Time
+	if isPlaying {
+		now := time.Now().UTC()
+		startedAtUtc = &now
+		state = enqueued_song_state.Playing
+	}
+
+	return *enqueued_song.HydrateEnqueuedSong(
+		enqueued_song_id.NewEnqueuedSongId(),
+		buildFakeSongData(provider),
+		time.Now().UTC(),
+		startedAtUtc,
+		state,
+		0,
+		addedBy,
+	)
+}
+
+func buildFakeRoomForUpdate(id room_id.RoomId) *room.Room {
+	members := []user_id.UserId{
+		seeder.SeedData.Users[0].Id(),
+		seeder.SeedData.Users[3].Id(),
+	}
+
+	enqueuedSongs := make([]enqueued_song.EnqueuedSong, 0, 3)
+	for i := range 3 {
+		enqueuedSongs = append(enqueuedSongs, buildFakeEnqueuedSong(members[0], i == 0))
+	}
+
+	boostCooldown := new(uint16)
+	*boostCooldown = uint16(gofakeit.Number(10, 120))
+
+	name := gofakeit.Word() + " " + gofakeit.Word()
+
+	return room.HydrateRoom(
+		id,
+		name,
+		[]byte(gofakeit.Password(true, true, true, false, false, 16)),
+		gofakeit.LetterN(20),
+		boostCooldown,
+		gofakeit.Date(),
+		uint32(gofakeit.Number(3600, 86400)),
+		enqueuedSongs,
+		members,
+	)
 }

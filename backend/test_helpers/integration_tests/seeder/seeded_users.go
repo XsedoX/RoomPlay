@@ -21,10 +21,9 @@ var (
 	}
 	userRoles = []user_role.UserRole{
 		user_role.Host,
+		user_role.Host,
 		user_role.Member,
-		user_role.Member,
-		user_role.Member,
-		user_role.Member,
+		user_role.Host,
 	}
 	users = []user.User{
 		*user.HydrateUser(userIds[0],
@@ -52,7 +51,7 @@ var (
 			faker.Name(),
 			faker.LastName(),
 			&userRoles[3],
-			&roomIds[2],
+			&roomIds[0],
 			[]device.Device{devices[3]},
 			nil),
 		*user.HydrateUser(userIds[4],

@@ -6,6 +6,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_queryer"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_dao"
 	"github.com/XsedoX/RoomPlay/domain/room"
+	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/stretchr/testify/mock"
@@ -13,6 +14,14 @@ import (
 
 type MockRoomRepository struct {
 	mock.Mock
+}
+
+func (m *MockRoomRepository) GetEnqueuedSongAddedByValueByRoomIdEnqueuedSongId(ctx context.Context, roomId room_id.RoomId, enqueuedSongId enqueued_song_id.EnqueuedSongId, queryer i_queryer.IQueryer) (string, error) {
+	args := m.Called(ctx, roomId, enqueuedSongId, queryer)
+	if args.Get(0) == nil {
+		return "", args.Error(1)
+	}
+	return args.String(0), args.Error(1)
 }
 
 func (m *MockRoomRepository) JoinRoomById(ctx context.Context, userId user_id.UserId, roomId room_id.RoomId, queryer i_queryer.IQueryer) error {

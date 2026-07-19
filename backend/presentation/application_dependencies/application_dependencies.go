@@ -14,6 +14,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command_handler"
 	"github.com/XsedoX/RoomPlay/application/services/oidc_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
+	enquque_song_command "github.com/XsedoX/RoomPlay/application/song/enqueue_song/enqueue_song_command"
+	"github.com/XsedoX/RoomPlay/application/song/enqueue_song/enqueue_song_command_handler"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_handler"
@@ -49,7 +51,8 @@ type ApplicationDependencies struct {
 
 	GetRoomQueryHandler i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse]
 
-	SearchSongQueryHandler i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto]
+	SearchSongQueryHandler    i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto]
+	EnqueueSongCommandHandler i_command_handler.ICommandHandler[*enquque_song_command.EnqueueSongCommand]
 
 	OidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService
 }
@@ -121,6 +124,7 @@ func ConstructApplicationDependencies(
 	getRoomQueryHandler := get_room_query_handler.NewGetRoomQueryHandler(
 		unitOfWork,
 		roomRepository,
+		encrypter,
 	)
 
 	joinRoomPasswordCommandHandler := join_room_password_command_handler.NewJoinRoomPasswordCommandHandler(
@@ -133,6 +137,8 @@ func ConstructApplicationDependencies(
 		infrastructureDependencies.CachingSongDecorator,
 		externalCredentialsRepository,
 	)
+
+	enqueueSongCommandHandler := enqueue_song_command_handler.NewEnqueueSongCommandHandler()
 
 	oidcAuthenticationService := oidc_authentication_service.NewOidcAuthenticationService(
 		googleOidcService,
@@ -155,5 +161,6 @@ func ConstructApplicationDependencies(
 		JoinRoomPasswordCommandHandler:    joinRoomPasswordCommandHandler,
 		OidcAuthenticationService:         oidcAuthenticationService,
 		SearchSongQueryHandler:            searchSongQueryHandler,
+		EnqueueSongCommandHandler:         enqueueSongCommandHandler,
 	}
 }

@@ -53,6 +53,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		encryptionKey := "some-random-key"
 		mockUoW.On("GetQueryer").Return(nil)
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(nil)
 
 		// Act
@@ -97,6 +98,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		errorCode := "CreateRoomCommandHandler.CreateRoom"
 		encryptionKey := "some-random-key"
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockUoW.On("GetQueryer").Return(nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(repoErr)
 

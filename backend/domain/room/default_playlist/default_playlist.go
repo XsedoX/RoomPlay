@@ -50,3 +50,10 @@ func NewDefaultPlaylist(
 		songsAmount: songsAmount,
 	}, nil
 }
+
+func (dp DefaultPlaylist) Equal(o DefaultPlaylist) bool {
+	return dp.externalId == o.externalId &&
+		dp.userId == o.userId &&
+		dp.songsAmount == o.songsAmount &&
+		dp.title == o.title
+}

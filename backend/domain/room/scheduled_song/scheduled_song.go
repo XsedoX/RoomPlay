@@ -31,3 +31,13 @@ func NewScheduledSong(songData song_data.SongData,
 		scheduledAtUtc: scheduledAt,
 	}, nil
 }
+
+func (ss ScheduledSong) Equal(o ScheduledSong) bool {
+	if !ss.songData.Equal(o.songData) {
+		return false
+	}
+	if !ss.scheduledAtUtc.Equal(o.scheduledAtUtc) {
+		return false
+	}
+	return true
+}

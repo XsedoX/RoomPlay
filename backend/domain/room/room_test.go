@@ -7,6 +7,8 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
@@ -15,16 +17,16 @@ import (
 func TestNewRoomSuccess(t *testing.T) {
 	hostID := user_id.NewUserId()
 	name := faker.Name()
-	var password string
-	_ = faker.FakeData(&password, options.WithRandomStringLength(20))
+	password := gofakeit.Password(true, true, true, true, false, 15)
 	qrCode := faker.UUIDDigit()
-
-	room, err := NewRoom(name, password, qrCode, hostID)
+	encrypter := mock_encrypter.MockEncrypter{}
+	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
+	room, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, room)
 	assert.Equal(t, name, room.Name())
-	assert.Equal(t, password, room.Password())
+	assert.Equal(t, []byte(password), room.Password())
 	assert.Equal(t, qrCode, room.QrCode())
 	assert.Len(t, room.Members(), 1)
 	assert.Nil(t, room.BoostCooldownSeconds())
@@ -36,14 +38,15 @@ func TestNewRoomSuccess(t *testing.T) {
 
 func TestNewRoomNameIncorrectLength(t *testing.T) {
 	hostID := user_id.NewUserId()
-	var password string
-	_ = faker.FakeData(&password, options.WithRandomStringLength(20))
+	password := gofakeit.Password(true, true, true, true, false, 15)
 	qrCode := faker.UUIDDigit()
 	// Too short name
 	var name string
 	_ = faker.FakeData(&name, options.WithRandomStringLength(NameMinLength-1))
+	encrypter := mock_encrypter.MockEncrypter{}
+	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 
-	_, err := NewRoom(name, password, qrCode, hostID)
+	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 	assert.Error(t, err)
 	assert.IsType(t, &domain_errors.DomainError{}, err)
 	domainError := err.(*domain_errors.DomainError)
@@ -55,7 +58,7 @@ func TestNewRoomNameIncorrectLength(t *testing.T) {
 
 	// Too long name
 	_ = faker.FakeData(&name, options.WithRandomStringLength(NameMaxLength+1))
-	_, err = NewRoom(name, password, qrCode, hostID)
+	_, err = NewRoom(name, password, qrCode, hostID, &encrypter)
 	assert.Error(t, err)
 	assert.IsType(t, &domain_errors.DomainError{}, err)
 	domainError = err.(*domain_errors.DomainError)
@@ -74,8 +77,10 @@ func TestNewRoomPasswordIncorrectLength(t *testing.T) {
 
 	// Too short password
 	var password string
+	encrypter := mock_encrypter.MockEncrypter{}
+	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMinLength-1))
-	_, err := NewRoom(name, password, qrCode, hostID)
+	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 	assert.Error(t, err)
 	assert.IsType(t, &domain_errors.DomainError{}, err)
 	domainError := err.(*domain_errors.DomainError)
@@ -87,7 +92,7 @@ func TestNewRoomPasswordIncorrectLength(t *testing.T) {
 
 	// Too long password
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMaxLength+1))
-	_, err = NewRoom(name, password, qrCode, hostID)
+	_, err = NewRoom(name, password, qrCode, hostID, &encrypter)
 	assert.Error(t, err)
 	assert.IsType(t, &domain_errors.DomainError{}, err)
 	domainError = err.(*domain_errors.DomainError)
@@ -104,8 +109,10 @@ func TestNewRoomQrCodeEmpty(t *testing.T) {
 	password := "validPassword"
 	name := "Valid Room Name"
 
+	encrypter := mock_encrypter.MockEncrypter{}
+	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 	// Too short password
-	_, err := NewRoom(name, password, qrCode, hostID)
+	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 
 	assert.Error(t, err)
 	assert.IsType(t, &domain_errors.DomainError{}, err)

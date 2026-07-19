@@ -1,11 +1,12 @@
 package i_event_publisher
 
 import (
-	"context"
-
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_event_handler"
 	"github.com/XsedoX/RoomPlay/domain/shared"
 )
 
 type IEventPublisher interface {
-	Publish(ctx context.Context, event shared.IDomainEvent)
+	Publish(event shared.IDomainEvent)
+	Register(eventName shared.EventName, handler i_event_handler.IEventHandler)
+	Start()
 }

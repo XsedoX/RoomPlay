@@ -39,7 +39,13 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *cre
 	var response *room_id.RoomId
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		qrCode := handler.encrypter.NewEncryptionKey()
-		roomInstance, domainErr := room.NewRoom(command.RoomName, command.RoomPassword, string(qrCode), *userId)
+		roomInstance, domainErr := room.NewRoom(
+			command.RoomName,
+			command.RoomPassword,
+			string(qrCode),
+			*userId,
+			handler.encrypter,
+		)
 		if domainErr != nil {
 			return domainErr
 		}

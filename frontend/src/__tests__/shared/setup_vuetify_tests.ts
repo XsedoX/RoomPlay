@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, VueWrapper } from '@vue/test-utils';
 import { type Component } from 'vue';
 import createVuetify from '@/vuetify-setup.ts';
 import { createTestingPinia, type TestingOptions } from '@pinia/testing';
@@ -23,3 +23,8 @@ export function mountVuetify(
     },
   });
 }
+export const createFactory = (
+  componentToRender: Component,
+  options?: Parameters<typeof mount>[1],
+  piniaStubs?: boolean | string[] | ((actionName: string, store: StoreGeneric) => boolean),
+) => mountVuetify(componentToRender, options, piniaStubs);

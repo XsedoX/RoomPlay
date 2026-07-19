@@ -2,7 +2,6 @@ package get_room_query_handler
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"testing"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/vote_status"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_role"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
@@ -27,24 +27,28 @@ import (
 
 func setUpMocks(t *testing.T) (*mock_room_repository.MockRoomRepository,
 	*mock_unit_of_work.MockUnitOfWork,
+	*mock_encrypter.MockEncrypter,
 	*user_id.UserId,
 	context.Context,
 ) {
 	mockRoomRepository := new(mock_room_repository.MockRoomRepository)
 	mockUoW := new(mock_unit_of_work.MockUnitOfWork)
 	userId, ctx := test_helpers.AddUserIdToContext(context.Background())
+	mockEncrypter := new(mock_encrypter.MockEncrypter)
 
 	defer func() {
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
+		mockEncrypter.AssertExpectations(t)
 	}()
 
-	return mockRoomRepository, mockUoW, &userId, ctx
+	return mockRoomRepository, mockUoW, mockEncrypter, &userId, ctx
 }
 
 func TestGetRoomQueryHandler(t *testing.T) {
 	t.Run("ShouldReturnRoomSuccessWithPlayingSongNotNilAndBoostNil", func(t *testing.T) {
-		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
+		mockRoomRepository, mockUoW, mockEncrypter, userId, ctx := setUpMocks(t)
+
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user_role.Host
 		now := time.Now().UTC().Truncate(time.Second)
@@ -61,11 +65,13 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			BoostCooldownSeconds:     nil,
 			SongDaos:                 []get_room_song_dao.GetRoomSongDao{},
 		}
+
+		mockEncrypter.On("Decrypt", roomToBeReturned.QrCode).Return(string(roomToBeReturned.QrCode), nil)
 		mockRoomRepository.
 			On("GetRoomByUserId", ctx, *userId, mock.Anything).
 			Return(roomToBeReturned, nil)
 
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository, mockEncrypter)
 
 		resp, err := handler.Handle(ctx)
 
@@ -74,8 +80,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
-		expectedQr := base64.RawURLEncoding.EncodeToString(roomToBeReturned.QrCode)
-		assert.Equal(t, expectedQr, resp.QrCode)
+		assert.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
 
 		// No boost
 		assert.Nil(t, resp.BoostData)
@@ -93,7 +98,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccessWithBoostNotNil", func(t *testing.T) {
-		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
+		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user_role.Member
 		now := time.Now().UTC().Truncate(time.Second)
@@ -135,10 +140,11 @@ func TestGetRoomQueryHandler(t *testing.T) {
 				},
 			},
 		}
+		encrypter.On("Decrypt", roomToBeReturned.QrCode).Return(string(roomToBeReturned.QrCode), nil)
 		mockRoomRepository.
 			On("GetRoomByUserId", ctx, *userId, mock.Anything).
 			Return(roomToBeReturned, nil)
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository, encrypter)
 
 		resp, err := handler.Handle(ctx)
 
@@ -147,8 +153,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
-		expectedQr := base64.RawURLEncoding.EncodeToString(roomToBeReturned.QrCode)
-		assert.Equal(t, expectedQr, resp.QrCode)
+		assert.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
 
 		// Boost mapping
 		assert.NotNil(t, resp.BoostData)
@@ -186,7 +191,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccess", func(t *testing.T) {
-		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
+		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
 
 		mockUoW.On("GetQueryer").Return(nil)
 		userRole := user_role.Host
@@ -203,7 +208,8 @@ func TestGetRoomQueryHandler(t *testing.T) {
 			SongDaos:                 []get_room_song_dao.GetRoomSongDao{},
 		}
 		mockRoomRepository.On("GetRoomByUserId", ctx, *userId, mock.Anything).Return(roomToBeReturned, nil)
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
+		encrypter.On("Decrypt", roomToBeReturned.QrCode).Return(string(roomToBeReturned.QrCode), nil)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository, encrypter)
 
 		roomResponse, err := handler.Handle(ctx)
 
@@ -211,7 +217,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 		assert.Equal(t, roomToBeReturned.Name, roomResponse.Name)
-		assert.Equal(t, "VGVzdCBRckNvZGU", roomResponse.QrCode)
+		assert.Equal(t, string(roomToBeReturned.QrCode), roomResponse.QrCode)
 		assert.Nil(t, roomResponse.BoostData)
 		assert.Nil(t, roomResponse.PlayingSong)
 		assert.Equal(t, roomToBeReturned.UserRole, roomResponse.UserRole)
@@ -219,9 +225,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
-		mockRoomRepository, mockUoW, _, _ := setUpMocks(t)
+		mockRoomRepository, mockUoW, encrypter, _, _ := setUpMocks(t)
 
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository, encrypter)
 
 		// Act
 		resp, err := handler.Handle(context.Background())
@@ -236,9 +242,9 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
-		mockRoomRepository, mockUoW, userId, ctx := setUpMocks(t)
+		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
-		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository)
+		handler := NewGetRoomQueryHandler(mockUoW, mockRoomRepository, encrypter)
 		repoErr := errors.New("database error")
 		errorCode := "GetRoomQueryHandler.GetRoomByUserId"
 		mockRoomRepository.On("GetRoomByUserId", ctx, *userId, mock.Anything).Return(nil, repoErr)

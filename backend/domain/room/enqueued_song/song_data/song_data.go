@@ -111,3 +111,21 @@ func NewSongData(
 		isrc:          isrc,
 	}, nil
 }
+
+func (s SongData) Equal(o SongData) bool {
+	if s.url != o.url ||
+		s.title != o.title ||
+		s.author != o.author ||
+		s.lengthSeconds != o.lengthSeconds ||
+		s.albumCoverUrl != o.albumCoverUrl ||
+		s.musicProvider != o.musicProvider {
+		return false
+	}
+	if (s.isrc == nil) != (o.isrc == nil) {
+		return false
+	}
+	if s.isrc != nil && *s.isrc != *o.isrc {
+		return false
+	}
+	return true
+}

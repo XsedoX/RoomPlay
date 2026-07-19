@@ -34,7 +34,7 @@ import (
 func main() {
 	setup_validation.Initialize()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT)
 	defer stop()
 
 	db := init_database.InitializeDatabase(ctx, config.Load().Database().ConnectionString)
