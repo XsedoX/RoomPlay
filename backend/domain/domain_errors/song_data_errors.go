@@ -7,10 +7,10 @@ func NewSongDataSongLengthZeroError() error {
 	}
 }
 
-func NewSongDataUrlEmptyError() error {
+func NewSongDataExternalIdEmptyError() error {
 	return &DomainError{
-		Code:        "SongData.Url.Empty",
-		Description: "Song url cannot be empty",
+		Code:        "SongData.ExternalId.Empty",
+		Description: "Song external id cannot be empty",
 	}
 }
 

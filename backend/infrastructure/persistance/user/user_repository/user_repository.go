@@ -181,7 +181,7 @@ func (repository *UserRepository) Update(ctx context.Context, user *user.User, q
 
 func (repository *UserRepository) Add(ctx context.Context, user *user.User, queryer i_queryer.IQueryer) error {
 	userId := user.Id()
-	params := []interface{}{
+	params := []any{
 		userId.ToUuid(),
 		user.FullName().Name(),
 		user.FullName().Surname(),

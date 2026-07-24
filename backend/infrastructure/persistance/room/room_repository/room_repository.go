@@ -157,7 +157,8 @@ FROM enqueued_songs
 			    FROM users_votes
 			    GROUP BY enqueued_song_id
 			) AS enqueued_songs_votes ON enqueued_songs.id = enqueued_songs_votes.enqueued_song_id
-WHERE users_room_data.user_id = $1 and enqueued_songs.state != 'playing';
+WHERE users_room_data.user_id = $1 and enqueued_songs.state != 'playing'
+		ORDER BY votes DESC;
 `, userId.ToUuid())
 	if getRoomSongsErr != nil {
 		return nil, getRoomSongsErr
@@ -259,12 +260,12 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 	returning id::uuid;
 	`
 	upsertSongExternalDataQuery := `
-			INSERT INTO songs_external_data (song_id, length_seconds, album_cover_url, url, music_provider)
+			INSERT INTO songs_external_data (song_id, length_seconds, album_cover_url, external_id, music_provider)
 			VALUES ($1::uuid, $2::smallint, $3, $4, $5)
 			ON CONFLICT (song_id) DO UPDATE
 			  SET length_seconds = EXCLUDED.length_seconds,
 			      album_cover_url = EXCLUDED.album_cover_url,
-			      url = EXCLUDED.url,
+			      external_id = EXCLUDED.external_id,
 			      music_provider = EXCLUDED.music_provider;
 	`
 	// --- scheduledSong ---
@@ -287,7 +288,7 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 			scheduledSongSongId,
 			sd.LengthSeconds(),
 			sd.AlbumCoverUrl(),
-			sd.Url(),
+			sd.ExternalId(),
 			sd.MusicProvider().String(),
 		)
 		if insExtErr != nil {
@@ -338,7 +339,7 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 			enqueuedSongSongId,
 			songData.LengthSeconds(),
 			songData.AlbumCoverUrl(),
-			songData.Url(),
+			songData.ExternalId(),
 			songData.MusicProvider().String(),
 		)
 		if insExtErr != nil {
@@ -391,6 +392,27 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 	}
 
 	return nil
+}
+
+func (repository *RoomRepository) GetRoomAggregareByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
+	var roomId room_id.RoomId
+	err := queryer.GetContext(ctx,
+		&roomId,
+		`
+SELECT room_id
+FROM users_room_data
+WHERE user_id = $1::uuid;
+		`,
+		userId.ToUuid(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	roomInstance, getRoomErr := repository.GetRoomById(ctx, roomId, queryer)
+	if getRoomErr != nil {
+		return nil, getRoomErr
+	}
+	return roomInstance, nil
 }
 
 func (repository *RoomRepository) GetRoomById(ctx context.Context, roomId room_id.RoomId, queryer i_queryer.IQueryer) (*room.Room, error) {
@@ -469,7 +491,7 @@ WHERE room_id = $1::uuid;
 		Title         string     `db:"title"`
 		Author        string     `db:"author"`
 		Isrc          *string    `db:"isrc"`
-		Url           *string    `db:"url"`
+		ExternalId    *string    `db:"external_id"`
 		AlbumCoverUrl *string    `db:"album_cover_url"`
 		LengthSeconds *uint16    `db:"length_seconds"`
 		MusicProvider *string    `db:"music_provider"`
@@ -485,7 +507,7 @@ SELECT es.id,
        es.added_by,
        COALESCE(v.votes, 0)::int8          AS votes,
        s.title, s.author, s.isrc,
-       sed.url, sed.album_cover_url,
+       sed.external_id, sed.album_cover_url,
        sed.length_seconds, sed.music_provider
 FROM enqueued_songs es
 JOIN songs s              ON s.id = es.song_id
@@ -512,7 +534,7 @@ WHERE es.room_id = $1::uuid;
 		Title          string    `db:"title"`
 		Author         string    `db:"author"`
 		Isrc           *string   `db:"isrc"`
-		Url            *string   `db:"url"`
+		ExternalId     *string   `db:"external_id"`
 		AlbumCoverUrl  *string   `db:"album_cover_url"`
 		LengthSeconds  *uint16   `db:"length_seconds"`
 		MusicProvider  *string   `db:"music_provider"`
@@ -523,7 +545,7 @@ WHERE es.room_id = $1::uuid;
 		`
 SELECT ss.scheduled_at_utc,
        s.title, s.author, s.isrc,
-       sed.url, sed.album_cover_url,
+       sed.external_id, sed.album_cover_url,
        sed.length_seconds, sed.music_provider
 FROM scheduled_songs ss
 JOIN songs s              ON s.id = ss.song_id
@@ -560,7 +582,7 @@ WHERE room_id = $1::uuid;
 	enqueuedSongs := make([]enqueued_song.EnqueuedSong, 0, len(enqueuedSongsInstances))
 	for _, enqueuedSongDaoInstance := range enqueuedSongsInstances {
 		songData := song_data.HydrateSongData(
-			*enqueuedSongDaoInstance.Url,
+			*enqueuedSongDaoInstance.ExternalId,
 			enqueuedSongDaoInstance.Title,
 			enqueuedSongDaoInstance.Author,
 			*enqueuedSongDaoInstance.AlbumCoverUrl,

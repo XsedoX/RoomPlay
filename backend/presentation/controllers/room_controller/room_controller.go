@@ -2,6 +2,7 @@ package room_controller
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
@@ -27,6 +28,7 @@ const (
 	RoomBasePath           = "/room"
 	RoomMembershipBasePath = "/membership"
 	JoinRoomPasswordPath   = "/join/password"
+	WebSocketUpgradePath   = "/ws"
 )
 
 type RoomController struct {
@@ -232,6 +234,20 @@ func (rh *RoomController) UpgradeToWebSockets(w http.ResponseWriter, r *http.Req
 			paramsDecodeErr,
 			r.URL.RequestURI(),
 		)
+		return
+	}
+
+	isInRoom, err := rh.getUserRoomMembershipQueryHandler.Handle(r.Context())
+	if err != nil {
+		response.WriteJsonApplicationFailure(w,
+			err,
+			r.URL.RequestURI())
+		return
+	}
+	if !*isInRoom {
+		response.WriteJsonApplicationFailure(w,
+			errors.New("User does not belong to any room"),
+			r.URL.RequestURI())
 		return
 	}
 

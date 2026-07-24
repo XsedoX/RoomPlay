@@ -69,11 +69,15 @@ func ConstructInfrastructureDependencies(
 	searchSongCache := cache.NewCache[*music_data_response_dto.MusicDataResponseDto](
 		config.CacheSimilarityThreshold(),
 	)
+	searchSongByExternalIdCache := cache.NewCache[*music_data_response_dto.SongDataResponseDto](
+		config.CacheSimilarityThreshold(),
+	)
 	youtubeMusicDataProvider := youtube_music_data_provider.NewYoutubeMusicDataProvider()
 	cachingSongDecorator := caching_song_decorator.NewCachingSongDecorator(
 		youtubeMusicDataProvider,
 		searchSongCache,
 		unitOfWork,
+		searchSongByExternalIdCache,
 	)
 
 	userRepository := user_repository.NewUserRepository()

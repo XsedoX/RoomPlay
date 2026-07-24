@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
-	enquque_song_command "github.com/XsedoX/RoomPlay/application/song/enqueue_song/enqueue_song_command"
+	enquque_song_command "github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command"
+	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_envelope"
 )
 
@@ -33,9 +34,10 @@ func (handler *SongAddedClientMessageHandler) HandleMessage(envelope client_mess
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctxWithClaims := context.WithValue(ctx, user.IdClaimContextKeyName, envelope.UserId)
 	defer cancel()
 
-	err = handler.commandHandler.Handle(ctx, &command)
+	err = handler.commandHandler.Handle(ctxWithClaims, &command)
 	if err != nil {
 		log.Printf("Failed to handle song added command: %s", err)
 		return

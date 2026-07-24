@@ -24,3 +24,15 @@ func (m *MockMusicDataProviderService) SearchSongsByQuery(
 	args := m.Called(ctx, accessToken, query, nextPageToken, pageSize)
 	return args.Get(0).(*music_data_response_dto.MusicDataResponseDto), args.Error(1)
 }
+
+func (m *MockMusicDataProviderService) GetSongById(
+	ctx context.Context,
+	accessToken,
+	songId string,
+) (
+	*music_data_response_dto.SongDataResponseDto,
+	error,
+) {
+	args := m.Called(ctx, accessToken, songId)
+	return args.Get(0).(*music_data_response_dto.SongDataResponseDto), args.Error(1)
+}

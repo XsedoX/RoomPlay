@@ -5,6 +5,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_query_handler"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command_handler"
+	enquque_song_command "github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command"
+	"github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command_handler"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_handler"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/get_user_room_membership/get_user_room_membership_query_handler"
@@ -14,8 +16,6 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command_handler"
 	"github.com/XsedoX/RoomPlay/application/services/oidc_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
-	enquque_song_command "github.com/XsedoX/RoomPlay/application/song/enqueue_song/enqueue_song_command"
-	"github.com/XsedoX/RoomPlay/application/song/enqueue_song/enqueue_song_command_handler"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_handler"
@@ -138,7 +138,12 @@ func ConstructApplicationDependencies(
 		externalCredentialsRepository,
 	)
 
-	enqueueSongCommandHandler := enqueue_song_command_handler.NewEnqueueSongCommandHandler()
+	enqueueSongCommandHandler := enqueue_song_command_handler.NewEnqueueSongCommandHandler(
+		unitOfWork,
+		roomRepository,
+		infrastructureDependencies.CachingSongDecorator,
+		externalCredentialsRepository,
+	)
 
 	oidcAuthenticationService := oidc_authentication_service.NewOidcAuthenticationService(
 		googleOidcService,

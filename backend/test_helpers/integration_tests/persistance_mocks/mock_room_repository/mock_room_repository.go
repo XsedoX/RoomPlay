@@ -16,6 +16,27 @@ type MockRoomRepository struct {
 	mock.Mock
 }
 
+func (m *MockRoomRepository) GetRoomById(ctx context.Context, roomId room_id.RoomId, queryer i_queryer.IQueryer) (*room.Room, error) {
+	args := m.Called(ctx, roomId, queryer)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*room.Room), args.Error(1)
+}
+
+func (m *MockRoomRepository) GetRoomAggregareByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
+	args := m.Called(ctx, userId, queryer)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*room.Room), args.Error(1)
+}
+
+func (m *MockRoomRepository) UpdateRoom(ctx context.Context, roomParam *room.Room, queryer i_queryer.IQueryer) error {
+	args := m.Called(ctx, roomParam, queryer)
+	return args.Error(0)
+}
+
 func (m *MockRoomRepository) GetEnqueuedSongAddedByValueByRoomIdEnqueuedSongId(ctx context.Context, roomId room_id.RoomId, enqueuedSongId enqueued_song_id.EnqueuedSongId, queryer i_queryer.IQueryer) (string, error) {
 	args := m.Called(ctx, roomId, enqueuedSongId, queryer)
 	if args.Get(0) == nil {

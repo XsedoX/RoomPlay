@@ -61,6 +61,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 			r.Delete("/", dependencies.PresentationDependencies.RoomController().LeaveRoom)
 			r.Get(room_controller.RoomMembershipBasePath, dependencies.PresentationDependencies.RoomController().CheckUserRoomMembership)
 			r.Put(room_controller.JoinRoomPasswordPath, dependencies.PresentationDependencies.RoomController().JoinRoomPassword)
+			r.Get(room_controller.WebSocketUpgradePath, dependencies.PresentationDependencies.RoomController().UpgradeToWebSockets)
 		})
 
 		r.Route(song_controller.SongBasePath, func(r chi.Router) {

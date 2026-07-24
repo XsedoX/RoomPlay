@@ -39,7 +39,7 @@ CREATE TABLE "songs_external_data" (
   "song_id" uuid PRIMARY KEY,
   "length_seconds" smallint NOT NULL,
   "album_cover_url" text NOT NULL,
-  "url" text UNIQUE NOT NULL,
+  "external_id" text UNIQUE NOT NULL,
   "music_provider" music_provider NOT NULL
 );
 
@@ -142,7 +142,7 @@ CREATE TABLE "devices" (
   "last_logged_in_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE INDEX "songs_url_ix" ON "songs_external_data" ("url");
+CREATE INDEX "songs_external_id_ix" ON "songs_external_data" ("external_id");
 
 CREATE INDEX "songs_isrc_ix" ON "songs" ("isrc");
 

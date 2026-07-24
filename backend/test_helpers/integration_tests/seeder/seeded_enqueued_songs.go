@@ -41,7 +41,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -58,7 +58,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -75,7 +75,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -92,7 +92,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -109,7 +109,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -221,7 +221,7 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		  song_id,
 		  length_seconds,
 		  album_cover_url,
-			url,
+			external_id,
 		  music_provider
 		)
 		VALUES
@@ -232,7 +232,7 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		songId,
 		enqueuedSong.SongData().LengthSeconds(),
 		enqueuedSong.SongData().AlbumCoverUrl(),
-		enqueuedSong.SongData().Url(),
+		enqueuedSong.SongData().ExternalId(),
 		enqueuedSong.SongData().MusicProvider().String(),
 	)
 	if err != nil {
