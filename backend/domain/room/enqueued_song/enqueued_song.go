@@ -25,11 +25,14 @@ func (s EnqueuedSong) AddedBy() user_id.UserId {
 }
 
 func (s EnqueuedSong) AddedAtUtc() time.Time {
-	return s.addedAtUtc
+	return s.addedAtUtc.UTC()
 }
 
 func (s EnqueuedSong) StartedAtUtc() *time.Time {
-	return s.startedAtUtc
+	if s.startedAtUtc == nil {
+		return nil
+	}
+	return new(s.startedAtUtc.UTC())
 }
 
 func (s EnqueuedSong) State() enqueued_song_state.EnqueuedSongState {
@@ -57,9 +60,12 @@ func HydrateEnqueuedSong(
 	votes int8,
 	addedBy user_id.UserId,
 ) *EnqueuedSong {
+	if startedAtUtc != nil {
+		startedAtUtc = new(startedAtUtc.UTC())
+	}
 	result := &EnqueuedSong{
 		songData:     songData,
-		addedAtUtc:   addedAtUtc,
+		addedAtUtc:   addedAtUtc.UTC(),
 		startedAtUtc: startedAtUtc,
 		state:        state,
 		votes:        votes,

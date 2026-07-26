@@ -2,13 +2,11 @@ package get_user_room_membership_query_handler
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/application_error"
-	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 )
 
 type GetUserRoomMembershipQueryHandler struct {
@@ -25,24 +23,15 @@ func NewGetUserRoomMembershipQueryHandler(roomRepository i_room_repository.IRoom
 	}
 }
 
-func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*bool, error) {
-	var result *bool
+func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*room_id.RoomId, error) {
+	var result *room_id.RoomId
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, application_helpers.NewMissingUserIdInContextError
 	}
 	err := g.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
-		_, err := g.roomRepository.GetRoomByUserId(ctx, *userId, g.unitOfWork.GetQueryer())
-		if err != nil {
-			tempResult := false
-			result = &tempResult
-			return application_error.NewApplicationError("GetUserRoomMembershipQueryHandler.GetRoomByUserId",
-				fmt.Sprintf("Something went wrong with getting room by userId: %s", *userId.String()),
-				err,
-				application_error_type.Unexpected)
-		}
-		tempResult := true
-		result = &tempResult
+		roomId := g.roomRepository.GetUserMembership(ctx, *userId, g.unitOfWork.GetQueryer(ctx))
+		result = roomId
 		return nil
 	})
 	if err != nil {

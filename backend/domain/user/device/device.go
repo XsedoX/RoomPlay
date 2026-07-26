@@ -25,7 +25,7 @@ type Device struct {
 }
 
 func (d *Device) LastLoggedInUtc() time.Time {
-	return d.lastLoggedInUtc
+	return d.lastLoggedInUtc.UTC()
 }
 
 func (d *Device) FriendlyName() string {
@@ -94,7 +94,7 @@ func HydrateDevice(
 		deviceType:      deviceType,
 		isHost:          isHost,
 		state:           state,
-		lastLoggedInUtc: lastLoggedInUtc,
+		lastLoggedInUtc: lastLoggedInUtc.UTC(),
 	}
 	device.SetId(id)
 	return device

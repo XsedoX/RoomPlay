@@ -2,6 +2,8 @@ package application_dependencies
 
 import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_query_handler"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command_handler"
@@ -14,8 +16,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password/join_room_password_command_handler"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command"
 	"github.com/XsedoX/RoomPlay/application/room/leave_room/leave_room_command_handler"
-	"github.com/XsedoX/RoomPlay/application/services/oidc_authentication_service"
-	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
+	"github.com/XsedoX/RoomPlay/application/services/external_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query_handler"
@@ -32,6 +33,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_handler"
 	"github.com/XsedoX/RoomPlay/application/user/register_user/register_user_command_response"
 	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/presentation/infrastructure_dependencies"
 )
@@ -42,7 +44,7 @@ type ApplicationDependencies struct {
 	LoginRefreshTokenCommandHandler  i_command_handler.ICommandHandlerWithResponse[*string, *login_user_refresh_token_command_response.LoginUserRefreshTokenCommandResponse]
 	LogoutRefreshTokenCommandHandler i_command_handler.ICommandHandler[*logout_user_command.LogoutUserCommand]
 
-	GetUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool]
+	GetUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*room_id.RoomId]
 	GetUserDataQueryHandler           i_query_handler.IQueryHandler[*get_user_data_query_response.GetUserDataQueryResponse]
 
 	CreateRoomCommandHandler       i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId]
@@ -54,7 +56,7 @@ type ApplicationDependencies struct {
 	SearchSongQueryHandler    i_query_handler.IQueryHandlerWithRequest[*search_song_query.SearchSongQuery, *search_song_query_dto.SearchSongQueryDto]
 	EnqueueSongCommandHandler i_command_handler.ICommandHandler[*enquque_song_command.EnqueueSongCommand]
 
-	OidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService
+	AuthenticationService i_external_authentication_service.IExternalAuthenticationService
 }
 
 func ConstructApplicationDependencies(
@@ -132,10 +134,23 @@ func ConstructApplicationDependencies(
 		unitOfWork,
 	)
 
+	authServices := map[music_provider.MusicProvider]i_external_authentication_service_provider.IExternalAuthenticationServiceProvider{
+		music_provider.YouTube: googleOidcService,
+	}
+	authenticationService := external_authentication_service.NewExternalAuthenticationService(
+		authServices,
+		userRepository,
+		unitOfWork,
+		registerUserCommandHandler,
+		loginUserCommandHandler,
+		externalCredentialsRepository,
+	)
+
 	searchSongQueryHandler := search_song_query_handler.NewSearchSongQueryHandler(
 		unitOfWork,
 		infrastructureDependencies.CachingSongDecorator,
 		externalCredentialsRepository,
+		authenticationService,
 	)
 
 	enqueueSongCommandHandler := enqueue_song_command_handler.NewEnqueueSongCommandHandler(
@@ -143,14 +158,8 @@ func ConstructApplicationDependencies(
 		roomRepository,
 		infrastructureDependencies.CachingSongDecorator,
 		externalCredentialsRepository,
-	)
-
-	oidcAuthenticationService := oidc_authentication_service.NewOidcAuthenticationService(
-		googleOidcService,
-		userRepository,
-		unitOfWork,
-		registerUserCommandHandler,
-		loginUserCommandHandler,
+		authenticationService,
+		infrastructureDependencies.DomainEventPublisher,
 	)
 
 	return &ApplicationDependencies{
@@ -164,7 +173,7 @@ func ConstructApplicationDependencies(
 		LeaveRoomCommandHandler:           leaveRoomCommandHandler,
 		GetRoomQueryHandler:               getRoomQueryHandler,
 		JoinRoomPasswordCommandHandler:    joinRoomPasswordCommandHandler,
-		OidcAuthenticationService:         oidcAuthenticationService,
+		AuthenticationService:             authenticationService,
 		SearchSongQueryHandler:            searchSongQueryHandler,
 		EnqueueSongCommandHandler:         enqueueSongCommandHandler,
 	}

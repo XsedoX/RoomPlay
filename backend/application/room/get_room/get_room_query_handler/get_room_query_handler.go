@@ -36,7 +36,7 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*get_room_query_respon
 		return nil, application_helpers.NewMissingUserIdInContextError
 	}
 	err := r.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
-		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer())
+		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer(ctx))
 		if getRoomDataErr != nil {
 			return application_error.NewApplicationError("GetRoomQueryHandler.GetRoomByUserId",
 				"Couldn't get user's room.",

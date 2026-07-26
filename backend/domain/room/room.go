@@ -49,7 +49,7 @@ func (r Room) DefaultPlaylist() *default_playlist.DefaultPlaylist {
 	return r.defaultPlaylist
 }
 
-func (r *Room) EnqueueSong(addedBy user_id.UserId, songData song_data.SongData) {
+func (r *Room) EnqueueSong(addedBy user_id.UserId, songData song_data.SongData) []shared.IDomainEvent {
 	enqueuedSong := enqueued_song.NewEnqueuedSong(songData, addedBy)
 	r.enqueuedSongs = append(r.enqueuedSongs, *enqueuedSong)
 	songEnqueuedEvent := events.NewSongEnqueuedEvent(
@@ -61,8 +61,10 @@ func (r *Room) EnqueueSong(addedBy user_id.UserId, songData song_data.SongData) 
 		songData.AlbumCoverUrl(),
 		enqueuedSong.State(),
 		vote_status.NotVoted,
+		r.Id(),
 	)
 	r.RaiseDomainEvent(songEnqueuedEvent)
+	return r.ConsumeDomainEvents()
 }
 
 func (r Room) PlayingSong() *enqueued_song.EnqueuedSong {
@@ -91,7 +93,7 @@ func (r Room) BoostCooldownSeconds() *uint16 {
 }
 
 func (r Room) CreatedAtUtc() time.Time {
-	return r.createdAtUtc
+	return r.createdAtUtc.UTC()
 }
 
 func (r Room) LifespanSeconds() uint32 {
@@ -177,7 +179,7 @@ func HydrateRoom(
 		password:             password,
 		qrCode:               qrCode,
 		boostCooldownSeconds: boostCooldownSeconds,
-		createdAtUtc:         createdAtUtc,
+		createdAtUtc:         createdAtUtc.UTC(),
 		lifespanSeconds:      lifespanSeconds,
 		enqueuedSongs:        enqueuedSongs,
 		members:              members,

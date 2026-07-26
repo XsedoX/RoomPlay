@@ -49,6 +49,9 @@ func (u *User) GetMostRecentDevice() *device.Device {
 }
 
 func (u *User) BoostUsedAtUtc() *time.Time {
+	if u.boostUsedAtUtc != nil {
+		return new(u.boostUsedAtUtc.UTC())
+	}
 	return u.boostUsedAtUtc
 }
 
@@ -111,6 +114,9 @@ func HydrateUser(
 	devices []device.Device,
 	boostUsedAtUtc *time.Time,
 ) *User {
+	if boostUsedAtUtc != nil {
+		boostUsedAtUtc = new(boostUsedAtUtc.UTC())
+	}
 	user := &User{
 		fullName:       full_name.NewFullName(name, surname),
 		role:           role,

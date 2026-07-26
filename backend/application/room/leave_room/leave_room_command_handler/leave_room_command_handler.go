@@ -22,7 +22,7 @@ func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *leave_room_comma
 		return application_helpers.NewMissingUserIdInContextError
 	}
 	err := l.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		err := l.roomRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer())
+		err := l.roomRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LeaveRoomCommandHandler.LeaveRoom",
 				"Couldn't leave room.",

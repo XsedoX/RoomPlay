@@ -394,21 +394,21 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 	return nil
 }
 
-func (repository *RoomRepository) GetRoomAggregareByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
-	var roomId room_id.RoomId
+func (repository *RoomRepository) GetRoomAggregateByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
+	var roomId uuid.UUID
 	err := queryer.GetContext(ctx,
 		&roomId,
 		`
-SELECT room_id
-FROM users_room_data
-WHERE user_id = $1::uuid;
+		SELECT room_id
+		FROM users_room_data
+		WHERE user_id = $1::uuid;
 		`,
 		userId.ToUuid(),
 	)
 	if err != nil {
 		return nil, err
 	}
-	roomInstance, getRoomErr := repository.GetRoomById(ctx, roomId, queryer)
+	roomInstance, getRoomErr := repository.GetRoomById(ctx, room_id.RoomId(roomId), queryer)
 	if getRoomErr != nil {
 		return nil, getRoomErr
 	}
@@ -622,22 +622,18 @@ WHERE room_id = $1::uuid;
 	return roomInstance, nil
 }
 
-func (repository *RoomRepository) CheckUserMembership(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) bool {
-	var response bool
+func (repository *RoomRepository) GetUserMembership(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) *room_id.RoomId {
+	var response uuid.UUID
 	err := queryer.GetContext(ctx, &response, `
-		SELECT CASE 
-		    WHEN EXISTS (
-		        SELECT 1
-		        FROM users_room_data
-		        WHERE user_id=$1
-			)
-		    THEN true 
-		    ELSE false
-		END`, userId.ToUuid())
+		SELECT room_id
+		FROM users_room_data
+		WHERE user_id=$1
+		`, userId.ToUuid(),
+	)
 	if err != nil {
-		return false
+		return nil
 	}
-	return response
+	return new(room_id.RoomId(response))
 }
 
 func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user_id.UserId, queryer i_queryer.IQueryer) error {

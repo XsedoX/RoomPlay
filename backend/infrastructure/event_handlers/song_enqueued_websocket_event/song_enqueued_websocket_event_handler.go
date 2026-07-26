@@ -12,7 +12,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket_requests/room_broadcast_request"
 )
 
-const songEnqueuedWebsocketAction = "song_enqueued"
+const SongEnqueuedWebsocketActionName = WebSocketAction("song_enqueued")
 
 type SongEnqueuedWebsocketEventHandler struct {
 	hub            i_hub.IHub
@@ -31,6 +31,7 @@ func NewSongEnqueuedWebsocketEventHandler(
 		hub:            hub,
 		roomRepository: roomRepo,
 		unitOfWork:     unitOfWork,
+		appContext:     appContext,
 	}
 }
 
@@ -43,7 +44,7 @@ func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
 		h.appContext,
 		concreteEvent.RoomId(),
 		id,
-		h.unitOfWork.GetQueryer(),
+		h.unitOfWork.GetQueryer(h.appContext),
 	)
 
 	dto := SongEnqueuedWebsocketEventResponse{
@@ -55,7 +56,7 @@ func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
 		State:         concreteEvent.EnqueuedSongState().String(),
 		VoteStatus:    concreteEvent.Status().String(),
 		AddedBy:       addedBy,
-		Action:        songEnqueuedWebsocketAction,
+		Action:        SongEnqueuedWebsocketActionName,
 	}
 	payload, _ := json.Marshal(dto)
 

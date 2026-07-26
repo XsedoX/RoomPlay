@@ -24,8 +24,8 @@ type SongEnqueuedEvent struct {
 	status            vote_status.VoteStatus
 	roomId            room_id.RoomId
 
-	eventName  shared.EventName
-	occurredAt time.Time
+	eventName     shared.EventName
+	occurredAtUtc time.Time
 }
 
 func (event *SongEnqueuedEvent) EnqueuedSongId() enqueued_song_id.EnqueuedSongId {
@@ -73,6 +73,7 @@ func NewSongEnqueuedEvent(
 	albumCoverUrl string,
 	enqueuedSongState enqueued_song_state.EnqueuedSongState,
 	status vote_status.VoteStatus,
+	roomId room_id.RoomId,
 ) *SongEnqueuedEvent {
 	return &SongEnqueuedEvent{
 		enqueuedSongId:    enqueuedSongId,
@@ -83,9 +84,10 @@ func NewSongEnqueuedEvent(
 		albumCoverUrl:     albumCoverUrl,
 		enqueuedSongState: enqueuedSongState,
 		status:            status,
+		roomId:            roomId,
 
-		eventName:  SongEnqueuedEventName,
-		occurredAt: time.Now(),
+		eventName:     SongEnqueuedEventName,
+		occurredAtUtc: time.Now().UTC(),
 	}
 }
 
@@ -93,6 +95,6 @@ func (event *SongEnqueuedEvent) EventName() shared.EventName {
 	return event.eventName
 }
 
-func (event *SongEnqueuedEvent) OccurredAt() time.Time {
-	return event.occurredAt
+func (event *SongEnqueuedEvent) OccurredAtUtc() time.Time {
+	return event.occurredAtUtc
 }

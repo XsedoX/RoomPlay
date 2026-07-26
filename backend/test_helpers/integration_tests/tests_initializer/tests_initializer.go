@@ -19,15 +19,15 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	PgContainer  *PostgresContainer
-	TestServer   *api_server.Server
-	ctx          context.Context
-	InjectedUser = seeder.SeedData.Users[0]
+	PgContainer            *PostgresContainer
+	TestServer             *api_server.Server
+	ctx                    context.Context
+	InjectedUser           = seeder.SeedData.Users[0]
+	InjectMusicDataService func() *mock_music_data_provider_service.MockMusicDataProviderService
 )
 
 func InitializeDatabaseContainer() {
@@ -112,15 +112,6 @@ func InitializeApiServer(m *testing.M) {
 
 	InitializeDatabaseContainer()
 	configuration := mock_configuration.MockConfiguration{}
-	mockMusicDataService := mock_music_data_provider_service.MockMusicDataProviderService{}
-	mockMusicDataService.On(
-		"SearchSongsByQuery",
-		mock.Anything,
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*string"),
-		mock.AnythingOfType("uint8"),
-	).Return(&seeder.ExternalSongData, nil)
 
 	db := PgContainer.db
 	InjectedUserId := InjectedUser.Id()
@@ -136,7 +127,9 @@ func InitializeApiServer(m *testing.M) {
 		db,
 		&configuration,
 	)
-	infrastructureDependencies.CachingSongDecorator = &mockMusicDataService
+	if InjectMusicDataService != nil {
+		infrastructureDependencies.CachingSongDecorator = InjectMusicDataService()
+	}
 	applicationDependencies := application_dependencies.ConstructApplicationDependencies(
 		infrastructureDependencies,
 		&configuration,

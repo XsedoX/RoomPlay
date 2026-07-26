@@ -7,9 +7,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
-	"github.com/XsedoX/RoomPlay/application/services/services_contracts/i_oidc_authentication_service"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service_provider"
 	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_type"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
@@ -19,19 +20,19 @@ import (
 
 // TODO: save where the user started logging and return to the same url
 type GoogleOidcController struct {
-	configuration             config.IConfiguration
-	oidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService
-	googleOidcService         i_google_oidc_service.IGoogleOidcService
+	configuration                         config.IConfiguration
+	externalAuthenticationServiceProvider i_external_authentication_service_provider.IExternalAuthenticationServiceProvider
+	externalAuthenticationService         i_external_authentication_service.IExternalAuthenticationService
 }
 
 func NewOidcController(configuration config.IConfiguration,
-	oidcAuthenticationService i_oidc_authentication_service.IOidcAuthenticationService,
-	googleOidcService i_google_oidc_service.IGoogleOidcService,
+	externalAuthenticationServiceProvider i_external_authentication_service_provider.IExternalAuthenticationServiceProvider,
+	externalAuthenticationService i_external_authentication_service.IExternalAuthenticationService,
 ) *GoogleOidcController {
 	return &GoogleOidcController{
-		configuration:             configuration,
-		oidcAuthenticationService: oidcAuthenticationService,
-		googleOidcService:         googleOidcService,
+		configuration:                         configuration,
+		externalAuthenticationServiceProvider: externalAuthenticationServiceProvider,
+		externalAuthenticationService:         externalAuthenticationService,
 	}
 }
 
@@ -60,7 +61,7 @@ func (handler *GoogleOidcController) HandleLoginWithGoogle(w http.ResponseWriter
 	}
 	cookie_helpers.SetDeviceTypeCookie(w, parsedDeviceType.String())
 
-	googleUrl, err := handler.googleOidcService.GenerateOidcUrl(state)
+	googleUrl, err := handler.externalAuthenticationServiceProvider.GenerateOidcUrl(state)
 	if err != nil {
 		response.WriteJsonFailure(w,
 			"OidcController.GenerateOidcUrl",
@@ -125,7 +126,13 @@ func (handler *GoogleOidcController) HandleGoogleCallback(w http.ResponseWriter,
 		deviceIdValue = device_id.ParseDeviceId(deviceId.Value)
 	}
 
-	apiTokenResponse, err := handler.oidcAuthenticationService.AuthenticateWithGoogle(r.Context(), code, deviceIdValue, device_type.ParseDeviceType(&deviceType.Value))
+	apiTokenResponse, err := handler.externalAuthenticationService.AuthenticateWithExternalProvider(
+		r.Context(),
+		code,
+		deviceIdValue,
+		device_type.ParseDeviceType(&deviceType.Value),
+		music_provider.YouTube,
+	)
 	if err != nil {
 		response.WriteJsonApplicationFailure(w, err, r.URL.RequestURI())
 		return

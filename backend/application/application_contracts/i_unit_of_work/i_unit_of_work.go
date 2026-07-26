@@ -9,5 +9,5 @@ import (
 type IUnitOfWork interface {
 	ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error
 	ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error
-	GetQueryer() i_queryer.IQueryer
+	GetQueryer(ctx context.Context) i_queryer.IQueryer
 }

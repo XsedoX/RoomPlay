@@ -48,7 +48,7 @@ func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler {
 			return
 		}
 
-		ctxWithClaims := context.WithValue(r.Context(), user.IdClaimContextKeyName, userId)
+		ctxWithClaims := context.WithValue(r.Context(), user.IdClaimContextKeyName, *userId)
 		next.ServeHTTP(w, r.WithContext(ctxWithClaims))
 	})
 }

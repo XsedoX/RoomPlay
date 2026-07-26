@@ -116,18 +116,18 @@ func TestAccessTokenByUserId(t *testing.T) {
 	)
 	require.True(t, ok, "failed to get access token from seeded data")
 
-	userAccessTokenFromDb := externalCredentialsFromDb.AccessToken()
-	userAccessTokenFromDbBytes := []byte(userAccessTokenFromDb) // Simulate the encrypted access token stored in the database
+	userAccessTokenFromDb := externalCredentialsFromDb.GetAccessToken()
+	userAccessTokenFromDbBytes := []byte(userAccessTokenFromDb.Value()) // Simulate the encrypted access token stored in the database
 	decryptedAccessToken := "decrypted_access_token"
 
 	// Setup mock expectations
 	mockEncrypter.On("Decrypt", userAccessTokenFromDbBytes).Return(decryptedAccessToken, nil)
 
 	// Act
-	accessTokenFromRepo, err := repo.AccessTokenByUserId(ctx, userId, txx)
+	accessTokenFromRepo, err := repo.GetAccessTokenByUserId(ctx, userId, txx)
 
 	require.NoError(t, err)
-	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo)
+	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo.Value())
 	mockEncrypter.AssertNumberOfCalls(t, "Decrypt", 1)
 }
 

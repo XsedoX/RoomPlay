@@ -7,29 +7,29 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/shared"
 )
 
-type DommainEventPublisher struct {
+type DomainEventPublisher struct {
 	eventQueue         chan shared.IDomainEvent
 	eventHandlers      map[shared.EventName][]i_event_handler.IEventHandler
 	applicationContext context.Context
 }
 
-func NewDomainEventPublisher(appContext context.Context) *DommainEventPublisher {
-	return &DommainEventPublisher{
+func NewDomainEventPublisher(appContext context.Context) *DomainEventPublisher {
+	return &DomainEventPublisher{
 		eventQueue:         make(chan shared.IDomainEvent, 100),
 		eventHandlers:      make(map[shared.EventName][]i_event_handler.IEventHandler),
 		applicationContext: appContext,
 	}
 }
 
-func (p *DommainEventPublisher) Publish(event shared.IDomainEvent) {
+func (p *DomainEventPublisher) Publish(event shared.IDomainEvent) {
 	p.eventQueue <- event
 }
 
-func (p *DommainEventPublisher) Register(eventName shared.EventName, handler i_event_handler.IEventHandler) {
+func (p *DomainEventPublisher) Register(eventName shared.EventName, handler i_event_handler.IEventHandler) {
 	p.eventHandlers[eventName] = append(p.eventHandlers[eventName], handler)
 }
 
-func (p *DommainEventPublisher) Start() {
+func (p *DomainEventPublisher) Start() {
 	for {
 		select {
 		case <-p.applicationContext.Done():

@@ -50,7 +50,7 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		userAgg := user.NewUser(command.Name, command.Surname, command.DeviceType)
 		deviceEnt := userAgg.GetMostRecentDevice()
-		err := handler.userRepository.Add(ctx, userAgg, handler.unitOfWork.GetQueryer())
+		err := handler.userRepository.Add(ctx, userAgg, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("RegisterUserCommandHandler.UserRepository.Add",
 				"Adding user problem",
@@ -74,7 +74,7 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		if internalCredentialsErr != nil {
 			return internalCredentialsErr
 		}
-		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer())
+		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer(ctx))
 		if newTokenErr != nil {
 			return application_error.NewApplicationError("RegisterUserCommandHandler.AssignNewToken",
 				"Access token generation problem",
@@ -93,7 +93,7 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 		if externalCredentialsErr != nil {
 			return externalCredentialsErr
 		}
-		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer())
+		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer(ctx))
 		if grantErr != nil {
 			return application_error.NewApplicationError("RegisterUserCommandHandler.Grant",
 				"Problem with granting external credentials.",

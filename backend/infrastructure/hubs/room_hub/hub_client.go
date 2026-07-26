@@ -104,6 +104,10 @@ func NewClient(
 	}
 }
 
+func (c *Client) SetRoomHub(roomHub *RoomHub) {
+	c.roomHub = roomHub
+}
+
 func (c *Client) SendMessage(message []byte) {
 	c.receivedMessages <- message
 }

@@ -1,6 +1,6 @@
-package google_token_response_dto
+package auth_service_access_token_response_dto
 
-type GoogleTokenResponseDto struct {
+type AuthServiceAccessTokenResponseDto struct {
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    uint   `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`

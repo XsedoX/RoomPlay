@@ -2,11 +2,10 @@ package get_user_room_membership_query_handler
 
 import (
 	"context"
-	"errors"
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
@@ -37,16 +36,16 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		mockRoomRepo, mockUoW, userId, ctx := setupMocks(t)
 		mockUoW.On("GetQueryer").Return(nil)
 		mockRoomRepo.
-			On("GetRoomByUserId", ctx, userId, mock.Anything).
-			Return(nil, nil)
+			On("GetUserMembership", ctx, userId, mock.Anything).
+			Return(new(room_id.NewRoomId()), nil)
 		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepo, mockUoW)
 
 		resp, err := handler.Handle(ctx)
 
 		assert.NoError(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
-		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
-		assert.Equal(t, true, *resp)
+		mockRoomRepo.AssertNumberOfCalls(t, "GetUserMembership", 1)
+		assert.NotNil(t, resp)
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
@@ -64,26 +63,7 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		mockUoW.AssertExpectations(t)
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
-		mockRoomRepo.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
+		mockRoomRepo.AssertNumberOfCalls(t, "GetUserMembership", 0)
 		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
-	})
-	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
-		mockRoomRepository, mockUoW, userId, ctx := setupMocks(t)
-		mockUoW.On("GetQueryer").Return(nil)
-		handler := NewGetUserRoomMembershipQueryHandler(mockRoomRepository, mockUoW)
-		repoErr := errors.New("database error")
-		errorCode := "GetUserRoomMembershipQueryHandler.GetRoomByUserId"
-		mockRoomRepository.On("GetRoomByUserId", ctx, userId, mock.Anything).Return(nil, repoErr)
-
-		resp, err := handler.Handle(ctx)
-
-		assert.Error(t, err)
-		assert.Nil(t, resp)
-		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
-		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
-		assert.ErrorIs(t, customErr.Err, repoErr)
 	})
 }

@@ -28,7 +28,7 @@ func NewScheduledSong(songData song_data.SongData,
 	}
 	return &ScheduledSong{
 		songData:       songData,
-		scheduledAtUtc: scheduledAt,
+		scheduledAtUtc: scheduledAt.UTC(),
 	}, nil
 }
 

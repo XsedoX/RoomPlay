@@ -49,7 +49,7 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *cre
 		if domainErr != nil {
 			return domainErr
 		}
-		err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer())
+		err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("CreateRoomCommandHandler.CreateRoom",
 				"Problem with creating a room.",

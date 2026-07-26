@@ -20,8 +20,6 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket_requests/client_room_request"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
-	"github.com/google/uuid"
-	"github.com/gorilla/schema"
 )
 
 const (
@@ -34,7 +32,7 @@ const (
 type RoomController struct {
 	createRoomCommandHandler          i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId]
 	getRoomQueryHandler               i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse]
-	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool]
+	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*room_id.RoomId]
 	leaveRoomCommandHandler           i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand]
 	joinRoomCommandHandler            i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand]
 	mainHub                           i_hub.IHub
@@ -43,7 +41,7 @@ type RoomController struct {
 
 func NewRoomController(createRoomCommandHandler i_command_handler.ICommandHandlerWithResponse[*create_room_command.CreateRoomCommand, *room_id.RoomId],
 	getRoomQueryHandler i_query_handler.IQueryHandler[*get_room_query_response.GetRoomQueryResponse],
-	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*bool],
+	getUserRoomMembershipQueryHandler i_query_handler.IQueryHandler[*room_id.RoomId],
 	leaveRoomCommandHandler i_command_handler.ICommandHandler[*leave_room_command.LeaveRoomCommand],
 	joinRoomCommandHandler i_command_handler.ICommandHandler[*join_room_password_command.JoinRoomPasswordCommand],
 	mainHub i_hub.IHub,
@@ -148,7 +146,7 @@ func (rh *RoomController) CheckUserRoomMembership(w http.ResponseWriter, r *http
 		)
 		return
 	}
-	response.WriteJsonSuccess(w, handlerResponse)
+	response.WriteJsonSuccess(w, handlerResponse != nil)
 }
 
 // LeaveRoom handles the HTTP request to leave a room.
@@ -219,32 +217,18 @@ func (rh *RoomController) UpgradeToWebSockets(w http.ResponseWriter, r *http.Req
 	userId, ok := application_helpers.GetUserIdFromContext(r.Context())
 	if !ok {
 		response.WriteJsonApplicationFailure(w, application_helpers.NewMissingUserIdInContextError, r.URL.RequestURI())
+		return
 	}
 
-	type roomIdParam struct {
-		RoomId uuid.UUID `schema:"roomId" validate:"required,uuid"`
-	}
-	var roomIdParamValue roomIdParam
-	decoder := schema.NewDecoder()
-	paramsDecodeErr := decoder.Decode(&roomIdParamValue, r.URL.Query())
-	if paramsDecodeErr != nil {
-		response.WriteJsonDecodingFailure(
-			w,
-			"UpgradeToWebSockets.Decoding",
-			paramsDecodeErr,
+	roomId, err := rh.getUserRoomMembershipQueryHandler.Handle(r.Context())
+	if err != nil {
+		response.WriteJsonApplicationFailure(w,
+			err,
 			r.URL.RequestURI(),
 		)
 		return
 	}
-
-	isInRoom, err := rh.getUserRoomMembershipQueryHandler.Handle(r.Context())
-	if err != nil {
-		response.WriteJsonApplicationFailure(w,
-			err,
-			r.URL.RequestURI())
-		return
-	}
-	if !*isInRoom {
+	if roomId == nil {
 		response.WriteJsonApplicationFailure(w,
 			errors.New("User does not belong to any room"),
 			r.URL.RequestURI())
@@ -264,10 +248,8 @@ func (rh *RoomController) UpgradeToWebSockets(w http.ResponseWriter, r *http.Req
 		*userId,
 		rh.clientMessagePublisher,
 	)
-	go client.WritePump()
-	go client.ReadPump()
 	rh.mainHub.RegisterClientToRoom(&client_room_request.ClientRoomRequest{
-		RoomId: room_id.RoomId(roomIdParamValue.RoomId),
+		RoomId: room_id.RoomId(*roomId),
 		Client: client,
 	})
 }

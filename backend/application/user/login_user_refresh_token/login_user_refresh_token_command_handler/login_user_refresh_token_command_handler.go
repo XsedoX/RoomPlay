@@ -40,7 +40,7 @@ func NewLoginUserRefreshTokenCommandHandler(internalCredentialsRepository i_inte
 func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, command *string) (*login_user_refresh_token_command_response.LoginUserRefreshTokenCommandResponse, error) {
 	var response login_user_refresh_token_command_response.LoginUserRefreshTokenCommandResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		tokenFromDb, err := handler.internalCredentialsRepository.GetTokenByValue(ctx, *command, handler.unitOfWork.GetQueryer())
+		tokenFromDb, err := handler.internalCredentialsRepository.GetTokenByValue(ctx, *command, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LoginRefreshTokenCommandHandler.GetTokenByValue",
 				"Couldn't fetch token from the database.",
@@ -55,7 +55,7 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 				application_error_type.Unauthorized,
 			)
 		}
-		userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.UserId(), handler.unitOfWork.GetQueryer())
+		userFromDb, err := handler.userRepository.GetUserById(ctx, tokenFromDb.UserId(), handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LoginRefreshTokenCommandHandler.GetUserById",
 				"Couldn't fetch user from the database.",
@@ -68,7 +68,7 @@ func (handler *LoginUserRefreshTokenCommandHandler) Handle(ctx context.Context, 
 		if refreshTokenErr != nil {
 			return refreshTokenErr
 		}
-		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer())
+		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, newRefreshToken, handler.unitOfWork.GetQueryer(ctx))
 		if newTokenErr != nil {
 			return application_error.NewApplicationError("LoginRefreshTokenCommandHandler.AssignNewToken",
 				"Couldn't assign a new refresh token to a user.",

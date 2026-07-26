@@ -1,6 +1,8 @@
-package enquque_song_command
+package enqueue_song_command
+
+import "github.com/google/uuid"
 
 type EnqueueSongCommand struct {
-	SongId  string `json:"songId"`
-	AddedBy string `json:"addedBy"`
+	SongExternalId string    `json:"SongExternalId"`
+	AddedBy        uuid.UUID `json:"addedBy"`
 }

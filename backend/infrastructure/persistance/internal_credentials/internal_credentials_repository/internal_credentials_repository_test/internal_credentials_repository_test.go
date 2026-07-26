@@ -87,14 +87,14 @@ func TestInternalCredentialsRepositoryGetTokenByValue(t *testing.T) {
 
 	configuration := mock_configuration.MockConfiguration{}
 	realEncrypter := encryper.NewEncrypter(configuration.Authentication().EncryptionKey)
-	existingToken := seeder.SeedData.InternalCredentials[0].RefreshToken()
+	existingToken := seeder.SeedData.InternalCredentials[0].RefreshToken().Value()
 	encryptedExistingToken := realEncrypter.Hash(existingToken)
 	mockEncrypter.On("Hash", existingToken).Return(encryptedExistingToken)
 
 	internalCredentials, err := repo.GetTokenByValue(ctx, existingToken, txx)
 	require.NoError(t, err)
 
-	require.Equal(t, encryptedExistingToken, []byte(internalCredentials.RefreshToken()))
+	require.Equal(t, encryptedExistingToken, []byte(internalCredentials.RefreshToken().Value()))
 	require.WithinDuration(t, seeder.SeedData.InternalCredentials[0].ExpiresAtUtc(), internalCredentials.ExpiresAtUtc(), time.Second)
 	require.WithinDuration(t, seeder.SeedData.InternalCredentials[0].IssuedAtUtc(), internalCredentials.IssuedAtUtc(), time.Second)
 	require.Equal(t, seeder.SeedData.InternalCredentials[0].UserId(), internalCredentials.UserId())

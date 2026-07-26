@@ -35,7 +35,7 @@ func (c *CachingSongDecorator) GetSongById(ctx context.Context, accessToken, son
 	result := &music_data_response_dto.SongDataResponseDto{}
 	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var err error
-		result, err = c.songByExternalIdCache.GetExact(songId, ctx, c.unitOfWork.GetQueryer())
+		result, err = c.songByExternalIdCache.GetExact(songId, ctx, c.unitOfWork.GetQueryer(ctx))
 		return err
 	})
 	if cacheErr == nil {
@@ -52,7 +52,7 @@ func (c *CachingSongDecorator) GetSongById(ctx context.Context, accessToken, son
 			songId,
 			result,
 			ctx,
-			c.unitOfWork.GetQueryer(),
+			c.unitOfWork.GetQueryer(ctx),
 		)
 		return cacheErr
 	})
@@ -72,7 +72,7 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 	var result *music_data_response_dto.MusicDataResponseDto
 	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var err error
-		result, err = c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer())
+		result, err = c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer(ctx))
 		return err
 	})
 	if cacheErr == nil {
@@ -90,7 +90,7 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 				song.VideoId,
 				songInstance,
 				ctx,
-				c.unitOfWork.GetQueryer(),
+				c.unitOfWork.GetQueryer(ctx),
 			)
 			if err != nil {
 				log.Printf("Error caching song by external ID: %v", err)
@@ -100,7 +100,7 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 	})
 
 	cacheErr = c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		cacheErr := c.cache.Set(cacheKey, result, ctx, c.unitOfWork.GetQueryer())
+		cacheErr := c.cache.Set(cacheKey, result, ctx, c.unitOfWork.GetQueryer(ctx))
 		return cacheErr
 	})
 	if cacheErr != nil {

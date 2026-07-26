@@ -73,11 +73,11 @@ var (
 
 func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_credentials.ExternalCredentials) error {
 	mockEncrypter := mock_encrypter.MockEncrypter{}
-	mockEncrypter.On("Encrypt", creds.AccessToken()).Return([]byte(creds.AccessToken()), nil)
-	mockEncrypter.On("Encrypt", creds.RefreshToken()).Return([]byte(creds.RefreshToken()), nil)
+	mockEncrypter.On("Encrypt", creds.GetAccessToken().Value()).Return([]byte(creds.GetAccessToken().Value()), nil)
+	mockEncrypter.On("Encrypt", creds.GetRefreshToken().Value()).Return([]byte(creds.GetRefreshToken().Value()), nil)
 
-	encryptedAccessToken, _ := mockEncrypter.Encrypt(creds.AccessToken())
-	encryptedRefreshToken, _ := mockEncrypter.Encrypt(creds.RefreshToken())
+	encryptedAccessToken, _ := mockEncrypter.Encrypt(creds.GetAccessToken().Value())
+	encryptedRefreshToken, _ := mockEncrypter.Encrypt(creds.GetRefreshToken().Value())
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO users_external_credentials 
 		(

@@ -226,11 +226,11 @@ func TestRoomRepositoryCheckUserMembership(t *testing.T) {
 	require.NoError(t, err)
 
 	// Act & Assert
-	exists1 := repo.CheckUserMembership(ctx, user_id.UserId(userID1), txx)
-	assert.True(t, exists1)
+	roomIdFromDb := repo.GetUserMembership(ctx, user_id.UserId(userID1), txx)
+	require.Equal(t, roomID, roomIdFromDb.ToUuid())
 
-	exists2 := repo.CheckUserMembership(ctx, user_id.UserId(userID2), txx)
-	assert.False(t, exists2)
+	roomIdFromDbNil := repo.GetUserMembership(ctx, user_id.UserId(userID2), txx)
+	require.Nil(t, roomIdFromDbNil)
 }
 
 func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {

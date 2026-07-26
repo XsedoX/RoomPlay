@@ -13,14 +13,28 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/controllers/song_controller"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/presentation/response"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMain(m *testing.M) {
+	tests_initializer.InjectMusicDataService = func() *mock_music_data_provider_service.MockMusicDataProviderService {
+		mockMusicDataService := mock_music_data_provider_service.MockMusicDataProviderService{}
+		mockMusicDataService.On(
+			"SearchSongsByQuery",
+			mock.Anything,
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("uint8"),
+		).Return(&seeder.ExternalSongData, nil)
+		return &mockMusicDataService
+	}
 	tests_initializer.InitializeApiServer(m)
 }
 

@@ -4,12 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
 	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
+	"github.com/XsedoX/RoomPlay/domain/token"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_external_authentication_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_cache"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_external_credentials_repository"
@@ -28,6 +31,7 @@ func setupMocks(t *testing.T) (
 	ctx context.Context,
 	mockSongsCache *mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto],
 	mockExternalSongsCache *mock_cache.MockCache[*music_data_response_dto.SongDataResponseDto],
+	mockExternalAuthenticationService *mock_external_authentication_service.MockExternalAuthenticationService,
 ) {
 	mockUoW = new(mock_unit_of_work.MockUnitOfWork)
 	mockMusicDataProvider = new(mock_music_data_provider_service.MockMusicDataProviderService)
@@ -35,6 +39,7 @@ func setupMocks(t *testing.T) (
 	mockExternalCredentialsRepository = new(mock_external_credentials_repository.MockExternalCredentialsRepository)
 	mockSongsCache = new(mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto])
 	mockExternalSongsCache = new(mock_cache.MockCache[*music_data_response_dto.SongDataResponseDto])
+	mockExternalAuthenticationService = new(mock_external_authentication_service.MockExternalAuthenticationService)
 
 	defer func() {
 		mockUoW.AssertExpectations(t)
@@ -42,6 +47,7 @@ func setupMocks(t *testing.T) (
 		mockExternalCredentialsRepository.AssertExpectations(t)
 		mockSongsCache.AssertExpectations(t)
 		mockExternalSongsCache.AssertExpectations(t)
+		mockExternalAuthenticationService.AssertExpectations(t)
 	}()
 	return
 }
@@ -54,9 +60,10 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 			userId,
 			ctx,
 			mockSongsCache,
-			mockExternalSongsCache := setupMocks(t)
+			mockExternalSongsCache,
+			mockAuthService := setupMocks(t)
 
-		accessToken := "access_token"
+		accessToken := token.HydrateToken("access_token", time.Now().Add(time.Hour*1))
 		queryString := "test query"
 		musicProviderResponse := &music_data_response_dto.MusicDataResponseDto{
 			Songs: []music_data_response_dto.SongDataResponseDto{
@@ -90,16 +97,16 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 		mockUoW.On("GetQueryer").Return(nil)
 
 		mockExternalCredentialsRepository.On(
-			"AccessTokenByUserId",
+			"GetAccessTokenByUserId",
 			ctx,
 			userId,
-			mockUoW.GetQueryer(),
+			mockUoW.GetQueryer(ctx),
 		).Return(accessToken, nil)
 
 		mockMusicDataProvider.On(
 			"SearchSongsByQuery",
 			ctx,
-			accessToken,
+			accessToken.Value(),
 			queryString,
 			(*string)(nil),
 			uint8(3)).Return(musicProviderResponse, nil)
@@ -108,14 +115,15 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 			"Get",
 			queryString,
 			ctx,
-			mockUoW.GetQueryer(),
+			mockUoW.GetQueryer(ctx),
 		).Return(nil, sql.ErrNoRows)
+
 		mockSongsCache.On(
 			"Set",
 			mock.Anything,
 			mock.Anything,
 			ctx,
-			mockUoW.GetQueryer(),
+			mockUoW.GetQueryer(ctx),
 		).Return(nil)
 
 		mockExternalSongsCache.On(
@@ -123,8 +131,14 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 			mock.Anything,
 			mock.Anything,
 			ctx,
-			mockUoW.GetQueryer(),
+			mockUoW.GetQueryer(ctx),
 		).Return(nil)
+
+		mockAuthService.On(
+			"RefreshAccessTokenWithExternalProvider",
+			ctx,
+			userId,
+		).Return(accessToken, nil)
 
 		cachingSongDecorator := caching_song_decorator.NewCachingSongDecorator(
 			mockMusicDataProvider,
@@ -137,6 +151,7 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 			mockUoW,
 			cachingSongDecorator,
 			mockExternalCredentialsRepository,
+			mockAuthService,
 		)
 		query := search_song_query.SearchSongQuery{
 			Query:         "test query",

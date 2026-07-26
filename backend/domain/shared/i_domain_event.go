@@ -8,6 +8,6 @@ type (
 	EventName    string
 	IDomainEvent interface {
 		EventName() EventName
-		OccurredAt() time.Time
+		OccurredAtUtc() time.Time
 	}
 )

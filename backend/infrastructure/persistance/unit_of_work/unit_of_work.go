@@ -9,51 +9,57 @@ import (
 
 type UnitOfWork struct {
 	db *sqlx.DB
-	tx *sqlx.Tx
+}
+
+type ctxKey struct{}
+
+func withTx(ctx context.Context, tx *sqlx.Tx) context.Context {
+	return context.WithValue(ctx, ctxKey{}, tx)
+}
+
+func txFromCtx(ctx context.Context) *sqlx.Tx {
+	tx, _ := ctx.Value(ctxKey{}).(*sqlx.Tx)
+	return tx
 }
 
 func NewUnitOfWork(db *sqlx.DB) *UnitOfWork {
 	return &UnitOfWork{db: db}
 }
 
-func (uow *UnitOfWork) GetQueryer() i_queryer.IQueryer {
-	if uow.tx != nil {
-		return uow.tx
+func (uow *UnitOfWork) GetQueryer(ctx context.Context) i_queryer.IQueryer {
+	if tx := txFromCtx(ctx); tx != nil {
+		return tx
 	}
 	return uow.db
 }
 
 func (uow *UnitOfWork) ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	if uow.tx != nil {
+	if txFromCtx(ctx) != nil {
 		return fn(ctx)
 	}
 	tx, err := uow.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	uow.tx = tx
+	var commitErr error
 	defer func() {
-		// clear tx pointer regardless of outcome to avoid reuse
-		defer func() { uow.tx = nil }()
-
 		if p := recover(); p != nil {
 			_ = tx.Rollback()
 			panic(p)
 		}
-		if err != nil {
+		if commitErr != nil {
 			_ = tx.Rollback()
 			return
 		}
-		// commit error (if any) should be returned to caller
-		err = tx.Commit()
-		if err != nil {
+		if cErr := tx.Commit(); cErr != nil {
+			commitErr = cErr
 			_ = tx.Rollback()
-			return
 		}
 	}()
 
-	err = fn(ctx)
-	return err
+	txCtx := withTx(ctx, tx)
+	commitErr = fn(txCtx)
+	return commitErr
 }
 
 func (uow *UnitOfWork) ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error {

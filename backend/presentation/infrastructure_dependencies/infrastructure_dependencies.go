@@ -6,8 +6,8 @@ import (
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_event_publisher"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_credentials_repository"
-	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_jwt_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
@@ -36,7 +36,7 @@ import (
 type InfrastructureDependencies struct {
 	Encrypter                     i_encrypter.IEncrypter
 	JwtProvider                   i_jwt_provider.IJwtProvider
-	GoogleOidcService             i_google_oidc_service.IGoogleOidcService
+	GoogleOidcService             i_external_authentication_service_provider.IExternalAuthenticationServiceProvider
 	ExternalCredentialsRepository i_external_credentials_repository.IExternalCredentialsRepository
 	InternalCredentialsRepository i_internal_credentials_repository.IInternalCredentialsRepository
 	UserRepository                i_user_repository.IUserRepository

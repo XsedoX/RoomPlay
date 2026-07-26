@@ -32,7 +32,7 @@ func (handler GetUserDataQueryHandler) Handle(ctx context.Context) (*get_user_qu
 		return nil, application_helpers.NewMissingUserIdInContextError
 	}
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
-		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer())
+		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer(ctx))
 		if er != nil {
 			return application_error.NewApplicationError("NewGetUserQueryHandler.GetUserById",
 				"Problem with creating a room.",

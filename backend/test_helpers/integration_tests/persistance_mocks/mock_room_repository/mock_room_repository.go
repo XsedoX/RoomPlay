@@ -24,7 +24,7 @@ func (m *MockRoomRepository) GetRoomById(ctx context.Context, roomId room_id.Roo
 	return args.Get(0).(*room.Room), args.Error(1)
 }
 
-func (m *MockRoomRepository) GetRoomAggregareByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
+func (m *MockRoomRepository) GetRoomAggregateByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
 	args := m.Called(ctx, userId, queryer)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -74,9 +74,9 @@ func (m *MockRoomRepository) GetRoomByUserId(ctx context.Context, userId user_id
 	return args.Get(0).(*get_room_dao.GetRoomDao), args.Error(1)
 }
 
-func (m *MockRoomRepository) CheckUserMembership(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) bool {
+func (m *MockRoomRepository) GetUserMembership(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) *room_id.RoomId {
 	args := m.Called(ctx, userId, queryer)
-	return args.Bool(0)
+	return args.Get(0).(*room_id.RoomId)
 }
 
 func (m *MockRoomRepository) LeaveRoom(ctx context.Context, id user_id.UserId, queryer i_queryer.IQueryer) error {

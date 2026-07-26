@@ -48,14 +48,17 @@ func (hub *RoomHub) Run() {
 				hub.userSessions[userId] = make(map[*Client]bool)
 			}
 			hub.userSessions[userId][client] = true
+
 		case client := <-hub.unregister:
 			delete(hub.clients, client)
 			userId := client.UserId()
 			delete(hub.userSessions[userId], client)
+
 		case message := <-hub.broadcast:
 			for client := range hub.clients {
 				client.SendMessage(message)
 			}
+
 		case userId := <-hub.disconnectUserSessions:
 			if sessions, ok := hub.userSessions[userId]; ok {
 				for client := range sessions {
@@ -63,6 +66,7 @@ func (hub *RoomHub) Run() {
 				}
 				delete(hub.userSessions, userId)
 			}
+
 		case <-hub.appContext.Done():
 			for client := range hub.clients {
 				client.Close()

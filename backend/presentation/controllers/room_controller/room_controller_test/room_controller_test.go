@@ -6,22 +6,51 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
+	"github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/application/room/join_room_password/join_room_password_command"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_envelope"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_enqueued_client_message_handler"
+	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/room_controller"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
+	"github.com/gorilla/websocket"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMain(m *testing.M) {
+	songToReturn := seeder.ExternalSongData.Songs[0]
+	tests_initializer.InjectMusicDataService = func() *mock_music_data_provider_service.MockMusicDataProviderService {
+		mockMusicDataService := mock_music_data_provider_service.MockMusicDataProviderService{}
+		mockMusicDataService.On(
+			"GetSongById",
+			mock.Anything,
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(&music_data_response_dto.SongDataResponseDto{
+			VideoId:       songToReturn.VideoId,
+			Title:         songToReturn.Title,
+			Author:        songToReturn.Author,
+			AlbumCoverUrl: songToReturn.AlbumCoverUrl,
+			LengthSeconds: songToReturn.LengthSeconds,
+			MusicProvider: songToReturn.MusicProvider,
+			Isrc:          songToReturn.Isrc,
+		}, nil)
+		return &mockMusicDataService
+	}
 	tests_initializer.InitializeApiServer(m)
 }
 
@@ -169,4 +198,84 @@ func TestJoinRoomSuccess(t *testing.T) {
 		"SELECT EXISTS (SELECT 1 FROM users_room_data WHERE user_id = $1)::text;",
 		tests_initializer.InjectedUser.Id())
 	assert.Equal(t, true, isUserInRoom)
+}
+
+func TestEnqueueSongSuccess(t *testing.T) {
+	txx, _ := tests_initializer.GetTxxAndCtx(t, true)
+	testServer := tests_initializer.TestServer
+	r := testServer.Router()
+	server := httptest.NewServer(r)
+	defer server.Close()
+
+	wsUrl := "ws" +
+		strings.TrimPrefix(server.URL, "http") +
+		constants.ApiBasePath +
+		room_controller.RoomBasePath +
+		room_controller.WebSocketUpgradePath
+	conn, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
+	require.NoError(t, err)
+	defer conn.Close()
+
+	command := enqueue_song_command.EnqueueSongCommand{
+		SongExternalId: seeder.ExternalSongData.Songs[0].VideoId,
+		AddedBy:        tests_initializer.InjectedUser.Id().ToUuid(),
+	}
+	payload, err := json.Marshal(command)
+	require.NoError(t, err)
+	envelope := client_message_envelope.ClientMessageEnvelope{
+		Payload:    payload,
+		ActionName: song_enqueued_client_message_handler.SongEnqueuedClientMessageActionName,
+		UserId:     tests_initializer.InjectedUser.Id(),
+	}
+
+	err = conn.WriteJSON(envelope)
+	require.NoError(t, err)
+
+	responseChan := make(chan []byte)
+	errChan := make(chan error)
+
+	go func() {
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			errChan <- err
+			return
+		}
+		responseChan <- message
+	}()
+
+	var response []byte
+	select {
+	case response = <-responseChan:
+
+	case err := <-errChan:
+		t.Fatalf("Error reading message: %v", err)
+
+	case <-time.After(5 * time.Second):
+		t.Fatal("Timeout waiting for message")
+	}
+
+	var concreteResponse song_enqueued_websocket_event.SongEnqueuedWebsocketEventResponse
+	err = json.Unmarshal(response, &concreteResponse)
+	require.NoError(t, err)
+
+	assert.Equal(t, seeder.ExternalSongData.Songs[0].Title, concreteResponse.Title)
+	assert.Equal(t, seeder.ExternalSongData.Songs[0].Author, concreteResponse.Author)
+	assert.Equal(t, seeder.ExternalSongData.Songs[0].AlbumCoverUrl, concreteResponse.AlbumCoverUrl)
+	assert.Equal(t, int8(0), concreteResponse.Votes)
+	assert.Equal(t, tests_initializer.InjectedUser.FullName().String(), concreteResponse.AddedBy)
+	assert.Equal(t, song_enqueued_websocket_event.SongEnqueuedWebsocketActionName, concreteResponse.Action)
+
+	var isSongInRoom bool
+	_ = txx.Get(&isSongInRoom,
+		`
+		SELECT EXISTS 
+			(
+				SELECT 1 FROM enqueued_songs es 
+		   JOIN songs_external_data sed ON es.song_id = sed.song_id 
+		   WHERE sed.external_id = $1 AND es.room_id = $2
+		)::text;`,
+		command.SongExternalId,
+		seeder.SeedData.Users[0].RoomId().ToUuid(),
+	)
+	assert.Equal(t, true, isSongInRoom)
 }

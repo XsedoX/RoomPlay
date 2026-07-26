@@ -3,7 +3,7 @@ package presentation_dependencies
 import (
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/room/events"
-	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_added_client_message_handler"
+	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_enqueued_client_message_handler"
 	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
 	"github.com/XsedoX/RoomPlay/infrastructure/hubs/main_hub"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
@@ -29,14 +29,15 @@ func ConstructPresentationDependencies(
 	infrastructureDependencies *infrastructure_dependencies.InfrastructureDependencies,
 ) *PresentationDependencies {
 	googleOidcService := infrastructureDependencies.GoogleOidcService
-	oidcAuthenticationService := applicationDependencies.OidcAuthenticationService
+	oidcAuthenticationService := applicationDependencies.AuthenticationService
 	oidcController := google_oidc_controller.NewOidcController(
 		configuration,
-		oidcAuthenticationService,
 		googleOidcService,
+		oidcAuthenticationService,
 	)
 
 	mainHub := main_hub.NewHub(infrastructureDependencies.ApplicationContext)
+	go mainHub.Run()
 
 	songEnqueuedWebsocketEventHandler := song_enqueued_websocket_event.NewSongEnqueuedWebsocketEventHandler(
 		mainHub,
@@ -49,11 +50,11 @@ func ConstructPresentationDependencies(
 		songEnqueuedWebsocketEventHandler,
 	)
 	enqueueSongCommandHandler := applicationDependencies.EnqueueSongCommandHandler
-	clientMessageHandler := song_added_client_message_handler.NewSongAddedClientMessageHandler(
+	clientMessageHandler := song_enqueued_client_message_handler.NewSongEnqueuedClientMessageHandler(
 		enqueueSongCommandHandler,
 	)
 	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
-		song_added_client_message_handler.SongAddedClientMessageName,
+		song_enqueued_client_message_handler.SongEnqueuedClientMessageActionName,
 		clientMessageHandler,
 	)
 

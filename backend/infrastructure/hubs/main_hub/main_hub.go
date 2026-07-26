@@ -44,17 +44,23 @@ func (h *Hub) Run() {
 				go roomHub.Run()
 			}
 			h.roomHubs[joinRequest.RoomId] = roomHub
+			joinRequest.Client.SetRoomHub(roomHub)
 			roomHub.RegisterClient(joinRequest.Client)
+			go joinRequest.Client.WritePump()
+			go joinRequest.Client.ReadPump()
+
 		case leaveRequest := <-h.unregister:
 			roomHub, ok := h.roomHubs[leaveRequest.RoomId]
 			if ok {
 				roomHub.UnregisterClient(leaveRequest.Client)
 			}
+
 		case broadcastRequest := <-h.roomBroadcast:
 			roomHub, ok := h.roomHubs[broadcastRequest.RoomId]
 			if ok {
 				roomHub.Broadcast(broadcastRequest.Payload)
 			}
+
 		case <-h.appContext.Done():
 			return
 		}

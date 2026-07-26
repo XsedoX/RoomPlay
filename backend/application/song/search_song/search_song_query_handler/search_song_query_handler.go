@@ -3,6 +3,7 @@ package search_song_query_handler
 import (
 	"context"
 
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
@@ -19,16 +20,19 @@ type SearchSongQueryHandler struct {
 	unitOfWork                    i_unit_of_work.IUnitOfWork
 	musicService                  i_music_data_provider_service.IMusicDataProviderService
 	externalCredentialsRepository i_external_credentials_repository.IExternalCredentialsRepository
+	authenticationService         i_external_authentication_service.IExternalAuthenticationService
 }
 
 func NewSearchSongQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 	musicService i_music_data_provider_service.IMusicDataProviderService,
 	externalCredentialsRepository i_external_credentials_repository.IExternalCredentialsRepository,
+	authenticationService i_external_authentication_service.IExternalAuthenticationService,
 ) *SearchSongQueryHandler {
 	return &SearchSongQueryHandler{
 		unitOfWork:                    unitOfWork,
 		musicService:                  musicService,
 		externalCredentialsRepository: externalCredentialsRepository,
+		authenticationService:         authenticationService,
 	}
 }
 
@@ -40,10 +44,10 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 	var accessToken string
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var accessTokenErr error
-		accessToken, accessTokenErr = handler.externalCredentialsRepository.AccessTokenByUserId(
+		accessTokenInstance, accessTokenErr := handler.externalCredentialsRepository.GetAccessTokenByUserId(
 			ctx,
 			*userId,
-			handler.unitOfWork.GetQueryer(),
+			handler.unitOfWork.GetQueryer(ctx),
 		)
 		if accessTokenErr != nil {
 			return application_error.NewApplicationError("SearchSongQueryHandler.GetAccessTokenByUserId",
@@ -51,6 +55,17 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 				accessTokenErr,
 				application_error_type.Unexpected)
 		}
+		var authErr error
+		if accessTokenInstance.IsExpired() {
+			accessTokenInstance, authErr = handler.authenticationService.RefreshAccessTokenWithExternalProvider(ctx, *userId)
+			if authErr != nil {
+				return application_error.NewApplicationError("SearchSongQueryHandler.RefreshAccessToken",
+					"Problem with refreshing access token for music service.",
+					authErr,
+					application_error_type.Unexpected)
+			}
+		}
+		accessToken = accessTokenInstance.Value()
 		return nil
 	})
 	if err != nil {
