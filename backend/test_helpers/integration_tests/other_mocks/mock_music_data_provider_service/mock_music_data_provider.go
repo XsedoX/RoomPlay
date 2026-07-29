@@ -30,9 +30,9 @@ func (m *MockMusicDataProviderService) GetSongById(
 	accessToken,
 	songId string,
 ) (
-	*music_data_response_dto.SongDataResponseDto,
+	*music_data_response_dto.SongDataByIdResponseDto,
 	error,
 ) {
 	args := m.Called(ctx, accessToken, songId)
-	return args.Get(0).(*music_data_response_dto.SongDataResponseDto), args.Error(1)
+	return args.Get(0).(*music_data_response_dto.SongDataByIdResponseDto), args.Error(1)
 }

@@ -7,12 +7,10 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_command_handler"
+	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	enqueue_song_command "github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command"
-	"github.com/XsedoX/RoomPlay/domain/user"
-	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_envelope"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message_publisher_request"
 )
-
-const SongEnqueuedClientMessageActionName = "song_added"
 
 type SongEnqueuedClientMessageHandler struct {
 	commandHandler i_command_handler.ICommandHandler[*enqueue_song_command.EnqueueSongCommand]
@@ -26,16 +24,16 @@ func NewSongEnqueuedClientMessageHandler(
 	}
 }
 
-func (handler *SongEnqueuedClientMessageHandler) HandleMessage(envelope client_message_envelope.ClientMessageEnvelope) {
+func (handler *SongEnqueuedClientMessageHandler) HandleMessage(request client_message_publisher_request.ClientMessagePublisherRequest) {
 	var command enqueue_song_command.EnqueueSongCommand
-	err := json.Unmarshal(envelope.Payload, &command)
+	err := json.Unmarshal(request.Payload, &command)
 	if err != nil {
 		log.Printf("Failed to unmarshal song added message: %s", err)
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	userId := envelope.UserId
-	ctxWithClaims := context.WithValue(ctx, user.IdClaimContextKeyName, &userId)
+	userId := request.UserId
+	ctxWithClaims := context.WithValue(ctx, application_helpers.IdClaimContextKeyName, &userId)
 	defer cancel()
 
 	err = handler.commandHandler.Handle(ctxWithClaims, &command)

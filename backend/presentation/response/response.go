@@ -8,6 +8,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/domain/domain_errors"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -17,11 +18,19 @@ const (
 	encodingErrorMessage = "could not encode response object."
 )
 
-type Success struct {
-	Data any                        `json:"data" swaggertype:"object" extensions:"x-nullable"`
-	Meta *page_meta_dto.PageMetaDto `json:"meta" swaggertype:"object" extensions:"x-nullable"`
+type Success[T any] struct {
+	Data T                          `json:"data" swaggertype:"object" extensions:"x-nullable"`
+	Meta *page_meta_dto.PageMetaDto `json:"meta,omitempty" swaggertype:"object" extensions:"x-nullable"`
 }
 
+type WebSocketSuccess[T any] struct {
+	Success[T]
+	ActionName websocket_action.WebSocketOutgoingAction `json:"actionName" example:"Action name"`
+}
+type WebSocketFailure struct {
+	ProblemDetails
+	ActionName websocket_action.WebSocketAction `json:"actionName" example:"Action name"`
+}
 type ProblemDetails struct {
 	Type             string            `json:"type" example:"Error code unique for the error"`
 	ValidationErrors map[string]string `json:"validationErrors" example:"{\"name\":\"too long\"}" swaggertype:"object" extensions:"x-nullable"`
@@ -128,7 +137,7 @@ func WriteJsonNoContent(w http.ResponseWriter) {
 func WriteJsonCreated(w http.ResponseWriter, id uuid.UUID) {
 	w.Header().Set("Content-Type", "application/json")
 
-	resp := &Success{Data: id}
+	resp := &Success[uuid.UUID]{Data: id}
 
 	bytes, err := json.Marshal(resp)
 	if err != nil {
@@ -140,10 +149,10 @@ func WriteJsonCreated(w http.ResponseWriter, id uuid.UUID) {
 	w.Write(bytes)
 }
 
-func WriteJsonSuccess(w http.ResponseWriter, data any, meta ...page_meta_dto.PageMetaDto) {
+func WriteJsonSuccess[T any](w http.ResponseWriter, data T, meta ...page_meta_dto.PageMetaDto) {
 	w.Header().Set("Content-Type", "application/json")
 
-	resp := &Success{Data: data}
+	resp := &Success[T]{Data: data}
 	if len(meta) > 0 {
 		resp.Meta = &meta[0]
 	}

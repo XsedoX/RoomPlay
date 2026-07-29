@@ -29,10 +29,10 @@ func (handler GetUserDataQueryHandler) Handle(ctx context.Context) (*get_user_qu
 	var response get_user_query_response.GetUserDataQueryResponse
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError("GetUserDataQueryHandler.Handle")
 	}
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
-		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer(ctx))
+		user, er := handler.userRepository.GetUserById(ctx, *userId, handler.unitOfWork.GetQueryer(ctx))
 		if er != nil {
 			return application_error.NewApplicationError("NewGetUserQueryHandler.GetUserById",
 				"Problem with creating a room.",

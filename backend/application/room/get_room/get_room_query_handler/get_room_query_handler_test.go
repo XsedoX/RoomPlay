@@ -239,7 +239,7 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetRoomQueryHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
 		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)

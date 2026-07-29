@@ -1,11 +1,14 @@
-package room_hub
+package hub
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
+	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/connection_id"
 	"github.com/gorilla/websocket"
 )
 
@@ -28,24 +31,34 @@ type Client struct {
 
 	userId user_id.UserId
 
-	// from api
-	receivedMessages chan []byte
+	roomId room_id.RoomId
 
-	roomHub *RoomHub
+	connectionId connection_id.ConnectionId
+
+	// from api
+	receivedMessages chan any
+
+	mainHub IHub
 
 	clientMessagePublisher client_message_publisher.IClientMessagePublisher
 }
 
-func (c *Client) UserId() user_id.UserId {
+func (c Client) UserId() user_id.UserId {
 	return c.userId
 }
 
-func (c *Client) WritePump() {
+func (c Client) RoomId() room_id.RoomId {
+	return c.roomId
+}
+
+func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		c.conn.Close()
 		ticker.Stop()
-		c.roomHub.UnregisterClient(c)
+		c.mainHub.UnregisterClient(&ClientRoomRequest{
+			Client: c,
+			RoomId: c.roomId,
+		})
 	}()
 
 	for {
@@ -57,7 +70,12 @@ func (c *Client) WritePump() {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			err := c.conn.WriteMessage(websocket.TextMessage, message)
+			messageBytes, bytesErr := json.Marshal(message)
+			if bytesErr != nil {
+				log.Printf("Failed to marshal message: %s", bytesErr)
+				continue
+			}
+			err := c.conn.WriteMessage(websocket.TextMessage, messageBytes)
 			if err != nil {
 				return
 			}
@@ -70,10 +88,12 @@ func (c *Client) WritePump() {
 	}
 }
 
-func (c *Client) ReadPump() {
+func (c *Client) readPump() {
 	defer func() {
-		c.roomHub.UnregisterClient(c)
-		c.conn.Close()
+		c.mainHub.UnregisterClient(&ClientRoomRequest{
+			Client: c,
+			RoomId: c.roomId,
+		})
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -87,32 +107,37 @@ func (c *Client) ReadPump() {
 			}
 			break
 		}
-		c.clientMessagePublisher.Publish(message, c.userId)
+		c.clientMessagePublisher.Publish(message, c.userId, c.connectionId)
 	}
 }
 
 func NewClient(
 	conn *websocket.Conn,
 	userId user_id.UserId,
+	roomId room_id.RoomId,
 	clientMessagePublisher client_message_publisher.IClientMessagePublisher,
+	mainHub IHub,
 ) *Client {
 	return &Client{
 		conn:                   conn,
-		receivedMessages:       make(chan []byte, 100),
+		receivedMessages:       make(chan any, 100),
 		userId:                 userId,
+		roomId:                 roomId,
 		clientMessagePublisher: clientMessagePublisher,
+		connectionId:           connection_id.New(),
+		mainHub:                mainHub,
 	}
 }
 
-func (c *Client) SetRoomHub(roomHub *RoomHub) {
-	c.roomHub = roomHub
+func (c Client) ConnectionId() connection_id.ConnectionId {
+	return c.connectionId
 }
 
-func (c *Client) SendMessage(message []byte) {
+func (c *Client) sendMessage(message any) {
 	c.receivedMessages <- message
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (c *Client) shutdown() {
 	close(c.receivedMessages)
+	_ = c.conn.Close()
 }

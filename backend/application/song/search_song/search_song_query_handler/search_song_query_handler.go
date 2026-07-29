@@ -39,7 +39,7 @@ func NewSearchSongQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search_song_query.SearchSongQuery) (*search_song_query_dto.SearchSongQueryDto, error) {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError("SearchSongQueryHandler.Handle")
 	}
 	var accessToken string
 	err := handler.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
@@ -59,10 +59,7 @@ func (handler *SearchSongQueryHandler) Handle(ctx context.Context, query *search
 		if accessTokenInstance.IsExpired() {
 			accessTokenInstance, authErr = handler.authenticationService.RefreshAccessTokenWithExternalProvider(ctx, *userId)
 			if authErr != nil {
-				return application_error.NewApplicationError("SearchSongQueryHandler.RefreshAccessToken",
-					"Problem with refreshing access token for music service.",
-					authErr,
-					application_error_type.Unexpected)
+				return authErr
 			}
 		}
 		accessToken = accessTokenInstance.Value()

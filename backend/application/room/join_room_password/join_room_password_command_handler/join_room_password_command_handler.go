@@ -23,7 +23,7 @@ func NewJoinRoomPasswordCommandHandler(roomRepository i_room_repository.IRoomRep
 func (handler *JoinRoomPasswordCommandHandler) Handle(ctx context.Context, command *join_room_password_command.JoinRoomPasswordCommand) error {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return application_helpers.NewMissingUserIdInContextError
+		return application_helpers.NewMissingUserIdInContextError("JoinRoomPasswordCommandHandler.Handle")
 	}
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		roomId, getRoomIdErr := handler.roomRepository.GetRoomIdByNameAndPassword(ctx, command.RoomName, command.RoomPassword, handler.unitOfWork.GetQueryer(ctx))

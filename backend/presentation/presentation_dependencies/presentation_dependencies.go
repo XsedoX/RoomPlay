@@ -5,7 +5,8 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/events"
 	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_enqueued_client_message_handler"
 	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/main_hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/google_oidc_controller"
@@ -36,7 +37,7 @@ func ConstructPresentationDependencies(
 		oidcAuthenticationService,
 	)
 
-	mainHub := main_hub.NewHub(infrastructureDependencies.ApplicationContext)
+	mainHub := hub.NewHub(infrastructureDependencies.ApplicationContext, configuration)
 	go mainHub.Run()
 
 	songEnqueuedWebsocketEventHandler := song_enqueued_websocket_event.NewSongEnqueuedWebsocketEventHandler(
@@ -54,7 +55,7 @@ func ConstructPresentationDependencies(
 		enqueueSongCommandHandler,
 	)
 	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
-		song_enqueued_client_message_handler.SongEnqueuedClientMessageActionName,
+		websocket_action.SongEnqueuedClientMessageActionName,
 		clientMessageHandler,
 	)
 

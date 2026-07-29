@@ -8,13 +8,12 @@ import (
 )
 
 var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
-	Songs: []music_data_response_dto.SongDataResponseDto{
+	Songs: []music_data_response_dto.SearchSongDataResponseDto{
 		{
 			VideoId:       gofakeit.ID(),
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
-			LengthSeconds: uint16(gofakeit.IntRange(60, 300)),
 			MusicProvider: music_provider.YouTube,
 			Isrc:          nil,
 		},
@@ -23,7 +22,6 @@ var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
-			LengthSeconds: uint16(gofakeit.IntRange(60, 300)),
 			MusicProvider: music_provider.YouTube,
 			Isrc:          nil,
 		},
@@ -32,7 +30,6 @@ var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
-			LengthSeconds: uint16(gofakeit.IntRange(60, 300)),
 			MusicProvider: music_provider.YouTube,
 			Isrc:          nil,
 		},
@@ -43,4 +40,14 @@ var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
 		HasNextPage:       true,
 		PageSize:          10,
 	},
+}
+
+var ExternalSongDataById = music_data_response_dto.SongDataByIdResponseDto{
+	VideoId:       gofakeit.ID(),
+	Title:         gofakeit.SongName(),
+	Author:        gofakeit.SongArtist(),
+	AlbumCoverUrl: gofakeit.URL(),
+	MusicProvider: music_provider.YouTube,
+	Isrc:          nil,
+	LengthSeconds: uint16(gofakeit.Number(60, 300)),
 }

@@ -30,7 +30,7 @@ func setupMocks(t *testing.T) (
 	userId user_id.UserId,
 	ctx context.Context,
 	mockSongsCache *mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto],
-	mockExternalSongsCache *mock_cache.MockCache[*music_data_response_dto.SongDataResponseDto],
+	mockExternalSongsCache *mock_cache.MockCache[*music_data_response_dto.SongDataByIdResponseDto],
 	mockExternalAuthenticationService *mock_external_authentication_service.MockExternalAuthenticationService,
 ) {
 	mockUoW = new(mock_unit_of_work.MockUnitOfWork)
@@ -38,7 +38,7 @@ func setupMocks(t *testing.T) (
 	userId, ctx = test_helpers.AddUserIdToContext(context.Background())
 	mockExternalCredentialsRepository = new(mock_external_credentials_repository.MockExternalCredentialsRepository)
 	mockSongsCache = new(mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto])
-	mockExternalSongsCache = new(mock_cache.MockCache[*music_data_response_dto.SongDataResponseDto])
+	mockExternalSongsCache = new(mock_cache.MockCache[*music_data_response_dto.SongDataByIdResponseDto])
 	mockExternalAuthenticationService = new(mock_external_authentication_service.MockExternalAuthenticationService)
 
 	defer func() {
@@ -66,7 +66,7 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 		accessToken := token.HydrateToken("access_token", time.Now().Add(time.Hour*1))
 		queryString := "test query"
 		musicProviderResponse := &music_data_response_dto.MusicDataResponseDto{
-			Songs: []music_data_response_dto.SongDataResponseDto{
+			Songs: []music_data_response_dto.SearchSongDataResponseDto{
 				{
 					VideoId:       gofakeit.ID(),
 					Title:         gofakeit.SongName(),

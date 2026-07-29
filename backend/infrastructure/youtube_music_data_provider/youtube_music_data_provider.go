@@ -18,18 +18,16 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 )
 
-var iso8601DurationRegex = regexp.MustCompile(`PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?`)
-
 type YoutubeMusicDataProvider struct{}
 
 func NewYoutubeMusicDataProvider() *YoutubeMusicDataProvider {
 	return &YoutubeMusicDataProvider{}
 }
 
-func (musicDataProvider *YoutubeMusicDataProvider) GetSongById(ctx context.Context, accessToken, songId string) (*music_data_response_dto.SongDataResponseDto, error) {
+func (musicDataProvider *YoutubeMusicDataProvider) GetSongById(ctx context.Context, accessToken, songId string) (*music_data_response_dto.SongDataByIdResponseDto, error) {
 	youtubeUrl, _ := url.ParseRequestURI("https://www.googleapis.com/youtube/v3/videos")
 	params := url.Values{}
-	params.Add("part", "snippet")
+	params.Add("part", "snippet,contentDetails")
 	params.Add("maxResults", "1")
 	params.Add("videoCategoryId", "10") // Music category
 	params.Add("id", songId)
@@ -57,7 +55,22 @@ func (musicDataProvider *YoutubeMusicDataProvider) GetSongById(ctx context.Conte
 	if resp.StatusCode != http.StatusOK {
 		return nil, err
 	}
-	var response youtubeSearchResponse
+	type youTubeContentDetails struct {
+		Duration string `json:"duration"`
+	}
+	type youtubeGetByIdResponseElement struct {
+		Snippet struct {
+			Title        string                          `json:"title"`
+			Thumbnails   map[string]youtubeThumbnailData `json:"thumbnails"`
+			ChannelTitle string                          `json:"channelTitle"`
+		} `json:"snippet"`
+		ContentDetails youTubeContentDetails `json:"contentDetails"`
+		Id             string                `json:"id"`
+	}
+	type youtubeGetByIdResponse struct {
+		Items []youtubeGetByIdResponseElement `json:"items"`
+	}
+	var response youtubeGetByIdResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}
@@ -78,8 +91,8 @@ func (musicDataProvider *YoutubeMusicDataProvider) GetSongById(ctx context.Conte
 			application_error_type.Unexpected,
 		)
 	}
-	result := &music_data_response_dto.SongDataResponseDto{
-		VideoId:       response.Items[0].Id.VideoId,
+	result := &music_data_response_dto.SongDataByIdResponseDto{
+		VideoId:       response.Items[0].Id,
 		Title:         response.Items[0].Snippet.Title,
 		Author:        response.Items[0].Snippet.ChannelTitle,
 		AlbumCoverUrl: response.Items[0].Snippet.Thumbnails["default"].Url,
@@ -127,25 +140,38 @@ func (musicDataProvider *YoutubeMusicDataProvider) SearchSongsByQuery(ctx contex
 		return nil, err
 	}
 
+	type youtubeSearchResponseElement struct {
+		Snippet struct {
+			Title        string                          `json:"title"`
+			Thumbnails   map[string]youtubeThumbnailData `json:"thumbnails"`
+			ChannelTitle string                          `json:"channelTitle"`
+		} `json:"snippet"`
+		Id struct {
+			VideoId string `json:"videoId"`
+		} `json:"id"`
+	}
+	type youtubeSearchResponse struct {
+		Items         []youtubeSearchResponseElement `json:"items"`
+		NextPageToken string                         `json:"nextPageToken"`
+		PrevPageToken string                         `json:"prevPageToken"`
+	}
 	var response youtubeSearchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}
 	result := &music_data_response_dto.MusicDataResponseDto{}
-	result.Songs = make([]music_data_response_dto.SongDataResponseDto, 0, len(response.Items))
+	result.Songs = make([]music_data_response_dto.SearchSongDataResponseDto, 0, len(response.Items))
 
 	for _, item := range response.Items {
-		durationSeconds, err := parseISODuration(item.ContentDetails.Duration)
 		if err != nil {
 			log.Printf("Error parsing duration for video %s: %v", item.Id.VideoId, err)
 			continue
 		}
-		result.Songs = append(result.Songs, music_data_response_dto.SongDataResponseDto{
+		result.Songs = append(result.Songs, music_data_response_dto.SearchSongDataResponseDto{
 			VideoId:       item.Id.VideoId,
 			Title:         item.Snippet.Title,
 			Author:        item.Snippet.ChannelTitle,
 			AlbumCoverUrl: item.Snippet.Thumbnails["default"].Url,
-			LengthSeconds: uint16(durationSeconds),
 			MusicProvider: music_provider.YouTube,
 			Isrc:          nil, // YouTube API does not provide ISRC directly
 		})
@@ -175,25 +201,6 @@ func parseISODuration(d string) (int, error) {
 	return secs, nil
 }
 
-type youTubeContentDetails struct {
-	Duration string `json:"duration"`
-}
-type youTubeSearchThumbnailData struct {
+type youtubeThumbnailData struct {
 	Url string `json:"url"`
-}
-type youTubeSearchResponseElement struct {
-	Snippet struct {
-		Title        string                                `json:"title"`
-		Thumbnails   map[string]youTubeSearchThumbnailData `json:"thumbnails"`
-		ChannelTitle string                                `json:"channelTitle"`
-	} `json:"snippet"`
-	ContentDetails youTubeContentDetails `json:"contentDetails"`
-	Id             struct {
-		VideoId string `json:"videoId"`
-	} `json:"id"`
-}
-type youtubeSearchResponse struct {
-	Items         []youTubeSearchResponseElement `json:"items"`
-	NextPageToken string                         `json:"nextPageToken"`
-	PrevPageToken string                         `json:"prevPageToken"`
 }

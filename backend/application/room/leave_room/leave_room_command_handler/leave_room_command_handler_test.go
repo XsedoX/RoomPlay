@@ -60,7 +60,7 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 		assert.Error(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "LeaveRoom", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("LeaveRoomCommandHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenUserRepositoryFails", func(t *testing.T) {
 		mockRoomRepository, mockUoW, userId, ctx := setupMocks(t)

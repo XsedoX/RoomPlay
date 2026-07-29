@@ -92,7 +92,7 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 	userId, ok := application_helpers.GetUserIdFromContext(req.Context())
 	if !ok {
 		response.WriteJsonApplicationFailure(w,
-			application_helpers.NewMissingUserIdInContextError,
+			application_helpers.NewMissingUserIdInContextError("AuthenticationController.Logout"),
 			req.URL.RequestURI(),
 		)
 		cookie_helpers.ClearRefreshTokenCookie(w)
@@ -125,5 +125,6 @@ func (handler *AuthenticationController) Logout(w http.ResponseWriter, req *http
 			err,
 			req.URL.RequestURI(),
 		)
+		return
 	}
 }

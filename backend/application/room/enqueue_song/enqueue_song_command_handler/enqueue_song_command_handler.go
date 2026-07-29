@@ -8,8 +8,6 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
-	"github.com/XsedoX/RoomPlay/application/application_error"
-	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	enquque_song_command "github.com/XsedoX/RoomPlay/application/room/enqueue_song/enqueue_song_command"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
@@ -47,7 +45,7 @@ func NewEnqueueSongCommandHandler(
 func (e *EnqueueSongCommandHandler) Handle(ctx context.Context, command *enquque_song_command.EnqueueSongCommand) error {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return application_helpers.NewMissingUserIdInContextError
+		return application_helpers.NewMissingUserIdInContextError("EnqueueSongCommandHandler.Handle")
 	}
 
 	events := make([]shared.IDomainEvent, 0)
@@ -68,12 +66,7 @@ func (e *EnqueueSongCommandHandler) Handle(ctx context.Context, command *enquque
 			if accessToken.IsExpired() {
 				accessToken, authErr = e.authenticationService.RefreshAccessTokenWithExternalProvider(ctx, *userId)
 				if authErr != nil {
-					return application_error.NewApplicationError(
-						"EnqueueSongCommandHandler.RefreshAccessToken",
-						"Problem with refreshing access token for music service.",
-						authErr,
-						application_error_type.Unexpected,
-					)
+					return authErr
 				}
 			}
 			dataExternalSong, songErr := e.musicDataProviderService.GetSongById(

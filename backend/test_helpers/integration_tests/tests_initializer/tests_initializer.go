@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
@@ -117,7 +117,7 @@ func InitializeApiServer(m *testing.M) {
 	InjectedUserId := InjectedUser.Id()
 	injectedUserClaim := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), user.IdClaimContextKeyName, &InjectedUserId)
+			ctx := context.WithValue(r.Context(), application_helpers.IdClaimContextKeyName, &InjectedUserId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

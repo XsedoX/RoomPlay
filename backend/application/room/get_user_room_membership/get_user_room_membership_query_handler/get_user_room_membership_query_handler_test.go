@@ -64,6 +64,6 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepo.AssertNumberOfCalls(t, "GetUserMembership", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserRoomMembershipQueryHandler.Handle"), err)
 	})
 }

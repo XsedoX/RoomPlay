@@ -27,7 +27,7 @@ func (g GetUserRoomMembershipQueryHandler) Handle(ctx context.Context) (*room_id
 	var result *room_id.RoomId
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError("GetUserRoomMembershipQueryHandler.Handle")
 	}
 	err := g.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		roomId := g.roomRepository.GetUserMembership(ctx, *userId, g.unitOfWork.GetQueryer(ctx))

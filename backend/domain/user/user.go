@@ -14,8 +14,6 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user/user_role"
 )
 
-const IdClaimContextKeyName = "userIdClaimContextKey"
-
 type User struct {
 	shared.AggregateRoot[user_id.UserId]
 	fullName       full_name.FullName

@@ -2,7 +2,6 @@ package caching_song_decorator
 
 import (
 	"context"
-	"log"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
@@ -14,14 +13,14 @@ type CachingSongDecorator struct {
 	decorated             i_music_data_provider_service.IMusicDataProviderService
 	cache                 cache.ICache[*music_data_response_dto.MusicDataResponseDto]
 	unitOfWork            i_unit_of_work.IUnitOfWork
-	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataResponseDto]
+	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataByIdResponseDto]
 }
 
 func NewCachingSongDecorator(
 	decorated i_music_data_provider_service.IMusicDataProviderService,
 	cache cache.ICache[*music_data_response_dto.MusicDataResponseDto],
 	unitOfWork i_unit_of_work.IUnitOfWork,
-	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataResponseDto],
+	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataByIdResponseDto],
 ) *CachingSongDecorator {
 	return &CachingSongDecorator{
 		decorated:             decorated,
@@ -31,8 +30,8 @@ func NewCachingSongDecorator(
 	}
 }
 
-func (c *CachingSongDecorator) GetSongById(ctx context.Context, accessToken, songId string) (*music_data_response_dto.SongDataResponseDto, error) {
-	result := &music_data_response_dto.SongDataResponseDto{}
+func (c *CachingSongDecorator) GetSongById(ctx context.Context, accessToken, songId string) (*music_data_response_dto.SongDataByIdResponseDto, error) {
+	result := &music_data_response_dto.SongDataByIdResponseDto{}
 	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var err error
 		result, err = c.songByExternalIdCache.GetExact(songId, ctx, c.unitOfWork.GetQueryer(ctx))
@@ -83,21 +82,6 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 	if err != nil {
 		return nil, err
 	}
-	_ = c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		for _, song := range result.Songs {
-			songInstance := &song
-			err := c.songByExternalIdCache.Set(
-				song.VideoId,
-				songInstance,
-				ctx,
-				c.unitOfWork.GetQueryer(ctx),
-			)
-			if err != nil {
-				log.Printf("Error caching song by external ID: %v", err)
-			}
-		}
-		return nil
-	})
 
 	cacheErr = c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		cacheErr := c.cache.Set(cacheKey, result, ctx, c.unitOfWork.GetQueryer(ctx))

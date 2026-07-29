@@ -2,27 +2,26 @@ package song_enqueued_websocket_event
 
 import (
 	"context"
-	"encoding/json"
+	"log"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 	"github.com/XsedoX/RoomPlay/domain/room/events"
 	"github.com/XsedoX/RoomPlay/domain/shared"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/i_hub"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket_requests/room_broadcast_request"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
+	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
-const SongEnqueuedWebsocketActionName = WebSocketAction("song_enqueued")
-
 type SongEnqueuedWebsocketEventHandler struct {
-	hub            i_hub.IHub
+	hub            hub.IHub
 	roomRepository i_room_repository.IRoomRepository
 	unitOfWork     i_unit_of_work.IUnitOfWork
 	appContext     context.Context
 }
 
 func NewSongEnqueuedWebsocketEventHandler(
-	hub i_hub.IHub,
+	hub hub.IHub,
 	roomRepo i_room_repository.IRoomRepository,
 	unitOfWork i_unit_of_work.IUnitOfWork,
 	appContext context.Context,
@@ -36,18 +35,27 @@ func NewSongEnqueuedWebsocketEventHandler(
 }
 
 func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
-	concreteEvent, _ := event.(*events.SongEnqueuedEvent)
+	concreteEvent, ok := event.(*events.SongEnqueuedEvent)
+	if !ok {
+		log.Printf("Received event of unexpected type: %T", event)
+		return
+	}
 
 	id := concreteEvent.EnqueuedSongId()
 
-	addedBy, _ := h.roomRepository.GetEnqueuedSongAddedByValueByRoomIdEnqueuedSongId(
+	addedBy, err := h.roomRepository.GetEnqueuedSongAddedByValueByRoomIdEnqueuedSongId(
 		h.appContext,
 		concreteEvent.RoomId(),
 		id,
 		h.unitOfWork.GetQueryer(h.appContext),
 	)
+	if err != nil {
+		// log an error
+		log.Printf("Error retrieving addedBy for enqueued song: %v", err)
+		return
+	}
 
-	dto := SongEnqueuedWebsocketEventResponse{
+	responseDto := SongEnqueuedWebsocketEventResponse{
 		Id:            *id.ToUuid(),
 		Author:        concreteEvent.Author(),
 		Title:         concreteEvent.Title(),
@@ -56,12 +64,13 @@ func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
 		State:         concreteEvent.EnqueuedSongState().String(),
 		VoteStatus:    concreteEvent.Status().String(),
 		AddedBy:       addedBy,
-		Action:        SongEnqueuedWebsocketActionName,
 	}
-	payload, _ := json.Marshal(dto)
+	jsonPatchBuilder := response.NewJsonPatchResponseBuilder()
+	idString := id.ToUuid().String()
+	jsonPatch := jsonPatchBuilder.Add(idString, responseDto).Build(websocket_action.EnqueuedSongsPatchActionName)
 
-	h.hub.BroadcastToRoom(&room_broadcast_request.RoomBroadcastRequest{
+	h.hub.BroadcastToRoom(&hub.RoomBroadcastRequest{
 		RoomId:  concreteEvent.RoomId(),
-		Payload: payload,
+		Payload: jsonPatch,
 	})
 }

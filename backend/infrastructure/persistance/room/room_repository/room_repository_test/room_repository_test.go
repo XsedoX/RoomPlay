@@ -201,6 +201,7 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 	userThatAddedSong, _ := slice_extensions.GetUserById(seeder.SeedData.Users, songFromDb.AddedBy())
 	assert.Equal(t, userThatAddedSong.FullName().String(), songDao.AddedBy) // Concat name + surname
 	assert.Equal(t, vote_status.Upvoted.String(), songDao.VoteStatus)
+	require.WithinDuration(t, songFromDb.AddedAtUtc(), songDao.AddedAtUtc, time.Second)
 }
 
 func TestRoomRepositoryCheckUserMembership(t *testing.T) {

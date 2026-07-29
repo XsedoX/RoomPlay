@@ -34,7 +34,7 @@ func NewCreateRoomCommandHandler(roomRepository i_room_repository.IRoomRepositor
 func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *create_room_command.CreateRoomCommand) (*room_id.RoomId, error) {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError("CreateRoomCommandHandler.Handle")
 	}
 	var response *room_id.RoomId
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
@@ -51,7 +51,7 @@ func (handler CreateRoomCommandHandler) Handle(ctx context.Context, command *cre
 		}
 		err := handler.roomRepository.CreateRoom(ctx, roomInstance, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
-			return application_error.NewApplicationError("CreateRoomCommandHandler.CreateRoom",
+			return application_error.NewApplicationError("CreateRoomCommandHandler.Handle",
 				"Problem with creating a room.",
 				err,
 				application_error_type.Unexpected)

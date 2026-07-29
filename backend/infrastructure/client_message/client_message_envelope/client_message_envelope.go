@@ -1,9 +1,12 @@
 package client_message_envelope
 
-import "github.com/XsedoX/RoomPlay/domain/user/user_id"
+import (
+	"encoding/json"
+
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
+)
 
 type ClientMessageEnvelope struct {
-	UserId     user_id.UserId `json:"userId"`
-	ActionName string         `json:"actionName"`
-	Payload    []byte         `json:"payload"`
+	ActionName websocket_action.WebSocketIncomingAction `json:"actionName"`
+	Payload    json.RawMessage                          `json:"payload"`
 }

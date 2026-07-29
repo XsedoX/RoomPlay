@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_jwt_provider"
+	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	"github.com/XsedoX/RoomPlay/config"
-	"github.com/XsedoX/RoomPlay/domain/user"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )
@@ -48,7 +48,7 @@ func (jwtAuth *CookieJwtAuthentication) Next(next http.Handler) http.Handler {
 			return
 		}
 
-		ctxWithClaims := context.WithValue(r.Context(), user.IdClaimContextKeyName, *userId)
+		ctxWithClaims := context.WithValue(r.Context(), application_helpers.IdClaimContextKeyName, userId)
 		next.ServeHTTP(w, r.WithContext(ctxWithClaims))
 	})
 }

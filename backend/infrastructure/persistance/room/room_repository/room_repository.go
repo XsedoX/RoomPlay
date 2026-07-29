@@ -138,8 +138,9 @@ SELECT enqueued_songs.id,
        CONCAT(users_for_added_by.name, ' ', users_for_added_by.surname) AS added_by,
        enqueued_songs.state,
        COALESCE(users_votes.vote_status, 'not_voted') AS vote_status,
-	   COALESCE(enqueued_songs_votes.value, 0) AS votes,
-       songs_external_data.album_cover_url
+	     COALESCE(enqueued_songs_votes.value, 0) AS votes,
+       songs_external_data.album_cover_url,
+		   enqueued_songs.added_at_utc
 FROM enqueued_songs
 			JOIN songs ON enqueued_songs.song_id = songs.id
 			JOIN rooms ON enqueued_songs.room_id = rooms.id
