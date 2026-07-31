@@ -3,6 +3,7 @@ import { useUserStore } from '@/stores/user_store.ts';
 import { PlatformDiscoverer } from '@/infrastructure/utils/platform_discoverer.ts';
 import router from '@/router';
 import { AuthenticationRepository } from '../authentication/authentication_repository';
+import type { IApiProblemDetailsResponse } from './IApiResponse';
 
 const axiosParams = {
   baseURL: import.meta.env['VITE_API_BASE_URL'],
@@ -33,6 +34,18 @@ function createRefreshTokenInterceptor() {
       const originalRequest = error.config;
       if (error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(error);
+      }
+      if (error.response?.status === 401 && error.response?.data) {
+        const problemDetails = error.response.data as IApiProblemDetailsResponse;
+        if (
+          problemDetails.type ===
+          'ExternalAuthenticationService.RefreshAccessTokenWithExternalProvider.RefreshTokenExpired'
+        ) {
+          const userStore = useUserStore();
+          await userStore.logout();
+          await router.replace({ name: 'LoginPage' });
+          return Promise.reject(error);
+        }
       }
       originalRequest._retry = true;
       api_client.interceptors.response.eject(interceptor);

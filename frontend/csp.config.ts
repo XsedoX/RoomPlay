@@ -15,7 +15,7 @@ export function getCspConfig(isDev: boolean): CspOptions {
       'style-src-elem': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       'img-src': ["'self'", 'data:', 'https://i.ytimg.com', 'https://yt3.ggpht.com'],
       'font-src': ["'self'", 'https://fonts.gstatic.com'],
-      'connect-src': ["'self'", 'http://localhost:7654'],
+      'connect-src': ["'self'", 'http://localhost:7654', 'ws://localhost:7654'],
       'base-uri': ["'self'"],
       'form-action': ["'self'"],
       'frame-ancestors': ["'none'"],

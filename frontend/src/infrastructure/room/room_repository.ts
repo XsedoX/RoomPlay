@@ -7,6 +7,7 @@ import { HttpCodes } from '../utils/status_codes';
 import { useNotificationStore } from '@/stores/notification_store';
 import { TSnackbarColor } from '../utils/TSnackbarColor';
 import type { IApiProblemDetailsResponse, IApiSuccessResponse } from '../utils/IApiResponse';
+import { useWebSocket } from '@vueuse/core';
 
 const URLS = {
   createRoom: '/room',
@@ -14,6 +15,7 @@ const URLS = {
   leaveRoom: '/room',
   getUserRoomMembership: '/room/membership',
   joinRoom: '/room/join/password',
+  upgradeToWebSocket: '/room/ws',
 };
 
 export const RoomRepository = {
@@ -118,5 +120,40 @@ export const RoomRepository = {
           isSuccess: false,
         };
       });
+  },
+  useRoomWebSocket: () => {
+    const { send, close, status } = useWebSocket(
+      import.meta.env['VITE_API_BASE_URL'] + URLS.upgradeToWebSocket,
+      {
+        autoReconnect: true,
+        onConnected: (ws) => {
+          console.log('WebSocket connected:', ws);
+        },
+        onMessage: (_, event) => {
+          console.log('WebSocket message received:', event.data);
+          try {
+            const message = JSON.parse(event.data);
+            console.log('Parsed message:', message);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        },
+      },
+    );
+    const enqueueSong = (songExternalId: string) => {
+      if (status.value === 'OPEN') {
+        const message = {
+          actionName: 'song_enqueued',
+          payload: {
+            songExternalId: songExternalId,
+          },
+        };
+        console.log(JSON.stringify(message));
+        send(JSON.stringify(message));
+      } else {
+        console.error('WebSocket is not open. Cannot send message.');
+      }
+    };
+    return { enqueueSong, close };
   },
 };

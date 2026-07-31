@@ -11,7 +11,9 @@ import { useRoomStore } from '@/stores/room_store.ts';
 import { useRouter } from 'vue-router';
 import { Time } from '@/shared/Time.ts';
 import { useIntervalFn } from '@vueuse/core';
+import { RoomRepository } from '@/infrastructure/room/room_repository';
 
+const { enqueueSong } = RoomRepository.useRoomWebSocket();
 const userStore = useUserStore();
 const roomStore = useRoomStore();
 const router = useRouter();
@@ -55,7 +57,7 @@ function onSongBoosted(event: IGuidEvent) {
   console.log('Song boosted:', event.id);
 }
 function chooseSong(id: string) {
-  console.log('Song chosen:', id);
+  enqueueSong(id);
 }
 async function leaveRoom() {
   await roomStore.leaveRoom();
