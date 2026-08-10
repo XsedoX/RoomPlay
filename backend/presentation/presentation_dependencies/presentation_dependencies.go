@@ -5,7 +5,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/events"
 	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_enqueued_client_message_handler"
 	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"
@@ -29,6 +29,12 @@ func ConstructPresentationDependencies(
 	applicationDependencies *application_dependencies.ApplicationDependencies,
 	infrastructureDependencies *infrastructure_dependencies.InfrastructureDependencies,
 ) *PresentationDependencies {
+	infrastructureDependencies.ConnectRoomWebSocketService = connect_room_web_socket_service.
+		NewConnectWebSocketService(
+			applicationDependencies.GetRoomQueryHandler,
+			infrastructureDependencies.MainHub,
+			infrastructureDependencies.ClientMessagePublisher,
+		)
 	googleOidcService := infrastructureDependencies.GoogleOidcService
 	oidcAuthenticationService := applicationDependencies.AuthenticationService
 	oidcController := google_oidc_controller.NewOidcController(
@@ -37,11 +43,8 @@ func ConstructPresentationDependencies(
 		oidcAuthenticationService,
 	)
 
-	mainHub := hub.NewHub(infrastructureDependencies.ApplicationContext, configuration)
-	go mainHub.Run()
-
 	songEnqueuedWebsocketEventHandler := song_enqueued_websocket_event.NewSongEnqueuedWebsocketEventHandler(
-		mainHub,
+		infrastructureDependencies.MainHub,
 		infrastructureDependencies.RoomRepository,
 		infrastructureDependencies.UnitOfWork,
 		infrastructureDependencies.ApplicationContext,
@@ -80,8 +83,7 @@ func ConstructPresentationDependencies(
 		getUserRoomMembershipQueryHandler,
 		leaveRoomCommandHandler,
 		joinRoomPasswordCommandHandler,
-		mainHub,
-		infrastructureDependencies.ClientMessagePublisher,
+		infrastructureDependencies.ConnectRoomWebSocketService,
 	)
 
 	searchSongQueryHandler := applicationDependencies.SearchSongQueryHandler

@@ -21,6 +21,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/jwt_provider"
 	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_publisher"
 	"github.com/XsedoX/RoomPlay/infrastructure/domain_event_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/cache_cleanup_worker"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
@@ -29,6 +30,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/room/room_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/unit_of_work"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_repository"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
 	"github.com/XsedoX/RoomPlay/infrastructure/youtube_music_data_provider"
 	"github.com/jmoiron/sqlx"
 )
@@ -46,6 +48,8 @@ type InfrastructureDependencies struct {
 	ApplicationContext            context.Context
 	DomainEventPublisher          i_event_publisher.IEventPublisher
 	ClientMessagePublisher        client_message_publisher.IClientMessagePublisher
+	MainHub                       hub.IHub
+	ConnectRoomWebSocketService   connect_room_web_socket_service.IConnectRoomWebSocketService
 }
 
 func ConstructInfrastructureDependencies(
@@ -60,6 +64,9 @@ func ConstructInfrastructureDependencies(
 		ctx,
 	)
 	go clientMessagePublisher.Run()
+
+	mainHub := hub.NewHub(ctx, config)
+	go mainHub.Run()
 
 	encrypter := encryper.NewEncrypter(config.Authentication().EncryptionKey)
 	googleOidcService := google_oidc_service.NewGoogleOidcService(config)
@@ -98,5 +105,6 @@ func ConstructInfrastructureDependencies(
 		JwtProvider:                   jwtProvider,
 		ApplicationContext:            ctx,
 		DomainEventPublisher:          domainEventPublisher,
+		MainHub:                       mainHub,
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
+	"github.com/XsedoX/RoomPlay/application/slice_extensions"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
@@ -27,6 +28,7 @@ var (
 	TestServer             *api_server.Server
 	ctx                    context.Context
 	InjectedUser           = seeder.SeedData.Users[0]
+	InjectedUserRoom, _    = slice_extensions.GetRoomById(seeder.SeedData.Rooms, *InjectedUser.RoomId())
 	InjectMusicDataService func() *mock_music_data_provider_service.MockMusicDataProviderService
 )
 

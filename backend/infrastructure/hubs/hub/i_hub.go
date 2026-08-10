@@ -9,4 +9,5 @@ type IHub interface {
 	RegisterClientToRoom(clientRoomRequest *ClientRoomRequest)
 	NewWebSocketUpgrader() *websocket.Upgrader
 	UnregisterClient(clientRoomRequest *ClientRoomRequest)
+	BroadcastToClientByConnectionId(broadcastRequest *ConnectionIdBroadcastRequest)
 }

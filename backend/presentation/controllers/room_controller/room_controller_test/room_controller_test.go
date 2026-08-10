@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
 	"github.com/XsedoX/RoomPlay/application/room/create_room/create_room_command"
@@ -201,6 +200,43 @@ func TestJoinRoomSuccess(t *testing.T) {
 	assert.Equal(t, true, isUserInRoom)
 }
 
+func TestRoomDataWelcomeMessageSuccess(t *testing.T) {
+	_, _ = tests_initializer.GetTxxAndCtx(t, true)
+	testServer := tests_initializer.TestServer
+	r := testServer.Router()
+	server := httptest.NewServer(r)
+	defer server.Close()
+
+	wsUrl := "ws" +
+		strings.TrimPrefix(server.URL, "http") +
+		constants.ApiBasePath +
+		room_controller.RoomBasePath +
+		room_controller.WebSocketUpgradePath
+	conn, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
+	require.NoError(t, err)
+	defer conn.Close()
+
+	responseBytes := test_helpers.ReadMessageForAction(
+		t,
+		conn,
+		websocket_action.GetRoomDataActionName,
+	)
+
+	var responseSuccess test_helpers.WebSocketTestResponseWrapper
+	err = json.Unmarshal(responseBytes, &responseSuccess)
+	require.Equal(t, websocket_action.GetRoomDataActionName, responseSuccess.ActionName)
+	require.NoError(t, err)
+
+	var roomData get_room_query_response.GetRoomQueryResponse
+	err = json.Unmarshal(responseSuccess.Data, &roomData)
+	require.NoError(t, err)
+	require.Equal(t, tests_initializer.InjectedUserRoom.Name(), roomData.Name)
+	require.Equal(t, tests_initializer.InjectedUserRoom.QrCode(), roomData.QrCode)
+	require.Equal(t, len(tests_initializer.InjectedUserRoom.EnqueuedSongs()), len(roomData.Songs))
+	require.Equal(t, *tests_initializer.InjectedUser.Role().String(), roomData.UserRole)
+	require.Equal(t, tests_initializer.InjectedUserRoom.PlayingSong().SongData().Title(), roomData.PlayingSong.Title)
+}
+
 func TestEnqueueSongSuccess(t *testing.T) {
 	txx, _ := tests_initializer.GetTxxAndCtx(t, true)
 	testServer := tests_initializer.TestServer
@@ -230,30 +266,13 @@ func TestEnqueueSongSuccess(t *testing.T) {
 	err = conn.WriteJSON(envelope)
 	require.NoError(t, err)
 
-	responseChan := make(chan json.RawMessage)
-	errChan := make(chan error)
+	responseBytes := test_helpers.ReadMessageForAction(
+		t,
+		conn,
+		websocket_action.EnqueuedSongsPatchActionName,
+	)
 
-	go func() {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			errChan <- err
-			return
-		}
-		responseChan <- message
-	}()
-
-	var responseBytes json.RawMessage
-	select {
-	case responseBytes = <-responseChan:
-
-	case err := <-errChan:
-		t.Fatalf("Error reading message: %v", err)
-
-	case <-time.After(5 * time.Second):
-		t.Fatal("Timeout waiting for message")
-	}
-
-	var responseSuccess test_helpers.WebSocketTestResponseWrapper
+	var responseSuccess test_helpers.WebSocketPatchTestResponseWrapper
 	err = json.Unmarshal(responseBytes, &responseSuccess)
 	require.NoError(t, err)
 	require.Len(t, responseSuccess.Data, 1)

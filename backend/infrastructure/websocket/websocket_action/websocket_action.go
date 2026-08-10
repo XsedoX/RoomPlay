@@ -8,6 +8,8 @@ type (
 
 const (
 	SongEnqueuedClientMessageActionName = WebSocketIncomingAction("song_enqueued")
-	EnqueuedSongsPatchActionName        = WebSocketOutgoingAction("enqueued_songs_patch")
-	SongEnqueuedErrorActionName         = WebSocketOutgoingAction("song_enqueued_error")
+
+	RoomDataActionName           = WebSocketOutgoingAction("room_data")
+	EnqueuedSongsPatchActionName = WebSocketOutgoingAction("enqueued_songs_patch")
+	SongEnqueuedErrorActionName  = WebSocketOutgoingAction("song_enqueued_error")
 )
