@@ -71,7 +71,7 @@ func (c *ConnectRoomWebSocketService) ConnectWebSocket(
 	})
 
 	response := response.WebSocketSuccess[*get_room_query_response.GetRoomQueryResponse]{
-		ActionName: websocket_action.RoomDataActionName,
+		ActionName: websocket_action.GetRoomDataActionName,
 		Success: response.Success[*get_room_query_response.GetRoomQueryResponse]{
 			Data: roomData,
 		},
