@@ -56,6 +56,7 @@ func ConstructPresentationDependencies(
 	enqueueSongCommandHandler := applicationDependencies.EnqueueSongCommandHandler
 	clientMessageHandler := song_enqueued_client_message_handler.NewSongEnqueuedClientMessageHandler(
 		enqueueSongCommandHandler,
+		infrastructureDependencies.MainHub,
 	)
 	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
 		websocket_action.SongEnqueuedClientMessageActionName,

@@ -29,7 +29,7 @@ type WebSocketSuccess[T any] struct {
 }
 type WebSocketFailure struct {
 	ProblemDetails
-	ActionName websocket_action.WebSocketAction `json:"actionName" example:"Action name"`
+	ActionName websocket_action.WebSocketOutgoingAction `json:"actionName" example:"Action name"`
 }
 type ProblemDetails struct {
 	Type             string            `json:"type" example:"Error code unique for the error"`

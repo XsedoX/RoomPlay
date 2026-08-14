@@ -107,7 +107,11 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		c.clientMessagePublisher.Publish(message, c.userId, c.connectionId)
+		c.clientMessagePublisher.Publish(
+			message,
+			c.userId,
+			c.connectionId,
+		)
 	}
 }
 

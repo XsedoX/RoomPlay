@@ -35,7 +35,11 @@ func (p *ClientMessagePublisher) RegisterHandler(messageName websocket_action.We
 	p.clientMessageHandlers[messageName] = handler
 }
 
-func (p *ClientMessagePublisher) Publish(rawEnvelope []byte, userId user_id.UserId, connectionId connection_id.ConnectionId) {
+func (p *ClientMessagePublisher) Publish(
+	rawEnvelope []byte,
+	userId user_id.UserId,
+	connectionId connection_id.ConnectionId,
+) {
 	var envelope client_message_envelope.ClientMessageEnvelope
 	err := json.Unmarshal(rawEnvelope, &envelope)
 	if err != nil {
