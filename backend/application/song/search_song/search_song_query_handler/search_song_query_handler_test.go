@@ -11,7 +11,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
 	"github.com/XsedoX/RoomPlay/domain/token"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/persistance/cache/caching_song_decorator"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_external_authentication_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_cache"

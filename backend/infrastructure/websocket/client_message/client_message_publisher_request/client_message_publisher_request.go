@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/connection_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/connection_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 )
 

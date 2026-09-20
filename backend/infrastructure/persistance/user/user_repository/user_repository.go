@@ -14,8 +14,8 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_type"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_role"
-	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/device_dao"
-	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/persistance/user/device_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/persistance/user/user_dao"
 	"github.com/google/uuid"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/room_contracts/i_room_repository"
 	"github.com/XsedoX/RoomPlay/domain/room/events"
 	"github.com/XsedoX/RoomPlay/domain/shared"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/hub"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )

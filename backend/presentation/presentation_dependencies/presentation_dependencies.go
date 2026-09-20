@@ -3,9 +3,9 @@ package presentation_dependencies
 import (
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/room/events"
-	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_handlers/song_enqueued_client_message_handler"
-	"github.com/XsedoX/RoomPlay/infrastructure/event_handlers/song_enqueued_websocket_event"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_handlers/song_enqueued_client_message_handler"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/event_handlers/song_enqueued_websocket_event"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"

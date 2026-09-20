@@ -7,7 +7,7 @@ import (
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/connection_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/connection_id"
 	"github.com/gorilla/websocket"
 )
 

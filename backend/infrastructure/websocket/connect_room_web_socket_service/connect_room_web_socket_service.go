@@ -8,8 +8,8 @@ import (
 	"github.com/XsedoX/RoomPlay/application/room/get_room/get_room_query_response"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/client_message/client_message_publisher"
-	"github.com/XsedoX/RoomPlay/infrastructure/hubs/hub"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/hub"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/response"
 )

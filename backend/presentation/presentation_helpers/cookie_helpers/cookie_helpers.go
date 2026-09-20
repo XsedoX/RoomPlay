@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
-	"github.com/XsedoX/RoomPlay/infrastructure/authentication/jwt_provider"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/authentication/jwt_provider"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/google/uuid"
 )
