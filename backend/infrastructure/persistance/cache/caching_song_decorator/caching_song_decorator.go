@@ -6,7 +6,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/persistance/cache"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache"
 )
 
 type CachingSongDecorator struct {

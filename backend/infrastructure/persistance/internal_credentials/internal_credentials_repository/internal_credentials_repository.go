@@ -9,7 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/persistance/internal_credentials/internal_credentials_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/internal_credentials/internal_credentials_dao"
 	"github.com/google/uuid"
 )
 

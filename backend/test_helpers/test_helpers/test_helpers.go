@@ -9,7 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/application/application_helpers"
 	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket/websocket_action"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/require"
 )

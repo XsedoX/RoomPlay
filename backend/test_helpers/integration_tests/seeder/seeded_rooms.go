@@ -9,7 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/authentication/encryper"
+	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
 )
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/authentication/encryper"
+	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
 )
 
