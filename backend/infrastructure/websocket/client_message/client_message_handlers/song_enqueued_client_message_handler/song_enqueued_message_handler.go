@@ -40,7 +40,7 @@ func (handler *SongEnqueuedClientMessageHandler) HandleMessage(request client_me
 	if err != nil {
 		errResponse := response.WebSocketFailure{
 			ActionName: websocket_action.SongEnqueuedErrorActionName,
-			ProblemDetails: response.ProblemDetails{
+			Payload: response.ProblemDetails{
 				Type:        "SongEnqueuedClientMessageHandler.Decoding",
 				Title:       "Failed to decode the song enqueued command.",
 				Status:      http.StatusBadRequest,
@@ -59,7 +59,7 @@ func (handler *SongEnqueuedClientMessageHandler) HandleMessage(request client_me
 	if validationErr != nil {
 		errResponse := response.WebSocketFailure{
 			ActionName: websocket_action.SongEnqueuedErrorActionName,
-			ProblemDetails: response.ProblemDetails{
+			Payload: response.ProblemDetails{
 				Type:        "SongEnqueuedClientMessageHandler.ValidationError",
 				Title:       "Validation error occurred while processing the song enqueued command.",
 				Status:      http.StatusUnprocessableEntity,
@@ -84,7 +84,7 @@ func (handler *SongEnqueuedClientMessageHandler) HandleMessage(request client_me
 	if err != nil {
 		errResponse := response.WebSocketFailure{
 			ActionName: websocket_action.SongEnqueuedErrorActionName,
-			ProblemDetails: response.ProblemDetails{
+			Payload: response.ProblemDetails{
 				Type:        "SongEnqueuedClientMessageHandler.EnqueueSongCommandHandler",
 				Title:       "Error occurred while processing the song enqueued command.",
 				Status:      http.StatusInternalServerError,

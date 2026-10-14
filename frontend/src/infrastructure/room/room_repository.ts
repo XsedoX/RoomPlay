@@ -1,13 +1,30 @@
 import api_client from '@/infrastructure/utils/api_client.ts';
-import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
-import type { IGetRoomResponse } from '@/infrastructure/room/IGetRoomResponse.ts';
-import type IJoinRoomPasswordRequest from './IJoinRoomPasswordRequest';
+import type IJoinRoomPasswordRequest from './requests/IJoinRoomPasswordRequest';
 import type { IRepositoryResponse } from '../utils/IRepositoryResponse';
 import { HttpCodes } from '../utils/status_codes';
 import { useNotificationStore } from '@/stores/notification_store';
 import { TSnackbarColor } from '../utils/TSnackbarColor';
-import type { IApiProblemDetailsResponse, IApiSuccessResponse } from '../utils/IApiResponse';
-import { useWebSocket } from '@vueuse/core';
+import type {
+  IApiJsonPatchResponse,
+  IApiProblemDetailsResponse,
+  IApiSuccessResponse,
+  IApiWebSocketResponse,
+} from '../utils/IApiResponse';
+import type ICreateRoomRequest from './requests/ICreateRoomRequest';
+import type { IGetRoomResponse } from './responses/IGetRoomResponse';
+import { useAppWebSocket } from '../websockets/useAppWebSocket';
+import type { IEnqueueSongRequest } from './requests/IEnqueueSongRequest';
+import { TOutgoingActionName } from '../websockets/TOutgoingActionName';
+import type { TUserRole } from '../user/TUserRole';
+import type { TSongState } from './TSongState';
+import type { TVoteStatus } from './TVoteStatus';
+import { Guid } from '@/shared/guid/Guid';
+import { useRoomStore } from '@/stores/room_store';
+import { onMounted, onUnmounted } from 'vue';
+import { apiWebSocketDispatcher } from '../websockets/ApiWebSocketActionDispatcher';
+import { TIncomingActionName } from '../websockets/TIncomingActionName';
+import type { IPatchEnqueuedSong } from './responses/IPatchEnqueuedSong';
+import type { ISongListRoomStoreModel } from './ISongListRoomStoreModel';
 
 const URLS = {
   createRoom: '/room',
@@ -122,38 +139,44 @@ export const RoomRepository = {
       });
   },
   useRoomWebSocket: () => {
-    const { send, close, status } = useWebSocket(
-      import.meta.env['VITE_API_BASE_URL'] + URLS.upgradeToWebSocket,
-      {
-        autoReconnect: true,
-        onConnected: (ws) => {
-          console.log('WebSocket connected:', ws);
-        },
-        onMessage: (_, event) => {
-          console.log('WebSocket message received:', event.data);
-          try {
-            const message = JSON.parse(event.data);
-            console.log('Parsed message:', message);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        },
-      },
-    );
-    const enqueueSong = (songExternalId: string) => {
-      if (status.value === 'OPEN') {
-        const message = {
-          actionName: 'song_enqueued',
-          payload: {
-            songExternalId: songExternalId,
-          },
-        };
-        console.log(JSON.stringify(message));
-        send(JSON.stringify(message));
-      } else {
-        console.error('WebSocket is not open. Cannot send message.');
-      }
+    const { send } = useAppWebSocket(URLS.upgradeToWebSocket);
+    const notificationStore = useNotificationStore();
+    const roomStore = useRoomStore();
+
+    const enqueueSong = (request: IEnqueueSongRequest) =>
+      send(TOutgoingActionName.enqueueSong, request);
+
+    const handleSongEnqueuedError = (response: IApiProblemDetailsResponse) => {
+      notificationStore.showSnackbar(response.title, TSnackbarColor.ERROR);
     };
-    return { enqueueSong, close };
+    const handleEnqueuedSongPatch = (response: IApiJsonPatchResponse<IPatchEnqueuedSong>) => {
+      const patch = response.data;
+      patch.forEach((operation) => {
+        const song: ISongListRoomStoreModel = {
+          addedBy: operation.value.addedBy!,
+          votes: operation.value.votes!,
+          albumCoverUrl: operation.value.albumCoverUrl!,
+          title: operation.value.title!,
+          author: operation.value.author!,
+          id: operation.value.id!,
+          state: operation.value.state as TSongState,
+          voteStatus: operation.value.voteStatus as TVoteStatus,
+        };
+        roomStore.enqueueSong(song);
+      });
+    };
+    let unsubFunctions: Array<() => void> = [];
+    onMounted(() => {
+      unsubFunctions = [
+        apiWebSocketDispatcher.on(TIncomingActionName.songEnqueuedError, handleSongEnqueuedError),
+        apiWebSocketDispatcher.on(TIncomingActionName.enqueuedSongPatch, handleEnqueuedSongPatch),
+      ];
+    });
+
+    onUnmounted(() => {
+      unsubFunctions.forEach((unsub) => unsub());
+      unsubFunctions = [];
+    });
+    return { enqueueSong };
   },
 };

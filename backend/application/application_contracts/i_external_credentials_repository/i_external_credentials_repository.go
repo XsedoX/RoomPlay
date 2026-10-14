@@ -12,7 +12,7 @@ import (
 type IExternalCredentialsRepository interface {
 	GetAccessTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*token.Token, error)
 	Grant(ctx context.Context, credentials *external_credentials.ExternalCredentials, queryer i_queryer.IQueryer) error
-	GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*token.Token, error)
+	GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*string, error)
 	GetExternalCredentialsByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*external_credentials.ExternalCredentials, error)
 	UpdateExternalCredentials(ctx context.Context, credentials *external_credentials.ExternalCredentials, queryer i_queryer.IQueryer) error
 }

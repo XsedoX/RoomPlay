@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import type IRoomStoreModel from '@/infrastructure/room/IRoomStoreModel.ts';
-import type IJoinRoomPasswordRequest from '@/infrastructure/room/IJoinRoomPasswordRequest.ts';
-import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
 import { TUserRole } from '@/infrastructure/user/TUserRole.ts';
 import type { ISongListRoomStoreModel } from '@/infrastructure/room/ISongListRoomStoreModel.ts';
 import type { TSongState } from '@/infrastructure/room/TSongState.ts';
@@ -12,6 +10,8 @@ import { TVoteStatus } from '@/infrastructure/room/TVoteStatus.ts';
 import 'pinia-plugin-persistedstate';
 import { RoomRepository } from '@/infrastructure/room/room_repository';
 import { Guid, type IGuid } from '@/shared/guid/Guid';
+import type ICreateRoomRequest from '@/infrastructure/room/requests/ICreateRoomRequest';
+import type IJoinRoomPasswordRequest from '@/infrastructure/room/requests/IJoinRoomPasswordRequest';
 
 export const useRoomStore = defineStore(
   'room',
@@ -65,6 +65,24 @@ export const useRoomStore = defineStore(
         song.voteStatus = TVoteStatus.downvoted;
       }
     }
+    function setRoom(roomData: IRoomStoreModel) {
+      room.value = roomData;
+    }
+    function setSongs(songsData: ISongListRoomStoreModel[]) {
+      songs.value = songsData;
+    }
+    function setPlayingSong(playingSongData: IPlayingSongModel | null) {
+      playingSong.value = playingSongData;
+    }
+    function setRoomAndSongsAndPlayingSong(
+      roomData: IRoomStoreModel,
+      songsData: ISongListRoomStoreModel[],
+      playingSongData: IPlayingSongModel | null,
+    ) {
+      setRoom(roomData);
+      setSongs(songsData);
+      setPlayingSong(playingSongData);
+    }
     async function getRoom() {
       let isError = false;
 
@@ -83,6 +101,7 @@ export const useRoomStore = defineStore(
           id: new Guid(song.id),
         }));
         playingSong.value = response.data.playingSong;
+        setRoomAndSongsAndPlayingSong(room.value, songs.value, playingSong.value);
         return isError;
       }
       isError = true;
@@ -112,10 +131,14 @@ export const useRoomStore = defineStore(
       }
       return null;
     }
+    async function enqueueSong(song: ISongListRoomStoreModel) {
+      songs.value?.push(song);
+    }
 
     const isHost = computed(() => room.value?.userRole === TUserRole.host);
 
     return {
+      enqueueSong,
       room,
       createRoom,
       isHost,

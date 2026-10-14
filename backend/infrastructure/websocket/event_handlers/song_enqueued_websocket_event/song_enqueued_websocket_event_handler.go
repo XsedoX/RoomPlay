@@ -69,7 +69,7 @@ func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
 	idString := id.ToUuid().String()
 	jsonPatch := jsonPatchBuilder.
 		Add(idString, responseDto).
-		Build(websocket_action.EnqueuedSongsPatchActionName)
+		Build(websocket_action.EnqueuedSongPatchActionName)
 
 	h.hub.BroadcastToRoom(&hub.RoomBroadcastRequest{
 		RoomId:  concreteEvent.RoomId(),

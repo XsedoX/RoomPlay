@@ -59,9 +59,11 @@ func ReadMessageForAction(
 
 type WebSocketPatchTestResponseWrapper struct {
 	ActionName websocket_action.WebSocketOutgoingAction `json:"actionName"`
-	Data       []struct {
-		Op    string          `json:"op"`
-		Path  string          `json:"path"`
-		Value json.RawMessage `json:"value"`
-	} `json:"data"`
+	Payload    struct {
+		Data []struct {
+			Op    string          `json:"op"`
+			Path  string          `json:"path"`
+			Value json.RawMessage `json:"value"`
+		} `json:"data"`
+	}
 }

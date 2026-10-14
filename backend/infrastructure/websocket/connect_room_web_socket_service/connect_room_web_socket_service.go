@@ -10,8 +10,6 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_publisher"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/hub"
-	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
-	"github.com/XsedoX/RoomPlay/presentation/response"
 )
 
 type IConnectRoomWebSocketService interface {
@@ -48,10 +46,11 @@ func (c *ConnectRoomWebSocketService) ConnectWebSocket(
 	userId user_id.UserId,
 	roomId room_id.RoomId,
 ) error {
-	roomData, err := c.getRoomQueryHandler.Handle(ctx)
-	if err != nil {
-		return err
-	}
+	// NOTE: We don't need to get the room data here because we are just connecting to the WebSocket. The room data will be sent to the client after the connection is established.
+	// roomData, err := c.getRoomQueryHandler.Handle(ctx)
+	// if err != nil {
+	// 	return err
+	// }
 
 	upgrader := c.mainHub.NewWebSocketUpgrader()
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -70,16 +69,16 @@ func (c *ConnectRoomWebSocketService) ConnectWebSocket(
 		Client: client,
 	})
 
-	response := response.WebSocketSuccess[*get_room_query_response.GetRoomQueryResponse]{
-		ActionName: websocket_action.GetRoomDataActionName,
-		Success: response.Success[*get_room_query_response.GetRoomQueryResponse]{
-			Data: roomData,
-		},
-	}
-	c.mainHub.BroadcastToClientByConnectionId(&hub.ConnectionIdBroadcastRequest{
-		client.ConnectionId(),
-		response,
-	})
+	// response := response.WebSocketSuccess[*get_room_query_response.GetRoomQueryResponse]{
+	// 	ActionName: websocket_action.JoinedRoomActionName,
+	// 	Payload: response.Success[*get_room_query_response.GetRoomQueryResponse]{
+	// 		Data: roomData,
+	// 	},
+	// }
+	// c.mainHub.BroadcastToClientByConnectionId(&hub.ConnectionIdBroadcastRequest{
+	// 	client.ConnectionId(),
+	// 	response,
+	// })
 
 	return nil
 }

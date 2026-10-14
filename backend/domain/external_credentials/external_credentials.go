@@ -14,7 +14,7 @@ type ExternalCredentials struct {
 	shared.AggregateRoot[user_id.UserId]
 	externalId    string
 	accessToken   token.Token
-	refreshToken  token.Token
+	refreshToken  string
 	musicProvider music_provider.MusicProvider
 	issuedAtUtc   time.Time
 }
@@ -25,13 +25,8 @@ func NewExternalCredentials(
 	refreshTokenString,
 	externalId string,
 	musicProvider music_provider.MusicProvider,
-	accessTokenExpiration,
-	refreshTokenExpiration time.Time,
+	accessTokenExpiration time.Time,
 ) (*ExternalCredentials, error) {
-	refreshToken, err := token.NewToken(refreshTokenString, refreshTokenExpiration)
-	if err != nil {
-		return nil, err
-	}
 	accessToken, err := token.NewToken(accessTokenString, accessTokenExpiration)
 	if err != nil {
 		return nil, err
@@ -41,7 +36,7 @@ func NewExternalCredentials(
 	}
 	creds := &ExternalCredentials{
 		accessToken:   *accessToken,
-		refreshToken:  *refreshToken,
+		refreshToken:  refreshTokenString,
 		externalId:    externalId,
 		musicProvider: musicProvider,
 		issuedAtUtc:   time.Now().UTC(),
@@ -58,7 +53,7 @@ func (cr *ExternalCredentials) GetAccessToken() token.Token {
 	return cr.accessToken
 }
 
-func (cr *ExternalCredentials) GetRefreshToken() token.Token {
+func (cr *ExternalCredentials) GetRefreshToken() string {
 	return cr.refreshToken
 }
 
@@ -68,10 +63,6 @@ func (cr *ExternalCredentials) MusicProvider() music_provider.MusicProvider {
 
 func (cr *ExternalCredentials) AccessTokenExpiresAtUtc() time.Time {
 	return cr.accessToken.ExpiresAtUtc().UTC()
-}
-
-func (cr *ExternalCredentials) RefreshTokenExpiresAtUtc() time.Time {
-	return cr.refreshToken.ExpiresAtUtc().UTC()
 }
 
 func (cr *ExternalCredentials) IssuedAtUtc() time.Time {
@@ -88,15 +79,13 @@ func HydrateExternalCredentials(id user_id.UserId,
 	externalId string,
 	musicProvider music_provider.MusicProvider,
 	accessTokenExpiresAtUtc,
-	refreshTokenExpiresAtUtc,
 	issuedAtUtc time.Time,
 ) *ExternalCredentials {
 	accessTokenVO := token.HydrateToken(accessToken, accessTokenExpiresAtUtc)
-	refreshTokenVO := token.HydrateToken(refreshToken, refreshTokenExpiresAtUtc)
 
 	creds := &ExternalCredentials{
 		accessToken:   *accessTokenVO,
-		refreshToken:  *refreshTokenVO,
+		refreshToken:  refreshToken,
 		externalId:    externalId,
 		musicProvider: musicProvider,
 		issuedAtUtc:   issuedAtUtc.UTC(),

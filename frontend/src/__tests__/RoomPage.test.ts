@@ -1,7 +1,6 @@
 import { expect, describe, it, vi } from 'vitest';
-import { flushPromises, mount } from '@vue/test-utils';
-import type { StoreGeneric } from 'pinia';
-import { createFactory, mountVuetify } from '@/__tests__/shared/setup_vuetify_tests.ts';
+import { flushPromises } from '@vue/test-utils';
+import { createFactory } from '@/__tests__/shared/setup_vuetify_tests.ts';
 import RoomPage from '@/pages/room_page/RoomPage.vue';
 import { useRoomStore } from '@/stores/room_store.ts';
 import { faker } from '@faker-js/faker/locale/ar';
@@ -33,6 +32,10 @@ vi.mock('@vueuse/core', async (importOriginal) => {
     })),
   });
 });
+
+vi.mock('@/infrastructure/websockets/useAppWebSocket', () => ({
+  useAppWebSocket: vi.fn(() => ({ send: vi.fn(), close: vi.fn() })),
+}));
 vi.mock('@vueuse/integrations/useQRCode', () => ({
   useQRCode: vi.fn(() => ({ value: 'mock-qr-code-data' })),
 }));

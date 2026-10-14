@@ -16,13 +16,12 @@ type LoginUserCommand struct {
 }
 
 type CredentialsDto struct {
-	ExternalId               string
-	AccessToken              string
-	RefreshToken             string
-	MusicProvider            music_provider.MusicProvider
-	AccessTokenExpiresAtUtc  time.Time
-	RefreshTokenExpiresAtUtc time.Time
-	IssuedAt                 time.Time
+	ExternalId              string
+	AccessToken             string
+	RefreshToken            string
+	MusicProvider           music_provider.MusicProvider
+	AccessTokenExpiresAtUtc time.Time
+	IssuedAt                time.Time
 }
 type DeviceDto struct {
 	DeviceId   *device_id.DeviceId

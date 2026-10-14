@@ -32,5 +32,11 @@ export default defineConfigWithVueTs(
     files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
   },
   ...pluginOxlint.configs['flat/recommended'],
+  {
+    name: 'app/typescript-overrides',
+    rules: {
+      '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'always' }],
+    },
+  },
   skipFormatting,
 );

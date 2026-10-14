@@ -15,9 +15,9 @@ type MockExternalCredentialsRepository struct {
 	mock.Mock
 }
 
-func (m *MockExternalCredentialsRepository) GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*token.Token, error) {
+func (m *MockExternalCredentialsRepository) GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*string, error) {
 	args := m.Called(ctx, userId, queryer)
-	return args.Get(0).(*token.Token), args.Error(1)
+	return args.Get(0).(*string), args.Error(1)
 }
 
 func (m *MockExternalCredentialsRepository) Grant(ctx context.Context, credentials *external_credentials.ExternalCredentials, queryer i_queryer.IQueryer) error {

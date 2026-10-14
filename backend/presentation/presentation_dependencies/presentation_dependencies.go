@@ -59,7 +59,7 @@ func ConstructPresentationDependencies(
 		infrastructureDependencies.MainHub,
 	)
 	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
-		websocket_action.SongEnqueuedClientMessageActionName,
+		websocket_action.EnqueueSongClientMessageActionName,
 		clientMessageHandler,
 	)
 

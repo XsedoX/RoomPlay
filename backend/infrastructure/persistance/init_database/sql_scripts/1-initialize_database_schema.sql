@@ -1,7 +1,7 @@
 DO $$
 BEGIN
   -- Check if the 'users' table exists. If it does, we assume everything is initialized.
-  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users') THEN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'songs_external_data') THEN
 
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
@@ -80,7 +80,6 @@ CREATE TABLE "users_external_credentials" (
   "refresh_token" bytea NOT NULL,
   "music_provider" music_provider NOT NULL,
   "access_token_expires_at_utc" timestamp NOT NULL,
-  "refresh_token_expires_at_utc" timestamp NOT NULL,
   "issued_at_utc" timestamp NOT NULL
 );
 
@@ -156,7 +155,7 @@ CREATE INDEX "users_internal_credentials_refresh_token_ix" ON "users_internal_cr
 
 CREATE UNIQUE INDEX "devices_id_user_id_uq" ON "devices" ("id", "user_id");
 
-CREATE UNIQUE INDEX "songs_title_author_isrc_uq" ON "songs" ("title", "author", "isrc");
+CREATE UNIQUE INDEX "songs_title_author_isrc_uq" ON "songs" ("title", "author", "isrc") NULLS NOT DISTINCT;
 
 CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 

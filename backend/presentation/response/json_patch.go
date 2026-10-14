@@ -56,7 +56,7 @@ func (b *JsonPatchResponseBuilder) Build(actionName websocket_action.WebSocketOu
 	copy(copyJustInCase, b.patches)
 	return WebSocketSuccess[[]JsonPatch]{
 		ActionName: actionName,
-		Success: Success[[]JsonPatch]{
+		Payload: Success[[]JsonPatch]{
 			Data: copyJustInCase,
 		},
 	}

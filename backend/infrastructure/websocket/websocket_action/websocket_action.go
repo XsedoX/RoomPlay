@@ -7,9 +7,10 @@ type (
 )
 
 const (
-	SongEnqueuedClientMessageActionName = WebSocketIncomingAction("song_enqueued")
+	JoinedRoomActionName      = WebSocketOutgoingAction("joined_room")
+	JoinedRoomErrorActionName = WebSocketOutgoingAction("joined_room_error")
 
-	GetRoomDataActionName        = WebSocketOutgoingAction("room_data")
-	EnqueuedSongsPatchActionName = WebSocketOutgoingAction("enqueued_songs_patch")
-	SongEnqueuedErrorActionName  = WebSocketOutgoingAction("song_enqueued_error")
+	EnqueueSongClientMessageActionName = WebSocketIncomingAction("enqueue_song")
+	EnqueuedSongPatchActionName        = WebSocketOutgoingAction("enqueued_song_patch")
+	SongEnqueuedErrorActionName        = WebSocketOutgoingAction("song_enqueued_error")
 )

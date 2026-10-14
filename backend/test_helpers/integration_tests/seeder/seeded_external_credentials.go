@@ -30,7 +30,6 @@ var (
 			music_provider.YouTube,
 			externalCredentialsExpiration1,
 			refreshCredentialsExpiration1,
-			time.Now().UTC(),
 		),
 		*external_credentials.HydrateExternalCredentials(users[1].Id(),
 			faker.Jwt(),
@@ -39,7 +38,6 @@ var (
 			music_provider.Spotify,
 			externalCredentialsExpiration2,
 			refreshCredentialsExpiration2,
-			time.Now().UTC(),
 		),
 		*external_credentials.HydrateExternalCredentials(users[2].Id(),
 			faker.Jwt(),
@@ -48,7 +46,6 @@ var (
 			music_provider.Spotify,
 			externalCredentialsExpiration3,
 			refreshCredentialsExpiration3,
-			time.Now().UTC(),
 		),
 		*external_credentials.HydrateExternalCredentials(users[3].Id(),
 			faker.Jwt(),
@@ -57,7 +54,6 @@ var (
 			music_provider.YouTube,
 			externalCredentialsExpiration4,
 			refreshCredentialsExpiration4,
-			time.Now().UTC(),
 		),
 		*external_credentials.HydrateExternalCredentials(users[4].Id(),
 			faker.Jwt(),
@@ -66,7 +62,6 @@ var (
 			music_provider.Spotify,
 			externalCredentialsExpiration5,
 			refreshCredentialsExpiration5,
-			time.Now().UTC(),
 		),
 	}
 )
@@ -74,10 +69,10 @@ var (
 func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_credentials.ExternalCredentials) error {
 	mockEncrypter := mock_encrypter.MockEncrypter{}
 	mockEncrypter.On("Encrypt", creds.GetAccessToken().Value()).Return([]byte(creds.GetAccessToken().Value()), nil)
-	mockEncrypter.On("Encrypt", creds.GetRefreshToken().Value()).Return([]byte(creds.GetRefreshToken().Value()), nil)
+	mockEncrypter.On("Encrypt", creds.GetRefreshToken()).Return([]byte(creds.GetRefreshToken()), nil)
 
 	encryptedAccessToken, _ := mockEncrypter.Encrypt(creds.GetAccessToken().Value())
-	encryptedRefreshToken, _ := mockEncrypter.Encrypt(creds.GetRefreshToken().Value())
+	encryptedRefreshToken, _ := mockEncrypter.Encrypt(creds.GetRefreshToken())
 	_, err := s.Queryer.ExecContext(ctx, `
 		INSERT INTO users_external_credentials 
 		(
@@ -87,12 +82,11 @@ func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_cr
 			refresh_token,
 			music_provider,
 			access_token_expires_at_utc,
-			refresh_token_expires_at_utc,
 			issued_at_utc
 		)
 		VALUES
 		(
-			$1, $2, $3, $4, $5, $6, $7, $8
+			$1, $2, $3, $4, $5, $6, $7
 		)
 		`,
 		creds.Id(),
@@ -101,7 +95,6 @@ func (s *Seeder) seedExternalCredentials(ctx context.Context, creds *external_cr
 		encryptedRefreshToken,
 		creds.MusicProvider().String(),
 		creds.AccessTokenExpiresAtUtc(),
-		creds.RefreshTokenExpiresAtUtc(),
 		creds.IssuedAtUtc(),
 	)
 	if err != nil {

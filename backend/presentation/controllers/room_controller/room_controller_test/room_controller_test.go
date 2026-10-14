@@ -200,43 +200,6 @@ func TestJoinRoomSuccess(t *testing.T) {
 	assert.Equal(t, true, isUserInRoom)
 }
 
-func TestRoomDataWelcomeMessageSuccess(t *testing.T) {
-	_, _ = tests_initializer.GetTxxAndCtx(t, true)
-	testServer := tests_initializer.TestServer
-	r := testServer.Router()
-	server := httptest.NewServer(r)
-	defer server.Close()
-
-	wsUrl := "ws" +
-		strings.TrimPrefix(server.URL, "http") +
-		constants.ApiBasePath +
-		room_controller.RoomBasePath +
-		room_controller.WebSocketUpgradePath
-	conn, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
-	require.NoError(t, err)
-	defer conn.Close()
-
-	responseBytes := test_helpers.ReadMessageForAction(
-		t,
-		conn,
-		websocket_action.GetRoomDataActionName,
-	)
-
-	var responseSuccess test_helpers.WebSocketTestResponseWrapper
-	err = json.Unmarshal(responseBytes, &responseSuccess)
-	require.Equal(t, websocket_action.GetRoomDataActionName, responseSuccess.ActionName)
-	require.NoError(t, err)
-
-	var roomData get_room_query_response.GetRoomQueryResponse
-	err = json.Unmarshal(responseSuccess.Data, &roomData)
-	require.NoError(t, err)
-	require.Equal(t, tests_initializer.InjectedUserRoom.Name(), roomData.Name)
-	require.Equal(t, tests_initializer.InjectedUserRoom.QrCode(), roomData.QrCode)
-	require.Equal(t, len(tests_initializer.InjectedUserRoom.EnqueuedSongs()), len(roomData.Songs))
-	require.Equal(t, *tests_initializer.InjectedUser.Role().String(), roomData.UserRole)
-	require.Equal(t, tests_initializer.InjectedUserRoom.PlayingSong().SongData().Title(), roomData.PlayingSong.Title)
-}
-
 func TestEnqueueSongSuccess(t *testing.T) {
 	txx, _ := tests_initializer.GetTxxAndCtx(t, true)
 	testServer := tests_initializer.TestServer
@@ -260,7 +223,7 @@ func TestEnqueueSongSuccess(t *testing.T) {
 	require.NoError(t, err)
 	envelope := client_message_envelope.ClientMessageEnvelope{
 		Payload:    payload,
-		ActionName: websocket_action.SongEnqueuedClientMessageActionName,
+		ActionName: websocket_action.EnqueueSongClientMessageActionName,
 	}
 
 	err = conn.WriteJSON(envelope)
@@ -269,14 +232,14 @@ func TestEnqueueSongSuccess(t *testing.T) {
 	responseBytes := test_helpers.ReadMessageForAction(
 		t,
 		conn,
-		websocket_action.EnqueuedSongsPatchActionName,
+		websocket_action.EnqueuedSongPatchActionName,
 	)
 
 	var responseSuccess test_helpers.WebSocketPatchTestResponseWrapper
 	err = json.Unmarshal(responseBytes, &responseSuccess)
 	require.NoError(t, err)
-	require.Len(t, responseSuccess.Data, 1)
-	jsonPatch := responseSuccess.Data[0]
+	require.Len(t, responseSuccess.Payload.Data, 1)
+	jsonPatch := responseSuccess.Payload.Data[0]
 	require.Equal(t, "add", jsonPatch.Op)
 
 	var songData song_enqueued_websocket_event.SongEnqueuedWebsocketEventResponse
@@ -287,7 +250,7 @@ func TestEnqueueSongSuccess(t *testing.T) {
 	assert.Equal(t, seeder.ExternalSongDataById.AlbumCoverUrl, songData.AlbumCoverUrl)
 	assert.Equal(t, int8(0), songData.Votes)
 	assert.Equal(t, tests_initializer.InjectedUser.FullName().String(), songData.AddedBy)
-	assert.Equal(t, websocket_action.EnqueuedSongsPatchActionName, responseSuccess.ActionName)
+	assert.Equal(t, websocket_action.EnqueuedSongPatchActionName, responseSuccess.ActionName)
 
 	var enqueuedSongId uuid.UUID
 	_ = txx.Get(&enqueuedSongId,

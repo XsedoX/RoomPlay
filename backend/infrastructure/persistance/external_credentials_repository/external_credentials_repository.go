@@ -30,7 +30,7 @@ func (repo *ExternalCredentialsRepository) Grant(ctx context.Context, credential
 	if err != nil {
 		return err
 	}
-	encryptedRefreshToken, err := repo.encrypter.Encrypt(credentials.GetRefreshToken().Value())
+	encryptedRefreshToken, err := repo.encrypter.Encrypt(credentials.GetRefreshToken())
 	if err != nil {
 		return err
 	}
@@ -38,18 +38,17 @@ func (repo *ExternalCredentialsRepository) Grant(ctx context.Context, credential
 		`
 		INSERT INTO users_external_credentials 
 		(
-			user_id, 
+			user_id,
 			external_id,
-			access_token, 
-			refresh_token, 
+			access_token,
+			refresh_token,
 			music_provider,
-			access_token_expires_at_utc, 
-			refresh_token_expires_at_utc,
+			access_token_expires_at_utc,
 			issued_at_utc
 		) 
 		VALUES
 		(
-			$1::uuid, $2, $3, $4, $5, $6, $7, $8
+			$1::uuid, $2, $3, $4, $5, $6, $7
 		)
 		ON CONFLICT (user_id) DO UPDATE
 		SET external_id = EXCLUDED.external_id,
@@ -57,7 +56,6 @@ func (repo *ExternalCredentialsRepository) Grant(ctx context.Context, credential
 			  refresh_token = EXCLUDED.refresh_token,
 				music_provider = EXCLUDED.music_provider,
 				access_token_expires_at_utc=EXCLUDED.access_token_expires_at_utc,
-				refresh_token_expires_at_utc=EXCLUDED.refresh_token_expires_at_utc,
 				issued_at_utc=EXCLUDED.issued_at_utc;
 		`,
 		credentials.Id().ToUuid(),
@@ -66,7 +64,6 @@ func (repo *ExternalCredentialsRepository) Grant(ctx context.Context, credential
 		encryptedRefreshToken,
 		credentials.MusicProvider().String(),
 		credentials.AccessTokenExpiresAtUtc(),
-		credentials.RefreshTokenExpiresAtUtc(),
 		credentials.IssuedAtUtc(),
 	)
 	return err
@@ -74,13 +71,12 @@ func (repo *ExternalCredentialsRepository) Grant(ctx context.Context, credential
 
 func (repo *ExternalCredentialsRepository) GetExternalCredentialsByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*external_credentials.ExternalCredentials, error) {
 	type result struct {
-		AccessToken              []byte    `db:"access_token"`
-		RefreshToken             []byte    `db:"refresh_token"`
-		ExternalId               string    `db:"external_id"`
-		MusicProvider            string    `db:"music_provider"`
-		AccessTokenExpiresAtUtc  time.Time `db:"access_token_expires_at_utc"`
-		RefreshTokenExpiresAtUtc time.Time `db:"refresh_token_expires_at_utc"`
-		IssuedAtUtc              time.Time `db:"issued_at_utc"`
+		AccessToken             []byte    `db:"access_token"`
+		RefreshToken            []byte    `db:"refresh_token"`
+		ExternalId              string    `db:"external_id"`
+		MusicProvider           string    `db:"music_provider"`
+		AccessTokenExpiresAtUtc time.Time `db:"access_token_expires_at_utc"`
+		IssuedAtUtc             time.Time `db:"issued_at_utc"`
 	}
 	var resultInstance result
 	err := queryer.GetContext(ctx,
@@ -91,7 +87,6 @@ func (repo *ExternalCredentialsRepository) GetExternalCredentialsByUserId(ctx co
 			external_id,
 			music_provider,
 			access_token_expires_at_utc,
-			refresh_token_expires_at_utc,
 			issued_at_utc
 		from users_external_credentials 
 		where user_id = $1;
@@ -116,7 +111,6 @@ func (repo *ExternalCredentialsRepository) GetExternalCredentialsByUserId(ctx co
 		resultInstance.ExternalId,
 		*music_provider.ParseMusicProvider(resultInstance.MusicProvider),
 		resultInstance.AccessTokenExpiresAtUtc,
-		resultInstance.RefreshTokenExpiresAtUtc,
 		resultInstance.IssuedAtUtc,
 	), nil
 }
@@ -126,7 +120,7 @@ func (repo *ExternalCredentialsRepository) UpdateExternalCredentials(ctx context
 	if err != nil {
 		return err
 	}
-	encryptedRefreshToken, err := repo.encrypter.Encrypt(credentials.GetRefreshToken().Value())
+	encryptedRefreshToken, err := repo.encrypter.Encrypt(credentials.GetRefreshToken())
 	if err != nil {
 		return err
 	}
@@ -138,32 +132,29 @@ func (repo *ExternalCredentialsRepository) UpdateExternalCredentials(ctx context
 			external_id = $3,
 			music_provider = $4,
 			access_token_expires_at_utc = $5,
-			refresh_token_expires_at_utc = $6,
-			issued_at_utc = $7
-		WHERE user_id = $8;
+			issued_at_utc = $6
+		WHERE user_id = $7;
 		`,
 		encryptedAccessToken,
 		encryptedRefreshToken,
 		credentials.ExternalId(),
 		credentials.MusicProvider().String(),
 		credentials.AccessTokenExpiresAtUtc(),
-		credentials.RefreshTokenExpiresAtUtc(),
 		credentials.IssuedAtUtc(),
 		credentials.Id().ToUuid(),
 	)
 	return err
 }
 
-func (repo *ExternalCredentialsRepository) GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*token.Token, error) {
+func (repo *ExternalCredentialsRepository) GetRefreshTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*string, error) {
 	type result struct {
-		RefreshToken             []byte    `db:"refresh_token"`
-		RefreshTokenExpiresAtUtc time.Time `db:"refresh_token_expires_at_utc"`
+		RefreshToken []byte `db:"refresh_token"`
 	}
 	var resultInstance result
 	err := queryer.GetContext(ctx,
 		&resultInstance,
 		`
-		select refresh_token::bytea, refresh_token_expires_at_utc
+		select refresh_token::bytea,
 from users_external_credentials
 where user_id = $1;
   `,
@@ -177,7 +168,7 @@ where user_id = $1;
 	if err != nil {
 		return nil, err
 	}
-	return token.HydrateToken(decryptedRefreshToken, resultInstance.RefreshTokenExpiresAtUtc), nil
+	return &decryptedRefreshToken, nil
 }
 
 func (repo *ExternalCredentialsRepository) GetAccessTokenByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*token.Token, error) {

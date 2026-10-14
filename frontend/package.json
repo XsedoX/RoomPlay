@@ -40,7 +40,7 @@
     "vee-validate": "^4.15.1",
     "vue": "^3.5.43",
     "vue-router": "^5.3.1",
-    "vuetify": "^4.2.2"
+    "vuetify": "^4.2.3"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^13.2.1",
@@ -50,7 +50,7 @@
     "@tsconfig/node22": "^22.0.6",
     "@types/cucumber": "^7.0.3",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.4",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vitejs/plugin-vue-jsx": "^5.1.6",
     "@vitest/coverage-v8": "4.1.9",
@@ -60,22 +60,22 @@
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.9.1",
-    "eslint": "^10.11.0",
-    "eslint-plugin-oxlint": "^1.85.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-oxlint": "^1.86.0",
     "eslint-plugin-playwright": "^2.12.0",
     "eslint-plugin-vue": "^10.11.1",
     "jiti": "^2.7.0",
     "jsdom": "^29.1.1",
     "npm-run-all2": "^9.0.3",
-    "oxlint": "^1.85.0",
+    "oxlint": "^1.86.0",
     "prettier": "3.9.3",
     "resize-observer-polyfill": "^1.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "vite": "^8.3.1",
+    "vite": "^8.3.2",
     "vite-plugin-csp-guard": "^4.0.1",
     "vite-plugin-vue-devtools": "^8.2.1",
     "vitest": "^4.1.11",
-    "vue-tsc": "^3.3.11"
+    "vue-tsc": "^3.3.12"
   }
 }

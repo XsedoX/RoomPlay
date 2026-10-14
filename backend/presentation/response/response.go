@@ -24,11 +24,11 @@ type Success[T any] struct {
 }
 
 type WebSocketSuccess[T any] struct {
-	Success[T]
+	Payload    Success[T]                               `json:"payload" swaggertype:"object"`
 	ActionName websocket_action.WebSocketOutgoingAction `json:"actionName" example:"Action name"`
 }
 type WebSocketFailure struct {
-	ProblemDetails
+	Payload    ProblemDetails                           `json:"payload" swaggertype:"object"`
 	ActionName websocket_action.WebSocketOutgoingAction `json:"actionName" example:"Action name"`
 }
 type ProblemDetails struct {

@@ -125,13 +125,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               "SampleExternalId",
-				AccessToken:              uuid.New().String(),
-				RefreshToken:             uuid.New().String(),
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				ExternalId:              "SampleExternalId",
+				AccessToken:             uuid.New().String(),
+				RefreshToken:            uuid.New().String(),
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		userId := user_id.NewUserId()
@@ -199,13 +198,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			DeviceDto: login_user_command.DeviceDto{DeviceId: nil, DeviceType: device_type.Mobile},
 			Surname:   faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				AccessToken:              uuid.New().String(),
-				ExternalId:               "SampleExternalId",
-				RefreshToken:             uuid.New().String(),
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				AccessToken:             uuid.New().String(),
+				ExternalId:              "SampleExternalId",
+				RefreshToken:            uuid.New().String(),
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		// Ensure mockUser is hydrated with at least one device
@@ -284,13 +282,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               "SampleExternalId",
-				AccessToken:              uuid.New().String(),
-				RefreshToken:             uuid.New().String(),
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				ExternalId:              "SampleExternalId",
+				AccessToken:             uuid.New().String(),
+				RefreshToken:            uuid.New().String(),
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		devices := []device.Device{
@@ -361,13 +358,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               "SampleExternalId",
-				AccessToken:              "access-token-xyz",
-				RefreshToken:             "refresh-token-xyz",
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				ExternalId:              "SampleExternalId",
+				AccessToken:             "access-token-xyz",
+				RefreshToken:            "refresh-token-xyz",
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		devices := []device.Device{
@@ -418,10 +414,9 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		assert.NotNil(t, capturedCreds)
 		assert.Equal(t, userId, capturedCreds.Id())
 		assert.Equal(t, loginUserCommand.CredentialsDto.AccessToken, capturedCreds.GetAccessToken().Value())
-		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken().Value())
+		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken())
 		assert.Equal(t, loginUserCommand.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
 		assert.Equal(t, loginUserCommand.CredentialsDto.AccessTokenExpiresAtUtc, capturedCreds.AccessTokenExpiresAtUtc())
-		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshTokenExpiresAtUtc, capturedCreds.RefreshTokenExpiresAtUtc())
 	})
 	t.Run("ShouldReturnErrorWhenAssignNewTokenFails", func(t *testing.T) {
 		mockUserRepository,
@@ -444,13 +439,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               "SampleExternalId",
-				AccessToken:              "access-token-xyz",
-				RefreshToken:             "refresh-token-xyz",
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				ExternalId:              "SampleExternalId",
+				AccessToken:             "access-token-xyz",
+				RefreshToken:            "refresh-token-xyz",
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		devices := []device.Device{
@@ -516,13 +510,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				AccessToken:              "access-token-xyz",
-				ExternalId:               "SampleExternalId",
-				RefreshToken:             "refresh-token-xyz",
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				AccessToken:             "access-token-xyz",
+				ExternalId:              "SampleExternalId",
+				RefreshToken:            "refresh-token-xyz",
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		devices := []device.Device{
@@ -590,13 +583,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 			},
 			Surname: faker.LastName(),
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               "SampleExternalId",
-				AccessToken:              "access-token-xyz",
-				RefreshToken:             "refresh-token-xyz",
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Hour).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Hour * 24 * 7).UTC(),
-				IssuedAt:                 time.Now().UTC(),
+				ExternalId:              "SampleExternalId",
+				AccessToken:             "access-token-xyz",
+				RefreshToken:            "refresh-token-xyz",
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Hour).UTC(),
+				IssuedAt:                time.Now().UTC(),
 			},
 		}
 		devices := []device.Device{

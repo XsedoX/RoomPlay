@@ -50,7 +50,7 @@ func NewLoginUserCommandHandler(
 func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *login_user_command.LoginUserCommand) (*login_user_command_response.LoginUserCommandResponse, error) {
 	var response login_user_command_response.LoginUserCommandResponse
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.CredentialsDto.ExternalId, handler.unitOfWork.GetQueryer(ctx))
+		userFromDb, err := handler.userRepository.GetUserByExternalId(ctx, command.CredentialsDto.ExternalId, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LoginUserCommandHandler.GetUserByExternalId",
 				"Problem with getting user with external id",
@@ -68,7 +68,7 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 			deviceId = userFromDb.LoginWithNewDevice(command.DeviceDto.DeviceType)
 		}
 		response.DeviceId = deviceId
-		err = handler.userRepository.Update(ctx, userFromDb, handler.unitOfWork.GetQueryer(ctx))
+		err = handler.userRepository.Update(ctx, userFromDb, handler.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LoginUserCommandHandler.Update",
 				"Problem with updating user in the database",
@@ -83,7 +83,7 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 			return internalCredsErr
 		}
 
-		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer(ctx))
+		newTokenErr := handler.internalCredentialsRepository.AssignNewToken(ctx, internalCredentials, handler.unitOfWork.GetQueryer(ctx))
 		if newTokenErr != nil {
 			return application_error.NewApplicationError("LoginUserCommandHandler.AssignNewToken",
 				"Problem with assigning new token to user",
@@ -103,13 +103,13 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 			command.CredentialsDto.RefreshToken,
 			command.CredentialsDto.ExternalId,
 			command.CredentialsDto.MusicProvider,
-			command.CredentialsDto.AccessTokenExpiresAtUtc,
-			command.CredentialsDto.RefreshTokenExpiresAtUtc)
+			command.CredentialsDto.AccessTokenExpiresAtUtc)
+
 		if externalCredsErr != nil {
 			return externalCredsErr
 		}
 
-		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer(ctx))
+		grantErr := handler.externalCredentialsRepository.Grant(ctx, creds, handler.unitOfWork.GetQueryer(ctx))
 		if grantErr != nil {
 			return application_error.NewApplicationError("LoginUserCommandHandler.Grant",
 				"Problem with assigning external credentials to user",

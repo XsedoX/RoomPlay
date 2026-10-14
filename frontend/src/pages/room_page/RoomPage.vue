@@ -57,7 +57,7 @@ function onSongBoosted(event: IGuidEvent) {
   console.log('Song boosted:', event.id);
 }
 function chooseSong(id: string) {
-  enqueueSong(id);
+  enqueueSong({ songExternalId: id });
 }
 async function leaveRoom() {
   await roomStore.leaveRoom();

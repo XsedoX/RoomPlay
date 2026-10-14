@@ -89,7 +89,7 @@ func (oidcAuthentication *ExternalAuthenticationService) AuthenticateWithExterna
 		deviceTypeToPass = *deviceType
 	}
 	var apiTokenResponse oidc_authenticate_user_service_dto.OidcAuthenticateUserServiceDto
-	if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer(ctx)) {
+	if oidcAuthentication.userRepository.CheckIfUserExistByExternalId(ctx, claims.Subject, oidcAuthentication.unitOfWork.GetQueryer(ctx)) {
 		// NOTE: User Login
 		loginUserCommand := login_user_command.LoginUserCommand{
 			Name: claims.GivenName,
@@ -99,12 +99,11 @@ func (oidcAuthentication *ExternalAuthenticationService) AuthenticateWithExterna
 			},
 			Surname: claims.FamilyName,
 			CredentialsDto: login_user_command.CredentialsDto{
-				ExternalId:               claims.Subject,
-				AccessToken:              tokenResp.AccessToken,
-				RefreshToken:             tokenResp.RefreshToken,
-				MusicProvider:            music_provider.YouTube,
-				AccessTokenExpiresAtUtc:  time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
-				RefreshTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
+				ExternalId:              claims.Subject,
+				AccessToken:             tokenResp.AccessToken,
+				RefreshToken:            tokenResp.RefreshToken,
+				MusicProvider:           music_provider.YouTube,
+				AccessTokenExpiresAtUtc: time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second).UTC(),
 			},
 		}
 		loginResponse, err := oidcAuthentication.loginUserCommandHandler.Handle(ctx, &loginUserCommand)
@@ -141,7 +140,7 @@ func (oidcAuthentication *ExternalAuthenticationService) AuthenticateWithExterna
 }
 
 func (oidcAuthentication *ExternalAuthenticationService) RefreshAccessTokenWithExternalProvider(ctx context.Context, userId user_id.UserId) (*token.Token, error) {
-	externalCreds, err := oidcAuthentication.externalCredentialsRepository.GetExternalCredentialsByUserId(ctx, userId, oidcAuthentication.unitOfWork.GetQueryer(ctx))
+	externalCreds, err := oidcAuthentication.externalCredentialsRepository.GetExternalCredentialsByUserId(ctx, userId, oidcAuthentication.unitOfWork.GetQueryer(ctx))
 	if err != nil {
 		return nil, application_error.NewApplicationError("ExternalAuthenticationService.RefreshTokenWithExternalProvider.GetRefreshTokenByUserId",
 			"Problem with getting refresh token for music service.",
@@ -157,23 +156,15 @@ func (oidcAuthentication *ExternalAuthenticationService) RefreshAccessTokenWithE
 			application_error_type.Unexpected,
 		)
 	}
-	if externalCreds.GetRefreshToken().IsExpired() {
-		return nil,
-			application_error.NewApplicationError("ExternalAuthenticationService.RefreshAccessTokenWithExternalProvider.RefreshTokenExpired",
-				"Refresh token is expired, user needs to re-authenticate.",
-				nil,
-				application_error_type.Unauthorized,
-			)
-	}
 	newAccessTokenDto, err := oidcService.RefreshAccessToken(
 		ctx,
-		externalCreds.GetRefreshToken().Value(),
+		externalCreds.GetRefreshToken(),
 	)
 	if err != nil {
 		return nil, application_error.NewApplicationError("ExternalAuthenticationService.RefreshAccessTokenWithExternalProvider.RefreshAccessToken",
 			"Problem with refreshing access token with external provider.",
 			err,
-			application_error_type.Unexpected,
+			application_error_type.Unauthorized,
 		)
 	}
 	newAccessToken, err := token.NewToken(newAccessTokenDto.AccessToken, time.Now().Add(time.Duration(newAccessTokenDto.ExpiresIn)*time.Second).UTC())
@@ -181,7 +172,7 @@ func (oidcAuthentication *ExternalAuthenticationService) RefreshAccessTokenWithE
 		return nil, err
 	}
 	externalCreds.UpdateAccessToken(*newAccessToken)
-	updateErr := oidcAuthentication.externalCredentialsRepository.UpdateExternalCredentials(ctx, externalCreds, oidcAuthentication.unitOfWork.GetQueryer(ctx))
+	updateErr := oidcAuthentication.externalCredentialsRepository.UpdateExternalCredentials(ctx, externalCreds, oidcAuthentication.unitOfWork.GetQueryer(ctx))
 	if updateErr != nil {
 		return nil, application_error.NewApplicationError("ExternalAuthenticationService.RefreshAccessTokenWithExternalProvider.UpdateExternalCredentials",
 			"Problem with updating external credentials in the database.",
