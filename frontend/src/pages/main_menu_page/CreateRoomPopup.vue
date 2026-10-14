@@ -3,8 +3,8 @@ import { shallowRef } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import type ICreateRoomRequest from '@/infrastructure/room/ICreateRoomRequest.ts';
 import { useRoomStore } from '@/stores/room_store.ts';
+import type ICreateRoomRequest from '@/infrastructure/room/requests/ICreateRoomRequest';
 
 const isPasswordVisible = shallowRef(false);
 const isRepeatPasswordVisible = shallowRef(false);

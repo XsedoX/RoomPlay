@@ -6,7 +6,7 @@ import { THostDevice } from '@/pages/settings_page/choose_host_device_list/THost
 import { useRoomStore } from '@/stores/room_store.ts';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import type IJoinRoomPasswordRequest from '@/infrastructure/room/IJoinRoomPasswordRequest';
+import type IJoinRoomPasswordRequest from '@/infrastructure/room/requests/IJoinRoomPasswordRequest';
 
 const dialog = shallowRef(false);
 const isPasswordVisible = shallowRef(false);

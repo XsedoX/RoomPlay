@@ -8,17 +8,14 @@ import type {
   IApiJsonPatchResponse,
   IApiProblemDetailsResponse,
   IApiSuccessResponse,
-  IApiWebSocketResponse,
 } from '../utils/IApiResponse';
 import type ICreateRoomRequest from './requests/ICreateRoomRequest';
 import type { IGetRoomResponse } from './responses/IGetRoomResponse';
 import { useAppWebSocket } from '../websockets/useAppWebSocket';
 import type { IEnqueueSongRequest } from './requests/IEnqueueSongRequest';
 import { TOutgoingActionName } from '../websockets/TOutgoingActionName';
-import type { TUserRole } from '../user/TUserRole';
 import type { TSongState } from './TSongState';
 import type { TVoteStatus } from './TVoteStatus';
-import { Guid } from '@/shared/guid/Guid';
 import { useRoomStore } from '@/stores/room_store';
 import { onMounted, onUnmounted } from 'vue';
 import { apiWebSocketDispatcher } from '../websockets/ApiWebSocketActionDispatcher';
