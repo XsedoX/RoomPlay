@@ -2,6 +2,11 @@ package presentation_dependencies
 
 import (
 	"github.com/XsedoX/RoomPlay/config"
+	"github.com/XsedoX/RoomPlay/domain/room/events"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_handlers/song_enqueued_client_message_handler"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/event_handlers/song_enqueued_websocket_event"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_action"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/authentication_controller"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/google_oidc_controller"
@@ -24,12 +29,38 @@ func ConstructPresentationDependencies(
 	applicationDependencies *application_dependencies.ApplicationDependencies,
 	infrastructureDependencies *infrastructure_dependencies.InfrastructureDependencies,
 ) *PresentationDependencies {
+	infrastructureDependencies.ConnectRoomWebSocketService = connect_room_web_socket_service.
+		NewConnectWebSocketService(
+			applicationDependencies.GetRoomQueryHandler,
+			infrastructureDependencies.MainHub,
+			infrastructureDependencies.ClientMessagePublisher,
+		)
 	googleOidcService := infrastructureDependencies.GoogleOidcService
-	oidcAuthenticationService := applicationDependencies.OidcAuthenticationService
+	oidcAuthenticationService := applicationDependencies.AuthenticationService
 	oidcController := google_oidc_controller.NewOidcController(
 		configuration,
-		oidcAuthenticationService,
 		googleOidcService,
+		oidcAuthenticationService,
+	)
+
+	songEnqueuedWebsocketEventHandler := song_enqueued_websocket_event.NewSongEnqueuedWebsocketEventHandler(
+		infrastructureDependencies.MainHub,
+		infrastructureDependencies.RoomRepository,
+		infrastructureDependencies.UnitOfWork,
+		infrastructureDependencies.ApplicationContext,
+	)
+	infrastructureDependencies.DomainEventPublisher.Register(
+		events.SongEnqueuedEventName,
+		songEnqueuedWebsocketEventHandler,
+	)
+	enqueueSongCommandHandler := applicationDependencies.EnqueueSongCommandHandler
+	clientMessageHandler := song_enqueued_client_message_handler.NewSongEnqueuedClientMessageHandler(
+		enqueueSongCommandHandler,
+		infrastructureDependencies.MainHub,
+	)
+	infrastructureDependencies.ClientMessagePublisher.RegisterHandler(
+		websocket_action.EnqueueSongClientMessageActionName,
+		clientMessageHandler,
 	)
 
 	getUserDataQueryHandler := applicationDependencies.GetUserDataQueryHandler
@@ -52,7 +83,9 @@ func ConstructPresentationDependencies(
 		getRoomQueryHandler,
 		getUserRoomMembershipQueryHandler,
 		leaveRoomCommandHandler,
-		joinRoomPasswordCommandHandler)
+		joinRoomPasswordCommandHandler,
+		infrastructureDependencies.ConnectRoomWebSocketService,
+	)
 
 	searchSongQueryHandler := applicationDependencies.SearchSongQueryHandler
 	songController := song_controller.NewSongController(

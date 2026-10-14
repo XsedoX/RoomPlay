@@ -3,9 +3,9 @@ package internal_credentials
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/domain_errors"
 	"github.com/XsedoX/RoomPlay/domain/internal_credentials/user_session"
 	"github.com/XsedoX/RoomPlay/domain/shared"
+	"github.com/XsedoX/RoomPlay/domain/token"
 	"github.com/XsedoX/RoomPlay/domain/user/device/device_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 )
@@ -16,37 +16,36 @@ const (
 
 type InternalCredentials struct {
 	userSession  shared.AggregateRoot[user_session.UserSession]
-	refreshToken string
-	expiresAtUtc time.Time
+	refreshToken token.Token
 	issuedAtUtc  time.Time
 }
 
 func NewInternalCredentials(
 	userSession user_session.UserSession,
-	refreshToken string,
+	refreshTokenValue string,
 ) (*InternalCredentials, error) {
-	if refreshToken == "" {
-		return nil, domain_errors.NewInternalCredentialsRefreshTokenEmptyError()
+	refreshToken, err := token.NewToken(refreshTokenValue, time.Now().Add(RefreshTokenExpirationTime).UTC())
+	if err != nil {
+		return nil, err
 	}
 	rt := &InternalCredentials{
-		refreshToken: refreshToken,
-		expiresAtUtc: time.Now().Add(RefreshTokenExpirationTime).UTC(),
+		refreshToken: *refreshToken,
 		issuedAtUtc:  time.Now().UTC(),
 	}
 	rt.userSession.SetId(userSession)
 	return rt, nil
 }
 
-func (r InternalCredentials) RefreshToken() string {
+func (r InternalCredentials) RefreshToken() token.Token {
 	return r.refreshToken
 }
 
 func (r InternalCredentials) ExpiresAtUtc() time.Time {
-	return r.expiresAtUtc
+	return r.refreshToken.ExpiresAtUtc().UTC()
 }
 
 func (r InternalCredentials) IssuedAtUtc() time.Time {
-	return r.issuedAtUtc
+	return r.issuedAtUtc.UTC()
 }
 
 func (r InternalCredentials) UserId() user_id.UserId {
@@ -69,13 +68,13 @@ func (r InternalCredentials) UserSession() user_session.UserSession {
 
 func HydrateInternalCredentials(
 	userSession user_session.UserSession,
-	refreshToken string,
+	refreshTokenValue string,
 	expiresAtUtc time.Time,
 	issuedAtUtc time.Time,
 ) *InternalCredentials {
+	refreshToken := token.HydrateToken(refreshTokenValue, expiresAtUtc)
 	result := &InternalCredentials{
-		refreshToken: refreshToken,
-		expiresAtUtc: expiresAtUtc.UTC(),
+		refreshToken: *refreshToken,
 		issuedAtUtc:  issuedAtUtc.UTC(),
 	}
 	result.userSession.SetId(userSession)

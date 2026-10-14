@@ -99,7 +99,7 @@ func TestGetUserQueryHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, userObj)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserDataQueryHandler.Handle"), err)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})

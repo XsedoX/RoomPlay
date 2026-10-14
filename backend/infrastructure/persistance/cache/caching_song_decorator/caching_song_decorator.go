@@ -10,34 +10,68 @@ import (
 )
 
 type CachingSongDecorator struct {
-	decorated  i_music_data_provider_service.IMusicDataProviderService
-	cache      cache.ICache[*music_data_response_dto.MusicDataResponseDto]
-	unitOfWork i_unit_of_work.IUnitOfWork
+	decorated             i_music_data_provider_service.IMusicDataProviderService
+	cache                 cache.ICache[*music_data_response_dto.MusicDataResponseDto]
+	unitOfWork            i_unit_of_work.IUnitOfWork
+	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataByIdResponseDto]
 }
 
 func NewCachingSongDecorator(
 	decorated i_music_data_provider_service.IMusicDataProviderService,
 	cache cache.ICache[*music_data_response_dto.MusicDataResponseDto],
 	unitOfWork i_unit_of_work.IUnitOfWork,
+	songByExternalIdCache cache.ICache[*music_data_response_dto.SongDataByIdResponseDto],
 ) *CachingSongDecorator {
 	return &CachingSongDecorator{
-		decorated:  decorated,
-		cache:      cache,
-		unitOfWork: unitOfWork,
+		decorated:             decorated,
+		cache:                 cache,
+		unitOfWork:            unitOfWork,
+		songByExternalIdCache: songByExternalIdCache,
 	}
 }
 
-func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*music_data_response_dto.MusicDataResponseDto, error) {
-	token := "none"
-	if nextPageToken != nil {
-		token = *nextPageToken
-	}
-	cacheKey := query + "::" + token
-
-	result := &music_data_response_dto.MusicDataResponseDto{}
+func (c *CachingSongDecorator) GetSongById(ctx context.Context, accessToken, songId string) (*music_data_response_dto.SongDataByIdResponseDto, error) {
+	result := &music_data_response_dto.SongDataByIdResponseDto{}
 	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var err error
-		result, err = c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer())
+		result, err = c.songByExternalIdCache.GetExact(songId, ctx, c.unitOfWork.GetQueryer(ctx))
+		return err
+	})
+	if cacheErr == nil {
+		return result, nil
+	}
+
+	result, err := c.decorated.GetSongById(ctx, accessToken, songId)
+	if err != nil {
+		return nil, err
+	}
+
+	cacheErr = c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
+		cacheErr := c.songByExternalIdCache.Set(
+			songId,
+			result,
+			ctx,
+			c.unitOfWork.GetQueryer(ctx),
+		)
+		return cacheErr
+	})
+	if cacheErr != nil {
+		return nil, cacheErr
+	}
+
+	return result, nil
+}
+
+func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessToken, query string, nextPageToken *string, pageSize uint8) (*music_data_response_dto.MusicDataResponseDto, error) {
+	cacheKey := query
+	if nextPageToken != nil {
+		cacheKey += "::" + *nextPageToken
+	}
+
+	var result *music_data_response_dto.MusicDataResponseDto
+	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
+		var err error
+		result, err = c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer(ctx))
 		return err
 	})
 	if cacheErr == nil {
@@ -50,7 +84,7 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 	}
 
 	cacheErr = c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		cacheErr := c.cache.Set(cacheKey, result, ctx, c.unitOfWork.GetQueryer())
+		cacheErr := c.cache.Set(cacheKey, result, ctx, c.unitOfWork.GetQueryer(ctx))
 		return cacheErr
 	})
 	if cacheErr != nil {

@@ -1,0 +1,10 @@
+package auth_service_access_token_response_dto
+
+type AuthServiceAccessTokenResponseDto struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    uint   `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	TokenType    string `json:"token_type"`
+	IdToken      string `json:"id_token"`
+}

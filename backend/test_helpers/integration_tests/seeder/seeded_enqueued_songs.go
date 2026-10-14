@@ -41,7 +41,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -52,13 +52,13 @@ var (
 			time.Date(2001, 11, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[0],
 			enqueued_song_state.Played,
-			3,
+			1,
 			userIds[0],
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -75,7 +75,7 @@ var (
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -86,13 +86,13 @@ var (
 			time.Date(2003, 10, 22, 12, 0o0, 0o0, 0o0, time.UTC),
 			nil,
 			enqueued_song_state.Enqueued,
-			0,
+			-1,
 			userIds[4],
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -103,13 +103,13 @@ var (
 			time.Date(2024, 1, 1, 12, 0o0, 0o0, 0o0, time.UTC),
 			nil,
 			enqueued_song_state.Enqueued,
-			1,
+			-1,
 			userIds[2],
 		),
 		*enqueued_song.HydrateEnqueuedSong(
 			enqueued_song_id.NewEnqueuedSongId(),
 			*song_data.HydrateSongData(
-				faker.URL(),
+				faker.UUIDDigit(),
 				faker.Word(),
 				faker.Name(),
 				faker.URL(),
@@ -120,31 +120,19 @@ var (
 			time.Date(2023, 5, 10, 12, 0o0, 0o0, 0o0, time.UTC),
 			&songsStartedAt[2],
 			enqueued_song_state.Played,
-			4,
+			2,
 			userIds[3],
 		),
 	}
 	usersVotes = []UsersVotesStruct{
 		{
-			UserId: userIds[0],
-			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[0].Id(),
-				enqueuedSongs[1].Id(),
-				enqueuedSongs[2].Id(),
-				enqueuedSongs[3].Id(),
-				enqueuedSongs[4].Id(),
-			},
-			VoteStatus: vote_status.Upvoted,
-		},
-		{
 			UserId:           userIds[0],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{},
-			VoteStatus:       vote_status.Downvoted,
+			VoteStatus:       vote_status.NotVoted,
 		},
 		{
 			UserId: userIds[1],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[2].Id(),
 				enqueuedSongs[4].Id(),
 			},
 			VoteStatus: vote_status.Upvoted,
@@ -152,7 +140,6 @@ var (
 		{
 			UserId: userIds[1],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[1].Id(),
 				enqueuedSongs[3].Id(),
 			},
 			VoteStatus: vote_status.Downvoted,
@@ -160,7 +147,6 @@ var (
 		{
 			UserId: userIds[2],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[0].Id(),
 				enqueuedSongs[4].Id(),
 			},
 			VoteStatus: vote_status.Upvoted,
@@ -168,8 +154,7 @@ var (
 		{
 			UserId: userIds[2],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[1].Id(),
-				enqueuedSongs[2].Id(),
+				enqueuedSongs[3].Id(),
 			},
 			VoteStatus: vote_status.Downvoted,
 		},
@@ -177,15 +162,12 @@ var (
 			UserId: userIds[3],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
 				enqueuedSongs[0].Id(),
-				enqueuedSongs[3].Id(),
-				enqueuedSongs[4].Id(),
 			},
 			VoteStatus: vote_status.Upvoted,
 		},
 		{
 			UserId: userIds[3],
 			EnqueuedSongsIds: []enqueued_song_id.EnqueuedSongId{
-				enqueuedSongs[1].Id(),
 				enqueuedSongs[2].Id(),
 			},
 			VoteStatus: vote_status.Downvoted,
@@ -219,8 +201,11 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 			`
 				SELECT id::uuid
 				FROM songs
-				WHERE url = $1
-			`, enqueuedSong.SongData().Url(),
+				WHERE title = $1 AND author = $2 AND isrc = $3;
+			`,
+			enqueuedSong.SongData().Title(),
+			enqueuedSong.SongData().Author(),
+			enqueuedSong.SongData().Isrc(),
 		).Scan(&songId)
 		if err != nil {
 			return fmt.Errorf("failed to retrieve existing song id: %w", err)
@@ -236,7 +221,7 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		  song_id,
 		  length_seconds,
 		  album_cover_url,
-			url,
+			external_id,
 		  music_provider
 		)
 		VALUES
@@ -247,7 +232,7 @@ func (s *Seeder) seedEnqueuedSong(ctx context.Context, enqueuedSong *enqueued_so
 		songId,
 		enqueuedSong.SongData().LengthSeconds(),
 		enqueuedSong.SongData().AlbumCoverUrl(),
-		enqueuedSong.SongData().Url(),
+		enqueuedSong.SongData().ExternalId(),
 		enqueuedSong.SongData().MusicProvider().String(),
 	)
 	if err != nil {

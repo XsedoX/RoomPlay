@@ -19,10 +19,10 @@ type LeaveRoomCommandHandler struct {
 func (l LeaveRoomCommandHandler) Handle(ctx context.Context, _ *leave_room_command.LeaveRoomCommand) error {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return application_helpers.NewMissingUserIdInContextError
+		return application_helpers.NewMissingUserIdInContextError("LeaveRoomCommandHandler.Handle")
 	}
 	err := l.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		err := l.roomRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer())
+		err := l.roomRepository.LeaveRoom(ctx, *userId, l.unitOfWork.GetQueryer(ctx))
 		if err != nil {
 			return application_error.NewApplicationError("LeaveRoomCommandHandler.LeaveRoom",
 				"Couldn't leave room.",

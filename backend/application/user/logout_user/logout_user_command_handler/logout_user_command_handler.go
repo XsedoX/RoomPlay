@@ -30,7 +30,7 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *logout_us
 	userId := command.UserId
 	err := c.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
 		if command.DeviceId == nil {
-			retireAllTokensErr := c.internalCredentialsRepository.RetireAllTokensByUserId(ctx, &userId, c.unitOfWork.GetQueryer())
+			retireAllTokensErr := c.internalCredentialsRepository.RetireAllTokensByUserId(ctx, &userId, c.unitOfWork.GetQueryer(ctx))
 			if retireAllTokensErr != nil {
 				return application_error.NewApplicationError("LogoutUserCommandHandler.RetireAllTokensByUserId",
 					fmt.Sprintf("Couldn't retire users tokens for user id %s.", *userId.String()),
@@ -41,7 +41,7 @@ func (c LogoutUserCommandHandler) Handle(ctx context.Context, command *logout_us
 		}
 		deviceId := command.DeviceId
 		userSession := user_session.NewUserSession(userId, *deviceId)
-		retireTokenWithDeviceId := c.internalCredentialsRepository.RetireTokenByUserSession(ctx, *userSession, c.unitOfWork.GetQueryer())
+		retireTokenWithDeviceId := c.internalCredentialsRepository.RetireTokenByUserSession(ctx, *userSession, c.unitOfWork.GetQueryer(ctx))
 		if retireTokenWithDeviceId != nil {
 			return application_error.NewApplicationError("LogoutUserCommandHandler.RetireTokenByUserIdAndDeviceId",
 				fmt.Sprintf("Couldn't retire users tokens for user id %s and device id %s.", *userId.String(), *deviceId.String()),

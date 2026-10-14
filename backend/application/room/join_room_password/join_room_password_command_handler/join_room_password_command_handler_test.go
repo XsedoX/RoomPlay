@@ -45,7 +45,7 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("JoinRoomPasswordCommandHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenGetRoomIdByNameAndPasswordFails", func(t *testing.T) {
 		mockRoomRepository, mockUnitOfWork := setupMocks(t)

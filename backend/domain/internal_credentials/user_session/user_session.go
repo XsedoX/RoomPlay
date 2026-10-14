@@ -17,10 +17,10 @@ func NewUserSession(userId user_id.UserId, deviceId device_id.DeviceId) *UserSes
 	}
 }
 
-func (us *UserSession) UserId() user_id.UserId {
+func (us UserSession) UserId() user_id.UserId {
 	return us.userId
 }
 
-func (us *UserSession) DeviceId() device_id.DeviceId {
+func (us UserSession) DeviceId() device_id.DeviceId {
 	return us.deviceId
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewSongDataSuccess(t *testing.T) {
-	url := faker.URL()
+	externalId := faker.UUIDDigit()
 	title := faker.Word()
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
@@ -19,7 +19,7 @@ func TestNewSongDataSuccess(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,
@@ -33,7 +33,7 @@ func TestNewSongDataSuccess(t *testing.T) {
 }
 
 func TestNewSongDataLengthZero(t *testing.T) {
-	url := faker.URL()
+	externalId := faker.UUIDDigit()
 	title := faker.Word()
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
@@ -42,7 +42,7 @@ func TestNewSongDataLengthZero(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,
@@ -59,8 +59,8 @@ func TestNewSongDataLengthZero(t *testing.T) {
 	require.Equal(t, "Song length in seconds cannot be zero", castedError.Description)
 }
 
-func TestNewSongDataUrlEmpty(t *testing.T) {
-	url := ""
+func TestNewSongDataExternalIdEmpty(t *testing.T) {
+	externalId := ""
 	title := faker.Word()
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
@@ -69,7 +69,7 @@ func TestNewSongDataUrlEmpty(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,
@@ -82,12 +82,12 @@ func TestNewSongDataUrlEmpty(t *testing.T) {
 	require.Nil(t, createdSongData)
 	castedError, ok := err.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "SongData.Url.Empty", castedError.Code)
-	require.Equal(t, "Song url cannot be empty", castedError.Description)
+	require.Equal(t, "SongData.ExternalId.Empty", castedError.Code)
+	require.Equal(t, "Song external id cannot be empty", castedError.Description)
 }
 
 func TestNewSongDataTitleEmpty(t *testing.T) {
-	url := faker.URL()
+	externalId := faker.UUIDDigit()
 	title := ""
 	author := faker.Name()
 	albumCoverUrl := faker.URL()
@@ -96,7 +96,7 @@ func TestNewSongDataTitleEmpty(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,
@@ -114,7 +114,7 @@ func TestNewSongDataTitleEmpty(t *testing.T) {
 }
 
 func TestNewSongDataAuthorEmpty(t *testing.T) {
-	url := faker.URL()
+	externalId := faker.UUIDDigit()
 	title := faker.Word()
 	author := ""
 	albumCoverUrl := faker.URL()
@@ -123,7 +123,7 @@ func TestNewSongDataAuthorEmpty(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,
@@ -141,7 +141,7 @@ func TestNewSongDataAuthorEmpty(t *testing.T) {
 }
 
 func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
-	url := faker.URL()
+	externalId := faker.UUIDDigit()
 	title := faker.Word()
 	author := faker.Name()
 	albumCoverUrl := ""
@@ -150,7 +150,7 @@ func TestNewSongDataAlbumCoverUrlEmpty(t *testing.T) {
 	isrc := "USS1Z2500001"
 
 	createdSongData, err := NewSongData(
-		url,
+		externalId,
 		title,
 		author,
 		albumCoverUrl,

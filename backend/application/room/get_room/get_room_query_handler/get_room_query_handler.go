@@ -2,8 +2,8 @@ package get_room_query_handler
 
 import (
 	"context"
-	"encoding/base64"
 
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_unit_of_work"
 	"github.com/XsedoX/RoomPlay/application/application_error"
 	"github.com/XsedoX/RoomPlay/application/application_error/application_error_type"
@@ -15,14 +15,17 @@ import (
 type GetRoomQueryHandler struct {
 	unitOfWork     i_unit_of_work.IUnitOfWork
 	roomRepository i_room_repository.IRoomRepository
+	encrypter      i_encrypter.IEncrypter
 }
 
 func NewGetRoomQueryHandler(unitOfWork i_unit_of_work.IUnitOfWork,
 	roomRepository i_room_repository.IRoomRepository,
+	encrypter i_encrypter.IEncrypter,
 ) *GetRoomQueryHandler {
 	return &GetRoomQueryHandler{
 		unitOfWork:     unitOfWork,
 		roomRepository: roomRepository,
+		encrypter:      encrypter,
 	}
 }
 
@@ -30,10 +33,10 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*get_room_query_respon
 	var response get_room_query_response.GetRoomQueryResponse
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, application_helpers.NewMissingUserIdInContextError
+		return nil, application_helpers.NewMissingUserIdInContextError("GetRoomQueryHandler.Handle")
 	}
 	err := r.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
-		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer())
+		roomData, getRoomDataErr := r.roomRepository.GetRoomByUserId(ctx, *userId, r.unitOfWork.GetQueryer(ctx))
 		if getRoomDataErr != nil {
 			return application_error.NewApplicationError("GetRoomQueryHandler.GetRoomByUserId",
 				"Couldn't get user's room.",
@@ -41,7 +44,14 @@ func (r GetRoomQueryHandler) Handle(ctx context.Context) (*get_room_query_respon
 				application_error_type.Unexpected)
 		}
 		response.Name = roomData.Name
-		response.QrCode = base64.RawURLEncoding.EncodeToString(roomData.QrCode)
+		decryptedQrCode, decryptErr := r.encrypter.Decrypt(roomData.QrCode)
+		if decryptErr != nil {
+			return application_error.NewApplicationError("GetRoomQueryHandler.Decrypt",
+				"Couldn't decrypt room's QR code.",
+				decryptErr,
+				application_error_type.Unexpected)
+		}
+		response.QrCode = decryptedQrCode
 		response.UserRole = roomData.UserRole
 		if roomData.BoostUsedAtUtc != nil && roomData.BoostCooldownSeconds != nil {
 			response.BoostData = &get_room_query_response.BoostDataDto{

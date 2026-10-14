@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_event_publisher"
+	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_authentication_service_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_external_credentials_repository"
-	"github.com/XsedoX/RoomPlay/application/application_contracts/i_google_oidc_service"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_jwt_provider"
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_music_data_provider_service"
@@ -18,6 +19,7 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/encryper"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/google_oidc_service"
 	"github.com/XsedoX/RoomPlay/infrastructure/authentication/jwt_provider"
+	"github.com/XsedoX/RoomPlay/infrastructure/domain_event_publisher"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/cache_cleanup_worker"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
@@ -26,6 +28,9 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/room/room_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/unit_of_work"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_repository"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_publisher"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
+	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/hub"
 	"github.com/XsedoX/RoomPlay/infrastructure/youtube_music_data_provider"
 	"github.com/jmoiron/sqlx"
 )
@@ -33,13 +38,18 @@ import (
 type InfrastructureDependencies struct {
 	Encrypter                     i_encrypter.IEncrypter
 	JwtProvider                   i_jwt_provider.IJwtProvider
-	GoogleOidcService             i_google_oidc_service.IGoogleOidcService
+	GoogleOidcService             i_external_authentication_service_provider.IExternalAuthenticationServiceProvider
 	ExternalCredentialsRepository i_external_credentials_repository.IExternalCredentialsRepository
 	InternalCredentialsRepository i_internal_credentials_repository.IInternalCredentialsRepository
 	UserRepository                i_user_repository.IUserRepository
 	RoomRepository                i_room_repository.IRoomRepository
 	UnitOfWork                    i_unit_of_work.IUnitOfWork
 	CachingSongDecorator          i_music_data_provider_service.IMusicDataProviderService
+	ApplicationContext            context.Context
+	DomainEventPublisher          i_event_publisher.IEventPublisher
+	ClientMessagePublisher        client_message_publisher.IClientMessagePublisher
+	MainHub                       hub.IHub
+	ConnectRoomWebSocketService   connect_room_web_socket_service.IConnectRoomWebSocketService
 }
 
 func ConstructInfrastructureDependencies(
@@ -48,7 +58,17 @@ func ConstructInfrastructureDependencies(
 	config config.IConfiguration,
 ) *InfrastructureDependencies {
 	go cache_cleanup_worker.StartCacheCleanupWorker(ctx, db, time.Hour, time.Minute*15)
-	encrypter := encryper.NewEncrypter(config)
+	domainEventPublisher := domain_event_publisher.NewDomainEventPublisher(ctx)
+	go domainEventPublisher.Start()
+	clientMessagePublisher := client_message_publisher.NewClientMessagePublisher(
+		ctx,
+	)
+	go clientMessagePublisher.Run()
+
+	mainHub := hub.NewHub(ctx, config)
+	go mainHub.Run()
+
+	encrypter := encryper.NewEncrypter(config.Authentication().EncryptionKey)
 	googleOidcService := google_oidc_service.NewGoogleOidcService(config)
 	jwtProvider := jwt_provider.NewJwtProvider(config)
 	unitOfWork := unit_of_work.NewUnitOfWork(db)
@@ -56,11 +76,15 @@ func ConstructInfrastructureDependencies(
 	searchSongCache := cache.NewCache[*music_data_response_dto.MusicDataResponseDto](
 		config.CacheSimilarityThreshold(),
 	)
+	searchSongByExternalIdCache := cache.NewCache[*music_data_response_dto.SongDataByIdResponseDto](
+		config.CacheSimilarityThreshold(),
+	)
 	youtubeMusicDataProvider := youtube_music_data_provider.NewYoutubeMusicDataProvider()
 	cachingSongDecorator := caching_song_decorator.NewCachingSongDecorator(
 		youtubeMusicDataProvider,
 		searchSongCache,
 		unitOfWork,
+		searchSongByExternalIdCache,
 	)
 
 	userRepository := user_repository.NewUserRepository()
@@ -69,6 +93,7 @@ func ConstructInfrastructureDependencies(
 	roomRepository := room_repository.NewRoomRepository(encrypter)
 
 	return &InfrastructureDependencies{
+		ClientMessagePublisher:        clientMessagePublisher,
 		Encrypter:                     encrypter,
 		GoogleOidcService:             googleOidcService,
 		ExternalCredentialsRepository: externalCredentialsRepository,
@@ -78,5 +103,8 @@ func ConstructInfrastructureDependencies(
 		UnitOfWork:                    unitOfWork,
 		CachingSongDecorator:          cachingSongDecorator,
 		JwtProvider:                   jwtProvider,
+		ApplicationContext:            ctx,
+		DomainEventPublisher:          domainEventPublisher,
+		MainHub:                       mainHub,
 	}
 }

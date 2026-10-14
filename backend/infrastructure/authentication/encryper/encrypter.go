@@ -20,7 +20,6 @@ import (
 	"errors"
 	"io"
 
-	"github.com/XsedoX/RoomPlay/config"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,9 +27,9 @@ type Encrypter struct {
 	key [32]byte
 }
 
-func NewEncrypter(configuration config.IConfiguration) *Encrypter {
+func NewEncrypter(encryptionKey string) *Encrypter {
 	var arr [32]byte
-	copy(arr[:], configuration.Authentication().EncryptionKey)
+	copy(arr[:], encryptionKey)
 	return &Encrypter{
 		key: arr,
 	}
@@ -89,7 +88,7 @@ func (enc *Encrypter) Decrypt(ciphertext []byte) (plaintext string, err error) {
 		return "", errors.New("malformed ciphertext")
 	}
 
-	bytePlaintext, err := gcm.Open(nil,
+	bytePlaintext, _ := gcm.Open(nil,
 		ciphertext[:gcm.NonceSize()],
 		ciphertext[gcm.NonceSize():],
 		nil,

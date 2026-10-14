@@ -9,6 +9,7 @@ import (
 )
 
 type ICache[T any] interface {
+	GetExact(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error)
 	Get(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error)
 	Set(key string, value T, ctx context.Context, queryer i_queryer.IQueryer) error
 	Remove(key string, ctx context.Context, queryer i_queryer.IQueryer) error
@@ -28,6 +29,29 @@ func splitCacheKey(key string) (query, token string) {
 		token = parts[1]
 	}
 	return
+}
+
+func (c *Cache[T]) GetExact(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {
+	query, token := splitCacheKey(key)
+	var value json.RawMessage
+	err := queryer.GetContext(ctx, &value, `
+		SELECT value FROM cache
+		WHERE key = $1 AND token = $2
+		LIMIT 1;
+	`,
+		query,
+		token,
+	)
+	var zero T
+	if err != nil {
+		return zero, err
+	}
+	var result T
+	err = json.Unmarshal(value, &result)
+	if err != nil {
+		return zero, err
+	}
+	return result, nil
 }
 
 func (c *Cache[T]) Get(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {

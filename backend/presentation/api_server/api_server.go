@@ -1,9 +1,11 @@
 package api_server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/XsedoX/RoomPlay/presentation/controllers/room_controller"
@@ -19,7 +21,8 @@ import (
 )
 
 type Server struct {
-	router *chi.Mux
+	router     *chi.Mux
+	appContext context.Context
 }
 
 func NewServer(dependencies *initialize_dependencies.ServerDependencies, configuration config.IConfiguration, customMiddlewares ...func(http.Handler) http.Handler) *Server {
@@ -58,6 +61,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 			r.Delete("/", dependencies.PresentationDependencies.RoomController().LeaveRoom)
 			r.Get(room_controller.RoomMembershipBasePath, dependencies.PresentationDependencies.RoomController().CheckUserRoomMembership)
 			r.Put(room_controller.JoinRoomPasswordPath, dependencies.PresentationDependencies.RoomController().JoinRoomPassword)
+			r.Get(room_controller.WebSocketUpgradePath, dependencies.PresentationDependencies.RoomController().UpgradeToWebSockets)
 		})
 
 		r.Route(song_controller.SongBasePath, func(r chi.Router) {
@@ -72,15 +76,26 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 	router.Mount(constants.ApiBasePath, apiV1)
 
 	return &Server{
-		router: router,
+		router:     router,
+		appContext: dependencies.InfrastructureDependencies.ApplicationContext,
 	}
 }
 
 func (s *Server) Start(configuration config.IConfiguration) {
 	log.Printf("Starting API server on :%v", configuration.Server().Port)
 	// err := http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.Server().Port), "./certificates/server.crt", "./certificates/server.key", s.router)
-	err := http.ListenAndServe(fmt.Sprintf(":%v", configuration.Server().Port), s.router)
-	if err != nil {
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%v", configuration.Server().Port),
+		Handler: s.router,
+	}
+	go func() {
+		<-s.appContext.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(shutdownCtx)
+	}()
+
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

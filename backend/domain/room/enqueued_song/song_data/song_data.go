@@ -10,7 +10,7 @@ import (
 var validIsrc = regexp.MustCompile(`^[A-Z]{2}[A-Z0-9]{3}\d{2}\d{5}$`)
 
 type SongData struct {
-	url           string
+	externalId    string
 	title         string
 	author        string
 	lengthSeconds uint16
@@ -27,8 +27,8 @@ func (s SongData) AlbumCoverUrl() string {
 	return s.albumCoverUrl
 }
 
-func (s SongData) Url() string {
-	return s.url
+func (s SongData) ExternalId() string {
+	return s.externalId
 }
 
 func (s SongData) Title() string {
@@ -48,7 +48,7 @@ func (s SongData) MusicProvider() music_provider.MusicProvider {
 }
 
 func HydrateSongData(
-	url,
+	externalId,
 	title,
 	author,
 	albumCoverUrl string,
@@ -57,7 +57,7 @@ func HydrateSongData(
 	isrc *string,
 ) *SongData {
 	return &SongData{
-		url:           url,
+		externalId:    externalId,
 		isrc:          isrc,
 		albumCoverUrl: albumCoverUrl,
 		title:         title,
@@ -68,7 +68,7 @@ func HydrateSongData(
 }
 
 func NewSongData(
-	url,
+	externalId,
 	title,
 	author,
 	albumCoverUrl string,
@@ -79,8 +79,8 @@ func NewSongData(
 	if lengthSeconds == 0 {
 		return nil, domain_errors.NewSongDataSongLengthZeroError()
 	}
-	if url == "" {
-		return nil, domain_errors.NewSongDataUrlEmptyError()
+	if externalId == "" {
+		return nil, domain_errors.NewSongDataExternalIdEmptyError()
 	}
 	if title == "" {
 		return nil, domain_errors.NewSongDataTitleEmptyError()
@@ -102,7 +102,7 @@ func NewSongData(
 	}
 
 	return &SongData{
-		url:           url,
+		externalId:    externalId,
 		albumCoverUrl: albumCoverUrl,
 		title:         title,
 		author:        author,
@@ -110,4 +110,22 @@ func NewSongData(
 		musicProvider: musicProvider,
 		isrc:          isrc,
 	}, nil
+}
+
+func (s SongData) Equal(o SongData) bool {
+	if s.externalId != o.externalId ||
+		s.title != o.title ||
+		s.author != o.author ||
+		s.lengthSeconds != o.lengthSeconds ||
+		s.albumCoverUrl != o.albumCoverUrl ||
+		s.musicProvider != o.musicProvider {
+		return false
+	}
+	if (s.isrc == nil) != (o.isrc == nil) {
+		return false
+	}
+	if s.isrc != nil && *s.isrc != *o.isrc {
+		return false
+	}
+	return true
 }

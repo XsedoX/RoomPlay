@@ -3,28 +3,35 @@ package seeder
 import (
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
 	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
+	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/brianvoe/gofakeit/v7"
 )
 
 var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
-	Songs: []music_data_response_dto.SongDataResponseDto{
+	Songs: []music_data_response_dto.SearchSongDataResponseDto{
 		{
 			VideoId:       gofakeit.ID(),
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
+			MusicProvider: music_provider.YouTube,
+			Isrc:          nil,
 		},
 		{
 			VideoId:       gofakeit.ID(),
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
+			MusicProvider: music_provider.YouTube,
+			Isrc:          nil,
 		},
 		{
 			VideoId:       gofakeit.ID(),
 			Title:         gofakeit.SongName(),
 			Author:        gofakeit.SongArtist(),
 			AlbumCoverUrl: gofakeit.URL(),
+			MusicProvider: music_provider.YouTube,
+			Isrc:          nil,
 		},
 	},
 	PageMetaDto: page_meta_dto.PageMetaDto{
@@ -33,4 +40,14 @@ var ExternalSongData = music_data_response_dto.MusicDataResponseDto{
 		HasNextPage:       true,
 		PageSize:          10,
 	},
+}
+
+var ExternalSongDataById = music_data_response_dto.SongDataByIdResponseDto{
+	VideoId:       gofakeit.ID(),
+	Title:         gofakeit.SongName(),
+	Author:        gofakeit.SongArtist(),
+	AlbumCoverUrl: gofakeit.URL(),
+	MusicProvider: music_provider.YouTube,
+	Isrc:          nil,
+	LengthSeconds: uint16(gofakeit.Number(60, 300)),
 }

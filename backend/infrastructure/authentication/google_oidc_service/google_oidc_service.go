@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/XsedoX/RoomPlay/application/dtos/google_id_token_claims_dto"
-	"github.com/XsedoX/RoomPlay/application/dtos/google_token_response_dto"
+	"github.com/XsedoX/RoomPlay/application/dtos/auth_service_access_token_response_dto"
+	"github.com/XsedoX/RoomPlay/application/dtos/id_token_claims_dto"
 	"github.com/XsedoX/RoomPlay/application/dtos/refresh_access_token_response_dto"
 	"github.com/XsedoX/RoomPlay/config"
 	"github.com/golang-jwt/jwt/v5"
@@ -25,7 +25,7 @@ type GoogleOidcService struct {
 	configuration config.IConfiguration
 }
 
-func (g GoogleOidcService) ParseIdToken(idToken string) (*google_id_token_claims_dto.GoogleIdTokenClaimsDto, error) {
+func (g GoogleOidcService) ParseIdToken(idToken string) (*id_token_claims_dto.IdTokenClaimsDto, error) {
 	type googleApiClaims struct {
 		jwt.RegisteredClaims
 		GivenName  string `json:"given_name" validate:"required"`
@@ -38,14 +38,14 @@ func (g GoogleOidcService) ParseIdToken(idToken string) (*google_id_token_claims
 	if !ok {
 		return nil, errors.New("couldn't parse id token")
 	}
-	return &google_id_token_claims_dto.GoogleIdTokenClaimsDto{
+	return &id_token_claims_dto.IdTokenClaimsDto{
 		GivenName:  claims.GivenName,
 		FamilyName: claims.FamilyName,
 		Subject:    claims.Subject,
 	}, nil
 }
 
-func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*google_token_response_dto.GoogleTokenResponseDto, error) {
+func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*auth_service_access_token_response_dto.AuthServiceAccessTokenResponseDto, error) {
 	tokenURL := "https://oauth2.googleapis.com/token"
 	form := url.Values{}
 	form.Add("grant_type", "authorization_code")
@@ -75,7 +75,7 @@ func (g GoogleOidcService) GetAccessToken(ctx context.Context, code string) (*go
 	if resp.StatusCode != http.StatusOK {
 		return nil, err
 	}
-	var response google_token_response_dto.GoogleTokenResponseDto
+	var response auth_service_access_token_response_dto.AuthServiceAccessTokenResponseDto
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}

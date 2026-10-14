@@ -50,7 +50,7 @@ func (r InternalCredentialsRepository) AssignNewToken(
 	internalCredentials *internal_credentials.InternalCredentials,
 	queryer i_queryer.IQueryer,
 ) error {
-	encryptedRefreshToken := r.encrypter.Hash(internalCredentials.RefreshToken())
+	encryptedRefreshToken := r.encrypter.Hash(internalCredentials.RefreshToken().Value())
 	userId := internalCredentials.UserId()
 	deviceId := internalCredentials.DeviceId()
 	_, err := queryer.ExecContext(ctx,

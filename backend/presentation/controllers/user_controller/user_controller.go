@@ -40,6 +40,7 @@ func (userController *UserController) GetUserData(w http.ResponseWriter, r *http
 		response.WriteJsonApplicationFailure(w,
 			err,
 			r.URL.RequestURI())
+		return
 	}
 	response.WriteJsonSuccess(w, userData)
 }

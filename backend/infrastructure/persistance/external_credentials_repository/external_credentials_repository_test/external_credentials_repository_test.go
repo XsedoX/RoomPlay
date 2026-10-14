@@ -48,7 +48,6 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	accessToken := "access_token_123"
 	refreshToken := "refresh_token_123"
 	accessTokenExpiresAt := time.Now().Add(1 * time.Hour).UTC()
-	refreshTokenExpiresAt := time.Now().Add(24 * time.Hour).UTC()
 	externalId := faker.UUIDDigit()
 
 	userId := tests_initializer.InjectedUser.Id()
@@ -59,7 +58,6 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 		externalId,
 		music_provider.YouTube,
 		accessTokenExpiresAt,
-		refreshTokenExpiresAt,
 	)
 	require.NoError(t, extCredsErr, "failed to create ExternalCredentials domain object")
 
@@ -73,14 +71,13 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 
 	// Assert
 	var storedCreds struct {
-		UserID                   uuid.UUID `db:"user_id"`
-		AccessToken              []byte    `db:"access_token"`
-		RefreshToken             []byte    `db:"refresh_token"`
-		ExternalId               string    `db:"external_id"`
-		AccessTokenExpiresAtUtc  time.Time `db:"access_token_expires_at_utc"`
-		RefreshTokenExpiresAtUtc time.Time `db:"refresh_token_expires_at_utc"`
-		IssuedAtUtc              time.Time `db:"issued_at_utc"`
-		MusicProvider            string    `db:"music_provider"`
+		UserID                  uuid.UUID `db:"user_id"`
+		AccessToken             []byte    `db:"access_token"`
+		RefreshToken            []byte    `db:"refresh_token"`
+		ExternalId              string    `db:"external_id"`
+		AccessTokenExpiresAtUtc time.Time `db:"access_token_expires_at_utc"`
+		IssuedAtUtc             time.Time `db:"issued_at_utc"`
+		MusicProvider           string    `db:"music_provider"`
 	}
 
 	err = txx.GetContext(
@@ -98,7 +95,6 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	assert.Equal(t, music_provider.YouTube.String(), storedCreds.MusicProvider)
 	// Compare times with small delta to account for DB roundtrip precision
 	assert.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
-	assert.WithinDuration(t, refreshTokenExpiresAt, storedCreds.RefreshTokenExpiresAtUtc, time.Second)
 	assert.WithinDuration(t, time.Now().UTC(), storedCreds.IssuedAtUtc, 5*time.Second)
 	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 2)
 }
@@ -116,18 +112,18 @@ func TestAccessTokenByUserId(t *testing.T) {
 	)
 	require.True(t, ok, "failed to get access token from seeded data")
 
-	userAccessTokenFromDb := externalCredentialsFromDb.AccessToken()
-	userAccessTokenFromDbBytes := []byte(userAccessTokenFromDb) // Simulate the encrypted access token stored in the database
+	userAccessTokenFromDb := externalCredentialsFromDb.GetAccessToken()
+	userAccessTokenFromDbBytes := []byte(userAccessTokenFromDb.Value()) // Simulate the encrypted access token stored in the database
 	decryptedAccessToken := "decrypted_access_token"
 
 	// Setup mock expectations
 	mockEncrypter.On("Decrypt", userAccessTokenFromDbBytes).Return(decryptedAccessToken, nil)
 
 	// Act
-	accessTokenFromRepo, err := repo.AccessTokenByUserId(ctx, userId, txx)
+	accessTokenFromRepo, err := repo.GetAccessTokenByUserId(ctx, userId, txx)
 
 	require.NoError(t, err)
-	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo)
+	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo.Value())
 	mockEncrypter.AssertNumberOfCalls(t, "Decrypt", 1)
 }
 

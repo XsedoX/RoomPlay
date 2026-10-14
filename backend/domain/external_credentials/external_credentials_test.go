@@ -15,7 +15,6 @@ func TestNewExternalCredentialsSuccess(t *testing.T) {
 	userId := user_id.NewUserId()
 	refreshToken := faker.Jwt()
 	accessTokenExpiration := time.Now().Add(24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(30 * 24 * time.Hour).UTC()
 	accessToken := faker.Jwt()
 	externalId := faker.UUIDDigit()
 
@@ -25,17 +24,15 @@ func TestNewExternalCredentialsSuccess(t *testing.T) {
 		externalId,
 		music_provider.YouTube,
 		accessTokenExpiration,
-		refreshTokenExpiration,
 	)
 
 	require.NoError(t, error)
 	require.Equal(t, userId, externalCred.Id())
 	require.Equal(t, externalId, externalCred.ExternalId())
 	require.Equal(t, music_provider.YouTube, externalCred.MusicProvider())
-	require.Equal(t, accessToken, externalCred.AccessToken())
-	require.Equal(t, refreshToken, externalCred.RefreshToken())
+	require.Equal(t, accessToken, externalCred.GetAccessToken().Value())
+	require.Equal(t, refreshToken, externalCred.GetRefreshToken())
 	require.Equal(t, accessTokenExpiration, externalCred.AccessTokenExpiresAtUtc())
-	require.Equal(t, refreshTokenExpiration, externalCred.RefreshTokenExpiresAtUtc())
 	require.WithinDuration(t, time.Now().UTC(), externalCred.IssuedAtUtc(), time.Second)
 }
 
@@ -43,7 +40,6 @@ func TestNewExternalCredentialsAccessTokenExpired(t *testing.T) {
 	userId := user_id.NewUserId()
 	refreshToken := faker.Jwt()
 	accessTokenExpiration := time.Now().Add(-24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(30 * 24 * time.Hour).UTC()
 	accessToken := faker.Jwt()
 	externalId := faker.UUIDDigit()
 
@@ -53,47 +49,20 @@ func TestNewExternalCredentialsAccessTokenExpired(t *testing.T) {
 		externalId,
 		music_provider.YouTube,
 		accessTokenExpiration,
-		refreshTokenExpiration,
 	)
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
 	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.AccessToken.Expired", castedError.Code)
-	require.Equal(t, "Access token expiration time must be in the future", castedError.Description)
-}
-
-func TestNewExternalCredentialsRefreshTokenExpired(t *testing.T) {
-	userId := user_id.NewUserId()
-	refreshToken := faker.Jwt()
-	accessTokenExpiration := time.Now().Add(24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(-30 * 24 * time.Hour).UTC()
-	accessToken := faker.Jwt()
-	externalId := faker.UUIDDigit()
-
-	externalCred, error := NewExternalCredentials(userId,
-		accessToken,
-		refreshToken,
-		externalId,
-		music_provider.YouTube,
-		accessTokenExpiration,
-		refreshTokenExpiration,
-	)
-
-	require.Nil(t, externalCred)
-	require.Error(t, error)
-	castedError, ok := error.(*domain_errors.DomainError)
-	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.RefreshToken.Expired", castedError.Code)
-	require.Equal(t, "Refresh token expiration time must be in the future", castedError.Description)
+	require.Equal(t, "Token.Expired", castedError.Code)
+	require.Equal(t, "Token expiration time must be in the future", castedError.Description)
 }
 
 func TestNewExternalCredentialsAccessTokenEmpty(t *testing.T) {
 	userId := user_id.NewUserId()
 	refreshToken := faker.Jwt()
 	accessTokenExpiration := time.Now().Add(24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(30 * 24 * time.Hour).UTC()
 	accessToken := ""
 	externalId := faker.UUIDDigit()
 
@@ -103,47 +72,20 @@ func TestNewExternalCredentialsAccessTokenEmpty(t *testing.T) {
 		externalId,
 		music_provider.YouTube,
 		accessTokenExpiration,
-		refreshTokenExpiration,
 	)
 
 	require.Nil(t, externalCred)
 	require.Error(t, error)
 	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.AccessToken.Empty", castedError.Code)
-	require.Equal(t, "Access token cannot be empty", castedError.Description)
-}
-
-func TestNewExternalCredentialsRefreshTokenEmpty(t *testing.T) {
-	userId := user_id.NewUserId()
-	refreshToken := ""
-	accessTokenExpiration := time.Now().Add(24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(30 * 24 * time.Hour).UTC()
-	accessToken := faker.Jwt()
-	externalId := faker.UUIDDigit()
-
-	externalCred, error := NewExternalCredentials(userId,
-		accessToken,
-		refreshToken,
-		externalId,
-		music_provider.YouTube,
-		accessTokenExpiration,
-		refreshTokenExpiration,
-	)
-
-	require.Nil(t, externalCred)
-	require.Error(t, error)
-	castedError, ok := error.(*domain_errors.DomainError)
-	require.True(t, ok)
-	require.Equal(t, "ExternalCredentials.RefreshToken.Empty", castedError.Code)
-	require.Equal(t, "Refresh token cannot be empty", castedError.Description)
+	require.Equal(t, "Token.Empty", castedError.Code)
+	require.Equal(t, "Token cannot be empty", castedError.Description)
 }
 
 func TestNewExternalCredentialsExternalIdEmpty(t *testing.T) {
 	userId := user_id.NewUserId()
 	refreshToken := faker.Jwt()
 	accessTokenExpiration := time.Now().Add(24 * time.Hour).UTC()
-	refreshTokenExpiration := time.Now().Add(30 * 24 * time.Hour).UTC()
 	accessToken := faker.Jwt()
 	externalId := ""
 
@@ -153,7 +95,6 @@ func TestNewExternalCredentialsExternalIdEmpty(t *testing.T) {
 		externalId,
 		music_provider.YouTube,
 		accessTokenExpiration,
-		refreshTokenExpiration,
 	)
 
 	require.Nil(t, externalCred)

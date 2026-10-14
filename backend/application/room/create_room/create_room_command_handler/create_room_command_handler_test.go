@@ -53,6 +53,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		encryptionKey := "some-random-key"
 		mockUoW.On("GetQueryer").Return(nil)
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(nil)
 
 		// Act
@@ -80,7 +81,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		// Assert
 		assert.Error(t, err)
 		assert.Nil(t, roomId)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError, err)
+		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("CreateRoomCommandHandler.Handle"), err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
@@ -94,9 +95,10 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 			RoomPassword: "password123",
 		}
 		repoErr := errors.New("database error")
-		errorCode := "CreateRoomCommandHandler.CreateRoom"
+		errorCode := "CreateRoomCommandHandler.Handle"
 		encryptionKey := "some-random-key"
 		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockUoW.On("GetQueryer").Return(nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(repoErr)
 

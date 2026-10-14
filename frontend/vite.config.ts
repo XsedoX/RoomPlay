@@ -5,8 +5,8 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import csp from 'vite-plugin-csp-guard';
-import { getCspConfig } from './csp.config';
-import { securityHeaders } from './security_headers.config';
+import { getCspConfig } from './csp.config.js';
+import { securityHeaders } from './security_headers.config.js';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {

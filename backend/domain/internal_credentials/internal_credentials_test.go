@@ -21,7 +21,7 @@ func TestNewInternalCredentialsSuccess(t *testing.T) {
 	internalCredentialsObj, error := NewInternalCredentials(*userSession, internalCredentials)
 
 	require.NoError(t, error)
-	require.Equal(t, internalCredentials, internalCredentialsObj.RefreshToken())
+	require.Equal(t, internalCredentials, internalCredentialsObj.RefreshToken().Value())
 	require.WithinDuration(t, internalCredentialsObj.IssuedAtUtc(), time.Now().UTC(), time.Second)
 	require.WithinDuration(t, internalCredentialsObj.ExpiresAtUtc(), time.Now().Add(RefreshTokenExpirationTime).UTC(), time.Second)
 }
@@ -38,6 +38,6 @@ func TestNewInternalCredentialsRefreshTokenEmpty(t *testing.T) {
 	require.Nil(t, internalCredentialsObj)
 	castedError, ok := error.(*domain_errors.DomainError)
 	require.True(t, ok)
-	require.Equal(t, "InternalCredentials.RefreshToken.EmptyString", castedError.Code)
-	require.Equal(t, "The field 'refresh token' cannot be an empty string.", castedError.Description)
+	require.Equal(t, "Token.Empty", castedError.Code)
+	require.Equal(t, "Token cannot be empty", castedError.Description)
 }

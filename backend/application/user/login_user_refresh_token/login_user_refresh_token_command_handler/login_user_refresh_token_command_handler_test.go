@@ -366,6 +366,6 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		passedUserSession := passedRefreshToken.UserSession()
 		assert.Equal(t, passedUserSession.UserId(), userFromDb.Id())
 		assert.Equal(t, passedUserSession.DeviceId(), devices[0].Id())
-		assert.Equal(t, passedRefreshToken.RefreshToken(), refreshTokenToReturn)
+		assert.Equal(t, passedRefreshToken.RefreshToken().Value(), refreshTokenToReturn)
 	})
 }

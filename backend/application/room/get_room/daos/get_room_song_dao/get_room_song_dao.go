@@ -1,6 +1,8 @@
 package get_room_song_dao
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -13,4 +15,5 @@ type GetRoomSongDao struct {
 	Votes         uint8     `db:"votes"`
 	AddedBy       string    `db:"added_by"`
 	VoteStatus    string    `db:"vote_status"`
+	AddedAtUtc    time.Time `db:"added_at_utc"`
 }

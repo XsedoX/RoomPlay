@@ -153,7 +153,11 @@ func TestWriteJsonNoContent(t *testing.T) {
 func TestWriteJsonSuccess(t *testing.T) {
 	t.Run("Success with meta", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := map[string]string{"key": "value"}
+		type testResult struct {
+			Key   string
+			Value string
+		}
+		data := testResult{Key: "key", Value: "value"}
 		meta := page_meta_dto.PageMetaDto{
 			NextPageToken:     new(gofakeit.ID()),
 			PreviousPageToken: new(gofakeit.ID()),
@@ -165,33 +169,34 @@ func TestWriteJsonSuccess(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
-		var response Success
+		var response Success[testResult]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 
 		responseMeta := response.Meta
 		assert.Equal(t, &meta, responseMeta)
 		// Need to cast response.Data to map to check content
-		responseData, ok := response.Data.(map[string]any)
-		assert.True(t, ok)
-		assert.Equal(t, "value", responseData["key"])
+		assert.Equal(t, data.Value, response.Data.Value)
+		assert.Equal(t, data.Key, response.Data.Key)
 	})
 	t.Run("Success without meta", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := map[string]string{"key": "value"}
+		type testResult struct {
+			Key   string
+			Value string
+		}
+		data := testResult{Key: "key", Value: "value"}
 		WriteJsonSuccess(w, data)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
-		var response Success
+		var response Success[testResult]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 
-		// Need to cast response.Data to map to check content
-		responseData, ok := response.Data.(map[string]any)
-		assert.True(t, ok)
-		assert.Equal(t, "value", responseData["key"])
+		assert.Equal(t, data.Key, response.Data.Key)
+		assert.Equal(t, data.Value, response.Data.Value)
 		assert.Nil(t, response.Meta)
 	})
 
@@ -202,9 +207,9 @@ func TestWriteJsonSuccess(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, w.Code)
 
-		var response Success
+		var response Success[uuid.UUID]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, uuidToReturn.String(), response.Data)
+		assert.Equal(t, uuidToReturn, response.Data)
 	})
 }

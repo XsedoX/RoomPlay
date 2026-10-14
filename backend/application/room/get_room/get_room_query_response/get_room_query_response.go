@@ -23,6 +23,7 @@ type RoomSongListDto struct {
 	Id            uuid.UUID `json:"id"`
 	State         string    `json:"state"`
 	VoteStatus    string    `json:"voteStatus"`
+	AddedAtUtc    time.Time `json:"addedAtUtc"`
 }
 type PlayingSongDto struct {
 	Title         string    `json:"title"`

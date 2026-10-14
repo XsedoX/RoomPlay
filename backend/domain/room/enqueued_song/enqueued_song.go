@@ -25,11 +25,14 @@ func (s EnqueuedSong) AddedBy() user_id.UserId {
 }
 
 func (s EnqueuedSong) AddedAtUtc() time.Time {
-	return s.addedAtUtc
+	return s.addedAtUtc.UTC()
 }
 
 func (s EnqueuedSong) StartedAtUtc() *time.Time {
-	return s.startedAtUtc
+	if s.startedAtUtc == nil {
+		return nil
+	}
+	return new(s.startedAtUtc.UTC())
 }
 
 func (s EnqueuedSong) State() enqueued_song_state.EnqueuedSongState {
@@ -57,9 +60,12 @@ func HydrateEnqueuedSong(
 	votes int8,
 	addedBy user_id.UserId,
 ) *EnqueuedSong {
+	if startedAtUtc != nil {
+		startedAtUtc = new(startedAtUtc.UTC())
+	}
 	result := &EnqueuedSong{
 		songData:     songData,
-		addedAtUtc:   addedAtUtc,
+		addedAtUtc:   addedAtUtc.UTC(),
 		startedAtUtc: startedAtUtc,
 		state:        state,
 		votes:        votes,
@@ -83,4 +89,34 @@ func NewEnqueuedSong(
 	}
 	result.SetId(enqueued_song_id.NewEnqueuedSongId())
 	return result
+}
+
+func (s EnqueuedSong) Equal(o EnqueuedSong) bool {
+	if s.Id() != o.Id() {
+		return false
+	}
+	if !s.songData.Equal(o.songData) {
+		return false
+	}
+	if !nearlyEqual(s.addedAtUtc, o.addedAtUtc, time.Second) {
+		return false
+	}
+	if (s.startedAtUtc == nil) != (o.startedAtUtc == nil) {
+		return false
+	}
+	if s.startedAtUtc != nil && !nearlyEqual(*s.startedAtUtc, *o.startedAtUtc, time.Second) {
+		return false
+	}
+	if s.state != o.state || s.votes != o.votes || s.addedBy != o.addedBy {
+		return false
+	}
+	return true
+}
+
+func nearlyEqual(a, b time.Time, d time.Duration) bool {
+	diff := a.Sub(b)
+	if diff < 0 {
+		diff = -diff
+	}
+	return diff <= d
 }

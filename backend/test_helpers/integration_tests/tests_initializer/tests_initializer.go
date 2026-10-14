@@ -7,7 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/XsedoX/RoomPlay/domain/user"
+	"github.com/XsedoX/RoomPlay/application/application_helpers"
+	"github.com/XsedoX/RoomPlay/application/slice_extensions"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/init_database"
 	"github.com/XsedoX/RoomPlay/presentation/api_server"
 	"github.com/XsedoX/RoomPlay/presentation/application_dependencies"
@@ -19,15 +20,16 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	PgContainer  *PostgresContainer
-	TestServer   *api_server.Server
-	ctx          context.Context
-	InjectedUser = seeder.SeedData.Users[0]
+	PgContainer            *PostgresContainer
+	TestServer             *api_server.Server
+	ctx                    context.Context
+	InjectedUser           = seeder.SeedData.Users[0]
+	InjectedUserRoom, _    = slice_extensions.GetRoomById(seeder.SeedData.Rooms, *InjectedUser.RoomId())
+	InjectMusicDataService func() *mock_music_data_provider_service.MockMusicDataProviderService
 )
 
 func InitializeDatabaseContainer() {
@@ -112,21 +114,12 @@ func InitializeApiServer(m *testing.M) {
 
 	InitializeDatabaseContainer()
 	configuration := mock_configuration.MockConfiguration{}
-	mockMusicDataService := mock_music_data_provider_service.MockMusicDataProviderService{}
-	mockMusicDataService.On(
-		"SearchSongsByQuery",
-		mock.Anything,
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*string"),
-		mock.AnythingOfType("uint8"),
-	).Return(&seeder.ExternalSongData, nil)
 
 	db := PgContainer.db
 	InjectedUserId := InjectedUser.Id()
 	injectedUserClaim := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), user.IdClaimContextKeyName, &InjectedUserId)
+			ctx := context.WithValue(r.Context(), application_helpers.IdClaimContextKeyName, &InjectedUserId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -136,7 +129,9 @@ func InitializeApiServer(m *testing.M) {
 		db,
 		&configuration,
 	)
-	infrastructureDependencies.CachingSongDecorator = &mockMusicDataService
+	if InjectMusicDataService != nil {
+		infrastructureDependencies.CachingSongDecorator = InjectMusicDataService()
+	}
 	applicationDependencies := application_dependencies.ConstructApplicationDependencies(
 		infrastructureDependencies,
 		&configuration,

@@ -23,17 +23,17 @@ func NewJoinRoomPasswordCommandHandler(roomRepository i_room_repository.IRoomRep
 func (handler *JoinRoomPasswordCommandHandler) Handle(ctx context.Context, command *join_room_password_command.JoinRoomPasswordCommand) error {
 	userId, ok := application_helpers.GetUserIdFromContext(ctx)
 	if !ok {
-		return application_helpers.NewMissingUserIdInContextError
+		return application_helpers.NewMissingUserIdInContextError("JoinRoomPasswordCommandHandler.Handle")
 	}
 	err := handler.unitOfWork.ExecuteTransaction(ctx, func(ctx context.Context) error {
-		roomId, getRoomIdErr := handler.roomRepository.GetRoomIdByNameAndPassword(ctx, command.RoomName, command.RoomPassword, handler.unitOfWork.GetQueryer())
+		roomId, getRoomIdErr := handler.roomRepository.GetRoomIdByNameAndPassword(ctx, command.RoomName, command.RoomPassword, handler.unitOfWork.GetQueryer(ctx))
 		if getRoomIdErr != nil {
 			return application_error.NewApplicationError("JoinRoomPasswordCommandHandler.GetRoomIdByNameAndPassword",
 				"Room with given name and password does not exist.",
 				getRoomIdErr,
 				application_error_type.NotFound)
 		}
-		joinRoomErr := handler.roomRepository.JoinRoomById(ctx, *userId, *roomId, handler.unitOfWork.GetQueryer())
+		joinRoomErr := handler.roomRepository.JoinRoomById(ctx, *userId, *roomId, handler.unitOfWork.GetQueryer(ctx))
 		if joinRoomErr != nil {
 			return application_error.NewApplicationError("JoinRoomPasswordCommandHandler.JoinRoomById",
 				"Something went wrong while joining the room.",

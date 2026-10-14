@@ -2,53 +2,71 @@ package search_song_query_handler
 
 import (
 	"context"
+	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/XsedoX/RoomPlay/application/dtos/music_data_response_dto"
 	"github.com/XsedoX/RoomPlay/application/dtos/page_meta_dto"
 	"github.com/XsedoX/RoomPlay/application/song/search_song/search_song_query"
+	"github.com/XsedoX/RoomPlay/domain/token"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/cache/caching_song_decorator"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_external_authentication_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_cache"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (
-	*mock_unit_of_work.MockUnitOfWork,
-	*mock_music_data_provider_service.MockMusicDataProviderService,
-	*mock_external_credentials_repository.MockExternalCredentialsRepository,
-	user_id.UserId,
-	context.Context,
+	mockUoW *mock_unit_of_work.MockUnitOfWork,
+	mockMusicDataProvider *mock_music_data_provider_service.MockMusicDataProviderService,
+	mockExternalCredentialsRepository *mock_external_credentials_repository.MockExternalCredentialsRepository,
+	userId user_id.UserId,
+	ctx context.Context,
+	mockSongsCache *mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto],
+	mockExternalSongsCache *mock_cache.MockCache[*music_data_response_dto.SongDataByIdResponseDto],
+	mockExternalAuthenticationService *mock_external_authentication_service.MockExternalAuthenticationService,
 ) {
-	mockUoW := new(mock_unit_of_work.MockUnitOfWork)
-	mockMusicDataProvider := new(mock_music_data_provider_service.MockMusicDataProviderService)
-	userId, ctx := test_helpers.AddUserIdToContext(context.Background())
-	mockExternalCredentialsRepository := new(mock_external_credentials_repository.MockExternalCredentialsRepository)
+	mockUoW = new(mock_unit_of_work.MockUnitOfWork)
+	mockMusicDataProvider = new(mock_music_data_provider_service.MockMusicDataProviderService)
+	userId, ctx = test_helpers.AddUserIdToContext(context.Background())
+	mockExternalCredentialsRepository = new(mock_external_credentials_repository.MockExternalCredentialsRepository)
+	mockSongsCache = new(mock_cache.MockCache[*music_data_response_dto.MusicDataResponseDto])
+	mockExternalSongsCache = new(mock_cache.MockCache[*music_data_response_dto.SongDataByIdResponseDto])
+	mockExternalAuthenticationService = new(mock_external_authentication_service.MockExternalAuthenticationService)
 
 	defer func() {
 		mockUoW.AssertExpectations(t)
 		mockMusicDataProvider.AssertExpectations(t)
 		mockExternalCredentialsRepository.AssertExpectations(t)
+		mockSongsCache.AssertExpectations(t)
+		mockExternalSongsCache.AssertExpectations(t)
+		mockExternalAuthenticationService.AssertExpectations(t)
 	}()
-
-	return mockUoW, mockMusicDataProvider, mockExternalCredentialsRepository, userId, ctx
+	return
 }
 
-func TestSearchSongQueryHandler(t *testing.T) {
+func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
 		mockUoW,
 			mockMusicDataProvider,
 			mockExternalCredentialsRepository,
 			userId,
-			ctx := setupMocks(t)
+			ctx,
+			mockSongsCache,
+			mockExternalSongsCache,
+			mockAuthService := setupMocks(t)
 
-		accessToken := "access_token"
+		accessToken := token.HydrateToken("access_token", time.Now().Add(time.Hour*1))
 		queryString := "test query"
 		musicProviderResponse := &music_data_response_dto.MusicDataResponseDto{
-			Songs: []music_data_response_dto.SongDataResponseDto{
+			Songs: []music_data_response_dto.SearchSongDataResponseDto{
 				{
 					VideoId:       gofakeit.ID(),
 					Title:         gofakeit.SongName(),
@@ -79,24 +97,61 @@ func TestSearchSongQueryHandler(t *testing.T) {
 		mockUoW.On("GetQueryer").Return(nil)
 
 		mockExternalCredentialsRepository.On(
-			"AccessTokenByUserId",
+			"GetAccessTokenByUserId",
 			ctx,
 			userId,
-			mockUoW.GetQueryer(),
+			mockUoW.GetQueryer(ctx),
 		).Return(accessToken, nil)
 
 		mockMusicDataProvider.On(
 			"SearchSongsByQuery",
 			ctx,
-			accessToken,
+			accessToken.Value(),
 			queryString,
 			(*string)(nil),
 			uint8(3)).Return(musicProviderResponse, nil)
 
+		mockSongsCache.On(
+			"Get",
+			queryString,
+			ctx,
+			mockUoW.GetQueryer(ctx),
+		).Return(nil, sql.ErrNoRows)
+
+		mockSongsCache.On(
+			"Set",
+			mock.Anything,
+			mock.Anything,
+			ctx,
+			mockUoW.GetQueryer(ctx),
+		).Return(nil)
+
+		mockExternalSongsCache.On(
+			"Set",
+			mock.Anything,
+			mock.Anything,
+			ctx,
+			mockUoW.GetQueryer(ctx),
+		).Return(nil)
+
+		mockAuthService.On(
+			"RefreshAccessTokenWithExternalProvider",
+			ctx,
+			userId,
+		).Return(accessToken, nil)
+
+		cachingSongDecorator := caching_song_decorator.NewCachingSongDecorator(
+			mockMusicDataProvider,
+			mockSongsCache,
+			mockUoW,
+			mockExternalSongsCache,
+		)
+
 		handler := NewSearchSongQueryHandler(
 			mockUoW,
-			mockMusicDataProvider,
+			cachingSongDecorator,
 			mockExternalCredentialsRepository,
+			mockAuthService,
 		)
 		query := search_song_query.SearchSongQuery{
 			Query:         "test query",
