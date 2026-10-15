@@ -34,7 +34,7 @@ async function forceLogout() {
 }
 
 export function useAppWebSocket(upgradeToWebSocketEndpoint: string) {
-  const url = import.meta.env['VITE_API_BASE_URL'] + upgradeToWebSocketEndpoint;
+  const url = import.meta.env['VITE_API_WS_URL'] + upgradeToWebSocketEndpoint;
   // At most one refresh per disconnect round, so an outage can't hammer /refresh.
   let refreshAttemptedThisRound = false;
 
