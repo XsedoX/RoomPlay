@@ -43,7 +43,7 @@
     "vuetify": "^4.2.3"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^13.2.1",
+    "@cucumber/cucumber": "^13.3.0",
     "@pinia/testing": "^1.0.3",
     "@playwright/test": "^1.63.0",
     "@prettier/plugin-oxc": "^0.2.3",
