@@ -42,7 +42,7 @@
         "@vue/tsconfig": "^0.9.1",
         "eslint": "^10.12.0",
         "eslint-plugin-oxlint": "^1.86.0",
-        "eslint-plugin-playwright": "^2.12.0",
+        "eslint-plugin-playwright": "^2.12.1",
         "eslint-plugin-vue": "^10.11.1",
         "jiti": "^2.7.0",
         "jsdom": "^29.1.1",
@@ -709,7 +709,7 @@
 
     "eslint-plugin-oxlint": ["eslint-plugin-oxlint@1.86.0", "", { "dependencies": { "jsonc-parser": "^3.3.1" }, "peerDependencies": { "oxlint": "~1.86.0" } }, "sha512-AYBDGxR/a8kJmUeZBZ98TF5+Kihg8LvWU4EEYoIv5nsEml18kXCD9b4RsqxLz4BiXD7PcrvrCO0/t16NmaFR1A=="],
 
-    "eslint-plugin-playwright": ["eslint-plugin-playwright@2.12.0", "", { "dependencies": { "globals": "^17.3.0" }, "peerDependencies": { "eslint": ">=8.40.0" } }, "sha512-7HpSKR/D2oCH4RKRauFskcrnDrHvLQKopW7Nen8lqrFZtx/SB+FgqVaH+zyQd32noZSZy9Lrsa+DsYrVUpn6hg=="],
+    "eslint-plugin-playwright": ["eslint-plugin-playwright@2.12.1", "", { "dependencies": { "globals": "^17.3.0" }, "peerDependencies": { "eslint": ">=8.40.0" } }, "sha512-JhavNuYBIq7SE/Zg9Esf9RGHkXoDbzrEKS383cowzMyvZ4JMbmdNCN6CoW+RU1Cjzwcoea1tou0je58uXmT/9A=="],
 
     "eslint-plugin-prettier": ["eslint-plugin-prettier@5.5.6", "", { "dependencies": { "prettier-linter-helpers": "^1.0.1", "synckit": "^0.11.13" }, "peerDependencies": { "@types/eslint": ">=8.0.0", "eslint": ">=8.0.0", "eslint-config-prettier": ">= 7.0.0 <10.0.0 || >=10.1.0", "prettier": ">=3.0.0" }, "optionalPeers": ["@types/eslint", "eslint-config-prettier"] }, "sha512-ifetmTcxWfz+4qRW3pH/ujdTq2jQIj59AxJMIN26K5avYgU8dxycUETQonWiW+wPrYXA0j3Try0l1CnwVQtDqQ=="],
 
