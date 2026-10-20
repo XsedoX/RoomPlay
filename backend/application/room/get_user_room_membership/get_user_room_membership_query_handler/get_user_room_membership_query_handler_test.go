@@ -10,8 +10,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_room_repository.MockRoomRepository,
@@ -42,10 +42,10 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 
 		resp, err := handler.Handle(ctx)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepo.AssertNumberOfCalls(t, "GetUserMembership", 1)
-		assert.NotNil(t, resp)
+		require.NotNil(t, resp)
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
@@ -58,12 +58,12 @@ func TestGetUserRoomMembershipQueryHandler(t *testing.T) {
 		resp, err := handler.Handle(context.Background())
 
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		mockUoW.AssertExpectations(t)
 		mockRoomRepo.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepo.AssertNumberOfCalls(t, "GetUserMembership", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserRoomMembershipQueryHandler.Handle"), err)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserRoomMembershipQueryHandler.Handle"), err)
 	})
 }

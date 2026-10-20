@@ -68,7 +68,7 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 				application_error_type.Unexpected)
 		}
 
-		refreshTokenValue := handler.encrypter.NewEncryptionKey()
+		refreshTokenValue := handler.encrypter.NewRandomString()
 		userSession := user_session.NewUserSession(userAgg.Id(), deviceEnt.Id())
 		internalCredentials, internalCredentialsErr := internal_credentials.NewInternalCredentials(*userSession, string(refreshTokenValue))
 		if internalCredentialsErr != nil {
@@ -81,7 +81,7 @@ func (handler *RegisterUserCommandHandler) Handle(ctx context.Context, command *
 				newTokenErr,
 				application_error_type.Unexpected)
 		}
-		response.RefreshToken = string(refreshTokenValue)
+		response.RefreshToken = refreshTokenValue
 
 		creds, externalCredentialsErr := external_credentials.NewExternalCredentials(userAgg.Id(),
 			command.CredentialsDto.AccessToken,

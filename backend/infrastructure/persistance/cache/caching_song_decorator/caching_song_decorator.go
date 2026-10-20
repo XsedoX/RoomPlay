@@ -71,7 +71,7 @@ func (c *CachingSongDecorator) SearchSongsByQuery(ctx context.Context, accessTok
 	var result *music_data_response_dto.MusicDataResponseDto
 	cacheErr := c.unitOfWork.ExecuteRead(ctx, func(ctx context.Context) error {
 		var err error
-		result, err = c.cache.Get(cacheKey, ctx, c.unitOfWork.GetQueryer(ctx))
+		result, err = c.cache.GetSimilar(cacheKey, ctx, c.unitOfWork.GetQueryer(ctx))
 		return err
 	})
 	if cacheErr == nil {

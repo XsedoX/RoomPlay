@@ -16,6 +16,7 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/initialize_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/presentation_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
+	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/authentication_mocks/mock_encrypter"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_configuration"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/other_mocks/mock_music_data_provider_service"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/seeder"
@@ -25,11 +26,13 @@ import (
 
 var (
 	PgContainer            *PostgresContainer
+	ValkeyContainer        *VkContainer
 	TestServer             *api_server.Server
 	ctx                    context.Context
 	InjectedUser           = seeder.SeedData.Users[0]
 	InjectedUserRoom, _    = slice_extensions.GetRoomById(seeder.SeedData.Rooms, *InjectedUser.RoomId())
 	InjectMusicDataService func() *mock_music_data_provider_service.MockMusicDataProviderService
+	InjectEncrypter        func() *mock_encrypter.MockEncrypter
 )
 
 func InitializeDatabaseContainer() {
@@ -53,6 +56,14 @@ func InitializeDatabaseContainer() {
 		log.Fatalf("failed to seed database: %v", err)
 	}
 	txx.Commit()
+}
+
+func InitializeValkeyContainer(ctx context.Context) {
+	vcCont, err := SetupValkey(ctx)
+	if err != nil {
+		log.Fatalf("failed to setup valkey: %v", err)
+	}
+	ValkeyContainer = vcCont
 }
 
 func RunTestsWithDatabase(m *testing.M) {
@@ -113,6 +124,7 @@ func InitializeApiServer(m *testing.M) {
 	setup_validation.Initialize()
 
 	InitializeDatabaseContainer()
+	InitializeValkeyContainer(ctx)
 	configuration := mock_configuration.MockConfiguration{}
 
 	db := PgContainer.db
@@ -127,6 +139,7 @@ func InitializeApiServer(m *testing.M) {
 	infrastructureDependencies := infrastructure_dependencies.ConstructInfrastructureDependencies(
 		ctx,
 		db,
+		ValkeyContainer.rdb,
 		&configuration,
 	)
 	if InjectMusicDataService != nil {

@@ -13,8 +13,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_encrypter.MockEncrypter,
@@ -52,7 +52,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		}
 		encryptionKey := "some-random-key"
 		mockUoW.On("GetQueryer").Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("NewRandomString").Return(encryptionKey)
 		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(nil)
 
@@ -60,9 +60,9 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		roomId, err := handler.Handle(ctx, command)
 
 		// Assert
-		assert.NotNil(t, roomId)
+		require.NotNil(t, roomId)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})
 
@@ -79,9 +79,9 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		roomId, err := handler.Handle(context.Background(), command)
 
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, roomId)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("CreateRoomCommandHandler.Handle"), err)
+		require.Error(t, err)
+		require.Nil(t, roomId)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("CreateRoomCommandHandler.Handle"), err)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
@@ -97,7 +97,7 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		repoErr := errors.New("database error")
 		errorCode := "CreateRoomCommandHandler.Handle"
 		encryptionKey := "some-random-key"
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(encryptionKey))
+		mockEncrypter.On("NewRandomString").Return(encryptionKey)
 		mockEncrypter.On("HashAndSalt", command.RoomPassword).Return([]byte("hashedPassword"), nil)
 		mockUoW.On("GetQueryer").Return(nil)
 		mockRoomRepo.On("CreateRoom", ctx, mock.AnythingOfType("*room.Room"), mock.Anything).Return(repoErr)
@@ -106,12 +106,12 @@ func TestCreateRoomCommandHandler(t *testing.T) {
 		roomId, err := handler.Handle(ctx, command)
 
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, roomId)
+		require.Error(t, err)
+		require.Nil(t, roomId)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr), "error should be a CustomError")
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepo.AssertNumberOfCalls(t, "CreateRoom", 1)
 	})

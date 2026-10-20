@@ -1,6 +1,7 @@
 package setup_validation
 
 import (
+	"encoding/base64"
 	"reflect"
 	"regexp"
 	"strings"
@@ -55,6 +56,12 @@ func Initialize() {
 	registerCustomValidation("song_query_validation",
 		"The link is not a youtube/spotify link or is incorrect.",
 		validateSongQuery)
+
+	registerCustomValidation(
+		"web_socket_ticket_validation",
+		"The web socket is incorrect.",
+		validateWebSocketTicket,
+	)
 }
 
 func addCustomTranslation(tag string, translation string) {
@@ -77,6 +84,15 @@ func registerCustomValidation(tag string, translation string, fn validator.Func)
 		panic(err)
 	}
 	addCustomTranslation(tag, translation)
+}
+
+func validateWebSocketTicket(fl validator.FieldLevel) bool {
+	stringValue := fl.Field().String()
+	if len(stringValue) != 43 {
+		return false
+	}
+	raw, err := base64.RawURLEncoding.Strict().DecodeString(stringValue)
+	return err == nil && len(raw) == 32
 }
 
 func validateUserRoleEnum(fl validator.FieldLevel) bool {

@@ -112,7 +112,7 @@ func TestSearchSongQueryHandlerCacheClear(t *testing.T) {
 			uint8(3)).Return(musicProviderResponse, nil)
 
 		mockSongsCache.On(
-			"Get",
+			"GetSimilar",
 			queryString,
 			ctx,
 			mockUoW.GetQueryer(ctx),

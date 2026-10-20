@@ -21,7 +21,6 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -83,15 +82,15 @@ func TestUserRepositoryAdd(t *testing.T) {
 	var userDb user_dao.UserDao
 	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", uuid.UUID(userID))
 	require.NoError(t, err)
-	assert.Equal(t, "John", userDb.Name)
-	assert.Equal(t, "Doe", userDb.Surname)
+	require.Equal(t, "John", userDb.Name)
+	require.Equal(t, "Doe", userDb.Surname)
 
 	// Assert Device
 	var deviceDb device_dao.DeviceDao
 	err = txx.GetContext(ctx, &deviceDb, "SELECT * FROM devices WHERE id = $1", uuid.UUID(deviceID))
 	require.NoError(t, err)
-	assert.Equal(t, "My Device", deviceDb.FriendlyName)
-	assert.Equal(t, uuid.UUID(userID), deviceDb.UserId)
+	require.Equal(t, "My Device", deviceDb.FriendlyName)
+	require.Equal(t, uuid.UUID(userID), deviceDb.UserId)
 }
 
 func TestUserRepositoryGetUserById(t *testing.T) {
@@ -110,10 +109,10 @@ func TestUserRepositoryGetUserById(t *testing.T) {
 
 	// Assert
 	obtainedUserId := u.Id()
-	assert.Equal(t, userID.ToUuid(), obtainedUserId.ToUuid())
-	assert.Equal(t, userToTest.FullName().Name(), u.FullName().Name())
-	assert.Len(t, u.Devices(), 1)
-	assert.Equal(t, deviceID.ToUuid(), u.Devices()[0].Id().ToUuid())
+	require.Equal(t, userID.ToUuid(), obtainedUserId.ToUuid())
+	require.Equal(t, userToTest.FullName().Name(), u.FullName().Name())
+	require.Len(t, u.Devices(), 1)
+	require.Equal(t, deviceID.ToUuid(), u.Devices()[0].Id().ToUuid())
 }
 
 func TestUserRepositoryUpdate(t *testing.T) {
@@ -165,28 +164,28 @@ func TestUserRepositoryUpdate(t *testing.T) {
 	var userDb user_dao.UserDao
 	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", userID)
 	require.NoError(t, err)
-	assert.Equal(t, "Bobby", userDb.Name)
+	require.Equal(t, "Bobby", userDb.Name)
 
 	// Check Role
 	var roleDb string
 	err = txx.QueryRowContext(ctx, "SELECT role FROM users_room_data WHERE user_id = $1", userID).Scan(&roleDb)
 	require.NoError(t, err)
-	assert.Equal(t, "member", roleDb)
+	require.Equal(t, "member", roleDb)
 
 	// Check Boost
 	var boostDb time.Time
 	err = txx.QueryRowContext(ctx, "SELECT boost_used_at_utc FROM users_room_data WHERE user_id = $1", userID).Scan(&boostDb)
 	require.NoError(t, err)
-	assert.WithinDuration(t, boostTime, boostDb, time.Second)
+	require.WithinDuration(t, boostTime, boostDb, time.Second)
 
 	// check device
 	var deviceDb device_dao.DeviceDao
 	err = txx.GetContext(ctx, &deviceDb, "SELECT * FROM devices WHERE id = $1", deviceID)
 	require.NoError(t, err)
-	assert.Equal(t, "My Device", deviceDb.FriendlyName)
-	assert.Equal(t, userID, deviceDb.UserId)
-	assert.Equal(t, deviceDb.Type, device1.DeviceType().String())
-	assert.Equal(t, deviceDb.State, device_state.Online.String())
+	require.Equal(t, "My Device", deviceDb.FriendlyName)
+	require.Equal(t, userID, deviceDb.UserId)
+	require.Equal(t, deviceDb.Type, device1.DeviceType().String())
+	require.Equal(t, deviceDb.State, device_state.Online.String())
 }
 
 func TestGetUserByExternalIdSuccess(t *testing.T) {

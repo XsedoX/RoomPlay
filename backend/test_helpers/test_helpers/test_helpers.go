@@ -38,9 +38,9 @@ func ReadMessageForAction(
 	t.Helper()
 
 	require.NoError(t, conn.SetReadDeadline(time.Now().Add(5*time.Second)))
-	defer func() {
+	t.Cleanup(func() {
 		_ = conn.SetReadDeadline(time.Time{})
-	}()
+	})
 
 	for {
 		_, message, err := conn.ReadMessage()

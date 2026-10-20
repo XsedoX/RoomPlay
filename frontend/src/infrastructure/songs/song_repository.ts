@@ -1,9 +1,7 @@
 import api_client from '../utils/api_client';
 import type ISearchSongRequest from './ISearchSongRequest';
 import type { IRepositoryResponse } from '../utils/IRepositoryResponse';
-import type { IApiProblemDetailsResponse, IApiSuccessResponse } from '../utils/IApiResponse';
-import { useNotificationStore } from '@/stores/notification_store';
-import { TSnackbarColor } from '../utils/TSnackbarColor';
+import type { IApiSuccessResponse } from '../utils/IApiResponse';
 import type { ISearchSongResponse } from './ISearchSongResponse';
 
 const URLS = {
@@ -29,10 +27,7 @@ export const SongRepository = {
         data: response.data.data,
         meta: response.data.meta,
       }))
-      .catch((error) => {
-        const notificationStore = useNotificationStore();
-        const problemDetails = error.response.data as IApiProblemDetailsResponse;
-        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+      .catch(() => {
         return {
           isSuccess: false,
         };

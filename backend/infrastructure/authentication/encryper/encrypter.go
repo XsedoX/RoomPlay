@@ -17,6 +17,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"io"
 
@@ -44,6 +45,11 @@ func (enc *Encrypter) NewEncryptionKey() []byte {
 		panic(err)
 	}
 	return key[:]
+}
+
+func (enc *Encrypter) NewRandomString() string {
+	baseRand := enc.NewEncryptionKey()
+	return base64.RawURLEncoding.EncodeToString(baseRand)
 }
 
 // Encrypt encrypts data using 256-bit AES-GCM.  This both hides the content of

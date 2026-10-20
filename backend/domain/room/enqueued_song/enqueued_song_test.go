@@ -9,7 +9,7 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/go-faker/faker/v4"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewEnqueuedSongSuccess(t *testing.T) {
@@ -30,11 +30,11 @@ func TestNewEnqueuedSongSuccess(t *testing.T) {
 		user_id.NewUserId(),
 	)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, enqueuedSong)
-	assert.WithinDuration(t, enqueuedSong.AddedAtUtc(), time.Now().UTC(), 1*time.Second)
-	assert.Nil(t, enqueuedSong.StartedAtUtc())
-	assert.Equal(t, int8(0), enqueuedSong.Votes())
-	assert.Equal(t, enqueued_song_state.Enqueued, enqueuedSong.State())
-	assert.NotNil(t, enqueuedSong.Id())
+	require.NoError(t, err)
+	require.NotNil(t, enqueuedSong)
+	require.WithinDuration(t, enqueuedSong.AddedAtUtc(), time.Now().UTC(), 1*time.Second)
+	require.Nil(t, enqueuedSong.StartedAtUtc())
+	require.Equal(t, int8(0), enqueuedSong.Votes())
+	require.Equal(t, enqueued_song_state.Enqueued, enqueuedSong.State())
+	require.NotNil(t, enqueuedSong.Id())
 }

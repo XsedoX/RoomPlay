@@ -16,7 +16,6 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -88,14 +87,14 @@ func TestExternalCredentialsRepositoryGrant(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	assert.Equal(t, userId.ToUuid(), storedCreds.UserID)
-	assert.Equal(t, externalId, storedCreds.ExternalId)
-	assert.Equal(t, []byte("encrypted_"+accessToken), storedCreds.AccessToken)
-	assert.Equal(t, []byte("encrypted_"+refreshToken), storedCreds.RefreshToken)
-	assert.Equal(t, music_provider.YouTube.String(), storedCreds.MusicProvider)
+	require.Equal(t, userId.ToUuid(), storedCreds.UserID)
+	require.Equal(t, externalId, storedCreds.ExternalId)
+	require.Equal(t, []byte("encrypted_"+accessToken), storedCreds.AccessToken)
+	require.Equal(t, []byte("encrypted_"+refreshToken), storedCreds.RefreshToken)
+	require.Equal(t, music_provider.YouTube.String(), storedCreds.MusicProvider)
 	// Compare times with small delta to account for DB roundtrip precision
-	assert.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
-	assert.WithinDuration(t, time.Now().UTC(), storedCreds.IssuedAtUtc, 5*time.Second)
+	require.WithinDuration(t, accessTokenExpiresAt, storedCreds.AccessTokenExpiresAtUtc, time.Second)
+	require.WithinDuration(t, time.Now().UTC(), storedCreds.IssuedAtUtc, 5*time.Second)
 	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 2)
 }
 
@@ -123,7 +122,7 @@ func TestAccessTokenByUserId(t *testing.T) {
 	accessTokenFromRepo, err := repo.GetAccessTokenByUserId(ctx, userId, txx)
 
 	require.NoError(t, err)
-	assert.Equal(t, decryptedAccessToken, accessTokenFromRepo.Value())
+	require.Equal(t, decryptedAccessToken, accessTokenFromRepo.Value())
 	mockEncrypter.AssertNumberOfCalls(t, "Decrypt", 1)
 }
 
@@ -161,7 +160,7 @@ func TestRefreshAccessToken(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	assert.Equal(t, []byte("encrypted_"+dto.AccessToken), storedCredsAfter.AccessToken)
-	assert.WithinDuration(t, dto.AccessTokenExpiresAtUtc, storedCredsAfter.AccessTokenExpiresAtUtc, time.Second)
+	require.Equal(t, []byte("encrypted_"+dto.AccessToken), storedCredsAfter.AccessToken)
+	require.WithinDuration(t, dto.AccessTokenExpiresAtUtc, storedCredsAfter.AccessTokenExpiresAtUtc, time.Second)
 	mockEncrypter.AssertNumberOfCalls(t, "Encrypt", 1)
 }

@@ -21,7 +21,7 @@ func (m *MockCache[T]) Remove(key string, ctx context.Context, queryer i_queryer
 	return args.Error(0)
 }
 
-func (m *MockCache[T]) Get(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {
+func (m *MockCache[T]) GetSimilar(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {
 	args := m.Called(key, ctx, queryer)
 	if args.Get(0) == nil {
 		var zero T

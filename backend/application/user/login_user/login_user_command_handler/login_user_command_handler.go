@@ -76,7 +76,7 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 				application_error_type.Unexpected)
 		}
 
-		refreshTokenValue := handler.encrypter.NewEncryptionKey()
+		refreshTokenValue := handler.encrypter.NewRandomString()
 		userSession := user_session.NewUserSession(userFromDb.Id(), deviceId)
 		internalCredentials, internalCredsErr := internal_credentials.NewInternalCredentials(*userSession, string(refreshTokenValue))
 		if internalCredsErr != nil {
@@ -90,7 +90,7 @@ func (handler *LoginUserCommandHandler) Handle(ctx context.Context, command *log
 				newTokenErr,
 				application_error_type.Unexpected)
 		}
-		response.RefreshToken = string(refreshTokenValue)
+		response.RefreshToken = refreshTokenValue
 
 		var tokenErr error
 		response.AccessToken, tokenErr = handler.jwtProvider.GenerateToken(userFromDb.Id())

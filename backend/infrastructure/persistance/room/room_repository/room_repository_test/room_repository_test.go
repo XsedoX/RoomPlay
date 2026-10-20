@@ -24,7 +24,6 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -147,21 +146,21 @@ func TestRoomRepositoryCreateRoom(t *testing.T) {
 	}
 	err = txx.GetContext(ctx, &storedRoom, "SELECT id, name, password, qr_code_hash, created_at_utc FROM rooms WHERE id = $1", uuid.UUID(roomID))
 	require.NoError(t, err)
-	assert.Equal(t, roomName, storedRoom.Name)
-	assert.Equal(t, hashedPassword, storedRoom.Password)
-	assert.Equal(t, []byte(qrCode), storedRoom.QrCodeHash)
+	require.Equal(t, roomName, storedRoom.Name)
+	require.Equal(t, hashedPassword, storedRoom.Password)
+	require.Equal(t, []byte(qrCode), storedRoom.QrCodeHash)
 
 	// Assert User Updated
 	var userRoomID uuid.UUID
 	err = txx.QueryRowContext(ctx, "SELECT room_id FROM users_room_data WHERE user_id = $1", uuid.UUID(userID)).Scan(&userRoomID)
 	require.NoError(t, err)
-	assert.Equal(t, uuid.UUID(roomID), userRoomID)
+	require.Equal(t, uuid.UUID(roomID), userRoomID)
 
 	// Assert User Role
 	var role string
 	err = txx.QueryRowContext(ctx, "SELECT role FROM users_room_data WHERE user_id = $1 AND room_id = $2", uuid.UUID(userID), uuid.UUID(roomID)).Scan(&role)
 	require.NoError(t, err)
-	assert.Equal(t, "host", role)
+	require.Equal(t, "host", role)
 }
 
 func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
@@ -185,22 +184,22 @@ func TestRoomRepositoryGetRoomByUserId(t *testing.T) {
 			*usersRoomId,
 		)
 
-	assert.Equal(t, usersRoom.Name(), roomDao.Name)
+	require.Equal(t, usersRoom.Name(), roomDao.Name)
 	usersRole := userToTest.Role().String()
-	assert.Equal(t, *usersRole, roomDao.UserRole)
+	require.Equal(t, *usersRole, roomDao.UserRole)
 	songsInRoom := usersRoom.EnqueuedSongs()
-	assert.Len(t, songsInRoom, len(roomDao.SongDaos))
+	require.Len(t, songsInRoom, len(roomDao.SongDaos))
 
 	if len(roomDao.SongDaos) == 0 {
 		return
 	}
 	songDao := roomDao.SongDaos[0]
 	songFromDb, _ := slice_extensions.GetEnqueuedSongById(seeder.SeedData.Songs, enqueued_song_id.EnqueuedSongId(songDao.Id))
-	assert.Equal(t, songFromDb.SongData().Title(), songDao.Title)
-	assert.Equal(t, songFromDb.SongData().Author(), songDao.Author)
+	require.Equal(t, songFromDb.SongData().Title(), songDao.Title)
+	require.Equal(t, songFromDb.SongData().Author(), songDao.Author)
 	userThatAddedSong, _ := slice_extensions.GetUserById(seeder.SeedData.Users, songFromDb.AddedBy())
-	assert.Equal(t, userThatAddedSong.FullName().String(), songDao.AddedBy) // Concat name + surname
-	assert.Equal(t, vote_status.Upvoted.String(), songDao.VoteStatus)
+	require.Equal(t, userThatAddedSong.FullName().String(), songDao.AddedBy) // Concat name + surname
+	require.Equal(t, vote_status.Upvoted.String(), songDao.VoteStatus)
 	require.WithinDuration(t, songFromDb.AddedAtUtc(), songDao.AddedAtUtc, time.Second)
 }
 
@@ -246,7 +245,7 @@ func TestRoomRepositoryGetRoomIdByNameAndPassword(t *testing.T) {
 	var isUserInRoom bool
 	err = txx.GetContext(ctx, &isUserInRoom, "SELECT EXISTS(SELECT 1 FROM users_room_data WHERE user_id = $1)", uuid.UUID(userIdToLeaveRoomFrom))
 	require.NoError(t, err)
-	assert.False(t, isUserInRoom)
+	require.False(t, isUserInRoom)
 }
 
 func TestRoomRepositoryLeaveRoom(t *testing.T) {
@@ -273,7 +272,7 @@ func TestRoomRepositoryLeaveRoom(t *testing.T) {
 	var userDb user_dao.UserDao
 	err = txx.GetContext(ctx, &userDb, "SELECT * FROM users WHERE id = $1", userID)
 	require.NoError(t, err)
-	assert.Nil(t, userDb.RoomId)
+	require.Nil(t, userDb.RoomId)
 }
 
 func TestRoomRepositoryJoinRoomById(t *testing.T) {
@@ -301,7 +300,7 @@ func TestRoomRepositoryJoinRoomById(t *testing.T) {
 	var role string
 	err = txx.QueryRowContext(ctx, `SELECT role FROM users_room_data WHERE user_id = $1 AND room_id = $2`, userID, roomID).Scan(&role)
 	require.NoError(t, err)
-	assert.Equal(t, "member", role)
+	require.Equal(t, "member", role)
 }
 
 func buildFakeSongData(provider music_provider.MusicProvider) song_data.SongData {

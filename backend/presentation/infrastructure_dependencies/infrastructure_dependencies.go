@@ -26,13 +26,16 @@ import (
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/external_credentials_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/internal_credentials/internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/room/room_repository"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/short_lived_cache"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/unit_of_work"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/user/user_repository"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/client_message/client_message_publisher"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/connect_room_web_socket_service"
 	"github.com/XsedoX/RoomPlay/infrastructure/websocket/hubs/hub"
+	web_socket_ticket "github.com/XsedoX/RoomPlay/infrastructure/websocket/websocket_ticket"
 	"github.com/XsedoX/RoomPlay/infrastructure/youtube_music_data_provider"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
 
 type InfrastructureDependencies struct {
@@ -50,11 +53,13 @@ type InfrastructureDependencies struct {
 	ClientMessagePublisher        client_message_publisher.IClientMessagePublisher
 	MainHub                       hub.IHub
 	ConnectRoomWebSocketService   connect_room_web_socket_service.IConnectRoomWebSocketService
+	WebSocketTicketCache          short_lived_cache.IShortLivedCache[web_socket_ticket.WebSocketTicket]
 }
 
 func ConstructInfrastructureDependencies(
 	ctx context.Context,
 	db *sqlx.DB,
+	rdb *redis.Client,
 	config config.IConfiguration,
 ) *InfrastructureDependencies {
 	go cache_cleanup_worker.StartCacheCleanupWorker(ctx, db, time.Hour, time.Minute*15)
@@ -92,6 +97,7 @@ func ConstructInfrastructureDependencies(
 	internalCredentialsRepository := internal_credentials_repository.NewInternalCredentialsRepository(encrypter)
 	roomRepository := room_repository.NewRoomRepository(encrypter)
 
+	webSocketTicketCache := short_lived_cache.NewShortLivedCache[web_socket_ticket.WebSocketTicket](rdb)
 	return &InfrastructureDependencies{
 		ClientMessagePublisher:        clientMessagePublisher,
 		Encrypter:                     encrypter,
@@ -106,5 +112,6 @@ func ConstructInfrastructureDependencies(
 		ApplicationContext:            ctx,
 		DomainEventPublisher:          domainEventPublisher,
 		MainHub:                       mainHub,
+		WebSocketTicketCache:          webSocketTicketCache,
 	}
 }

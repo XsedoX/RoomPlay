@@ -50,7 +50,7 @@ func (h *SongEnqueuedWebsocketEventHandler) Handle(event shared.IDomainEvent) {
 		h.unitOfWork.GetQueryer(h.appContext),
 	)
 	if err != nil {
-		// log an error
+		// TODO: log an error
 		log.Printf("Error retrieving addedBy for enqueued song: %v", err)
 		return
 	}

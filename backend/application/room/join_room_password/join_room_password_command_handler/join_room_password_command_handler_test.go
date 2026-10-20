@@ -13,8 +13,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/go-faker/faker/v4"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_room_repository.MockRoomRepository,
@@ -41,11 +41,11 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 
 		err := handler.Handle(context.Background(), command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("JoinRoomPasswordCommandHandler.Handle"), err)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("JoinRoomPasswordCommandHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenGetRoomIdByNameAndPasswordFails", func(t *testing.T) {
 		mockRoomRepository, mockUnitOfWork := setupMocks(t)
@@ -64,14 +64,14 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 
 		err := handler.Handle(ctx, command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 0)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 	})
 	t.Run("ShouldReturnErrorWhenJoinRoomByIdFails", func(t *testing.T) {
 		mockRoomRepository, mockUnitOfWork := setupMocks(t)
@@ -94,14 +94,14 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 
 		err := handler.Handle(ctx, command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 2)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomIdByNameAndPassword", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "JoinRoomById", 1)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 	})
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
 		mockRoomRepository, mockUnitOfWork := setupMocks(t)
@@ -123,6 +123,6 @@ func TestJoinRoomPasswordCommandHandler(t *testing.T) {
 
 		err := handler.Handle(ctx, command)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }

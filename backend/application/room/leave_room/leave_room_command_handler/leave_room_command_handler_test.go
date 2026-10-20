@@ -12,8 +12,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_room_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_room_repository.MockRoomRepository,
@@ -43,7 +43,7 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 
 		err := handler.Handle(ctx, command)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "LeaveRoom", 1)
 	})
@@ -57,10 +57,10 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 		err := handler.Handle(context.Background(), command)
 
 		// Assert
-		assert.Error(t, err)
+		require.Error(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "LeaveRoom", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("LeaveRoomCommandHandler.Handle"), err)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("LeaveRoomCommandHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenUserRepositoryFails", func(t *testing.T) {
 		mockRoomRepository, mockUoW, userId, ctx := setupMocks(t)
@@ -73,14 +73,14 @@ func TestLeaveRoomCommandHandler(t *testing.T) {
 
 		err := handler.Handle(ctx, command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		var customErr *application_error.ApplicationError
 		mockUoW.AssertExpectations(t)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "LeaveRoom", 1)
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 	})
 }

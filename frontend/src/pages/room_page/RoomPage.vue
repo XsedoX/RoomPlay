@@ -13,7 +13,7 @@ import { Time } from '@/shared/Time.ts';
 import { useIntervalFn } from '@vueuse/core';
 import { RoomRepository } from '@/infrastructure/room/room_repository';
 
-const { enqueueSong } = RoomRepository.useRoomWebSocket();
+const { enqueueSong, reconnectAttempt, reconnectDelay, status } = RoomRepository.useRoomWebSocket();
 const userStore = useUserStore();
 const roomStore = useRoomStore();
 const router = useRouter();
@@ -24,6 +24,10 @@ const songTimerPercentage = computed(() => {
     (playingSongMomentTimer.value!.totalSeconds() / roomStore.playingSong.lengthSeconds) * 100,
   );
 });
+
+console.log('RoomPage.vue: reconnectAttempt', reconnectAttempt);
+console.log('RoomPage.vue: reconnectDelay', reconnectDelay);
+console.log('RoomPage.vue: status', status);
 
 onMounted(async () => {
   const isError = await roomStore.getRoom();

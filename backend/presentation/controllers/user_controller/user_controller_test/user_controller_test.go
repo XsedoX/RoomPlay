@@ -11,7 +11,6 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/presentation_helpers/constants"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,12 +29,12 @@ func TestGetUserData(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, http.StatusOK, w.Code)
 
 	var responseWrapper test_helpers.TestResponseWrapper[get_user_query_response.GetUserDataQueryResponse]
 	err := json.NewDecoder(w.Body).Decode(&responseWrapper)
 	require.NoError(t, err)
 
-	assert.Equal(t, userName, responseWrapper.Data.Name)
-	assert.Equal(t, userSurname, responseWrapper.Data.Surname)
+	require.Equal(t, userName, responseWrapper.Data.Name)
+	require.Equal(t, userSurname, responseWrapper.Data.Surname)
 }
