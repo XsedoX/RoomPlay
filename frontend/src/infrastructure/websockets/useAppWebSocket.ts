@@ -1,53 +1,77 @@
 import { useWebSocket } from '@vueuse/core';
-import type { IApiWebSocketResponse } from '../utils/IApiResponse';
+import type { IApiSuccessResponse, IApiWebSocketResponse } from '../utils/IApiResponse';
 import { apiWebSocketDispatcher } from './ApiWebSocketActionDispatcher';
-import { useNotificationStore } from '@/stores/notification_store';
-import { TSnackbarColor } from '../utils/TSnackbarColor';
 import type { TOutgoingActionName } from './TOutgoingActionName';
-import { shallowRef } from 'vue';
-import { AuthenticationRepository } from '../authentication/authentication_repository';
-import { useUserStore } from '@/stores/user_store';
-import router from '@/router';
+import { onUnmounted, shallowRef } from 'vue';
+import api_client from '../utils/api_client';
+import type { ApiError } from '../utils/ApiError';
 
-type RefreshResult = Awaited<ReturnType<typeof AuthenticationRepository.refreshToken>>;
+interface IGetWebSocketTokenResponse {
+  token: string;
+}
 
-// Module-scoped so several live sockets never refresh at the same time.
-const inFlight = shallowRef<Promise<RefreshResult | null> | null>(null);
-/**
- * Refreshes the JWT at most once while a refresh is already running.
- * Returns `null` on a transport error (not an auth failure).
- */
-function refreshTokenOnce(): void {
-  if (!inFlight.value) {
-    inFlight.value = AuthenticationRepository.refreshToken()
-      .catch(() => null)
-      .finally(() => {
-        inFlight.value = null;
+export function useAppWebSocket(
+  upgradeToWebSocketEndpoint: string,
+  getWebSocketTicketEndpoint: string,
+) {
+  const upgradeUrl = shallowRef('');
+  const isClosedPermanently = shallowRef(false);
+  const reconnectAttempt = shallowRef(0);
+  const reconnectDelay = shallowRef(1);
+
+  async function fetchTicketAndSetUrl() {
+    if (isClosedPermanently.value) return;
+    await api_client
+      .get<IApiSuccessResponse<IGetWebSocketTokenResponse>>(getWebSocketTicketEndpoint, {
+        silent: true,
+      })
+      .then((response) => {
+        if (isClosedPermanently.value) return;
+        upgradeUrl.value = `${import.meta.env['VITE_API_WS_URL']}${upgradeToWebSocketEndpoint}?token=${response.data.data.token}`;
+        open();
+      })
+      .catch((error: ApiError) => {
+        console.error('Error fetching WebSocket upgrade ticket:', error);
+        upgradeUrl.value = '';
+        if (error.problemDetails?.status !== 401) {
+          scheduleReconnect();
+        }
       });
   }
-}
 
-async function forceLogout() {
-  const userStore = useUserStore();
-  await userStore.logout();
-  await router.replace({ name: 'LoginPage' });
-}
+  let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
-export function useAppWebSocket(upgradeToWebSocketEndpoint: string) {
-  const url = import.meta.env['VITE_API_WS_URL'] + upgradeToWebSocketEndpoint;
-  // At most one refresh per disconnect round, so an outage can't hammer /refresh.
-  let refreshAttemptedThisRound = false;
+  function clearReconnectTimer() {
+    if (reconnectTimer !== undefined) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = undefined;
+    }
+  }
 
+  function scheduleReconnect() {
+    if (isClosedPermanently.value) return;
+    // Ensure only one pending reconnect at a time.
+    if (reconnectTimer !== undefined) return;
+    reconnectDelay.value = Math.min(1000 * 2 ** reconnectAttempt.value, 30000);
+    reconnectAttempt.value++;
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = undefined;
+      fetchTicketAndSetUrl();
+    }, reconnectDelay.value);
+  }
   const {
     send: notWrappedSend,
     close,
+    open,
     status,
-  } = useWebSocket(url, {
-    autoReconnect: true,
-    autoConnect: true,
+    ws: currentWs,
+  } = useWebSocket(upgradeUrl, {
+    // Don't let VueUse auto-open on URL change; we open manually after fetching a ticket.
+    autoConnect: false,
+    immediate: false,
     onConnected: (ws) => {
+      reconnectAttempt.value = 0; // Reset reconnect attempts on successful connection
       console.log('WebSocket connected:', ws);
-      refreshAttemptedThisRound = false;
     },
     onMessage: (_, event) => {
       try {
@@ -56,35 +80,21 @@ export function useAppWebSocket(upgradeToWebSocketEndpoint: string) {
 
         apiWebSocketDispatcher.dispatch(message.actionName, message.payload);
       } catch (error) {
-        const notificationStore = useNotificationStore();
-        notificationStore.showSnackbar(
-          'Something went really badly try refreshing the page or reloging.',
-          TSnackbarColor.ERROR,
-        );
+        console.error('Error parsing WebSocket message:', error);
       }
     },
     onDisconnected: (ws, event) => {
       console.log('WebSocket disconnected:', ws, event);
-    },
-    onError: async (_, event) => {
-      console.log(
-        'WebSocket error occurred. Attempting to refresh token if not already done this round.',
-        event,
-      );
-      if (!refreshAttemptedThisRound) {
-        refreshAttemptedThisRound = true;
-        refreshTokenOnce();
-        const response = await inFlight.value;
-
-        if (response && !response.isSuccess) {
-          // Definitive auth failure (refresh token gone/expired) -> bail out.
-          console.log('WebSocket disconnected due to auth failure. Forcing logout.');
-          await forceLogout();
-          return;
-        }
-        // response === null: transport error, fall through and retry later.
+      // Ignore close events from sockets that were already replaced by a newer one.
+      if (currentWs.value && currentWs.value !== ws) return;
+      if (!isClosedPermanently.value) {
+        scheduleReconnect();
       }
     },
+  });
+  fetchTicketAndSetUrl();
+  onUnmounted(() => {
+    closePermanently();
   });
   function send<TPayload>(actionName: TOutgoingActionName, payload: TPayload) {
     if (status.value === 'OPEN') {
@@ -98,8 +108,17 @@ export function useAppWebSocket(upgradeToWebSocketEndpoint: string) {
       console.error('WebSocket is not open. Cannot send message.');
     }
   }
+  function closePermanently() {
+    upgradeUrl.value = '';
+    isClosedPermanently.value = true;
+    clearReconnectTimer();
+    close();
+  }
   return {
     send,
-    close,
+    close: closePermanently,
+    status,
+    reconnectAttempt,
+    reconnectDelay,
   };
 }

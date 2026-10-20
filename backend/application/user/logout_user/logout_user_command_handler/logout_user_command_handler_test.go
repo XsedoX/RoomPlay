@@ -13,8 +13,8 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_internal_credentials_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_unit_of_work"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_internal_credentials_repository.MockInternalCredentialsRepository,
@@ -47,12 +47,12 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 
 		err := handler.Handle(context.Background(), command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &parsedErr))
-		assert.Equal(t, parsedErr.Code, errCode)
-		assert.Equal(t, parsedErr.Err, errOfRepository)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
+		require.True(t, errors.As(err, &parsedErr))
+		require.Equal(t, parsedErr.Code, errCode)
+		require.Equal(t, parsedErr.Err, errOfRepository)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 1)
 	})
@@ -74,12 +74,12 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 
 		err := handler.Handle(context.Background(), command)
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &parsedErr))
-		assert.Equal(t, parsedErr.Code, errCode)
-		assert.Equal(t, parsedErr.Err, errOfRepository)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
+		require.True(t, errors.As(err, &parsedErr))
+		require.Equal(t, parsedErr.Code, errCode)
+		require.Equal(t, parsedErr.Err, errOfRepository)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserSession", 1)
@@ -97,7 +97,7 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 
 		err := handler.Handle(context.Background(), command)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserIdAndDeviceId", 0)
@@ -117,7 +117,7 @@ func TestLogoutUserCommandHandler(t *testing.T) {
 
 		err := handler.Handle(context.Background(), command)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockUnitOfWork.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireAllTokensByUserId", 0)
 		mockRefreshTokenRepository.AssertNumberOfCalls(t, "RetireTokenByUserSession", 1)

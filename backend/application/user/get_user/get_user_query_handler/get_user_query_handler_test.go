@@ -19,8 +19,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_user_repository"
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/go-faker/faker/v4"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_user_repository.MockUserRepository,
@@ -82,12 +82,12 @@ func TestGetUserQueryHandler(t *testing.T) {
 
 			resp, err := handler.Handle(ctx)
 
-			assert.NoError(t, err)
-			assert.NotNil(t, resp)
+			require.NoError(t, err)
+			require.NotNil(t, resp)
 			mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 			mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
-			assert.Equal(t, resp.Name, userToBeReturned.FullName().Name())
-			assert.Equal(t, resp.Surname, userToBeReturned.FullName().Surname())
+			require.Equal(t, resp.Name, userToBeReturned.FullName().Name())
+			require.Equal(t, resp.Surname, userToBeReturned.FullName().Surname())
 		},
 	)
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
@@ -97,9 +97,9 @@ func TestGetUserQueryHandler(t *testing.T) {
 		// Act
 		userObj, err := handler.Handle(context.Background())
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, userObj)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserDataQueryHandler.Handle"), err)
+		require.Error(t, err)
+		require.Nil(t, userObj)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("GetUserDataQueryHandler.Handle"), err)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 0)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 	})
@@ -114,12 +114,12 @@ func TestGetUserQueryHandler(t *testing.T) {
 		// Act
 		userObj, err := handler.Handle(cont)
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, userObj)
+		require.Error(t, err)
+		require.Nil(t, userObj)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr), "error should be a CustomError")
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr), "error should be a CustomError")
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 	})

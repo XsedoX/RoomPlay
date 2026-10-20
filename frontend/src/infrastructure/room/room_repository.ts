@@ -22,6 +22,7 @@ import { apiWebSocketDispatcher } from '../websockets/ApiWebSocketActionDispatch
 import { TIncomingActionName } from '../websockets/TIncomingActionName';
 import type { IPatchEnqueuedSong } from './responses/IPatchEnqueuedSong';
 import type { ISongListRoomStoreModel } from './ISongListRoomStoreModel';
+import { ApiError } from '../utils/ApiError';
 
 const URLS = {
   createRoom: '/room',
@@ -29,7 +30,8 @@ const URLS = {
   leaveRoom: '/room',
   getUserRoomMembership: '/room/membership',
   joinRoom: '/room/join/password',
-  upgradeToWebSocket: '/room/ws',
+  upgradeToWebSocket: '/room/ws/upgrade',
+  webSocketTicket: '/room/ws/ticket',
 };
 
 export const RoomRepository = {
@@ -42,52 +44,55 @@ export const RoomRepository = {
           data: undefined,
         };
       })
-      .catch((error) => {
-        const notificationStore = useNotificationStore();
-        const problemDetails = error.response.data as IApiProblemDetailsResponse;
-        if (problemDetails.status === HttpCodes.badRequest) {
-          notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+      .catch((error: ApiError) => {
+        if (error.problemDetails === undefined) {
           return {
             isSuccess: false,
           };
         }
-        if (problemDetails.status === HttpCodes.unprocessableEntity) {
-          return {
-            isSuccess: false,
-            validationErrors: problemDetails.validationErrors,
-          };
+        switch (error.problemDetails.status) {
+          case HttpCodes.unprocessableEntity:
+            return { isSuccess: false, validationErrors: error.problemDetails.validationErrors };
+          default:
+            return { isSuccess: false };
         }
-        notificationStore.showSnackbar(problemDetails.title, TSnackbarColor.ERROR);
-        return {
-          isSuccess: false,
-        };
       });
   },
   getRoom: async (): Promise<IRepositoryResponse<IGetRoomResponse>> => {
     return await api_client
-      .get<IApiSuccessResponse<IGetRoomResponse>>(URLS.getRoom)
+      .get<IApiSuccessResponse<IGetRoomResponse>>(URLS.getRoom, { silent: true })
       .then((response) => {
         return {
           isSuccess: true,
           data: response.data.data,
         };
       })
-      .catch((error) => {
+      .catch((error: ApiError) => {
         const notificationStore = useNotificationStore();
-        const problemDetails = error.response.data as IApiProblemDetailsResponse;
-        if (problemDetails.status === HttpCodes.notFound) {
+        if (error.problemDetails === undefined) {
           notificationStore.showSnackbar(
-            'The room you were a member of has either expired or you got kicked or banned from it.',
-            TSnackbarColor.INFO,
+            'Sorry, something went wrong. Please try again later.',
+            TSnackbarColor.ERROR,
           );
           return {
             isSuccess: false,
           };
         }
-        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
-        return {
-          isSuccess: false,
-        };
+        switch (error.problemDetails.status) {
+          case HttpCodes.notFound:
+            notificationStore.showSnackbar(
+              'The room you were a member of has either expired or you got kicked or banned from it.',
+              TSnackbarColor.INFO,
+            );
+            return {
+              isSuccess: false,
+            };
+          default:
+            notificationStore.showSnackbar(error.problemDetails.description, TSnackbarColor.ERROR);
+            return {
+              isSuccess: false,
+            };
+        }
       });
   },
   getUserRoomMembership: async (): Promise<IRepositoryResponse<boolean>> => {
@@ -99,10 +104,7 @@ export const RoomRepository = {
           data: response.data.data,
         };
       })
-      .catch((error) => {
-        const notificationStore = useNotificationStore();
-        const problemDetails = error.response.data as IApiProblemDetailsResponse;
-        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+      .catch(() => {
         return {
           isSuccess: false,
         };
@@ -126,17 +128,17 @@ export const RoomRepository = {
         isSuccess: true,
         data: response.data.data,
       }))
-      .catch((error) => {
-        const notificationStore = useNotificationStore();
-        const problemDetails = error.response.data as IApiProblemDetailsResponse;
-        notificationStore.showSnackbar(problemDetails.description, TSnackbarColor.ERROR);
+      .catch(() => {
         return {
           isSuccess: false,
         };
       });
   },
   useRoomWebSocket: () => {
-    const { send } = useAppWebSocket(URLS.upgradeToWebSocket);
+    const { send, close, reconnectAttempt, reconnectDelay, status } = useAppWebSocket(
+      URLS.upgradeToWebSocket,
+      URLS.webSocketTicket,
+    );
     const notificationStore = useNotificationStore();
     const roomStore = useRoomStore();
 
@@ -146,6 +148,7 @@ export const RoomRepository = {
     const handleSongEnqueuedError = (response: IApiProblemDetailsResponse) => {
       notificationStore.showSnackbar(response.title, TSnackbarColor.ERROR);
     };
+
     const handleEnqueuedSongPatch = (response: IApiJsonPatchResponse<IPatchEnqueuedSong>) => {
       const patch = response.data;
       patch.forEach((operation) => {
@@ -174,6 +177,6 @@ export const RoomRepository = {
       unsubFunctions.forEach((unsub) => unsub());
       unsubFunctions = [];
     });
-    return { enqueueSong };
+    return { enqueueSong, close, reconnectAttempt, reconnectDelay, status };
   },
 };

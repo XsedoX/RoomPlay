@@ -16,7 +16,6 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/tests_initializer"
 	"github.com/go-faker/faker/v4"
 	"github.com/jmoiron/sqlx"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -124,7 +123,7 @@ func TestInternalCredentialsRepositoryRetireTokenByUserSession(t *testing.T) {
 		userSession.DeviceId().ToUuid(),
 	).Scan(&count)
 	require.NoError(t, err)
-	assert.Equal(t, 0, count)
+	require.Equal(t, 0, count)
 }
 
 func TestInternalCredentialsRepositoryRetireAllTokensByUserId(t *testing.T) {
@@ -147,5 +146,5 @@ func TestInternalCredentialsRepositoryRetireAllTokensByUserId(t *testing.T) {
 	`, uID.ToUuid(),
 	).Scan(&count)
 	require.NoError(t, err)
-	assert.Equal(t, 0, count)
+	require.Equal(t, 0, count)
 }

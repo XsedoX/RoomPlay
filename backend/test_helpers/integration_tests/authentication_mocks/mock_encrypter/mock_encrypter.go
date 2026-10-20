@@ -6,6 +6,10 @@ type MockEncrypter struct {
 	mock.Mock
 }
 
+func (m *MockEncrypter) NewRandomString() string {
+	return m.Called().String(0)
+}
+
 func (m *MockEncrypter) Encrypt(plaintext string) (ciphertext []byte, err error) {
 	args := m.Called(plaintext)
 	return args.Get(0).([]byte), args.Error(1)

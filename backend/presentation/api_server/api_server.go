@@ -46,6 +46,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 	apiV1.Get("/auth/google/signin-oidc", dependencies.PresentationDependencies.OidcController().HandleLoginWithGoogle)
 	apiV1.Get("/auth/google/callback", dependencies.PresentationDependencies.OidcController().HandleGoogleCallback)
 	apiV1.Post(constants.RefreshTokenPath, dependencies.PresentationDependencies.AuthenticationController().RefreshToken)
+	apiV1.Get(room_controller.RoomBasePath+room_controller.WebSocketUpgradePath, dependencies.PresentationDependencies.RoomController().UpgradeToWebSockets)
 
 	// Secured routes
 	apiV1.Group(func(r chi.Router) {
@@ -61,7 +62,7 @@ func NewServer(dependencies *initialize_dependencies.ServerDependencies, configu
 			r.Delete("/", dependencies.PresentationDependencies.RoomController().LeaveRoom)
 			r.Get(room_controller.RoomMembershipBasePath, dependencies.PresentationDependencies.RoomController().CheckUserRoomMembership)
 			r.Put(room_controller.JoinRoomPasswordPath, dependencies.PresentationDependencies.RoomController().JoinRoomPassword)
-			r.Get(room_controller.WebSocketUpgradePath, dependencies.PresentationDependencies.RoomController().UpgradeToWebSockets)
+			r.Get(room_controller.WebSocketTicketPath, dependencies.PresentationDependencies.RoomController().GenerateWsTicket)
 		})
 
 		r.Route(song_controller.SongBasePath, func(r chi.Router) {

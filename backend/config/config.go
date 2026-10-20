@@ -19,7 +19,8 @@ type Server struct {
 	Host string `json:"host" envconfig:"SERVER_HOST"`
 }
 type Database struct {
-	ConnectionString string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
+	ConnectionString      string `json:"connectionString" envconfig:"DATABASE_CONNECTION_STRING"`
+	RedisConnectionString string `json:"redisConnectionString" envconfig:"REDIS_CONNECTION_STRING"`
 }
 type Authentication struct {
 	ClientSecret      string `json:"clientSecret" envconfig:"CLIENT_SECRET"`

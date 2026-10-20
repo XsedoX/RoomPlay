@@ -11,7 +11,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewRoomSuccess(t *testing.T) {
@@ -23,17 +23,17 @@ func TestNewRoomSuccess(t *testing.T) {
 	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 	room, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, room)
-	assert.Equal(t, name, room.Name())
-	assert.Equal(t, []byte(password), room.Password())
-	assert.Equal(t, qrCode, room.QrCode())
-	assert.Len(t, room.Members(), 1)
-	assert.Nil(t, room.BoostCooldownSeconds())
-	assert.Equal(t, hostID, room.Members()[0])
-	assert.WithinDuration(t, time.Now().UTC(), room.CreatedAtUtc(), time.Second)
-	assert.Equal(t, uint32(DefaultLifespanSeconds), room.LifespanSeconds())
-	assert.Zero(t, len(room.EnqueuedSongs()))
+	require.NoError(t, err)
+	require.NotNil(t, room)
+	require.Equal(t, name, room.Name())
+	require.Equal(t, []byte(password), room.Password())
+	require.Equal(t, qrCode, room.QrCode())
+	require.Len(t, room.Members(), 1)
+	require.Nil(t, room.BoostCooldownSeconds())
+	require.Equal(t, hostID, room.Members()[0])
+	require.WithinDuration(t, time.Now().UTC(), room.CreatedAtUtc(), time.Second)
+	require.Equal(t, uint32(DefaultLifespanSeconds), room.LifespanSeconds())
+	require.Zero(t, len(room.EnqueuedSongs()))
 }
 
 func TestNewRoomNameIncorrectLength(t *testing.T) {
@@ -47,11 +47,11 @@ func TestNewRoomNameIncorrectLength(t *testing.T) {
 	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 
 	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
-	assert.Error(t, err)
-	assert.IsType(t, &domain_errors.DomainError{}, err)
+	require.Error(t, err)
+	require.IsType(t, &domain_errors.DomainError{}, err)
 	domainError := err.(*domain_errors.DomainError)
-	assert.Equal(t, domainError.Code, "Room.Name.WrongLength")
-	assert.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
+	require.Equal(t, domainError.Code, "Room.Name.WrongLength")
+	require.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
 		NameMinLength,
 		NameMaxLength,
 	))
@@ -59,11 +59,11 @@ func TestNewRoomNameIncorrectLength(t *testing.T) {
 	// Too long name
 	_ = faker.FakeData(&name, options.WithRandomStringLength(NameMaxLength+1))
 	_, err = NewRoom(name, password, qrCode, hostID, &encrypter)
-	assert.Error(t, err)
-	assert.IsType(t, &domain_errors.DomainError{}, err)
+	require.Error(t, err)
+	require.IsType(t, &domain_errors.DomainError{}, err)
 	domainError = err.(*domain_errors.DomainError)
-	assert.Equal(t, domainError.Code, "Room.Name.WrongLength")
-	assert.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
+	require.Equal(t, domainError.Code, "Room.Name.WrongLength")
+	require.Contains(t, domainError.Description, fmt.Sprintf("The room name has to be between %d and %d characters.",
 		NameMinLength,
 		NameMaxLength,
 	))
@@ -81,11 +81,11 @@ func TestNewRoomPasswordIncorrectLength(t *testing.T) {
 	encrypter.On("HashAndSalt", password).Return([]byte(password), nil)
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMinLength-1))
 	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
-	assert.Error(t, err)
-	assert.IsType(t, &domain_errors.DomainError{}, err)
+	require.Error(t, err)
+	require.IsType(t, &domain_errors.DomainError{}, err)
 	domainError := err.(*domain_errors.DomainError)
-	assert.Equal(t, domainError.Code, "Room.Password.WrongLength")
-	assert.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
+	require.Equal(t, domainError.Code, "Room.Password.WrongLength")
+	require.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
 		PasswordMinLength,
 		PasswordMaxLength,
 	))
@@ -93,11 +93,11 @@ func TestNewRoomPasswordIncorrectLength(t *testing.T) {
 	// Too long password
 	_ = faker.FakeData(&password, options.WithRandomStringLength(PasswordMaxLength+1))
 	_, err = NewRoom(name, password, qrCode, hostID, &encrypter)
-	assert.Error(t, err)
-	assert.IsType(t, &domain_errors.DomainError{}, err)
+	require.Error(t, err)
+	require.IsType(t, &domain_errors.DomainError{}, err)
 	domainError = err.(*domain_errors.DomainError)
-	assert.Equal(t, domainError.Code, "Room.Password.WrongLength")
-	assert.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
+	require.Equal(t, domainError.Code, "Room.Password.WrongLength")
+	require.Contains(t, domainError.Description, fmt.Sprintf("The room password has to be between %d and %d characters.",
 		PasswordMinLength,
 		PasswordMaxLength,
 	))
@@ -114,9 +114,9 @@ func TestNewRoomQrCodeEmpty(t *testing.T) {
 	// Too short password
 	_, err := NewRoom(name, password, qrCode, hostID, &encrypter)
 
-	assert.Error(t, err)
-	assert.IsType(t, &domain_errors.DomainError{}, err)
+	require.Error(t, err)
+	require.IsType(t, &domain_errors.DomainError{}, err)
 	domainError := err.(*domain_errors.DomainError)
-	assert.Equal(t, domainError.Code, "Room.QrCode.Empty")
-	assert.Equal(t, domainError.Description, "The room QR code cannot be empty.")
+	require.Equal(t, domainError.Code, "Room.QrCode.Empty")
+	require.Equal(t, domainError.Description, "The room QR code cannot be empty.")
 }

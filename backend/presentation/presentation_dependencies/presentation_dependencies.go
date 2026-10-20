@@ -85,6 +85,8 @@ func ConstructPresentationDependencies(
 		leaveRoomCommandHandler,
 		joinRoomPasswordCommandHandler,
 		infrastructureDependencies.ConnectRoomWebSocketService,
+		infrastructureDependencies.WebSocketTicketCache,
+		infrastructureDependencies.Encrypter,
 	)
 
 	searchSongQueryHandler := applicationDependencies.SearchSongQueryHandler

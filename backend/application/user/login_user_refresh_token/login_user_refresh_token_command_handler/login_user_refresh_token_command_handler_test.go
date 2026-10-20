@@ -23,8 +23,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_user_repository"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_internal_credentials_repository.MockInternalCredentialsRepository,
@@ -74,12 +74,12 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &customErr))
-		assert.Equal(t, errCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, errToBeReturned)
+		require.True(t, errors.As(handlerErr, &customErr))
+		require.Equal(t, errCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, errToBeReturned)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 	})
@@ -116,14 +116,14 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &parsedErr))
-		assert.Equal(t, parsedErr.Err, errToBeReturned.Err)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unauthorized)
-		assert.Equal(t, parsedErr.Title, errToBeReturned.Title)
-		assert.Equal(t, parsedErr.Code, errToBeReturned.Code)
+		require.True(t, errors.As(handlerErr, &parsedErr))
+		require.Equal(t, parsedErr.Err, errToBeReturned.Err)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unauthorized)
+		require.Equal(t, parsedErr.Title, errToBeReturned.Title)
+		require.Equal(t, parsedErr.Code, errToBeReturned.Code)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 	})
@@ -159,13 +159,13 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &parsedErr))
-		assert.Equal(t, parsedErr.Err, userRepositoryErr)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
-		assert.Equal(t, parsedErr.Code, errCodeToReturn)
+		require.True(t, errors.As(handlerErr, &parsedErr))
+		require.Equal(t, parsedErr.Err, userRepositoryErr)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
+		require.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 2)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
@@ -194,7 +194,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		mockInternalCredentialsRepository.
 			On("GetTokenByValue", mock.Anything, tokenCommand, mock.Anything).
 			Return(returnedRefreshToken, nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(uuid.New().String()))
+		mockEncrypter.On("NewRandomString").Return(uuid.New().String())
 		devices := []device.Device{
 			*device.HydrateDevice(returnedRefreshToken.DeviceId(),
 				faker.Word(),
@@ -222,13 +222,13 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &parsedErr))
-		assert.Equal(t, parsedErr.Err, assignTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
-		assert.Equal(t, parsedErr.Code, errCodeToReturn)
+		require.True(t, errors.As(handlerErr, &parsedErr))
+		require.Equal(t, parsedErr.Err, assignTokenErr)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
+		require.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
@@ -257,7 +257,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 		mockInternalCredentialsRepository.
 			On("GetTokenByValue", mock.Anything, tokenCommand, mock.Anything).
 			Return(returnedRefreshToken, nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(uuid.New().String()))
+		mockEncrypter.On("NewRandomString").Return(uuid.New().String())
 		devices := []device.Device{
 			*device.HydrateDevice(returnedRefreshToken.DeviceId(),
 				faker.Word(),
@@ -284,13 +284,13 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.Empty(t, resp)
-		assert.Error(t, handlerErr)
+		require.Empty(t, resp)
+		require.Error(t, handlerErr)
 		var parsedErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &parsedErr))
-		assert.Equal(t, parsedErr.Err, generateTokenErr)
-		assert.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
-		assert.Equal(t, parsedErr.Code, errCodeToReturn)
+		require.True(t, errors.As(handlerErr, &parsedErr))
+		require.Equal(t, parsedErr.Err, generateTokenErr)
+		require.Equal(t, parsedErr.ErrorType, application_error_type.Unexpected)
+		require.Equal(t, parsedErr.Code, errCodeToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
@@ -321,7 +321,7 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 			On("GetTokenByValue", mock.Anything, tokenCommand, mock.Anything).
 			Return(returnedRefreshToken, nil)
 		refreshTokenToReturn := uuid.New().String()
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(refreshTokenToReturn))
+		mockEncrypter.On("NewRandomString").Return(refreshTokenToReturn)
 		devices := []device.Device{
 			*device.HydrateDevice(returnedRefreshToken.DeviceId(),
 				faker.Word(),
@@ -353,19 +353,19 @@ func TestLoginUserRefreshTokenCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &tokenCommand)
 
-		assert.NoError(t, handlerErr)
-		assert.NotNil(t, resp)
-		assert.Equal(t, resp.AccessToken, accessTokenToReturn)
-		assert.Equal(t, resp.RefreshToken, refreshTokenToReturn)
+		require.NoError(t, handlerErr)
+		require.NotNil(t, resp)
+		require.Equal(t, resp.AccessToken, accessTokenToReturn)
+		require.Equal(t, resp.RefreshToken, refreshTokenToReturn)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 3)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "GetTokenByValue", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserById", 1)
 		mockJwtProvider.AssertNumberOfCalls(t, "GenerateToken", 1)
-		mockEncrypter.AssertNumberOfCalls(t, "NewEncryptionKey", 1)
+		mockEncrypter.AssertNumberOfCalls(t, "NewRandomString", 1)
 		mockInternalCredentialsRepository.AssertNumberOfCalls(t, "AssignNewToken", 1)
 		passedUserSession := passedRefreshToken.UserSession()
-		assert.Equal(t, passedUserSession.UserId(), userFromDb.Id())
-		assert.Equal(t, passedUserSession.DeviceId(), devices[0].Id())
-		assert.Equal(t, passedRefreshToken.RefreshToken().Value(), refreshTokenToReturn)
+		require.Equal(t, passedUserSession.UserId(), userFromDb.Id())
+		require.Equal(t, passedUserSession.DeviceId(), devices[0].Id())
+		require.Equal(t, passedRefreshToken.RefreshToken().Value(), refreshTokenToReturn)
 	})
 }

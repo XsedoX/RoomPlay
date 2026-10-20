@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/XsedoX/RoomPlay/config"
@@ -16,6 +17,7 @@ import (
 	"github.com/XsedoX/RoomPlay/presentation/presentation_dependencies"
 	"github.com/XsedoX/RoomPlay/presentation/setup_validation"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 
 	_ "github.com/XsedoX/RoomPlay/docs"
 )
@@ -37,12 +39,26 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	db := init_database.InitializeDatabase(ctx, config.Load().Database().ConnectionString)
 	configuration := config.Load()
+	db := init_database.InitializeDatabase(ctx, configuration.Database().ConnectionString)
+
+	redisConnStr := strings.Replace(
+		configuration.Database().RedisConnectionString,
+		"valkey", "redis", 1,
+	)
+	opts, err := redis.ParseURL(redisConnStr)
+	if err != nil {
+		log.Fatalf("Unable to parse Redis connection string: %v\n", err)
+	}
+	rdb := redis.NewClient(opts)
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		log.Fatalf("Unable to connect to Redis: %v\n", err)
+	}
 
 	infrastructureDependendies := infrastructure_dependencies.ConstructInfrastructureDependencies(
 		ctx,
 		db,
+		rdb,
 		configuration,
 	)
 	applicationDependencies := application_dependencies.ConstructApplicationDependencies(

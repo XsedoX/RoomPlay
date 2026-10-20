@@ -21,8 +21,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setUpMocks(t *testing.T) (*mock_room_repository.MockRoomRepository,
@@ -75,27 +75,27 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		resp, err := handler.Handle(ctx)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
-		assert.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
+		require.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
 
 		// No boost
-		assert.Nil(t, resp.BoostData)
+		require.Nil(t, resp.BoostData)
 
 		// Playing song mapping
-		assert.NotNil(t, resp.PlayingSong)
-		assert.Equal(t, *roomToBeReturned.PlayingSongTitle, resp.PlayingSong.Title)
-		assert.Equal(t, *roomToBeReturned.PlayingSongAuthor, resp.PlayingSong.Author)
-		assert.Equal(t, *roomToBeReturned.PlayingSongStartedAtUtc, resp.PlayingSong.StartedAtUtc)
-		assert.Equal(t, *roomToBeReturned.PlayingSongLengthSeconds, resp.PlayingSong.LengthSeconds)
+		require.NotNil(t, resp.PlayingSong)
+		require.Equal(t, *roomToBeReturned.PlayingSongTitle, resp.PlayingSong.Title)
+		require.Equal(t, *roomToBeReturned.PlayingSongAuthor, resp.PlayingSong.Author)
+		require.Equal(t, *roomToBeReturned.PlayingSongStartedAtUtc, resp.PlayingSong.StartedAtUtc)
+		require.Equal(t, *roomToBeReturned.PlayingSongLengthSeconds, resp.PlayingSong.LengthSeconds)
 
 		// No songs
-		assert.Equal(t, []get_room_query_response.RoomSongListDto{}, resp.Songs)
+		require.Equal(t, []get_room_query_response.RoomSongListDto{}, resp.Songs)
 
-		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
+		require.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccessWithBoostNotNil", func(t *testing.T) {
 		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
@@ -148,47 +148,46 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		resp, err := handler.Handle(ctx)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 
-		assert.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
+		require.Equal(t, string(roomToBeReturned.QrCode), resp.QrCode)
 
 		// Boost mapping
-		assert.NotNil(t, resp.BoostData)
-		assert.Equal(t, boostUsed, resp.BoostData.BoostUsedAtUtc)
-		assert.Equal(t, boostCooldown, resp.BoostData.BoostCooldownSeconds)
+		require.NotNil(t, resp.BoostData)
+		require.Equal(t, boostUsed, resp.BoostData.BoostUsedAtUtc)
+		require.Equal(t, boostCooldown, resp.BoostData.BoostCooldownSeconds)
 
 		// Playing song mapping
-		assert.NotNil(t, resp.PlayingSong)
-		assert.Equal(t, *roomToBeReturned.PlayingSongTitle, resp.PlayingSong.Title)
-		assert.Equal(t, *roomToBeReturned.PlayingSongAuthor, resp.PlayingSong.Author)
-		assert.Equal(t, *roomToBeReturned.PlayingSongStartedAtUtc, resp.PlayingSong.StartedAtUtc)
-		assert.Equal(t, *roomToBeReturned.PlayingSongLengthSeconds, resp.PlayingSong.LengthSeconds)
+		require.NotNil(t, resp.PlayingSong)
+		require.Equal(t, *roomToBeReturned.PlayingSongTitle, resp.PlayingSong.Title)
+		require.Equal(t, *roomToBeReturned.PlayingSongAuthor, resp.PlayingSong.Author)
+		require.Equal(t, *roomToBeReturned.PlayingSongStartedAtUtc, resp.PlayingSong.StartedAtUtc)
+		require.Equal(t, *roomToBeReturned.PlayingSongLengthSeconds, resp.PlayingSong.LengthSeconds)
 
 		// Songs mapping
-		if assert.Len(t, resp.Songs, 2) {
-			s1 := resp.Songs[0]
-			assert.Equal(t, song1ID, s1.Id)
-			assert.Equal(t, roomToBeReturned.SongDaos[0].Title, s1.Title)
-			assert.Equal(t, roomToBeReturned.SongDaos[0].Author, s1.Author)
-			assert.Equal(t, roomToBeReturned.SongDaos[0].AddedBy, s1.AddedBy)
-			assert.Equal(t, roomToBeReturned.SongDaos[0].Votes, s1.Votes)
-			assert.Equal(t, enqueued_song_state.Playing.String(), s1.State)
-			assert.Equal(t, vote_status.Upvoted.String(), s1.VoteStatus)
+		require.Len(t, resp.Songs, 2)
+		s1 := resp.Songs[0]
+		require.Equal(t, song1ID, s1.Id)
+		require.Equal(t, roomToBeReturned.SongDaos[0].Title, s1.Title)
+		require.Equal(t, roomToBeReturned.SongDaos[0].Author, s1.Author)
+		require.Equal(t, roomToBeReturned.SongDaos[0].AddedBy, s1.AddedBy)
+		require.Equal(t, roomToBeReturned.SongDaos[0].Votes, s1.Votes)
+		require.Equal(t, enqueued_song_state.Playing.String(), s1.State)
+		require.Equal(t, vote_status.Upvoted.String(), s1.VoteStatus)
 
-			s2 := resp.Songs[1]
-			assert.Equal(t, song2ID, s2.Id)
-			assert.Equal(t, roomToBeReturned.SongDaos[1].Title, s2.Title)
-			assert.Equal(t, roomToBeReturned.SongDaos[1].Author, s2.Author)
-			assert.Equal(t, roomToBeReturned.SongDaos[1].AddedBy, s2.AddedBy)
-			assert.Equal(t, roomToBeReturned.SongDaos[1].Votes, s2.Votes)
-			assert.Equal(t, enqueued_song_state.Enqueued.String(), s2.State)
-			assert.Equal(t, vote_status.NotVoted.String(), s2.VoteStatus)
-		}
+		s2 := resp.Songs[1]
+		require.Equal(t, song2ID, s2.Id)
+		require.Equal(t, roomToBeReturned.SongDaos[1].Title, s2.Title)
+		require.Equal(t, roomToBeReturned.SongDaos[1].Author, s2.Author)
+		require.Equal(t, roomToBeReturned.SongDaos[1].AddedBy, s2.AddedBy)
+		require.Equal(t, roomToBeReturned.SongDaos[1].Votes, s2.Votes)
+		require.Equal(t, enqueued_song_state.Enqueued.String(), s2.State)
+		require.Equal(t, vote_status.NotVoted.String(), s2.VoteStatus)
 
-		assert.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
+		require.Equal(t, roomToBeReturned.UserRole, resp.UserRole)
 	})
 	t.Run("ShouldReturnRoomSuccess", func(t *testing.T) {
 		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
@@ -213,15 +212,15 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		roomResponse, err := handler.Handle(ctx)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
-		assert.Equal(t, roomToBeReturned.Name, roomResponse.Name)
-		assert.Equal(t, string(roomToBeReturned.QrCode), roomResponse.QrCode)
-		assert.Nil(t, roomResponse.BoostData)
-		assert.Nil(t, roomResponse.PlayingSong)
-		assert.Equal(t, roomToBeReturned.UserRole, roomResponse.UserRole)
-		assert.Equal(t, []get_room_query_response.RoomSongListDto{}, roomResponse.Songs)
+		require.Equal(t, roomToBeReturned.Name, roomResponse.Name)
+		require.Equal(t, string(roomToBeReturned.QrCode), roomResponse.QrCode)
+		require.Nil(t, roomResponse.BoostData)
+		require.Nil(t, roomResponse.PlayingSong)
+		require.Equal(t, roomToBeReturned.UserRole, roomResponse.UserRole)
+		require.Equal(t, []get_room_query_response.RoomSongListDto{}, roomResponse.Songs)
 	})
 	t.Run("ShouldReturnErrorWhenUserIdIsMissingFromContext", func(t *testing.T) {
 		// Arrange
@@ -233,13 +232,13 @@ func TestGetRoomQueryHandler(t *testing.T) {
 		resp, err := handler.Handle(context.Background())
 
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		mockRoomRepository.AssertExpectations(t)
 		mockUoW.AssertExpectations(t)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 0)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 0)
-		assert.Equal(t, application_helpers.NewMissingUserIdInContextError("GetRoomQueryHandler.Handle"), err)
+		require.Equal(t, application_helpers.NewMissingUserIdInContextError("GetRoomQueryHandler.Handle"), err)
 	})
 	t.Run("ShouldReturnErrorWhenRoomRepositoryFails", func(t *testing.T) {
 		mockRoomRepository, mockUoW, encrypter, userId, ctx := setUpMocks(t)
@@ -251,12 +250,12 @@ func TestGetRoomQueryHandler(t *testing.T) {
 
 		resp, err := handler.Handle(ctx)
 
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockRoomRepository.AssertNumberOfCalls(t, "GetRoomByUserId", 1)
 	})

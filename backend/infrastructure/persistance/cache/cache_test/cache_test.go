@@ -46,7 +46,7 @@ func TestCacheSetAndGet(t *testing.T) {
 	setErr := cache.Set("test_key", testDataSlice, ctx, txx)
 	require.NoError(t, setErr)
 
-	retrievedData, getErr := cache.Get("test_key", ctx, txx)
+	retrievedData, getErr := cache.GetSimilar("test_key", ctx, txx)
 	require.NoError(t, getErr)
 
 	require.Equal(t, testDataSlice, retrievedData)

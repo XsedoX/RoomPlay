@@ -4,7 +4,8 @@
     "host": "http://localhost"
   },
   "database": {
-    "connectionString": "postgres://postgres:dupa1234@localhost:5432/postgres"
+    "connectionString": "postgres://postgres:dupa1234@localhost:5432/postgres",
+    "redisConnectionString": "redis://localhost:6379"
   },
   "cacheSimilarityThreshold": 0.5,
   "environment": "development",

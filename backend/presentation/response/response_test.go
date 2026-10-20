@@ -14,7 +14,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMain(m *testing.M) {
@@ -27,18 +27,18 @@ func TestWriteJsonFailure(t *testing.T) {
 		w := httptest.NewRecorder()
 		WriteJsonFailure(w, "type", "title", "description", "instance", http.StatusBadRequest)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-		assert.Equal(t, "application/problem+json", w.Header().Get("Content-Type"))
+		require.Equal(t, http.StatusBadRequest, w.Code)
+		require.Equal(t, "application/problem+json", w.Header().Get("Content-Type"))
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "type", response.Type)
-		assert.Equal(t, "title", response.Title)
-		assert.Equal(t, "description", response.Description)
-		assert.Equal(t, "instance", response.Instance)
-		assert.Equal(t, http.StatusBadRequest, response.Status)
-		assert.Nil(t, response.ValidationErrors)
+		require.NoError(t, err)
+		require.Equal(t, "type", response.Type)
+		require.Equal(t, "title", response.Title)
+		require.Equal(t, "description", response.Description)
+		require.Equal(t, "instance", response.Instance)
+		require.Equal(t, http.StatusBadRequest, response.Status)
+		require.Nil(t, response.ValidationErrors)
 	})
 
 	t.Run("Failure with Validation Errors", func(t *testing.T) {
@@ -48,9 +48,9 @@ func TestWriteJsonFailure(t *testing.T) {
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, validationErrors, response.ValidationErrors)
-		assert.Equal(t, http.StatusBadRequest, response.Status)
+		require.NoError(t, err)
+		require.Equal(t, validationErrors, response.ValidationErrors)
+		require.Equal(t, http.StatusBadRequest, response.Status)
 	})
 
 	t.Run("Failure with Multiple Error Maps", func(t *testing.T) {
@@ -61,9 +61,9 @@ func TestWriteJsonFailure(t *testing.T) {
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusBadRequest, response.Status)
-		assert.Equal(t, validationErrors1, response.ValidationErrors)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusBadRequest, response.Status)
+		require.Equal(t, validationErrors1, response.ValidationErrors)
 	})
 }
 
@@ -73,15 +73,15 @@ func TestWriteJsonApplicationFailure(t *testing.T) {
 		customErr := application_error.NewApplicationError("code", "title", errors.New("inner error"), application_error_type.Validation)
 		WriteJsonApplicationFailure(w, customErr, "instance")
 
-		assert.Equal(t, http.StatusBadRequest, w.Code) // Validation type maps to 400
+		require.Equal(t, http.StatusBadRequest, w.Code) // Validation type maps to 400
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "code", response.Type)
-		assert.Equal(t, "title", response.Title)
-		assert.Contains(t, response.Description, response.Title)
-		assert.Equal(t, "instance", response.Instance)
+		require.NoError(t, err)
+		require.Equal(t, "code", response.Type)
+		require.Equal(t, "title", response.Title)
+		require.Contains(t, response.Description, response.Title)
+		require.Equal(t, "instance", response.Instance)
 	})
 
 	t.Run("Non-Custom Error", func(t *testing.T) {
@@ -89,13 +89,13 @@ func TestWriteJsonApplicationFailure(t *testing.T) {
 		stdErr := errors.New("standard error")
 		WriteJsonApplicationFailure(w, stdErr, "instance")
 
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Equal(t, http.StatusInternalServerError, w.Code)
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "CustomError.CastingError", response.Type)
-		assert.Equal(t, "Error is not applicationError", response.Title)
+		require.NoError(t, err)
+		require.Equal(t, "CustomError.CastingError", response.Type)
+		require.Equal(t, "Error is not applicationError", response.Title)
 	})
 }
 
@@ -109,19 +109,19 @@ func TestWriteJsonValidationFailure(t *testing.T) {
 		w := httptest.NewRecorder()
 		validate := validator.New()
 		err := validate.Struct(TestStruct{}) // Should fail
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		WriteJsonValidationFailure(w, "code", "instance", err)
 
-		assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
+		require.Equal(t, http.StatusUnprocessableEntity, w.Code)
 
 		var response ProblemDetails
 		err = json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "code", response.Type)
-		assert.Equal(t, "Validation error occurred.", response.Title)
-		assert.NotEmpty(t, response.ValidationErrors)
-		assert.Contains(t, response.ValidationErrors, "Name")
+		require.NoError(t, err)
+		require.Equal(t, "code", response.Type)
+		require.Equal(t, "Validation error occurred.", response.Title)
+		require.NotEmpty(t, response.ValidationErrors)
+		require.Contains(t, response.ValidationErrors, "Name")
 	})
 
 	t.Run("Non-Validation Error", func(t *testing.T) {
@@ -129,13 +129,13 @@ func TestWriteJsonValidationFailure(t *testing.T) {
 		stdErr := errors.New("standard error")
 		WriteJsonValidationFailure(w, "code", "instance", stdErr)
 
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Equal(t, http.StatusInternalServerError, w.Code)
 
 		var response ProblemDetails
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "ValidationErrors.CastingError", response.Type)
-		assert.Equal(t, "Error is not ValidationErrors", response.Title)
+		require.NoError(t, err)
+		require.Equal(t, "ValidationErrors.CastingError", response.Type)
+		require.Equal(t, "Error is not ValidationErrors", response.Title)
 	})
 }
 
@@ -144,9 +144,9 @@ func TestWriteJsonNoContent(t *testing.T) {
 		w := httptest.NewRecorder()
 		WriteJsonNoContent(w)
 
-		assert.Equal(t, http.StatusNoContent, w.Code)
-		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
-		assert.Empty(t, w.Body.String())
+		require.Equal(t, http.StatusNoContent, w.Code)
+		require.Equal(t, "application/json", w.Header().Get("Content-Type"))
+		require.Empty(t, w.Body.String())
 	})
 }
 
@@ -166,18 +166,18 @@ func TestWriteJsonSuccess(t *testing.T) {
 		}
 		WriteJsonSuccess(w, data, meta)
 
-		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
+		require.Equal(t, http.StatusOK, w.Code)
+		require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
 		var response Success[testResult]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		responseMeta := response.Meta
-		assert.Equal(t, &meta, responseMeta)
+		require.Equal(t, &meta, responseMeta)
 		// Need to cast response.Data to map to check content
-		assert.Equal(t, data.Value, response.Data.Value)
-		assert.Equal(t, data.Key, response.Data.Key)
+		require.Equal(t, data.Value, response.Data.Value)
+		require.Equal(t, data.Key, response.Data.Key)
 	})
 	t.Run("Success without meta", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -188,16 +188,16 @@ func TestWriteJsonSuccess(t *testing.T) {
 		data := testResult{Key: "key", Value: "value"}
 		WriteJsonSuccess(w, data)
 
-		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
+		require.Equal(t, http.StatusOK, w.Code)
+		require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
 		var response Success[testResult]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
-		assert.Equal(t, data.Key, response.Data.Key)
-		assert.Equal(t, data.Value, response.Data.Value)
-		assert.Nil(t, response.Meta)
+		require.Equal(t, data.Key, response.Data.Key)
+		require.Equal(t, data.Value, response.Data.Value)
+		require.Nil(t, response.Meta)
 	})
 
 	t.Run("Success StatusCreated", func(t *testing.T) {
@@ -205,11 +205,11 @@ func TestWriteJsonSuccess(t *testing.T) {
 		uuidToReturn := uuid.New()
 		WriteJsonCreated(w, uuidToReturn)
 
-		assert.Equal(t, http.StatusCreated, w.Code)
+		require.Equal(t, http.StatusCreated, w.Code)
 
 		var response Success[uuid.UUID]
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, uuidToReturn, response.Data)
+		require.NoError(t, err)
+		require.Equal(t, uuidToReturn, response.Data)
 	})
 }

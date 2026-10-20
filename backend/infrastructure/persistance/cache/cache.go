@@ -10,7 +10,7 @@ import (
 
 type ICache[T any] interface {
 	GetExact(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error)
-	Get(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error)
+	GetSimilar(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error)
 	Set(key string, value T, ctx context.Context, queryer i_queryer.IQueryer) error
 	Remove(key string, ctx context.Context, queryer i_queryer.IQueryer) error
 }
@@ -54,7 +54,7 @@ func (c *Cache[T]) GetExact(key string, ctx context.Context, queryer i_queryer.I
 	return result, nil
 }
 
-func (c *Cache[T]) Get(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {
+func (c *Cache[T]) GetSimilar(key string, ctx context.Context, queryer i_queryer.IQueryer) (T, error) {
 	query, token := splitCacheKey(key)
 	var value json.RawMessage
 	err := queryer.GetContext(ctx, &value, `

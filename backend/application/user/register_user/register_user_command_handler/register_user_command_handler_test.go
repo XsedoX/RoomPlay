@@ -21,8 +21,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/integration_tests/persistance_mocks/mock_user_repository"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_user_repository.MockUserRepository,
@@ -94,12 +94,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &customErr))
-		assert.Equal(t, errCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, errToBeReturned)
+		require.True(t, errors.As(handlerErr, &customErr))
+		require.Equal(t, errCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, errToBeReturned)
 
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "Add", 1)
@@ -150,12 +150,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &customErr))
-		assert.Equal(t, errCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, errToBeReturned)
+		require.True(t, errors.As(handlerErr, &customErr))
+		require.Equal(t, errCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, errToBeReturned)
 	})
 
 	t.Run("ShouldReturnErrorWhenAssigningNewTokenFails", func(t *testing.T) {
@@ -201,19 +201,19 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		mockJwtProvider.On("GenerateToken", mock.Anything).
 			Return("access_token", nil)
 
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh_token_key"))
+		mockEncrypter.On("NewRandomString").Return("refresh_token_key")
 
 		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Return(errToBeReturned)
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &customErr))
-		assert.Equal(t, errCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, errToBeReturned)
+		require.True(t, errors.As(handlerErr, &customErr))
+		require.Equal(t, errCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, errToBeReturned)
 	})
 
 	t.Run("ShouldReturnErrorWhenGrantingExternalCredentialsFails", func(t *testing.T) {
@@ -259,7 +259,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 		mockJwtProvider.On("GenerateToken", mock.Anything).
 			Return("access_token", nil)
 
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh_token_key"))
+		mockEncrypter.On("NewRandomString").Return("refresh_token_key")
 
 		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
 			Return(nil)
@@ -269,12 +269,12 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
 
-		assert.Nil(t, resp)
-		assert.Error(t, handlerErr)
+		require.Nil(t, resp)
+		require.Error(t, handlerErr)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(handlerErr, &customErr))
-		assert.Equal(t, errCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, errToBeReturned)
+		require.True(t, errors.As(handlerErr, &customErr))
+		require.Equal(t, errCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, errToBeReturned)
 	})
 
 	t.Run("ShouldReturnSuccess", func(t *testing.T) {
@@ -323,7 +323,7 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 			Return(expectedAccessToken, nil)
 
 		expectedRefreshTokenKey := "generated_refresh_token_key"
-		mockEncrypter.On("NewEncryptionKey").Return([]byte(expectedRefreshTokenKey))
+		mockEncrypter.On("NewRandomString").Return(expectedRefreshTokenKey)
 
 		var capturedRefreshToken *internal_credentials.InternalCredentials
 		mockInternalCredentialsRepository.On("AssignNewToken", mock.Anything, mock.AnythingOfType("*internal_credentials.InternalCredentials"), mock.Anything).
@@ -341,31 +341,31 @@ func TestRegisterUserCommandHandler(t *testing.T) {
 
 		resp, handlerErr := handler.Handle(context.Background(), &command)
 
-		assert.NoError(t, handlerErr)
-		assert.NotNil(t, resp)
-		assert.Equal(t, expectedAccessToken, resp.AccessToken)
-		assert.Equal(t, expectedRefreshTokenKey, resp.RefreshToken)
+		require.NoError(t, handlerErr)
+		require.NotNil(t, resp)
+		require.Equal(t, expectedAccessToken, resp.AccessToken)
+		require.Equal(t, expectedRefreshTokenKey, resp.RefreshToken)
 		// We can't easily assert DeviceId without capturing the user first, as it's generated inside.
 		// But we can check if it matches the captured user's device.
 
-		assert.NotNil(t, capturedUser)
-		assert.Equal(t, command.Name, capturedUser.FullName().Name())
-		assert.Equal(t, command.Surname, capturedUser.FullName().Surname())
-		assert.Equal(t, command.DeviceType, capturedUser.GetMostRecentDevice().DeviceType())
-		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), resp.DeviceId)
+		require.NotNil(t, capturedUser)
+		require.Equal(t, command.Name, capturedUser.FullName().Name())
+		require.Equal(t, command.Surname, capturedUser.FullName().Surname())
+		require.Equal(t, command.DeviceType, capturedUser.GetMostRecentDevice().DeviceType())
+		require.Equal(t, capturedUser.GetMostRecentDevice().Id(), resp.DeviceId)
 
-		assert.NotNil(t, capturedRefreshToken)
+		require.NotNil(t, capturedRefreshToken)
 		userSession := capturedRefreshToken.UserSession()
-		assert.Equal(t, capturedUser.Id(), userSession.UserId())
-		assert.Equal(t, capturedUser.GetMostRecentDevice().Id(), capturedRefreshToken.DeviceId())
-		assert.Equal(t, expectedRefreshTokenKey, capturedRefreshToken.RefreshToken().Value())
+		require.Equal(t, capturedUser.Id(), userSession.UserId())
+		require.Equal(t, capturedUser.GetMostRecentDevice().Id(), capturedRefreshToken.DeviceId())
+		require.Equal(t, expectedRefreshTokenKey, capturedRefreshToken.RefreshToken().Value())
 
-		assert.NotNil(t, capturedCreds)
-		assert.Equal(t, capturedUser.Id(), capturedCreds.Id())
-		assert.Equal(t, command.CredentialsDto.AccessToken, capturedCreds.GetAccessToken().Value())
-		assert.Equal(t, command.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken())
-		assert.Equal(t, command.CredentialsDto.AccessTokenExpiresAtUtc.UTC(), capturedCreds.AccessTokenExpiresAtUtc())
-		assert.Equal(t, command.CredentialsDto.ExternalId, capturedCreds.ExternalId())
-		assert.Equal(t, command.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
+		require.NotNil(t, capturedCreds)
+		require.Equal(t, capturedUser.Id(), capturedCreds.Id())
+		require.Equal(t, command.CredentialsDto.AccessToken, capturedCreds.GetAccessToken().Value())
+		require.Equal(t, command.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken())
+		require.Equal(t, command.CredentialsDto.AccessTokenExpiresAtUtc.UTC(), capturedCreds.AccessTokenExpiresAtUtc())
+		require.Equal(t, command.CredentialsDto.ExternalId, capturedCreds.ExternalId())
+		require.Equal(t, command.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
 	})
 }

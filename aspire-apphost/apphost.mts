@@ -11,13 +11,18 @@ const postgres = await builder
   .withHostPort({ port: 5432 })
   .withDataVolume()
   .addDatabase("postgres");
+const postgresConnectionString = await postgres.uriExpression();
 
-var postgresConnectionString = await postgres.uriExpression();
+const shortLivedCache = await builder.addValkey("short-lived-cache");
+const shortLivedCacheConnectionString = await shortLivedCache.uriExpression();
+
 var api = await builder
   .addGoApp("api", "../backend")
   .withEnvironment("PORT", "7654")
   .withEnvironment("DATABASE_CONNECTION_STRING", postgresConnectionString)
-  .waitFor(postgres);
+  .withEnvironment("REDIS_CONNECTION_STRING", shortLivedCacheConnectionString)
+  .waitFor(postgres)
+  .waitFor(shortLivedCache);
 
 await builder
   .addViteApp("frontend", "../frontend/")

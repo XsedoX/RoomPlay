@@ -25,8 +25,8 @@ import (
 	"github.com/XsedoX/RoomPlay/test_helpers/test_helpers"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMocks(t *testing.T) (*mock_user_repository.MockUserRepository,
@@ -88,12 +88,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Act
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserByExternalId", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 1)
 	})
@@ -164,12 +164,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		// Act
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 		// Assert
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, errorCode, customErr.Code)
-		assert.ErrorIs(t, customErr.Err, repoErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, errorCode, customErr.Code)
+		require.ErrorIs(t, customErr.Err, repoErr)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserByExternalId", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 2)
@@ -232,23 +232,23 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.
 			On("Update", context.Background(), mock.Anything, mock.Anything).
 			Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		mockRefreshTokenRepository.On("AssignNewToken", context.Background(), mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", mockUser.Id()).Return("access-token-value", nil)
 		mockExternalCredentialsRepository.On("Grant", context.Background(), mock.Anything, mock.Anything).Return(nil)
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
-		assert.NotEqual(t, device_id.DeviceId{}, resp.DeviceId)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotEqual(t, device_id.DeviceId{}, resp.DeviceId)
 		updateUserCall := mockUserRepository.Calls[1]
 		updatedUser := updateUserCall.Arguments.Get(1).(*user.User)
-		assert.Len(t, updatedUser.Devices(), 2)
-		assert.Equal(t, updatedUser.FullName().Name(), loginUserCommand.Name)
-		assert.Equal(t, updatedUser.FullName().Surname(), loginUserCommand.Surname)
-		assert.Equal(t, "refresh-token-value", resp.RefreshToken)
-		assert.Equal(t, "access-token-value", resp.AccessToken)
+		require.Len(t, updatedUser.Devices(), 2)
+		require.Equal(t, updatedUser.FullName().Name(), loginUserCommand.Name)
+		require.Equal(t, updatedUser.FullName().Surname(), loginUserCommand.Surname)
+		require.Equal(t, "refresh-token-value", resp.RefreshToken)
+		require.Equal(t, "access-token-value", resp.AccessToken)
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserByExternalId", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
 		mockUoW.AssertNumberOfCalls(t, "GetQueryer", 4)
@@ -314,7 +314,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.
 			On("Update", context.Background(), mock.Anything, mock.Anything).
 			Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		mockRefreshTokenRepository.On("AssignNewToken", context.Background(), mock.Anything, mock.Anything).Return(nil)
 		// Use hydrated user for GenerateToken expectation
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
@@ -322,16 +322,16 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
-		assert.Equal(t, "refresh-token-value", resp.RefreshToken)
-		assert.Equal(t, "access-token-value", resp.AccessToken)
-		assert.Equal(t, resp.DeviceId, deviceId)
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Equal(t, "refresh-token-value", resp.RefreshToken)
+		require.Equal(t, "access-token-value", resp.AccessToken)
+		require.Equal(t, resp.DeviceId, deviceId)
 		updateUserCall := mockUserRepository.Calls[1]
 		updatedUser := updateUserCall.Arguments.Get(1).(*user.User)
-		assert.Less(t, time.Now().Add(-1*time.Minute), updatedUser.Devices()[0].LastLoggedInUtc())
-		assert.Equal(t, updatedUser.Devices()[0].Id(), deviceId)
-		assert.Equal(t, updatedUser.Devices()[0].State(), device_state.Online)
+		require.Less(t, time.Now().Add(-1*time.Minute), updatedUser.Devices()[0].LastLoggedInUtc())
+		require.Equal(t, updatedUser.Devices()[0].Id(), deviceId)
+		require.Equal(t, updatedUser.Devices()[0].State(), device_state.Online)
 
 		mockUserRepository.AssertNumberOfCalls(t, "GetUserByExternalId", 1)
 		mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
@@ -390,7 +390,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 		mockUserRepository.
 			On("Update", mock.Anything, mock.Anything, mock.Anything).
 			Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 
@@ -409,14 +409,14 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
-		assert.NotNil(t, capturedCreds)
-		assert.Equal(t, userId, capturedCreds.Id())
-		assert.Equal(t, loginUserCommand.CredentialsDto.AccessToken, capturedCreds.GetAccessToken().Value())
-		assert.Equal(t, loginUserCommand.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken())
-		assert.Equal(t, loginUserCommand.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
-		assert.Equal(t, loginUserCommand.CredentialsDto.AccessTokenExpiresAtUtc, capturedCreds.AccessTokenExpiresAtUtc())
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.NotNil(t, capturedCreds)
+		require.Equal(t, userId, capturedCreds.Id())
+		require.Equal(t, loginUserCommand.CredentialsDto.AccessToken, capturedCreds.GetAccessToken().Value())
+		require.Equal(t, loginUserCommand.CredentialsDto.RefreshToken, capturedCreds.GetRefreshToken())
+		require.Equal(t, loginUserCommand.CredentialsDto.MusicProvider, capturedCreds.MusicProvider())
+		require.Equal(t, loginUserCommand.CredentialsDto.AccessTokenExpiresAtUtc, capturedCreds.AccessTokenExpiresAtUtc())
 	})
 	t.Run("ShouldReturnErrorWhenAssignNewTokenFails", func(t *testing.T) {
 		mockUserRepository,
@@ -468,7 +468,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				nil,
 			), nil)
 		mockUserRepository.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		assignErr := errors.New("assign token error")
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(assignErr)
 
@@ -482,12 +482,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, "LoginUserCommandHandler.AssignNewToken", customErr.Code)
-		assert.ErrorIs(t, customErr.Err, assignErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, "LoginUserCommandHandler.AssignNewToken", customErr.Code)
+		require.ErrorIs(t, customErr.Err, assignErr)
 	})
 	t.Run("ShouldReturnErrorWhenGrantFails", func(t *testing.T) {
 		mockUserRepository,
@@ -539,7 +539,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				nil,
 			), nil)
 		mockUserRepository.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mockJwtProvider.On("GenerateToken", userId).Return("access-token-value", nil)
 		grantErr := errors.New("grant error")
@@ -555,12 +555,12 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.Error(t, err)
-		assert.Nil(t, resp)
+		require.Error(t, err)
+		require.Nil(t, resp)
 		var customErr *application_error.ApplicationError
-		assert.True(t, errors.As(err, &customErr))
-		assert.Equal(t, "LoginUserCommandHandler.Grant", customErr.Code)
-		assert.ErrorIs(t, customErr.Err, grantErr)
+		require.True(t, errors.As(err, &customErr))
+		require.Equal(t, "LoginUserCommandHandler.Grant", customErr.Code)
+		require.ErrorIs(t, customErr.Err, grantErr)
 	})
 	t.Run("ShouldReturnErrorWhenGenerateTokenFails", func(t *testing.T) {
 		mockUserRepository,
@@ -612,7 +612,7 @@ func TestLoginUserCommandHandler(t *testing.T) {
 				nil,
 			), nil)
 		mockUserRepository.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mockEncrypter.On("NewEncryptionKey").Return([]byte("refresh-token-value"))
+		mockEncrypter.On("NewRandomString").Return("refresh-token-value")
 		mockRefreshTokenRepository.On("AssignNewToken", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		tokenErr := errors.New("token generation error")
 		mockJwtProvider.On("GenerateToken", userId).Return("", tokenErr)
@@ -628,8 +628,8 @@ func TestLoginUserCommandHandler(t *testing.T) {
 
 		resp, err := handler.Handle(context.Background(), loginUserCommand)
 
-		assert.Error(t, err)
-		assert.Nil(t, resp)
-		assert.ErrorIs(t, err, tokenErr)
+		require.Error(t, err)
+		require.Nil(t, resp)
+		require.ErrorIs(t, err, tokenErr)
 	})
 }
