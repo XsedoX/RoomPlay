@@ -51,6 +51,16 @@ func NewDefaultPlaylist(
 	}, nil
 }
 
+// HydrateDefaultPlaylist restores persisted state without re-validating it.
+func HydrateDefaultPlaylist(externalId string, userId user_id.UserId, songsAmount uint, title string) *DefaultPlaylist {
+	return &DefaultPlaylist{
+		externalId:  externalId,
+		userId:      userId,
+		songsAmount: songsAmount,
+		title:       title,
+	}
+}
+
 func (dp DefaultPlaylist) Equal(o DefaultPlaylist) bool {
 	return dp.externalId == o.externalId &&
 		dp.userId == o.userId &&

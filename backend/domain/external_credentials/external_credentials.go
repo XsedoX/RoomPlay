@@ -12,11 +12,11 @@ import (
 
 type ExternalCredentials struct {
 	shared.AggregateRoot[user_id.UserId]
-	externalId    string
-	accessToken   token.Token
-	refreshToken  string
-	musicProvider music_provider.MusicProvider
-	issuedAtUtc   time.Time
+	externalId             string
+	accessToken            token.Token
+	refreshToken           string
+	musicProvider          music_provider.MusicProvider
+	accessTokenIssuedAtUtc time.Time
 }
 
 func NewExternalCredentials(
@@ -35,11 +35,11 @@ func NewExternalCredentials(
 		return nil, domain_errors.NewExternalCredentialsExternalIdEmptyError()
 	}
 	creds := &ExternalCredentials{
-		accessToken:   *accessToken,
-		refreshToken:  refreshTokenString,
-		externalId:    externalId,
-		musicProvider: musicProvider,
-		issuedAtUtc:   time.Now().UTC(),
+		accessToken:            *accessToken,
+		refreshToken:           refreshTokenString,
+		externalId:             externalId,
+		musicProvider:          musicProvider,
+		accessTokenIssuedAtUtc: time.Now().UTC(),
 	}
 	creds.SetId(userId)
 	return creds, nil
@@ -66,7 +66,7 @@ func (cr *ExternalCredentials) AccessTokenExpiresAtUtc() time.Time {
 }
 
 func (cr *ExternalCredentials) IssuedAtUtc() time.Time {
-	return cr.issuedAtUtc.UTC()
+	return cr.accessTokenIssuedAtUtc.UTC()
 }
 
 func (cr *ExternalCredentials) ExternalId() string {
@@ -84,11 +84,11 @@ func HydrateExternalCredentials(id user_id.UserId,
 	accessTokenVO := token.HydrateToken(accessToken, accessTokenExpiresAtUtc)
 
 	creds := &ExternalCredentials{
-		accessToken:   *accessTokenVO,
-		refreshToken:  refreshToken,
-		externalId:    externalId,
-		musicProvider: musicProvider,
-		issuedAtUtc:   issuedAtUtc.UTC(),
+		accessToken:            *accessTokenVO,
+		refreshToken:           refreshToken,
+		externalId:             externalId,
+		musicProvider:          musicProvider,
+		accessTokenIssuedAtUtc: issuedAtUtc.UTC(),
 	}
 	creds.SetId(id)
 	return creds

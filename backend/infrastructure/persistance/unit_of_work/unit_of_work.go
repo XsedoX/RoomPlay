@@ -1,67 +1,41 @@
+// Package unit_of_work provides a Unit of Work implementation for managing database transactions using GORM.
 package unit_of_work
 
 import (
 	"context"
 
-	"github.com/XsedoX/RoomPlay/application/application_contracts/i_queryer"
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
 type UnitOfWork struct {
-	db *sqlx.DB
+	db *gorm.DB
 }
 
-type ctxKey struct{}
+type transactionKey struct{}
 
-func withTx(ctx context.Context, tx *sqlx.Tx) context.Context {
-	return context.WithValue(ctx, ctxKey{}, tx)
-}
-
-func txFromCtx(ctx context.Context) *sqlx.Tx {
-	tx, _ := ctx.Value(ctxKey{}).(*sqlx.Tx)
-	return tx
-}
-
-func NewUnitOfWork(db *sqlx.DB) *UnitOfWork {
+func NewUnitOfWork(db *gorm.DB) *UnitOfWork {
 	return &UnitOfWork{db: db}
 }
 
-func (uow *UnitOfWork) GetQueryer(ctx context.Context) i_queryer.IQueryer {
-	if tx := txFromCtx(ctx); tx != nil {
-		return tx
-	}
-	return uow.db
-}
-
-func (uow *UnitOfWork) ExecuteTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
+func (uow *UnitOfWork) ExecuteTransaction(ctx context.Context, fn func(context.Context) error) error {
 	if txFromCtx(ctx) != nil {
 		return fn(ctx)
 	}
-	tx, err := uow.db.BeginTxx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	var commitErr error
-	defer func() {
-		if p := recover(); p != nil {
-			_ = tx.Rollback()
-			panic(p)
-		}
-		if commitErr != nil {
-			_ = tx.Rollback()
-			return
-		}
-		if cErr := tx.Commit(); cErr != nil {
-			commitErr = cErr
-			_ = tx.Rollback()
-		}
-	}()
 
-	txCtx := withTx(ctx, tx)
-	commitErr = fn(txCtx)
-	return commitErr
+	return uow.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		txCtx := context.WithValue(ctx, transactionKey{}, tx)
+		return fn(txCtx)
+	})
 }
 
-func (uow *UnitOfWork) ExecuteRead(ctx context.Context, fn func(ctx context.Context) error) error {
-	return fn(ctx)
+func (uow *UnitOfWork) GetDB(ctx context.Context) *gorm.DB {
+	if tx := txFromCtx(ctx); tx != nil {
+		return tx.WithContext(ctx)
+	}
+	return uow.db.WithContext(ctx)
+}
+
+func txFromCtx(ctx context.Context) *gorm.DB {
+	tx, _ := ctx.Value(transactionKey{}).(*gorm.DB)
+	return tx
 }

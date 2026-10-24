@@ -32,6 +32,15 @@ func NewScheduledSong(songData song_data.SongData,
 	}, nil
 }
 
+// HydrateScheduledSong restores persisted state without re-validating the schedule
+// against the current time (a persisted schedule may already be in the past).
+func HydrateScheduledSong(songData song_data.SongData, scheduledAtUtc time.Time) *ScheduledSong {
+	return &ScheduledSong{
+		songData:       songData,
+		scheduledAtUtc: scheduledAtUtc.UTC(),
+	}
+}
+
 func (ss ScheduledSong) Equal(o ScheduledSong) bool {
 	if !ss.songData.Equal(o.songData) {
 		return false

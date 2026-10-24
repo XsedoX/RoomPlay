@@ -2,7 +2,6 @@ DO $$
 BEGIN
   -- Check if the 'users' table exists. If it does, we assume everything is initialized.
   IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'songs_external_data') THEN
-
 CREATE TYPE "music_provider" AS ENUM (
   'youtube',
   'spotify'
@@ -17,7 +16,8 @@ CREATE TYPE "vote_status" AS ENUM (
 CREATE TYPE "song_state" AS ENUM (
   'enqueued',
   'played',
-  'playing'
+  'playing',
+  'paused'
 );
 
 CREATE TYPE "user_role" AS ENUM (
@@ -36,7 +36,8 @@ CREATE TYPE "device_state" AS ENUM (
 );
 
 CREATE TABLE "songs_external_data" (
-  "song_id" uuid PRIMARY KEY,
+  "id" uuid PRIMARY KEY,
+  "song_id" uuid NOT NULL,
   "length_seconds" smallint NOT NULL,
   "album_cover_url" text NOT NULL,
   "external_id" text UNIQUE NOT NULL,
@@ -80,12 +81,12 @@ CREATE TABLE "users_external_credentials" (
   "refresh_token" bytea NOT NULL,
   "music_provider" music_provider NOT NULL,
   "access_token_expires_at_utc" timestamp NOT NULL,
-  "issued_at_utc" timestamp NOT NULL
+  "access_token_issued_at_utc" timestamp NOT NULL
 );
 
 CREATE TABLE "users_internal_credentials" (
-  "user_id" uuid,
-  "device_id" uuid,
+  "user_id" uuid UNIQUE,
+  "device_id" uuid UNIQUE,
   "refresh_token" bytea UNIQUE NOT NULL,
   "expires_at_utc" timestamp NOT NULL,
   "issued_at_utc" timestamp NOT NULL,
@@ -94,7 +95,7 @@ CREATE TABLE "users_internal_credentials" (
 
 CREATE TABLE "users_room_data" (
   "room_id" uuid,
-  "user_id" uuid,
+  "user_id" uuid UNIQUE,
   "boost_used_at_utc" timestamp,
   "role" user_role NOT NULL DEFAULT 'member',
   PRIMARY KEY ("user_id", "room_id")
@@ -111,7 +112,7 @@ CREATE TABLE "enqueued_songs" (
 );
 
 CREATE TABLE "scheduled_songs" (
-  "room_id" uuid,
+  "room_id" uuid UNIQUE,
   "song_id" uuid,
   "scheduled_at_utc" timestamp NOT NULL,
   PRIMARY KEY ("room_id", "song_id")
@@ -125,7 +126,7 @@ CREATE TABLE "banned_users" (
 
 CREATE TABLE "default_playlists" (
   "external_id" varchar(256) UNIQUE NOT NULL,
-  "user_id" uuid NOT NULL,
+  "user_id" uuid UNIQUE NOT NULL,
   "songs_amount" smallint NOT NULL,
   "playlist_title" varchar(256) NOT NULL,
   "room_id" uuid PRIMARY KEY
@@ -141,9 +142,11 @@ CREATE TABLE "devices" (
   "last_logged_in_at_utc" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE INDEX "songs_external_id_ix" ON "songs_external_data" ("external_id");
+CREATE INDEX "songs_url_ix" ON "songs_external_data" ("external_id");
 
 CREATE INDEX "songs_isrc_ix" ON "songs" ("isrc");
+
+CREATE UNIQUE INDEX "songs_title_author_isrc_uq" ON "songs" ("title", "author", "isrc") NULLS NOT DISTINCT;
 
 CREATE INDEX "rooms_name_room_spassword_ix" ON "rooms" ("name", "password");
 
@@ -154,8 +157,6 @@ CREATE INDEX "users_external_credentials_external_id_ix" ON "users_external_cred
 CREATE INDEX "users_internal_credentials_refresh_token_ix" ON "users_internal_credentials" ("refresh_token");
 
 CREATE UNIQUE INDEX "devices_id_user_id_uq" ON "devices" ("id", "user_id");
-
-CREATE UNIQUE INDEX "songs_title_author_isrc_uq" ON "songs" ("title", "author", "isrc") NULLS NOT DISTINCT;
 
 CREATE INDEX "devices_user_id_ix" ON "devices" ("user_id");
 
@@ -196,6 +197,7 @@ ALTER TABLE "default_playlists" ADD CONSTRAINT "default_playlist__user" FOREIGN 
 ALTER TABLE "devices" ADD CONSTRAINT "device__user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "songs_external_data" ADD CONSTRAINT "songs__songs_external_data" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
+
 
   END IF;
 END

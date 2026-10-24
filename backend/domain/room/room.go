@@ -173,6 +173,9 @@ func HydrateRoom(
 	lifespanSeconds uint32,
 	enqueuedSongs []enqueued_song.EnqueuedSong,
 	members []user_id.UserId,
+	bannedUsers []user_id.UserId,
+	scheduledSong *scheduled_song.ScheduledSong,
+	defaultPlaylist *default_playlist.DefaultPlaylist,
 ) *Room {
 	r := &Room{
 		name:                 name,
@@ -183,6 +186,9 @@ func HydrateRoom(
 		lifespanSeconds:      lifespanSeconds,
 		enqueuedSongs:        enqueuedSongs,
 		members:              members,
+		bannedUsers:          bannedUsers,
+		scheduledSong:        scheduledSong,
+		defaultPlaylist:      defaultPlaylist,
 	}
 	r.SetId(id)
 	return r
