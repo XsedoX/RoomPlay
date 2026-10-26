@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^13.3.0",
-    "@pinia/testing": "^1.0.3",
+    "@pinia/testing": "^2.0.2",
     "@playwright/test": "^1.64.0",
     "@prettier/plugin-oxc": "^0.2.3",
     "@tsconfig/node22": "^22.0.6",
