@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
-	"github.com/XsedoX/RoomPlay/application/application_contracts/i_queryer"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_dao"
 	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_song_dao"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
@@ -18,89 +17,84 @@ import (
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_id"
 	"github.com/XsedoX/RoomPlay/domain/user/user_role"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos/enqueued_song_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos/room_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos/user_room_data_dao"
+	"github.com/XsedoX/RoomPlay/infrastructure/persistance/unit_of_work"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type RoomRepository struct {
 	encrypter i_encrypter.IEncrypter
+	uow       *unit_of_work.UnitOfWork
 }
 
-func NewRoomRepository(encrypter i_encrypter.IEncrypter) *RoomRepository {
+func NewRoomRepository(encrypter i_encrypter.IEncrypter, uow *unit_of_work.UnitOfWork) *RoomRepository {
 	return &RoomRepository{
 		encrypter: encrypter,
+		uow:       uow,
 	}
 }
 
-func (repository *RoomRepository) GetEnqueuedSongAddedByValueByRoomIdEnqueuedSongId(ctx context.Context, roomId room_id.RoomId, enqueuedSongId enqueued_song_id.EnqueuedSongId, queryer i_queryer.IQueryer) (string, error) {
-	var addedBy string
-	err := queryer.GetContext(ctx,
-		&addedBy,
-		`
-select concat(u."name" , ' ', u.surname) as added_by
-from enqueued_songs es
-join rooms r on es.room_id = r.id
-join users u on es.added_by = u.id
-where es.id = $1 and r.id = $2;
-		`,
-		enqueuedSongId.ToUuid(),
-		roomId.ToUuid(),
-	)
+func (repository *RoomRepository) GetEnqueuedSongAddedByByRoomIdEnqueuedSongId(ctx context.Context, roomId room_id.RoomId, enqueuedSongId enqueued_song_id.EnqueuedSongId) (string, error) {
+	db := repository.uow.GetDB(ctx)
+	result, err := gorm.G[enqueued_song_dao.EnqueuedSongDao](db).
+		Preload("AddedByUserDao", nil).
+		Where(
+			"id = ? AND room_id = ?",
+			enqueuedSongId.ToUuid(),
+			roomId.ToUuid(),
+		).First(ctx)
 	if err != nil {
 		return "", err
 	}
-	return addedBy, nil
+	return result.AddedByUserDao.Name + " " + result.AddedByUserDao.Surname, nil
 }
 
-func (repository *RoomRepository) CreateRoom(ctx context.Context, roomParam *room.Room, queryer i_queryer.IQueryer) error {
+func (repository *RoomRepository) Create(ctx context.Context, roomParam *room.Room) (*room_id.RoomId, error) {
 	roomId := roomParam.Id()
 	userId := roomParam.Members()[0]
 	encryptedQrCode, err := repository.encrypter.Encrypt(roomParam.QrCode())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, addRoomErr := queryer.ExecContext(ctx,
-		`
-		INSERT INTO rooms
-		VALUES 
-		(
-			$1::uuid, $2, $3::bytea, $4::bytea, $5, $6, $7
-		);
-		`,
-		roomId.ToUuid(),
-		roomParam.Name(),
-		roomParam.Password(),
-		encryptedQrCode,
-		roomParam.BoostCooldownSeconds(),
-		roomParam.CreatedAtUtc().UTC(),
-		roomParam.LifespanSeconds(),
-	)
-	if addRoomErr != nil {
-		return addRoomErr
-	}
-
+	db := repository.uow.GetDB(ctx)
 	role := user_role.Host
-	_, usersUpdateErr := queryer.ExecContext(ctx,
-		`
-		INSERT INTO users_room_data
-		(
-			room_id, user_id, role
-		) 
-		VALUES 
-		(
-			$1, $2, $3
-		)
-		`,
-		roomId.ToUuid(),
-		userId.ToUuid(),
-		role.String(),
-	)
-	if usersUpdateErr != nil {
-		return usersUpdateErr
+	roleString := *role.String()
+	usersRoomDataDao := []user_room_data_dao.UserRoomDataDao{
+		{
+			UserId:         userId.ToUuid(),
+			RoomId:         roomId.ToUuid(),
+			Role:           roleString,
+			BoostUsedAtUtc: nil,
+		},
 	}
-	return nil
+	dao := room_dao.RoomDao{
+		Id:                   roomId.ToUuid(),
+		Name:                 roomParam.Name(),
+		Password:             roomParam.Password(),
+		QrCodeHash:           encryptedQrCode,
+		BoostCooldownSeconds: roomParam.BoostCooldownSeconds(),
+		CreatedAtUtc:         roomParam.CreatedAtUtc(),
+		LifespanSeconds:      roomParam.LifespanSeconds(),
+		UsersRoomDataDao:     usersRoomDataDao,
+	}
+	if err := gorm.G[room_dao.RoomDao](db).Create(ctx, &dao); err != nil {
+		return nil, err
+	}
+	return &roomId, nil
 }
 
-func (repository *RoomRepository) GetRoomByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*get_room_dao.GetRoomDao, error) {
+func (repository *RoomRepository) GetByUserId(ctx context.Context, userId user_id.UserId) (*room.Room, error) {
+	db := repository.uow.GetDB(ctx)
+	value, err := gorm.G[room_dao.RoomDao](db).
+		Preload("EnqueuedSongsDao", nil).
+		Preload("UsersRoomDataDao", nil). 
+	Preload("BannedUsersDao", nil). 
+	Preload("ScheduledSongDao", nil).
+	Preload("DefaultPlaylistDao", nil).
+
 	var getRoomDaoInstance get_room_dao.GetRoomDao
 	getRoomErr := queryer.GetContext(ctx,
 		&getRoomDaoInstance,
@@ -168,7 +162,7 @@ WHERE users_room_data.user_id = $1 and enqueued_songs.state != 'playing'
 	return &getRoomDaoInstance, nil
 }
 
-func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *room.Room, queryer i_queryer.IQueryer) error {
+func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *room.Room) error {
 	roomId := roomParam.Id()
 
 	// --- rooms table (aggregate root own columns) ---
@@ -395,7 +389,7 @@ func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *roo
 	return nil
 }
 
-func (repository *RoomRepository) GetRoomAggregateByUserId(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) (*room.Room, error) {
+func (repository *RoomRepository) GetRoomAggregateByUserId(ctx context.Context, userId user_id.UserId) (*room.Room, error) {
 	var roomId uuid.UUID
 	err := queryer.GetContext(ctx,
 		&roomId,
@@ -416,7 +410,7 @@ func (repository *RoomRepository) GetRoomAggregateByUserId(ctx context.Context, 
 	return roomInstance, nil
 }
 
-func (repository *RoomRepository) GetRoomById(ctx context.Context, roomId room_id.RoomId, queryer i_queryer.IQueryer) (*room.Room, error) {
+func (repository *RoomRepository) GetRoomById(ctx context.Context, roomId room_id.RoomId) (*room.Room, error) {
 	type roomDao struct {
 		Id                   uuid.UUID    `db:"id"`
 		Name                 string       `db:"name"`
@@ -623,7 +617,7 @@ WHERE room_id = $1::uuid;
 	return roomInstance, nil
 }
 
-func (repository *RoomRepository) GetUserMembership(ctx context.Context, userId user_id.UserId, queryer i_queryer.IQueryer) *room_id.RoomId {
+func (repository *RoomRepository) GetUserMembership(ctx context.Context, userId user_id.UserId) *room_id.RoomId {
 	var response uuid.UUID
 	err := queryer.GetContext(ctx, &response, `
 		SELECT room_id
@@ -637,20 +631,20 @@ func (repository *RoomRepository) GetUserMembership(ctx context.Context, userId 
 	return new(room_id.RoomId(response))
 }
 
-func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user_id.UserId, queryer i_queryer.IQueryer) error {
+func (repository *RoomRepository) LeaveRoom(ctx context.Context, id user_id.UserId) error {
 	_, err := queryer.ExecContext(ctx,
 		`DELETE FROM users_room_data WHERE user_id=$1`,
 		id.ToUuid())
 	return err
 }
 
-func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user_id.UserId, roomId room_id.RoomId, queryer i_queryer.IQueryer) error {
+func (repository *RoomRepository) JoinRoomById(ctx context.Context, userId user_id.UserId, roomId room_id.RoomId) error {
 	_, err := queryer.ExecContext(ctx,
 		`INSERT INTO users_room_data (user_id, room_id) VALUES ($1, $2)`, userId.ToUuid(), roomId.ToUuid())
 	return err
 }
 
-func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string, queryer i_queryer.IQueryer) (*room_id.RoomId, error) {
+func (repository *RoomRepository) GetRoomIdByNameAndPassword(ctx context.Context, roomName, roomPassword string) (*room_id.RoomId, error) {
 	type roomWithNamePasswordAndId struct {
 		RoomId       string `db:"id"`
 		RoomPassword []byte `db:"password"`

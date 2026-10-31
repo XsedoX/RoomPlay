@@ -29,11 +29,11 @@ type RoomDao struct {
 	BoostCooldownSeconds *uint16                                  `gorm:"column:boost_cooldown_seconds;type:smallint"`
 	CreatedAtUtc         time.Time                                `gorm:"column:created_at_utc;type:timestamp"`
 	LifespanSeconds      uint32                                   `gorm:"column:lifespan_seconds;type:int"`
-	EnqueuedSongs        []enqueued_song_dao.EnqueuedSongDao      `gorm:"foreignKey:RoomId;references:Id"`
-	UsersRoomData        []user_room_data_dao.UserRoomDataDao     `gorm:"foreignKey:RoomId;references:Id"`
-	BannedUsers          []banned_user_dao.BannedUserDao          `gorm:"foreignKey:RoomId;references:Id"`
-	ScheduledSong        *scheduled_song_dao.ScheduledSongDao     `gorm:"foreignKey:RoomId;references:Id"`
-	DefaultPlaylist      *default_playlist_dao.DefaultPlaylistDao `gorm:"column:roomId;foreignKey:RoomId;references:Id"`
+	EnqueuedSongsDao     []enqueued_song_dao.EnqueuedSongDao      `gorm:"foreignKey:RoomId;references:Id"`
+	UsersRoomDataDao     []user_room_data_dao.UserRoomDataDao     `gorm:"foreignKey:RoomId;references:Id"`
+	BannedUsersDao       []banned_user_dao.BannedUserDao          `gorm:"foreignKey:RoomId;references:Id"`
+	ScheduledSongDao     *scheduled_song_dao.ScheduledSongDao     `gorm:"foreignKey:RoomId;references:Id"`
+	DefaultPlaylistDao   *default_playlist_dao.DefaultPlaylistDao `gorm:"column:roomId;foreignKey:RoomId;references:Id"`
 }
 
 func (RoomDao) TableName() string {
@@ -48,17 +48,17 @@ func (d RoomDao) ToDomain(provider music_provider.MusicProvider, encrypter i_enc
 		return nil, err
 	}
 
-	songs := make([]enqueued_song.EnqueuedSong, len(d.EnqueuedSongs))
-	for i := range d.EnqueuedSongs {
-		songs[i] = *d.EnqueuedSongs[i].ToDomain(provider)
+	songs := make([]enqueued_song.EnqueuedSong, len(d.EnqueuedSongsDao))
+	for i := range d.EnqueuedSongsDao {
+		songs[i] = *d.EnqueuedSongsDao[i].ToDomain(provider)
 	}
-	members := make([]user_id.UserId, len(d.UsersRoomData))
-	for i := range d.UsersRoomData {
-		members[i] = user_id.UserId(d.UsersRoomData[i].UserId)
+	members := make([]user_id.UserId, len(d.UsersRoomDataDao))
+	for i := range d.UsersRoomDataDao {
+		members[i] = user_id.UserId(d.UsersRoomDataDao[i].UserId)
 	}
-	bannedUsers := make([]user_id.UserId, len(d.BannedUsers))
-	for i := range d.BannedUsers {
-		bannedUsers[i] = user_id.UserId(d.BannedUsers[i].UserId)
+	bannedUsers := make([]user_id.UserId, len(d.BannedUsersDao))
+	for i := range d.BannedUsersDao {
+		bannedUsers[i] = user_id.UserId(d.BannedUsersDao[i].UserId)
 	}
 
 	var boostCooldownSeconds *uint16
@@ -66,12 +66,12 @@ func (d RoomDao) ToDomain(provider music_provider.MusicProvider, encrypter i_enc
 		boostCooldownSeconds = new(*d.BoostCooldownSeconds)
 	}
 	var scheduledSong *scheduled_song.ScheduledSong
-	if d.ScheduledSong != nil {
-		scheduledSong = d.ScheduledSong.ToDomain(provider)
+	if d.ScheduledSongDao != nil {
+		scheduledSong = d.ScheduledSongDao.ToDomain(provider)
 	}
 	var defaultPlaylist *default_playlist.DefaultPlaylist
-	if d.DefaultPlaylist != nil {
-		defaultPlaylist = d.DefaultPlaylist.ToDomain()
+	if d.DefaultPlaylistDao != nil {
+		defaultPlaylist = d.DefaultPlaylistDao.ToDomain()
 	}
 
 	return room.HydrateRoom(
@@ -112,60 +112,60 @@ func (d *RoomDao) FromDomain(value *room.Room, hostId user_id.UserId, encrypter 
 		result.BoostCooldownSeconds = new(*value.BoostCooldownSeconds())
 	}
 
-	existingSongs := make(map[uuid.UUID]enqueued_song_dao.EnqueuedSongDao, len(d.EnqueuedSongs))
-	for _, existingSong := range d.EnqueuedSongs {
+	existingSongs := make(map[uuid.UUID]enqueued_song_dao.EnqueuedSongDao, len(d.EnqueuedSongsDao))
+	for _, existingSong := range d.EnqueuedSongsDao {
 		existingSongs[existingSong.Id] = existingSong
 	}
 	songs := value.AllSongs()
-	result.EnqueuedSongs = make([]enqueued_song_dao.EnqueuedSongDao, len(songs))
+	result.EnqueuedSongsDao = make([]enqueued_song_dao.EnqueuedSongDao, len(songs))
 	for i := range songs {
 		enqueuedSongId := songs[i].Id()
 		song := existingSongs[*enqueuedSongId.ToUuid()]
 		song.FromDomain(&songs[i], value.Id())
-		result.EnqueuedSongs[i] = song
+		result.EnqueuedSongsDao[i] = song
 	}
 
-	existingMemberships := make(map[uuid.UUID]user_room_data_dao.UserRoomDataDao, len(d.UsersRoomData))
-	for _, membership := range d.UsersRoomData {
+	existingMemberships := make(map[uuid.UUID]user_room_data_dao.UserRoomDataDao, len(d.UsersRoomDataDao))
+	for _, membership := range d.UsersRoomDataDao {
 		if membership.RoomId == result.Id {
 			existingMemberships[membership.UserId] = membership
 		}
 	}
 	members := value.Members()
-	result.UsersRoomData = make([]user_room_data_dao.UserRoomDataDao, len(members))
+	result.UsersRoomDataDao = make([]user_room_data_dao.UserRoomDataDao, len(members))
 	for i, memberId := range members {
 		role := user_role.Member
 		if memberId == hostId {
 			role = user_role.Host
 		}
 		membership := existingMemberships[memberId.ToUuid()]
-		result.UsersRoomData[i].FromDomain(memberId, value.Id(), role, membership.BoostUsedAtUtc)
+		result.UsersRoomDataDao[i].FromDomain(memberId, value.Id(), role, membership.BoostUsedAtUtc)
 	}
 
 	bannedUsers := value.BannedUsers()
-	result.BannedUsers = make([]banned_user_dao.BannedUserDao, len(bannedUsers))
+	result.BannedUsersDao = make([]banned_user_dao.BannedUserDao, len(bannedUsers))
 	for i, bannedUserId := range bannedUsers {
-		result.BannedUsers[i].FromDomain(bannedUserId, value.Id())
+		result.BannedUsersDao[i].FromDomain(bannedUserId, value.Id())
 	}
 
 	if value.ScheduledSong() != nil {
 		scheduledSong := scheduled_song_dao.ScheduledSongDao{}
-		if d.ScheduledSong != nil {
+		if d.ScheduledSongDao != nil {
 			// Reuse a song ID only when the scheduled track is still the same.
 			songData := value.ScheduledSong().SongData()
-			for _, externalData := range d.ScheduledSong.SongDao.ExternalData {
+			for _, externalData := range d.ScheduledSongDao.SongDao.ExternalData {
 				if externalData.MusicProvider == songData.MusicProvider().String() && externalData.ExternalId == songData.ExternalId() {
-					scheduledSong = *d.ScheduledSong
+					scheduledSong = *d.ScheduledSongDao
 					break
 				}
 			}
 		}
 		scheduledSong.FromDomain(value.ScheduledSong(), value.Id())
-		result.ScheduledSong = &scheduledSong
+		result.ScheduledSongDao = &scheduledSong
 	}
 	if value.DefaultPlaylist() != nil {
-		result.DefaultPlaylist = new(default_playlist_dao.DefaultPlaylistDao)
-		result.DefaultPlaylist.FromDomain(value.DefaultPlaylist(), value.Id())
+		result.DefaultPlaylistDao = new(default_playlist_dao.DefaultPlaylistDao)
+		result.DefaultPlaylistDao.FromDomain(value.DefaultPlaylist(), value.Id())
 	}
 
 	*d = result
