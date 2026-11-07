@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
-	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/room/default_playlist"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
@@ -42,7 +41,7 @@ func (RoomDao) TableName() string {
 
 // ToDomain expects the room's associations, including song provider data and
 // individual votes, to be loaded. Only QR-code decryption can return an error.
-func (d RoomDao) ToDomain(provider music_provider.MusicProvider, encrypter i_encrypter.IEncrypter) (*room.Room, error) {
+func (d RoomDao) ToDomain(encrypter i_encrypter.IEncrypter) (*room.Room, error) {
 	qrCode, err := encrypter.Decrypt(d.QrCodeHash)
 	if err != nil {
 		return nil, err
@@ -50,7 +49,7 @@ func (d RoomDao) ToDomain(provider music_provider.MusicProvider, encrypter i_enc
 
 	songs := make([]enqueued_song.EnqueuedSong, len(d.EnqueuedSongsDao))
 	for i := range d.EnqueuedSongsDao {
-		songs[i] = *d.EnqueuedSongsDao[i].ToDomain(provider)
+		songs[i] = *d.EnqueuedSongsDao[i].ToDomain()
 	}
 	members := make([]user_id.UserId, len(d.UsersRoomDataDao))
 	for i := range d.UsersRoomDataDao {
@@ -67,7 +66,7 @@ func (d RoomDao) ToDomain(provider music_provider.MusicProvider, encrypter i_enc
 	}
 	var scheduledSong *scheduled_song.ScheduledSong
 	if d.ScheduledSongDao != nil {
-		scheduledSong = d.ScheduledSongDao.ToDomain(provider)
+		scheduledSong = d.ScheduledSongDao.ToDomain()
 	}
 	var defaultPlaylist *default_playlist.DefaultPlaylist
 	if d.DefaultPlaylistDao != nil {

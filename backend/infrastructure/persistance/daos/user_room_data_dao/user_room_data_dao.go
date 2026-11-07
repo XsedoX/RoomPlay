@@ -20,16 +20,6 @@ func (UserRoomDataDao) TableName() string {
 	return "users_room_data"
 }
 
-// ToDomain returns the membership fields held directly by User.
-// A missing membership is represented by UserDao.RoomData == nil.
-func (d UserRoomDataDao) ToDomain() (room_id.RoomId, user_role.UserRole, *time.Time) {
-	var boostUsedAtUtc *time.Time
-	if d.BoostUsedAtUtc != nil {
-		boostUsedAtUtc = new(d.BoostUsedAtUtc.UTC())
-	}
-	return room_id.RoomId(d.RoomId), *user_role.ParseUserRole(&d.Role), boostUsedAtUtc
-}
-
 func (d *UserRoomDataDao) FromDomain(userId user_id.UserId, roomId room_id.RoomId, role user_role.UserRole, boostUsedAtUtc *time.Time) {
 	*d = UserRoomDataDao{
 		UserId: userId.ToUuid(),

@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/XsedoX/RoomPlay/application/application_contracts/i_encrypter"
-	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_dao"
-	"github.com/XsedoX/RoomPlay/application/room/get_room/daos/get_room_song_dao"
 	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
@@ -88,78 +86,28 @@ func (repository *RoomRepository) Create(ctx context.Context, roomParam *room.Ro
 
 func (repository *RoomRepository) GetByUserId(ctx context.Context, userId user_id.UserId) (*room.Room, error) {
 	db := repository.uow.GetDB(ctx)
+	userDataSubquery := db.Model(&user_room_data_dao.UserRoomDataDao{}).
+		Select("room_id").
+		Where("user_id = ?", userId.ToUuid())
+
 	value, err := gorm.G[room_dao.RoomDao](db).
-		Preload("EnqueuedSongsDao", nil).
-		Preload("UsersRoomDataDao", nil). 
-	Preload("BannedUsersDao", nil). 
-	Preload("ScheduledSongDao", nil).
-	Preload("DefaultPlaylistDao", nil).
-
-	var getRoomDaoInstance get_room_dao.GetRoomDao
-	getRoomErr := queryer.GetContext(ctx,
-		&getRoomDaoInstance,
-		`
-		select rooms.name,
-	   rooms.qr_code_hash,
-	   users_room_data.boost_used_at_utc,
-	   rooms.boost_cooldown_seconds,
-	   songs.title AS playing_song_title,
-	   songs.author AS playing_song_author,
-	   enqueued_songs.started_at_utc AS playing_song_started_at_utc,
-	   songs_external_data.length_seconds AS playing_song_length_seconds,
-	   users_room_data.role
-FROM rooms
-JOIN users_room_data ON users_room_data.room_id = rooms.id
-LEFT JOIN enqueued_songs ON enqueued_songs.room_id = rooms.id AND enqueued_songs.state = 'playing'
-left join users_room_data admin_data on admin_data.room_id = rooms.id and admin_data.role = 'host'
-left join users_external_credentials admin_external_data on admin_data.user_id = admin_external_data.user_id 
-LEFT JOIN songs_external_data ON songs_external_data.song_id = enqueued_songs.song_id and songs_external_data."music_provider" = admin_external_data."music_provider" 
-left join songs on enqueued_songs.song_id = songs.id
-WHERE users_room_data.user_id = $1::uuid 
-LIMIT 1;
-		`, userId.ToUuid())
-	if getRoomErr != nil {
-		return nil, getRoomErr
+		Where("rooms.id IN (?)", userDataSubquery).
+		Preload("EnqueuedSongsDao.SongDao.ExternalData", nil).
+		Preload("EnqueuedSongsDao.UserDao", nil).
+		Preload("EnqueuedSongsDao.UserVotes", nil).
+		Preload("UsersRoomDataDao", nil).
+		Preload("BannedUsersDao", nil).
+		Preload("ScheduledSongDao", nil).
+		Preload("DefaultPlaylistDao", nil).
+		First(ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	getRoomsSongDaoInstances := make([]get_room_song_dao.GetRoomSongDao, 0)
-	getRoomSongsErr := queryer.SelectContext(ctx,
-		&getRoomsSongDaoInstances,
-		`
-SELECT enqueued_songs.id,
-       songs.title,
-       songs.author,
-       CONCAT(users_for_added_by.name, ' ', users_for_added_by.surname) AS added_by,
-       enqueued_songs.state,
-       COALESCE(users_votes.vote_status, 'not_voted') AS vote_status,
-	     COALESCE(enqueued_songs_votes.value, 0) AS votes,
-       songs_external_data.album_cover_url,
-		   enqueued_songs.added_at_utc
-FROM enqueued_songs
-			JOIN songs ON enqueued_songs.song_id = songs.id
-			JOIN rooms ON enqueued_songs.room_id = rooms.id
-			JOIN users_room_data ON users_room_data.room_id = rooms.id
-			JOIN users AS users_for_added_by ON users_for_added_by.id = enqueued_songs.added_by
-		  left join songs_external_data on songs_external_data.song_id = enqueued_songs.song_id
-			LEFT JOIN users_votes ON users_room_data.user_id = users_votes.user_id AND enqueued_songs.id = users_votes.enqueued_song_id
-			LEFT JOIN (
-			    SELECT enqueued_song_id,
-			           SUM(CASE 
-			                 WHEN vote_status = 'upvoted' THEN 1 
-			                 WHEN vote_status = 'downvoted' THEN -1 
-			                 ELSE 0 
-			               END) AS value
-			    FROM users_votes
-			    GROUP BY enqueued_song_id
-			) AS enqueued_songs_votes ON enqueued_songs.id = enqueued_songs_votes.enqueued_song_id
-WHERE users_room_data.user_id = $1 and enqueued_songs.state != 'playing'
-		ORDER BY votes DESC;
-`, userId.ToUuid())
-	if getRoomSongsErr != nil {
-		return nil, getRoomSongsErr
+	result, err := value.ToDomain(repository.encrypter)
+	if err != nil {
+		return nil, err
 	}
-	getRoomDaoInstance.SongDaos = getRoomsSongDaoInstances
-	return &getRoomDaoInstance, nil
+	return result, nil
 }
 
 func (repository *RoomRepository) UpdateRoom(ctx context.Context, roomParam *room.Room) error {

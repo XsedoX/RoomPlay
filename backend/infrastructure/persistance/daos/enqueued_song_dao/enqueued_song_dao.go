@@ -3,7 +3,6 @@ package enqueued_song_dao
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_id"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/enqueued_song_state"
@@ -34,7 +33,7 @@ func (EnqueuedSongDao) TableName() string {
 }
 
 // ToDomain expects SongDao.ExternalData and UserVotes to be loaded.
-func (d EnqueuedSongDao) ToDomain(provider music_provider.MusicProvider) *enqueued_song.EnqueuedSong {
+func (d EnqueuedSongDao) ToDomain() *enqueued_song.EnqueuedSong {
 	votes := 0
 	for _, vote := range d.UserVotes {
 		switch *vote_status.ParseVoteStatus(vote.State) {
@@ -50,7 +49,7 @@ func (d EnqueuedSongDao) ToDomain(provider music_provider.MusicProvider) *enqueu
 	}
 	return enqueued_song.HydrateEnqueuedSong(
 		enqueued_song_id.EnqueuedSongId(d.Id),
-		*d.SongDao.ToDomain(provider),
+		*d.SongDao.ToDomain(),
 		d.AddeedAtUtc,
 		d.StartedAtUtc,
 		*enqueued_song_state.ParseSongState(d.State),

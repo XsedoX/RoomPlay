@@ -1,7 +1,6 @@
 package song_dao
 
 import (
-	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/enqueued_song/song_data"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos/song_external_data_dao"
 	"github.com/google/uuid"
@@ -21,13 +20,11 @@ func (SongDao) TableName() string {
 
 // ToDomain requires ExternalData for the requested provider to be loaded.
 // SongData describes one provider, whereas a SongDao may contain several.
-func (d SongDao) ToDomain(provider music_provider.MusicProvider) *song_data.SongData {
+func (d SongDao) ToDomain() *song_data.SongData {
 	for _, externalData := range d.ExternalData {
-		if externalData.MusicProvider == provider.String() {
-			return externalData.ToDomain(d.Title, d.Author, d.Isrc)
-		}
+		return externalData.ToDomain(d.Title, d.Author, d.Isrc)
 	}
-	panic("SongDao.ToDomain: missing external data for " + provider.String())
+	panic("SongDao.ToDomain: missing external data")
 }
 
 // FromDomain updates this song's selected provider without discarding other providers.

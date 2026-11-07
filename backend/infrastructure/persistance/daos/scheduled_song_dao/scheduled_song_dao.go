@@ -3,7 +3,6 @@ package scheduled_song_dao
 import (
 	"time"
 
-	"github.com/XsedoX/RoomPlay/domain/external_credentials/music_provider"
 	"github.com/XsedoX/RoomPlay/domain/room/room_id"
 	"github.com/XsedoX/RoomPlay/domain/room/scheduled_song"
 	"github.com/XsedoX/RoomPlay/infrastructure/persistance/daos/song_dao"
@@ -21,9 +20,9 @@ func (ScheduledSongDao) TableName() string {
 	return "scheduled_songs"
 }
 
-func (d ScheduledSongDao) ToDomain(provider music_provider.MusicProvider) *scheduled_song.ScheduledSong {
+func (d ScheduledSongDao) ToDomain() *scheduled_song.ScheduledSong {
 	return scheduled_song.HydrateScheduledSong(
-		*d.SongDao.ToDomain(provider),
+		*d.SongDao.ToDomain(),
 		d.ScheduledAtUtc,
 	)
 }
